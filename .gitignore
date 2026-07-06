@@ -1,20 +1,19 @@
-# Virtual environment
+# Database
+*.db
+
+# Generated audio
+static/audio/
+
+# Virtual environments
 venv/
 myenv/
 
 # Python cache
 __pycache__/
-*.pyc
+*.py[cod]
 
 # Environment variables
 .env
 
-# IDE
+# VS Code
 .vscode/
-
-# Logs
-*.log
-
-# OS files
-.DS_Store
-Thumbs.db
