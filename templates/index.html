@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#176b5b">
+    <title>SmartGov Health | Andhra Pradesh</title>
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+    <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
+    <style>
+        :root {
+            --bg: #f7f5ef;
+            --surface: #ffffff;
+            --surface-soft: #edf6f1;
+            --ink: #17211d;
+            --muted: #59665f;
+            --green: #176b5b;
+            --green-dark: #0d4b40;
+            --blue: #245a8d;
+            --saffron: #c66b1d;
+            --red: #b42318;
+            --border: #d8ded7;
+            --shadow: 0 10px 22px rgba(23, 33, 29, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: "Noto Sans Telugu", "Nirmala UI", "Segoe UI", Arial, sans-serif;
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .app-shell {
+            width: min(1120px, 100%);
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 0 18px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .brand-mark {
+            width: 52px;
+            height: 52px;
+            border-radius: 8px;
+            background: var(--green);
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-size: 1.65rem;
+            box-shadow: var(--shadow);
+            flex: 0 0 auto;
+        }
+
+        .eyebrow {
+            margin: 0;
+            color: var(--saffron);
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.45rem;
+            line-height: 1.15;
+            color: var(--green-dark);
+            letter-spacing: 0;
+        }
+
+        .subhead {
+            margin: 2px 0 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .install-btn,
+        .icon-btn,
+        .primary-btn,
+        .secondary-btn,
+        .filter-btn,
+        .feedback-btn {
+            border: 0;
+            border-radius: 8px;
+            min-height: 48px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .install-btn,
+        .primary-btn {
+            background: var(--green);
+            color: #fff;
+            padding: 0 18px;
+        }
+
+        .install-btn[hidden] {
+            display: none;
+        }
+
+        .secondary-btn {
+            background: #fff;
+            color: var(--green-dark);
+            border: 1px solid var(--border);
+            padding: 0 16px;
+        }
+
+        .emergency-strip {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .call-tile {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-height: 76px;
+            padding: 14px;
+            border-radius: 8px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 900;
+            box-shadow: var(--shadow);
+        }
+
+        .call-tile strong {
+            display: block;
+            font-size: 1.65rem;
+            line-height: 1;
+        }
+
+        .call-tile span {
+            display: block;
+            font-size: 0.92rem;
+        }
+
+        .call-tile.emergency {
+            background: var(--red);
+        }
+
+        .call-tile.health {
+            background: var(--blue);
+        }
+
+        .call-tile.phc {
+            background: var(--green);
+        }
+
+        .toolbar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 14px;
+        }
+
+        .search-row {
+            display: grid;
+            grid-template-columns: 1fr 56px 56px;
+            gap: 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            min-height: 56px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 0 14px;
+            background: #fff;
+            color: var(--ink);
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--green);
+        }
+
+        .icon-btn {
+            width: 56px;
+            background: var(--green);
+            color: #fff;
+            font-size: 1.35rem;
+        }
+
+        .icon-btn.clear {
+            background: #f3f0e9;
+            color: var(--green-dark);
+            border: 1px solid var(--border);
+        }
+
+        .voice-status {
+            min-height: 28px;
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .filter-btn {
+            padding: 0 14px;
+            background: #f3f0e9;
+            color: var(--ink);
+            border: 1px solid transparent;
+        }
+
+        .filter-btn.active {
+            background: var(--green-dark);
+            color: #fff;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+            gap: 14px;
+            align-items: start;
+        }
+
+        .scheme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .scheme-card {
+            min-height: 196px;
+            width: 100%;
+            text-align: left;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--ink);
+            padding: 14px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .scheme-card:focus,
+        .scheme-card:hover {
+            outline: 3px solid rgba(23, 107, 91, 0.22);
+            border-color: var(--green);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: var(--surface-soft);
+            display: grid;
+            place-items: center;
+            font-size: 1.5rem;
+        }
+
+        .level-badge {
+            border-radius: 8px;
+            padding: 4px 8px;
+            color: #fff;
+            background: var(--blue);
+            font-size: 0.78rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .level-badge.ap {
+            background: var(--saffron);
+        }
+
+        .scheme-card h2 {
+            margin: 0;
+            color: var(--green-dark);
+            font-size: 1.08rem;
+            line-height: 1.25;
+            letter-spacing: 0;
+        }
+
+        .scheme-card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.86rem;
+        }
+
+        .scheme-card .category {
+            margin-top: auto;
+            color: var(--ink);
+            font-size: 0.9rem;
+            font-weight: 800;
+        }
+
+        .result-panel,
+        .staff-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .result-panel {
+            position: sticky;
+            top: 12px;
+            overflow: hidden;
+        }
+
+        .result-inner {
+            padding: 16px;
+        }
+
+        .empty-state {
+            min-height: 250px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: var(--muted);
+            padding: 20px;
+        }
+
+        .empty-state strong {
+            display: block;
+            color: var(--green-dark);
+            font-size: 1.25rem;
+        }
+
+        .loading {
+            min-height: 180px;
+            display: grid;
+            place-items: center;
+            color: var(--green-dark);
+            font-weight: 900;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .result-head {
+            background: var(--green-dark);
+            color: #fff;
+            padding: 14px 16px;
+        }
+
+        .result-head h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            line-height: 1.25;
+            letter-spacing: 0;
+        }
+
+        .result-head p {
+            margin: 4px 0 0;
+            color: #d8eee7;
+            font-size: 0.92rem;
+        }
+
+        .info-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .info-card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            background: #fff;
+        }
+
+        .info-card h3 {
+            margin: 0 0 6px;
+            color: var(--green-dark);
+            font-size: 1rem;
+            letter-spacing: 0;
+        }
+
+        .info-card p {
+            margin: 0;
+        }
+
+        .result-actions {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .audio-wrap {
+            border: 1px solid #cfdcd6;
+            background: var(--surface-soft);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .source-link {
+            color: var(--blue);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .source-link:hover {
+            text-decoration: underline;
+        }
+
+        .feedback-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .feedback-btn {
+            background: #f3f0e9;
+            color: var(--ink);
+            border: 1px solid var(--border);
+            padding: 0 10px;
+        }
+
+        .feedback-btn.good {
+            background: var(--surface-soft);
+            color: var(--green-dark);
+        }
+
+        .feedback-status {
+            min-height: 24px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .staff-panel {
+            margin-top: 14px;
+        }
+
+        .staff-panel summary {
+            min-height: 56px;
+            padding: 14px;
+            cursor: pointer;
+            font-weight: 900;
+            color: var(--green-dark);
+        }
+
+        .staff-body {
+            border-top: 1px solid var(--border);
+            padding: 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 0.9rem;
+            color: var(--muted);
+            font-weight: 800;
+        }
+
+        .field select,
+        .field input[type="file"] {
+            width: 100%;
+            min-height: 52px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: #fff;
+        }
+
+        .footer-note {
+            margin: 18px 0 0;
+            color: var(--muted);
+            font-size: 0.88rem;
+            text-align: center;
+        }
+
+        .error {
+            color: var(--red);
+            font-weight: 900;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* New Feature Styles */
+        .eligibility-checker {
+            border: 2px solid var(--green);
+            border-radius: 8px;
+            padding: 16px;
+            background: var(--surface-soft);
+            margin: 10px 0;
+        }
+
+        .question-item {
+            margin: 12px 0;
+            padding: 10px;
+            background: #fff;
+            border-radius: 6px;
+            border-left: 4px solid var(--green);
+        }
+
+        .question-item p {
+            margin: 0 0 8px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .yes-no-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .yes-no-btn {
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .yes-no-btn.yes {
+            border-color: var(--green);
+            background: var(--surface-soft);
+        }
+
+        .yes-no-btn.no {
+            border-color: var(--red);
+            background: #fff;
+        }
+
+        .document-checklist {
+            border: 2px solid var(--blue);
+            border-radius: 8px;
+            padding: 16px;
+            background: var(--surface);
+            margin: 10px 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin: 6px 0;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checklist-item label {
+            flex: 1;
+            cursor: pointer;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .checklist-item input[type="checkbox"]:checked + label {
+            color: var(--green-dark);
+            text-decoration: line-through;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .action-btn {
+            padding: 10px;
+            border: 2px solid var(--border);
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            color: var(--ink);
+            transition: all 0.2s;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: var(--green);
+            color: #fff;
+            border-color: var(--green);
+        }
+
+        .action-btn.whatsapp {
+            background: #25d366;
+            color: #fff;
+            border-color: #25d366;
+        }
+
+        .action-btn.whatsapp:hover {
+            opacity: 0.9;
+        }
+
+        .trust-info {
+            background: var(--surface-soft);
+            border-left: 4px solid var(--blue);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .trust-info strong {
+            color: var(--green-dark);
+        }
+
+        .privacy-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            color: #856404;
+            font-weight: 500;
+        }
+
+        .eligibility-result {
+            border: 2px solid var(--green);
+            border-radius: 8px;
+            padding: 12px;
+            background: var(--surface-soft);
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .eligibility-percentage {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--green-dark);
+        }
+
+        .local-locations-list {
+            display: grid;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .location-item {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .location-item strong {
+            color: var(--green-dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 860px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-panel {
+                position: static;
+                order: -1;
+            }
+
+            .emergency-strip {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            body {
+                font-size: 16px;
+            }
+
+            .app-shell {
+                padding: 10px;
+            }
+
+            .app-header {
+                align-items: flex-start;
+            }
+
+            .install-btn {
+                min-width: 52px;
+                padding: 0 10px;
+            }
+
+            .scheme-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .scheme-card {
+                min-height: 214px;
+                padding: 12px;
+            }
+
+            .scheme-card h2 {
+                font-size: 1rem;
+            }
+
+            .scheme-card p {
+                font-size: 0.8rem;
+            }
+
+            .card-icon {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="app-shell">
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">+</div>
+            <div>
+                <p class="eyebrow">ఆంధ్రప్రదేశ్ ఆరోగ్య సహాయం</p>
+                <h1>SmartGov Health</h1>
+                <p class="subhead">జాతీయ మరియు రాష్ట్ర ఆరోగ్య పథకాలు</p>
+            </div>
+        </div>
+        <button id="installBtn" class="install-btn" type="button" hidden>Install</button>
+    </header>
+
+    <section class="emergency-strip" aria-label="Emergency contacts">
+        <a class="call-tile emergency" href="tel:108">
+            <span>అత్యవసరం</span>
+            <strong>108</strong>
+        </a>
+        <a class="call-tile health" href="tel:104">
+            <span>ఆరోగ్య సలహా</span>
+            <strong>104</strong>
+        </a>
+        <a class="call-tile phc" href="#schemeGrid">
+            <span>దగ్గర సేవ</span>
+            <strong>PHC</strong>
+        </a>
+    </section>
+
+    <section class="toolbar" aria-label="Search health schemes">
+        <div class="search-row">
+            <input id="searchInput" class="search-input" type="search" autocomplete="off"
+                   placeholder="పథకం పేరు లేదా సమస్య రాయండి">
+            <button id="voiceBtn" class="icon-btn" type="button" aria-label="Speak scheme name">🎙</button>
+            <button id="clearSearchBtn" class="icon-btn clear" type="button" aria-label="Clear search">×</button>
+        </div>
+        <div id="voiceStatus" class="voice-status">పథకం వెతకండి లేదా మైక్ నొక్కండి</div>
+        <div class="filters" role="group" aria-label="Scheme filters">
+            <button class="filter-btn active" type="button" data-filter="all">అన్నీ</button>
+            <button class="filter-btn" type="button" data-filter="ap">ఆంధ్రప్రదేశ్</button>
+            <button class="filter-btn" type="button" data-filter="national">జాతీయ</button>
+        </div>
+    </section>
+
+    <div class="main-grid">
+        <section>
+            <div id="schemeGrid" class="scheme-grid" aria-live="polite"></div>
+
+            <details class="staff-panel">
+                <summary>సచివాలయం / ఆరోగ్య సిబ్బంది సాధనాలు</summary>
+                <div class="staff-body">
+                    <div class="field">
+                        <label for="schemeSelect">జాబితా నుండి పథకం</label>
+                        <select id="schemeSelect">
+                            <option value="">-- ఎంచుకోండి --</option>
+                            {% for scheme in schemes.keys() %}
+                            <option value="{{ scheme }}">{{ schemes[scheme].telugu_name }} | {{ scheme }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button id="dropdownBtn" class="primary-btn" type="button">వివరాలు చూపించు</button>
+                    <div class="field">
+                        <label for="pdfUpload">PDF పత్రం</label>
+                        <input type="file" id="pdfUpload" accept="application/pdf">
+                    </div>
+                    <button id="uploadBtn" class="secondary-btn" type="button">PDF ను సరళీకరించు</button>
+                    <div class="privacy-warning" style="margin: 12px 0 0; font-size: 0.85rem;">
+                        ⚠️ <strong>గోప్యతా హెచ్చరిక:</strong><br>
+                        ఆధార్, ప్రెస్క్రిప్షన్లు లేదా వ్యక్తిగత ఆరోగ్య ఫైలులను అప్‌లోడ్ చేయవద్దు.
+                        మీరు విశ్వసించే పరికరమైన తర్వాత మాత్రమే అప్‌లోడ్ చేయండి.
+                    </div>
+                </div>
+            </details>
+        </section>
+
+        <aside id="resultArea" class="result-panel" aria-live="polite">
+            <div class="empty-state">
+                <div>
+                    <strong>పథకం ఎంచుకోండి</strong>
+                    <span>వివరాలు ఇక్కడ కనిపిస్తాయి.</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <p class="footer-note">అధికారిక ఆసుపత్రి, PHC, ASHA/ANM లేదా గ్రామ సచివాలయం వద్ద చివరి అర్హతను తప్పక ధృవీకరించండి.</p>
+    
+    <div style="background: #f3f0e9; border-top: 2px solid var(--border); padding: 16px; margin-top: 20px; text-align: center;">
+        <button type="button" class="secondary-btn" onclick="SmartGovEnhanced.openReportForm()" style="width:100%; min-height: 52px; margin-bottom: 10px;">📋 తప్పు సమాచారం నివేదించండి</button>
+        <div id="offlineIndicator" style="display:none; color: var(--red); font-weight: 800; margin-top: 8px;">
+            📡 ఆఫ్‌లైన్ మోడ్ - కాష్‌ చేసిన సమాచారం చూపిస్తున్నాం
+        </div>
+    </div>
+</main>
+
+<script>
+    const schemesCatalog = {{ schemes|tojson }};
+    const schemeNames = {{ scheme_names|tojson }};
+    const iconMap = {
+        hospital: '🏥',
+        ambulance: '🚑',
+        'mobile-clinic': '🩺',
+        shield: '🛡',
+        clinic: '➕',
+        'phone-doctor': '📱',
+        'mother-child': '🤱',
+        pregnancy: '🤰',
+        vaccine: '💉',
+        child: '🧒',
+        kidney: '🧬',
+        nutrition: '🥣'
+    };
+
+    let activeFilter = 'all';
+    let currentRequestId = null;
+    let currentSchemeName = null;
+    let deferredInstallPrompt = null;
+
+    function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[char]));
+    }
+
+    function haystackFor(name, data) {
+        return [
+            name,
+            data.telugu_name,
+            data.category,
+            data.level,
+            ...(data.keywords || [])
+        ].join(' ').toLowerCase();
+    }
+
+    function matchesFilter(data) {
+        if (activeFilter === 'all') return true;
+        if (activeFilter === 'ap') return data.level === 'Andhra Pradesh';
+        return data.level === 'National';
+    }
+
+    function renderSchemeCards() {
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const grid = document.getElementById('schemeGrid');
+        const matches = schemeNames.filter(name => {
+            const data = schemesCatalog[name];
+            return matchesFilter(data) && (!query || haystackFor(name, data).includes(query));
+        });
+
+        if (!matches.length) {
+            grid.innerHTML = '<div class="empty-state"><strong>ఫలితాలు లేవు</strong><span>మరో పదంతో వెతకండి.</span></div>';
+            return;
+        }
+
+        grid.innerHTML = matches.map(name => {
+            const data = schemesCatalog[name];
+            const levelClass = data.level === 'Andhra Pradesh' ? 'ap' : '';
+            const levelLabel = data.level === 'Andhra Pradesh' ? 'AP' : 'National';
+            return `
+                <button class="scheme-card" type="button" data-scheme="${escapeHtml(name)}">
+                    <span class="card-top">
+                        <span class="card-icon" aria-hidden="true">${iconMap[data.icon] || '➕'}</span>
+                        <span class="level-badge ${levelClass}">${levelLabel}</span>
+                    </span>
+                    <h2>${escapeHtml(data.telugu_name || name)}</h2>
+                    <p>${escapeHtml(name)}</p>
+                    <span class="category">${escapeHtml(data.category || '')}</span>
+                </button>
+            `;
+        }).join('');
+
+        grid.querySelectorAll('.scheme-card').forEach(card => {
+            card.addEventListener('click', () => fetchScheme(card.dataset.scheme));
+        });
+    }
+
+    function showLoading(message = 'వివరాలు తెస్తున్నాం...') {
+        document.getElementById('resultArea').innerHTML = `<div class="loading">${escapeHtml(message)}</div>`;
+    }
+
+    function showError(message) {
+        document.getElementById('resultArea').innerHTML = `
+            <div class="result-inner">
+                <p class="error">${escapeHtml(message)}</p>
+            </div>
+        `;
+    }
+
+    function resultCard(title, text) {
+        return `
+            <article class="info-card">
+                <h3>${escapeHtml(title)}</h3>
+                <p>${escapeHtml(text)}</p>
+            </article>
+        `;
+    }
+
+    function displayResult(data) {
+        if (data.error) {
+            showError(data.error);
+            return;
+        }
+
+        currentRequestId = data.request_id;
+        currentSchemeName = data.scheme_name;
+        window.currentRequestId = data.request_id;
+        window.currentSchemeName = data.scheme_name;
+        const scheme = schemesCatalog[data.scheme_name] || {};
+
+        const audioHtml = data.voice_url
+            ? `<div class="audio-wrap">
+                <strong>🎙️ తెలుగు ఆడియో</strong>
+                <audio controls src="${escapeHtml(data.voice_url)}"></audio>
+                <button type="button" style="width:100%;margin-top:8px;padding:8px;" onclick="SmartGovEnhanced.speakText('${escapeHtml(data.scheme_name)}')">🔊 మెల్లగా చదవండి</button>
+            </div>`
+            : `<div class="audio-wrap"><strong>ఆడియో అందుబాటులో లేదు</strong></div>`;
+
+        const sourceHtml = data.source_url
+            ? `<a class="source-link" href="${escapeHtml(data.source_url)}" target="_blank" rel="noopener noreferrer">🌐 ${escapeHtml(data.source_name || 'Official source')}</a>`
+            : `<span>📄 ${escapeHtml(data.source_name || 'Uploaded source')}</span>`;
+
+        const eligibilityChecker = SmartGovEnhanced.buildEligibilityChecker(scheme);
+        const documentChecklist = SmartGovEnhanced.buildDocumentChecklist(scheme);
+        const trustInfo = SmartGovEnhanced.buildTrustInfo(scheme);
+        const privacyWarning = SmartGovEnhanced.buildPrivacyWarning();
+
+        document.getElementById('resultArea').innerHTML = `
+            <div class="result-head">
+                <h2>${escapeHtml(data.scheme_name || 'Health scheme')}</h2>
+                <p>${escapeHtml(data.level || '')} • ${escapeHtml(data.category || '')}</p>
+            </div>
+            <div class="result-inner">
+                ${trustInfo}
+                ${privacyWarning}
+                <div class="info-list">
+                    ${resultCard('అర్హత', data.telugu.eligibility)}
+                    ${resultCard('ప్రయోజనాలు', data.telugu.benefits)}
+                    ${resultCard('పత్రాలు', data.telugu.documents)}
+                    ${resultCard('దశలు', data.telugu.steps)}
+                </div>
+                ${eligibilityChecker}
+                ${documentChecklist}
+                <div class="result-actions">
+                    ${audioHtml}
+                    <div style="font-size:0.9rem;">📚 మూలం: ${sourceHtml}</div>
+                    <button type="button" class="primary-btn" style="width:100%;margin:10px 0;" onclick="SmartGovEnhanced.speakPageAloud()">🔊 ఈ పేజీ చదవండి</button>
+                    <div class="action-buttons">
+                        <button class="action-btn whatsapp" type="button" onclick="SmartGovEnhanced.shareOnWhatsApp('${escapeHtml(data.scheme_name)}')">📱 WhatsApp</button>
+                        <button class="action-btn" type="button" onclick="SmartGovEnhanced.shareOnSMS('${escapeHtml(data.scheme_name)}')">📲 SMS</button>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn" type="button" onclick="SmartGovEnhanced.printDocumentChecklist('${escapeHtml(data.scheme_name)}')">🖨️ ముద్రణ</button>
+                        <button class="action-btn" type="button" onclick="SmartGovEnhanced.reportIssue('${escapeHtml(data.scheme_name)}')">⚠️ సమస్య</button>
+                    </div>
+                    <details>
+                        <summary>English Details</summary>
+                        <div class="info-list" style="margin-top:10px">
+                            ${resultCard('Eligibility', data.simplified.eligibility)}
+                            ${resultCard('Benefits', data.simplified.benefits)}
+                            ${resultCard('Documents', data.simplified.documents)}
+                            ${resultCard('Steps', data.simplified.steps)}
+                        </div>
+                    </details>
+                    <div>
+                        <div class="feedback-row">
+                            <button class="feedback-btn good" type="button" onclick="SmartGovEnhanced.openDetailedFeedback()">👍 ఇష్టమైనది</button>
+                            <button class="feedback-btn" type="button" data-rating="2">👎 మెరుగుపర్చండి</button>
+                        </div>
+                        <div id="feedbackStatus" class="feedback-status"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.querySelectorAll('.feedback-btn').forEach(button => {
+            button.addEventListener('click', () => sendFeedback(button.dataset.rating));
+        });
+
+        if (window.matchMedia('(max-width: 860px)').matches) {
+            document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    async function fetchScheme(schemeName) {
+        showLoading();
+        try {
+            const response = await fetch('/simplify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ scheme_name: schemeName })
+            });
+            const data = await response.json();
+            displayResult(data);
+        } catch (error) {
+            showError(`నెట్ వర్క్ లోపం: ${error.message}`);
+        }
+    }
+
+    async function sendFeedback(rating) {
+        if (!currentRequestId) return;
+        const status = document.getElementById('feedbackStatus');
+        status.textContent = 'సేవ్ చేస్తున్నాం...';
+        try {
+            const response = await fetch('/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ request_id: currentRequestId, rating: Number(rating) })
+            });
+            const data = await response.json();
+            status.textContent = data.status === 'success' ? 'ధన్యవాదాలు. మీ స్పందన సేవ్ అయింది.' : `లోపం: ${data.error}`;
+        } catch (error) {
+            status.textContent = `లోపం: ${error.message}`;
+        }
+    }
+
+    function bestVoiceMatch(spokenText) {
+        const spoken = spokenText.toLowerCase().trim();
+        if (!spoken) return null;
+
+        let bestName = null;
+        let bestScore = 0;
+        for (const name of schemeNames) {
+            const data = schemesCatalog[name];
+            const words = [
+                name,
+                data.telugu_name,
+                data.category,
+                ...(data.keywords || [])
+            ].map(value => String(value).toLowerCase());
+
+            let score = 0;
+            for (const word of words) {
+                if (!word) continue;
+                if (spoken.includes(word) || word.includes(spoken)) score += 3;
+                const pieces = word.split(/\s+/).filter(Boolean);
+                for (const piece of pieces) {
+                    if (piece.length > 2 && spoken.includes(piece)) score += 1;
+                }
+            }
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestName = name;
+            }
+        }
+        return bestScore > 0 ? bestName : null;
+    }
+
+    let recognition = null;
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'te-IN';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+    }
+
+    function setupVoice() {
+        const voiceBtn = document.getElementById('voiceBtn');
+        const status = document.getElementById('voiceStatus');
+
+        if (!recognition) {
+            voiceBtn.addEventListener('click', () => {
+                status.textContent = 'ఈ బ్రౌజర్ మైక్ గుర్తింపుకు మద్దతు ఇవ్వదు.';
+            });
+            return;
+        }
+
+        voiceBtn.addEventListener('click', () => {
+            status.textContent = 'వింటున్నాం...';
+            voiceBtn.disabled = true;
+            try {
+                recognition.start();
+            } catch (_error) {
+                voiceBtn.disabled = false;
+                status.textContent = 'మైక్ ప్రారంభం కాలేదు. మళ్లీ ప్రయత్నించండి.';
+            }
+        });
+
+        recognition.onresult = event => {
+            const spoken = event.results[0][0].transcript;
+            const match = bestVoiceMatch(spoken);
+            if (match) {
+                status.textContent = `మీరు చెప్పింది: ${spoken}. సరిపోలిన పథకం తెస్తున్నాం.`;
+                fetchScheme(match);
+            } else {
+                status.textContent = `మీరు చెప్పింది: ${spoken}. సరిపోలే పథకం దొరకలేదు.`;
+            }
+        };
+
+        recognition.onerror = event => {
+            status.textContent = `మైక్ లోపం: ${event.error || 'unknown'}`;
+        };
+
+        recognition.onend = () => {
+            voiceBtn.disabled = false;
+        };
+    }
+
+    async function handleDropdown() {
+        const schemeName = document.getElementById('schemeSelect').value;
+        if (!schemeName) {
+            showError('దయచేసి పథకం ఎంచుకోండి.');
+            return;
+        }
+        await fetchScheme(schemeName);
+    }
+
+    async function handleUpload() {
+        const file = document.getElementById('pdfUpload').files[0];
+        if (!file) {
+            showError('దయచేసి PDF ఫైల్ ఎంచుకోండి.');
+            return;
+        }
+
+        showLoading('PDF చదువుతున్నాం...');
+        const formData = new FormData();
+        formData.append('document', file);
+        try {
+            const response = await fetch('/simplify', { method: 'POST', body: formData });
+            const data = await response.json();
+            displayResult(data);
+        } catch (error) {
+            showError(`PDF లోపం: ${error.message}`);
+        }
+    }
+
+    function setupInstallPrompt() {
+        const installBtn = document.getElementById('installBtn');
+        window.addEventListener('beforeinstallprompt', event => {
+            event.preventDefault();
+            deferredInstallPrompt = event;
+            installBtn.hidden = false;
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            await deferredInstallPrompt.userChoice;
+            deferredInstallPrompt = null;
+            installBtn.hidden = true;
+        });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', renderSchemeCards);
+    document.getElementById('clearSearchBtn').addEventListener('click', () => {
+        document.getElementById('searchInput').value = '';
+        renderSchemeCards();
+        document.getElementById('voiceStatus').textContent = 'పథకం వెతకండి లేదా మైక్ నొక్కండి';
+    });
+    document.querySelectorAll('.filter-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            activeFilter = button.dataset.filter;
+            document.querySelectorAll('.filter-btn').forEach(item => item.classList.remove('active'));
+            button.classList.add('active');
+            renderSchemeCards();
+        });
+    });
+    document.getElementById('dropdownBtn').addEventListener('click', handleDropdown);
+    document.getElementById('uploadBtn').addEventListener('click', handleUpload);
+    document.getElementById('schemeSelect').addEventListener('change', handleDropdown);
+
+    // Offline status indicator
+    function updateOfflineStatus() {
+        const indicator = document.getElementById('offlineIndicator');
+        if (!navigator.onLine) {
+            if (indicator) indicator.style.display = 'block';
+        } else {
+            if (indicator) indicator.style.display = 'none';
+        }
+    }
+    window.addEventListener('online', updateOfflineStatus);
+    window.addEventListener('offline', updateOfflineStatus);
+    updateOfflineStatus();
+
+    // Restore eligibility answers from localStorage
+    function restoreEligibilityAnswers() {
+        document.querySelectorAll('.question-item').forEach((item, idx) => {
+            const saved = localStorage.getItem(`eligibility_q${idx}`);
+            if (saved) {
+                const buttons = item.querySelectorAll('.yes-no-btn');
+                buttons.forEach(btn => {
+                    btn.classList.remove('yes', 'no');
+                    if ((saved === 'yes' && btn.textContent.includes('అవును')) ||
+                        (saved === 'no' && btn.textContent.includes('కాదు'))) {
+                        btn.classList.add(saved);
+                    }
+                });
+            }
+        });
+    }
+
+    // Restore document checklist from localStorage
+    function restoreDocumentChecks() {
+        if (currentSchemeName) {
+            document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach((checkbox, idx) => {
+                const saved = localStorage.getItem(`doc_check_${currentSchemeName}_${idx}`);
+                if (saved === 'true') checkbox.checked = true;
+            });
+        }
+    }
+
+    renderSchemeCards();
+    setupVoice();
+    setupInstallPrompt();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}")
+            .then(reg => {
+                // Request service worker to cache audio files
+                if (reg.active) {
+                    reg.active.postMessage({ type: 'CACHE_ALL_AUDIO' });
+                }
+            })
+            .catch(() => {});
+    }
+
+    // Restore data on page load
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            restoreEligibilityAnswers();
+            restoreDocumentChecks();
+        }, 300);
+    });
+</script>
+<script src="{{ url_for('static', filename='enhanced-features.js') }}"></script>
+</body>
+</html>

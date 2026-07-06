@@ -1,0 +1,838 @@
+{
+  "Dr. NTR Vaidya Seva (AP Cashless Hospital Care)": {
+    "level": "Andhra Pradesh",
+    "category": "Hospital treatment",
+    "icon": "hospital",
+    "telugu_name": "డా. ఎన్.టి.ఆర్ వైద్య సేవ",
+    "audio_file": "static/audio/ntr_vaidya_seva_ap.mp3",
+    "source_name": "AP Finance Budget 2026-27",
+    "source_url": "https://apfinance.gov.in/",
+    "keywords": [
+      "ఆరోగ్యశ్రీ",
+      "వైద్య సేవ",
+      "ఎన్టీఆర్",
+      "హాస్పిటల్",
+      "ఆపరేషన్",
+      "సర్జరీ",
+      "cashless",
+      "hospital",
+      "arogyasri",
+      "ntr"
+    ],
+    "original_complex_text": "Dr. NTR Vaidya Seva is the Andhra Pradesh state health assurance scheme for below poverty line families. It gives financial protection up to Rs. 25 lakh per family per year for selected major illnesses that need hospitalization, surgery or therapy. Treatment is provided through identified network hospitals. Beneficiaries should carry Aadhaar, ration/health card and any previous medical records. The hospital Aarogya Mithra/help desk verifies eligibility and guides the patient for cashless treatment.",
+    "simplified": {
+      "eligibility": "Poor/BPL families in Andhra Pradesh. The hospital help desk checks the family details before treatment.",
+      "benefits": "Cashless treatment for selected major diseases, surgeries and therapies in network hospitals. The cover can be up to Rs. 25 lakh per family per year as per AP budget documents.",
+      "documents": "Aadhaar card, ration card or health card, phone number, old medical reports if available.",
+      "steps": "Go to a government or network hospital. Ask for the Aarogya Mithra/help desk. Show Aadhaar and ration/health card. The hospital checks eligibility and starts cashless treatment if the disease is covered."
+    },
+    "telugu": {
+      "eligibility": "ఆంధ్రప్రదేశ్ లోని పేద లేదా బీపీఎల్ కుటుంబాలు అర్హులు. ఆసుపత్రి హెల్ప్ డెస్క్ కుటుంబ వివరాలను చూసి అర్హతను చెక్ చేస్తుంది.",
+      "benefits": "ఎంపిక చేసిన పెద్ద వ్యాధులు, ఆపరేషన్లు, చికిత్సలకు నెట్ వర్క్ ఆసుపత్రుల్లో నగదు లేకుండా చికిత్స. ఏటా కుటుంబానికి 25 లక్షల రూపాయల వరకు రక్షణ ఉండవచ్చు.",
+      "documents": "ఆధార్ కార్డు, రేషన్ కార్డు లేదా ఆరోగ్య కార్డు, మొబైల్ నంబర్, ఉంటే పాత వైద్య రిపోర్టులు.",
+      "steps": "ప్రభుత్వ లేదా నెట్ వర్క్ ఆసుపత్రికి వెళ్లండి. ఆరోగ్య మిత్ర లేదా హెల్ప్ డెస్క్ ను అడగండి. ఆధార్, రేషన్ లేదా ఆరోగ్య కార్డు చూపండి. వ్యాధి కవర్ అయితే క్యాష్ లెస్ చికిత్స మొదలవుతుంది."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://apfinance.gov.in/",
+    "contact_office": "District Health Office, Andhra Pradesh",
+    "eligibility_confirmation": "Hospital Aarogya Mithra / Help Desk",
+    "eligibility_questions": [
+      {
+        "question_te": "మీరు AP లో బీపీఎల్ కుటుంబానికి చెందుతున్నారా?",
+        "question_en": "Are you from a BPL family in AP?",
+        "weight": "high"
+      },
+      {
+        "question_te": "నెట్‌వర్క్ ఆసుపత్రిలో చికిత్స అవసరమైనదా?",
+        "question_en": "Do you need hospital treatment?",
+        "weight": "high"
+      },
+      {
+        "question_te": "ఆధార్ లేదా రేషన్ కార్డు ఉందా?",
+        "question_en": "Do you have Aadhaar or ration card?",
+        "weight": "medium"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Aadhaar",
+        "name_te": "ఆధార్ కార్డు",
+        "optional": false
+      },
+      {
+        "name": "Ration Card / Health Card",
+        "name_te": "రేషన్ కార్డు / ఆరోగ్య కార్డు",
+        "optional": false
+      },
+      {
+        "name": "Phone Number",
+        "name_te": "ఫోన్ నంబర్",
+        "optional": false
+      },
+      {
+        "name": "Medical Reports",
+        "name_te": "వైద్య రిపోర్టులు",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "phc": "Government PHC in your mandal",
+      "chc": "CHC (Community Health Centre) in your district",
+      "hospital": "Network hospital listed for Dr. NTR Vaidya Seva",
+      "office": "District Health Office",
+      "contact": "Aarogya Mithra at any network hospital"
+    }
+  },
+  "AP 108 Emergency Ambulance Service": {
+    "level": "Andhra Pradesh",
+    "category": "Emergency ambulance",
+    "icon": "ambulance",
+    "telugu_name": "108 అత్యవసర అంబులెన్స్",
+    "audio_file": "static/audio/ap_108_ambulance.mp3",
+    "source_name": "AP Health, Medical and Family Welfare budget notes",
+    "source_url": "https://apfinance.gov.in/",
+    "keywords": [
+      "108",
+      "అంబులెన్స్",
+      "ఎమర్జెన్సీ",
+      "ప్రమాదం",
+      "గర్భిణి",
+      "ambulance",
+      "emergency",
+      "accident"
+    ],
+    "original_complex_text": "Andhra Pradesh 108 Emergency Response Services provide free emergency medical response through Advanced Life Support and Basic Life Support ambulances. The service is used for accidents, pregnancy emergencies, heart attack symptoms, stroke symptoms, severe injury and other urgent situations. Call 108 and give the village, landmark, patient condition and caller phone number. No application or documents are needed during emergency.",
+    "simplified": {
+      "eligibility": "Anyone in Andhra Pradesh who has a medical emergency can call.",
+      "benefits": "Free ambulance help in emergencies such as accidents, delivery pain, heart attack symptoms, stroke symptoms, serious injury or sudden severe illness.",
+      "documents": "No documents are needed to call. Keep Aadhaar or hospital card ready later if possible.",
+      "steps": "Call 108. Say the village name, nearby landmark and patient problem. Keep the phone nearby. Send one person to the road to guide the ambulance."
+    },
+    "telugu": {
+      "eligibility": "ఆంధ్రప్రదేశ్ లో అత్యవసర వైద్య పరిస్థితి ఉన్న ఎవరికైనా ఈ సేవ అందుబాటులో ఉంటుంది.",
+      "benefits": "ప్రమాదం, ప్రసవ నొప్పులు, గుండెపోటు లక్షణాలు, స్ట్రోక్ లక్షణాలు, తీవ్రమైన గాయం లేదా అకస్మాత్తుగా తీవ్రమైన అనారోగ్యం వచ్చినప్పుడు ఉచిత అంబులెన్స్ సహాయం.",
+      "documents": "కాల్ చేయడానికి పత్రాలు అవసరం లేదు. తరువాత అవసరమైతే ఆధార్ లేదా ఆసుపత్రి కార్డు దగ్గర పెట్టుకోండి.",
+      "steps": "108 కు కాల్ చేయండి. గ్రామం పేరు, దగ్గరలో గుర్తు, రోగి సమస్య చెప్పండి. ఫోన్ దగ్గర పెట్టుకోండి. అంబులెన్స్ కు దారి చూపడానికి ఒకరిని రోడ్డుపై ఉంచండి."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://apfinance.gov.in/",
+    "contact_office": "108 Emergency Command Centre, AP",
+    "eligibility_confirmation": "Call 108 directly - no eligibility check needed",
+    "eligibility_questions": [
+      {
+        "question_te": "ఇది అత్యవసర పరిస్థితి?",
+        "question_en": "Is this an emergency?",
+        "weight": "critical"
+      },
+      {
+        "question_te": "అంబులెన్స్ సేవ కావాలనుకుంటున్నారా?",
+        "question_en": "Do you need ambulance?",
+        "weight": "critical"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "None required",
+        "name_te": "ఏది అవసరం లేదు",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "ambulance": "Call 108 from anywhere",
+      "hospital": "Nearest government hospital will receive patient",
+      "contact": "108 (24/7)"
+    }
+  },
+  "AP 104 Mobile Medical Units": {
+    "level": "Andhra Pradesh",
+    "category": "Village health service",
+    "icon": "mobile-clinic",
+    "telugu_name": "104 మొబైల్ మెడికల్ యూనిట్లు",
+    "audio_file": "static/audio/ap_104_mobile_medical_units.mp3",
+    "source_name": "AP Finance Budget 2025-26",
+    "source_url": "https://apfinance.gov.in/",
+    "keywords": [
+      "104",
+      "మొబైల్ మెడికల్",
+      "గ్రామం",
+      "పిహెచ్సి",
+      "డాక్టర్",
+      "టెస్టులు",
+      "mobile medical",
+      "village clinic"
+    ],
+    "original_complex_text": "The Government of Andhra Pradesh runs 104 Mobile Medical Units to take health services to rural and tribal habitations. The 104 vehicle visits villages with PHC medical staff and provides services such as antenatal care, communicable disease care, non-communicable disease screening, basic tests, ECG, postnatal care, medicines and support for bedridden or long-term illness patients. People can check the visit date with the ASHA, ANM, village secretariat or PHC.",
+    "simplified": {
+      "eligibility": "Rural and tribal residents in Andhra Pradesh, especially pregnant women, elderly people, bedridden patients and people with long-term diseases.",
+      "benefits": "Doctor/health staff visit near the village. Basic checkups, pregnancy care, BP/sugar-related screening, simple tests, medicines and follow-up help may be available.",
+      "documents": "Aadhaar card, old prescription, medical reports, pregnancy/MCP card if applicable.",
+      "steps": "Ask ASHA, ANM, village secretariat or PHC when the 104 vehicle comes. Visit the camp with old reports. Follow the advice and collect medicines if given."
+    },
+    "telugu": {
+      "eligibility": "ఆంధ్రప్రదేశ్ గ్రామీణ, గిరిజన ప్రాంతాల ప్రజలు, ముఖ్యంగా గర్భిణీలు, వృద్ధులు, మంచానికే పరిమితమైన రోగులు, దీర్ఘకాలిక వ్యాధులు ఉన్నవారు.",
+      "benefits": "డాక్టర్ లేదా ఆరోగ్య సిబ్బంది గ్రామానికి దగ్గరగా వస్తారు. సాధారణ పరీక్షలు, గర్భిణీ సేవలు, బీపీ/షుగర్ స్క్రీనింగ్, చిన్న టెస్టులు, మందులు, ఫాలోఅప్ సహాయం అందవచ్చు.",
+      "documents": "ఆధార్ కార్డు, పాత మందుల చీటి, వైద్య రిపోర్టులు, గర్భిణీ అయితే MCP కార్డు.",
+      "steps": "104 వాహనం ఎప్పుడు వస్తుందో ASHA, ANM, గ్రామ సచివాలయం లేదా PHC ను అడగండి. పాత రిపోర్టులతో క్యాంప్ కు వెళ్లండి. సలహా పాటించి మందులు తీసుకోండి."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://apfinance.gov.in/",
+    "contact_office": "PHC/ASHA Worker in your village",
+    "eligibility_confirmation": "ASHA / ANM / Village Secretariat",
+    "eligibility_questions": [
+      {
+        "question_te": "మీరు గ్రామీణ ప్రాంతంలో ఉన్నారా?",
+        "question_en": "Are you in a rural area?",
+        "weight": "high"
+      },
+      {
+        "question_te": "104 యూనిట్ సందర్శన తేదీ మీకు తెలుసా?",
+        "question_en": "Do you know the 104 visit date?",
+        "weight": "medium"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Aadhaar",
+        "name_te": "ఆధార్",
+        "optional": true
+      },
+      {
+        "name": "Old Prescriptions",
+        "name_te": "పాత మందుల చీటి",
+        "optional": true
+      },
+      {
+        "name": "MCP Card (if pregnant)",
+        "name_te": "MCP కార్డు (గర్భిణీ అయితే)",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "phc": "PHC in your mandal",
+      "asha": "ASHA worker in your village",
+      "anm": "ANM / Health Worker",
+      "village_office": "Village Secretariat"
+    }
+  },
+  "Ayushman Bharat PM-JAY (National Health Cover)": {
+    "level": "National",
+    "category": "Hospital treatment",
+    "icon": "shield",
+    "telugu_name": "ఆయుష్మాన్ భారత్ PM-JAY",
+    "audio_file": "static/audio/ayushman_bharat_pmjay.mp3",
+    "source_name": "National Health Authority",
+    "source_url": "https://nha.gov.in/PM-JAY",
+    "keywords": [
+      "ఆయుష్మాన్",
+      "pmjay",
+      "pm-jay",
+      "పీఎంజే",
+      "health cover",
+      "hospital",
+      "cashless"
+    ],
+    "original_complex_text": "Ayushman Bharat Pradhan Mantri Jan Arogya Yojana is a national health assurance scheme. It provides cashless health cover of Rs. 5 lakh per eligible family per year for listed secondary and tertiary hospitalization in public and private empanelled hospitals. Eligibility is based mainly on SECC deprivation and occupation criteria, and states can use their own beneficiary lists. Benefits are portable across India, with no cap on family size, age or gender. In Andhra Pradesh, state health assurance is implemented through the state trust/scheme.",
+    "simplified": {
+      "eligibility": "Poor and vulnerable families listed as eligible under PM-JAY/State health assurance records.",
+      "benefits": "Cashless hospital treatment up to Rs. 5 lakh per eligible family per year for listed serious illnesses across empanelled hospitals in India.",
+      "documents": "Aadhaar card, ration card or PM-JAY/health card, mobile number, medical reports.",
+      "steps": "Check eligibility at a PM-JAY counter, Common Service Centre, empanelled hospital or official PM-JAY portal. If eligible, get an Ayushman card/e-card and use it at an empanelled hospital."
+    },
+    "telugu": {
+      "eligibility": "PM-JAY లేదా రాష్ట్ర ఆరోగ్య పథకం జాబితాలో అర్హులుగా ఉన్న పేద మరియు బలహీన కుటుంబాలు.",
+      "benefits": "దేశవ్యాప్తంగా ఎంపానెల్ ఆసుపత్రుల్లో ఎంపిక చేసిన తీవ్రమైన వ్యాధులకు ఏటా కుటుంబానికి 5 లక్షల రూపాయల వరకు క్యాష్ లెస్ చికిత్స.",
+      "documents": "ఆధార్ కార్డు, రేషన్ కార్డు లేదా PM-JAY/ఆరోగ్య కార్డు, మొబైల్ నంబర్, వైద్య రిపోర్టులు.",
+      "steps": "PM-JAY కౌంటర్, CSC, ఎంపానెల్ ఆసుపత్రి లేదా అధికారిక పోర్టల్ లో అర్హత చెక్ చేయండి. అర్హత ఉంటే ఆయుష్మాన్ కార్డు తీసుకుని ఎంపానెల్ ఆసుపత్రిలో ఉపయోగించండి."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://nha.gov.in/PM-JAY",
+    "contact_office": "PM-JAY Help Centre / Common Service Centre",
+    "eligibility_confirmation": "CSC / PM-JAY Counter / Hospital",
+    "eligibility_questions": [
+      {
+        "question_te": "మీరు పేద కుటుంబానికి చెందుతున్నారా?",
+        "question_en": "Are you from a poor family?",
+        "weight": "high"
+      },
+      {
+        "question_te": "SECC జాబితాలో ఉన్నారా?",
+        "question_en": "Are you listed in SECC data?",
+        "weight": "high"
+      },
+      {
+        "question_te": "రేషన్ కార్డు ఉందా?",
+        "question_en": "Do you have ration card?",
+        "weight": "medium"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Aadhaar",
+        "name_te": "ఆధార్ కార్డు",
+        "optional": false
+      },
+      {
+        "name": "Ration Card",
+        "name_te": "రేషన్ కార్డు",
+        "optional": false
+      },
+      {
+        "name": "Mobile Number",
+        "name_te": "ఫోన్ నంబర్",
+        "optional": false
+      },
+      {
+        "name": "Medical Reports",
+        "name_te": "వైద్య రిపోర్టులు",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "csc": "Common Service Centre (CSC)",
+      "hospital": "Empanelled hospital with PM-JAY counter",
+      "pm_jay_counter": "PM-JAY help desk at hospital",
+      "district_office": "District PM-JAY coordination office"
+    }
+  },
+  "Ayushman Arogya Mandir (Free Primary Health Care)": {
+    "level": "National",
+    "category": "PHC and village care",
+    "icon": "clinic",
+    "telugu_name": "ఆయుష్మాన్ ఆరోగ్య మందిర్",
+    "audio_file": "static/audio/ayushman_arogya_mandir.mp3",
+    "source_name": "Ayushman Arogya Mandir, MoHFW",
+    "source_url": "https://aam.mohfw.gov.in/",
+    "keywords": [
+      "ఆరోగ్య మందిర్",
+      "పిహెచ్సి",
+      "సబ్ సెంటర్",
+      "మందులు",
+      "బీపీ",
+      "షుగర్",
+      "primary care",
+      "free medicines"
+    ],
+    "original_complex_text": "Ayushman Arogya Mandirs are upgraded Sub Health Centres and Primary Health Centres that provide comprehensive primary health care free and close to the community. Services include maternal and child health, immunization, general OPD care, screening and management for diabetes, blood pressure, TB and leprosy, basic oral, eye and ENT care, elderly and palliative care, mental health screening, emergency first-level care, essential medicines, diagnostics and teleconsultation.",
+    "simplified": {
+      "eligibility": "Everyone can visit the nearest Ayushman Arogya Mandir, Sub Centre or PHC.",
+      "benefits": "Free nearby care for common illness, pregnancy and child care, vaccination, BP/sugar screening, TB/leprosy support, basic medicines, simple tests and teleconsultation.",
+      "documents": "Aadhaar is useful but not always required for basic care. Carry old prescriptions and reports.",
+      "steps": "Visit the nearest Ayushman Arogya Mandir/PHC. Tell the health worker your problem. Take tests or medicines as advised. If needed, they refer you to a bigger hospital."
+    },
+    "telugu": {
+      "eligibility": "దగ్గరలోని ఆయుష్మాన్ ఆరోగ్య మందిర్, సబ్ సెంటర్ లేదా PHC కు ఎవరైనా వెళ్లవచ్చు.",
+      "benefits": "సాధారణ అనారోగ్యం, గర్భిణీ మరియు పిల్లల సేవలు, టీకాలు, బీపీ/షుగర్ స్క్రీనింగ్, TB/కుష్టు సహాయం, ప్రాథమిక మందులు, చిన్న టెస్టులు, టెలీ కన్సల్టేషన్ ఉచితంగా లేదా దగ్గరగా అందుతాయి.",
+      "documents": "ప్రాథమిక సేవలకు ఆధార్ ఎప్పుడూ తప్పనిసరి కాకపోవచ్చు, కానీ ఉంటే తీసుకెళ్లండి. పాత మందుల చీటి, రిపోర్టులు తీసుకెళ్లండి.",
+      "steps": "దగ్గరలోని ఆరోగ్య మందిర్ లేదా PHC కు వెళ్లండి. సమస్య చెప్పండి. సిబ్బంది చెప్పిన టెస్టులు/మందులు తీసుకోండి. అవసరమైతే పెద్ద ఆసుపత్రికి రిఫర్ చేస్తారు."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://aam.mohfw.gov.in/",
+    "contact_office": "Nearest Ayushman Arogya Mandir / PHC / Sub-centre",
+    "eligibility_confirmation": "Automatic - open to all",
+    "eligibility_questions": [
+      {
+        "question_te": "మీకు ప్రాథమిక ఆరోగ్య సేవ అవసరమైనదా?",
+        "question_en": "Do you need basic health care?",
+        "weight": "high"
+      },
+      {
+        "question_te": "మీ దగ్గరలో PHC లేదా సబ్‌సెంటర్ ఉందా?",
+        "question_en": "Is there a PHC/Sub-centre near you?",
+        "weight": "high"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Aadhaar (optional)",
+        "name_te": "ఆధార్ (ఐచ్ఛికం)",
+        "optional": true
+      },
+      {
+        "name": "Old Prescriptions",
+        "name_te": "పాత చీటులు",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "aap_mandir": "Ayushman Arogya Mandir",
+      "phc": "PHC (Primary Health Centre)",
+      "sub_centre": "Sub-centre in your village",
+      "health_worker": "ASHA / ANM health worker"
+    }
+  },
+  "eSanjeevani National Telemedicine Service": {
+    "level": "National",
+    "category": "Doctor by phone",
+    "icon": "phone-doctor",
+    "telugu_name": "ఈ-సంజీవని డాక్టర్ సేవ",
+    "audio_file": "static/audio/esanjeevani.mp3",
+    "source_name": "Ministry of Health and Family Welfare",
+    "source_url": "https://esanjeevani.mohfw.gov.in/",
+    "keywords": [
+      "ఈ సంజీవని",
+      "సంజీవని",
+      "ఫోన్ డాక్టర్",
+      "ఆన్లైన్ డాక్టర్",
+      "telemedicine",
+      "doctor online",
+      "opd"
+    ],
+    "original_complex_text": "eSanjeevani is the Government of India's national telemedicine service. eSanjeevani OPD connects patients to doctors through phone or internet for outpatient consultation. eSanjeevani AB-HWC connects Health and Wellness Centres with doctors and specialists through health staff. Patients can receive an e-prescription after consultation and use it for medicines.",
+    "simplified": {
+      "eligibility": "Any citizen who needs non-emergency doctor advice can use eSanjeevani, if phone/internet service is available.",
+      "benefits": "Doctor consultation from home or through a health centre. Useful for common illness, follow-up advice and specialist advice through health staff.",
+      "documents": "Mobile number, Aadhaar if asked, old prescription, test reports.",
+      "steps": "For home consultation, use the eSanjeevani website/app and register with mobile OTP. For village help, visit the nearest Health and Wellness Centre/PHC and ask for teleconsultation."
+    },
+    "telugu": {
+      "eligibility": "అత్యవసరం కాని డాక్టర్ సలహా కావాలనుకునే ఎవరైనా ఫోన్ లేదా ఇంటర్నెట్ ఉంటే ఈ సేవను ఉపయోగించవచ్చు.",
+      "benefits": "ఇంటినుంచి లేదా ఆరోగ్య కేంద్రం ద్వారా డాక్టర్ సలహా. సాధారణ అనారోగ్యం, ఫాలోఅప్, స్పెషలిస్ట్ సలహాకు ఉపయోగపడుతుంది.",
+      "documents": "మొబైల్ నంబర్, అడిగితే ఆధార్, పాత మందుల చీటి, టెస్ట్ రిపోర్టులు.",
+      "steps": "ఇంటినుంచి అయితే eSanjeevani వెబ్ సైట్ లేదా యాప్ లో మొబైల్ OTP తో నమోదు చేయండి. గ్రామంలో సహాయం కావాలంటే దగ్గరలోని ఆరోగ్య కేంద్రం లేదా PHC లో టెలీ కన్సల్టేషన్ అడగండి."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://esanjeevani.mohfw.gov.in/",
+    "contact_office": "PHC / Health Centre / Online Portal",
+    "eligibility_confirmation": "Automatic - for anyone with phone/internet",
+    "eligibility_questions": [
+      {
+        "question_te": "ఫోన్ లేదా ఇంటర్నెట్ కనెక్షన్ ఉందా?",
+        "question_en": "Do you have phone or internet?",
+        "weight": "high"
+      },
+      {
+        "question_te": "డాక్టర్ సలహా చाहते हैं?",
+        "question_en": "Do you want doctor advice?",
+        "weight": "high"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Mobile Number",
+        "name_te": "ఫోన్ నంబర్",
+        "optional": false
+      },
+      {
+        "name": "Aadhaar (optional)",
+        "name_te": "ఆధార్ (ఐచ్ఛికం)",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "online_portal": "https://esanjeevani.mohfw.gov.in/",
+      "phc": "PHC for teleconsultation",
+      "health_centre": "Health and Wellness Centre"
+    }
+  },
+  "Janani Shishu Suraksha Karyakram (Free Delivery Care)": {
+    "level": "National",
+    "category": "Pregnancy and newborn",
+    "icon": "mother-child",
+    "telugu_name": "జనని శిశు సురక్షా కార్యక్రమం",
+    "audio_file": "static/audio/janani_shishu.mp3",
+    "source_name": "National Health Mission MCP card",
+    "source_url": "https://nhm.gov.in/",
+    "keywords": [
+      "గర్భిణి",
+      "డెలివరీ",
+      "ప్రసవం",
+      "బిడ్డ",
+      "జనని",
+      "శిశు",
+      "delivery",
+      "pregnancy",
+      "newborn"
+    ],
+    "original_complex_text": "Janani Shishu Suraksha Karyakram provides free and cashless services to pregnant women delivering in public health institutions and to sick newborns up to one year. Benefits include free normal delivery and caesarean section, drugs, consumables, diagnostics, blood, diet during stay, exemption from user charges, transport from home to facility, referral transport and drop-back home. Sick newborns receive free treatment, drugs, diagnostics, blood and transport.",
+    "simplified": {
+      "eligibility": "Pregnant women using government health facilities for delivery, and sick newborns up to one year.",
+      "benefits": "Free delivery or C-section in government hospitals, free medicines, tests, blood if needed, food during stay and transport support.",
+      "documents": "MCP/mother card, Aadhaar, phone number, old pregnancy reports if available.",
+      "steps": "Register pregnancy with ASHA/ANM/Anganwadi or PHC. Go for ANC checkups. For delivery, go to a government hospital or call 108 in emergency. Ask hospital staff for JSSK free services."
+    },
+    "telugu": {
+      "eligibility": "ప్రభుత్వ ఆరోగ్య కేంద్రాల్లో ప్రసవం చేసుకునే గర్భిణీలు, మరియు ఒక సంవత్సరం లోపు అనారోగ్యంతో ఉన్న శిశువులు.",
+      "benefits": "ప్రభుత్వ ఆసుపత్రుల్లో సాధారణ ప్రసవం లేదా సిజేరియన్, మందులు, టెస్టులు, అవసరమైతే రక్తం, ఆసుపత్రిలో ఆహారం, రవాణా సహాయం ఉచితం.",
+      "documents": "MCP లేదా మదర్ కార్డు, ఆధార్, మొబైల్ నంబర్, ఉంటే పాత గర్భధారణ రిపోర్టులు.",
+      "steps": "ASHA/ANM/అంగన్వాడి లేదా PHC లో గర్భధారణ నమోదు చేయండి. ANC చెకప్ లకు వెళ్లండి. ప్రసవానికి ప్రభుత్వ ఆసుపత్రికి వెళ్లండి లేదా అత్యవసరమైతే 108 కు కాల్ చేయండి. JSSK ఉచిత సేవలు అడగండి."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://nhm.gov.in/",
+    "contact_office": "Government Hospital / PHC",
+    "eligibility_confirmation": "Hospital / ANM / ASHA Worker",
+    "eligibility_questions": [
+      {
+        "question_te": "గర్భిణీ స్త్రీ లేదా నవజాత శిశువు?",
+        "question_en": "Pregnant woman or newborn baby?",
+        "weight": "critical"
+      },
+      {
+        "question_te": "ప్రసవానికి సహాయం కావాలనుకుంటున్నారా?",
+        "question_en": "Need delivery support?",
+        "weight": "critical"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "MCP Card",
+        "name_te": "MCP కార్డు",
+        "optional": false
+      },
+      {
+        "name": "Aadhaar",
+        "name_te": "ఆధార్",
+        "optional": false
+      },
+      {
+        "name": "Hospital Records",
+        "name_te": "ఆసుపత్రి రిపోర్టులు",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "hospital": "Government hospital / PHC with delivery unit",
+      "asha": "ASHA worker in your village",
+      "anm": "ANM (Auxiliary Nurse Midwife)",
+      "health_centre": "Nearest health centre"
+    }
+  },
+  "Janani Suraksha Yojana (Safe Motherhood Cash Support)": {
+    "level": "National",
+    "category": "Pregnancy cash support",
+    "icon": "pregnancy",
+    "telugu_name": "జనని సురక్షా యోజన",
+    "audio_file": "static/audio/janani_suraksha_yojana.mp3",
+    "source_name": "National Health Mission",
+    "source_url": "https://www.nhm.gov.in/index1.php?lang=1&level=3&lid=309&sublinkid=841",
+    "keywords": [
+      "జనని సురక్ష",
+      "గర్భిణి డబ్బు",
+      "డెలివరీ సహాయం",
+      "asha",
+      "pregnancy cash",
+      "institutional delivery"
+    ],
+    "original_complex_text": "Janani Suraksha Yojana is a safe motherhood scheme under the National Health Mission. It promotes institutional delivery among poor pregnant women by linking cash assistance with delivery and post-delivery care. Eligibility differs by state category. In high performing states, BPL, SC and ST pregnant women delivering in government health centres or accredited private institutions are eligible. ASHA acts as the link between the government and pregnant women.",
+    "simplified": {
+      "eligibility": "Poor pregnant women as per JSY rules. In many high-performing states, BPL/SC/ST women delivering in government or accredited hospitals are eligible.",
+      "benefits": "Cash support for institutional delivery and help from ASHA for registration, checkups, delivery and newborn immunization.",
+      "documents": "MCP/mother card, Aadhaar, bank account details, caste/BPL proof if required, hospital delivery record.",
+      "steps": "Register pregnancy early with ASHA/ANM. Attend checkups. Deliver at a government or accredited hospital. Submit bank and required details through ASHA/health staff."
+    },
+    "telugu": {
+      "eligibility": "JSY నియమాల ప్రకారం పేద గర్భిణీలు. చాలా హై పర్ఫార్మింగ్ రాష్ట్రాల్లో ప్రభుత్వ లేదా గుర్తింపు పొందిన ఆసుపత్రిలో ప్రసవం చేసుకునే BPL/SC/ST మహిళలు అర్హులు.",
+      "benefits": "ఆసుపత్రిలో ప్రసవానికి నగదు సహాయం, అలాగే నమోదు, చెకప్ లు, ప్రసవం, శిశువు టీకాలకు ASHA సహాయం.",
+      "documents": "MCP లేదా మదర్ కార్డు, ఆధార్, బ్యాంక్ ఖాతా వివరాలు, అవసరమైతే కులం/BPL రుజువు, ఆసుపత్రి ప్రసవ రికార్డు.",
+      "steps": "గర్భధారణను ASHA/ANM వద్ద ముందుగానే నమోదు చేయండి. చెకప్ లకు వెళ్లండి. ప్రభుత్వ లేదా గుర్తింపు పొందిన ఆసుపత్రిలో ప్రసవం చేయండి. బ్యాంక్ మరియు అవసరమైన వివరాలు ASHA/ఆరోగ్య సిబ్బందికి ఇవ్వండి."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://nhm.gov.in/",
+    "contact_office": "Government Hospital / District Hospital",
+    "eligibility_confirmation": "Hospital Finance Department",
+    "eligibility_questions": [
+      {
+        "question_te": "గర్భిణీ స్త్రీ?",
+        "question_en": "Are you pregnant?",
+        "weight": "critical"
+      },
+      {
+        "question_te": "ఆధార్ / రేషన్ కార్డు ఉందా?",
+        "question_en": "Have Aadhaar or ration card?",
+        "weight": "high"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Aadhaar",
+        "name_te": "ఆధార్ కార్డు",
+        "optional": false
+      },
+      {
+        "name": "Ration Card",
+        "name_te": "రేషన్ కార్డు",
+        "optional": false
+      },
+      {
+        "name": "MCP Card",
+        "name_te": "MCP కార్డు",
+        "optional": true
+      },
+      {
+        "name": "Bank Account",
+        "name_te": "బ్యాంక్ ఖాతా",
+        "optional": false
+      }
+    ],
+    "local_help_locations": {
+      "hospital": "Government hospital",
+      "district_office": "District Hospital Finance",
+      "asha": "ASHA worker"
+    }
+  },
+  "Mission Indradhanush / Universal Immunization": {
+    "level": "National",
+    "category": "Vaccination",
+    "icon": "vaccine",
+    "telugu_name": "మిషన్ ఇంద్రధనుష్ టీకాలు",
+    "audio_file": "static/audio/mission_indradhanush.mp3",
+    "source_name": "National Health Mission",
+    "source_url": "https://nhm.gov.in/nhm_live/index1.php?lang=1&level=2&lid=220&sublinkid=824",
+    "keywords": [
+      "టీకా",
+      "వ్యాక్సిన్",
+      "పోలియో",
+      "పిల్లలు",
+      "గర్భిణి టీకా",
+      "vaccination",
+      "immunization"
+    ],
+    "original_complex_text": "Universal Immunization Programme provides free vaccines against vaccine-preventable diseases to children and pregnant women. Mission Indradhanush focuses on areas with low immunization coverage and reaches unvaccinated or partially vaccinated children and pregnant women. Vaccination is provided through government health centres, Anganwadi/health camps and outreach sessions.",
+    "simplified": {
+      "eligibility": "Children and pregnant women who need routine vaccines, especially missed or incomplete vaccines.",
+      "benefits": "Free vaccines to protect from serious diseases such as polio, measles-rubella, diphtheria, pertussis, tetanus, hepatitis B and others as per age schedule.",
+      "documents": "Child immunization card/MCP card, Aadhaar if available, birth record if available.",
+      "steps": "Ask ASHA/ANM or Anganwadi about the next vaccine day. Take the child or pregnant woman to the session. Keep the vaccine card safely and follow the next date."
+    },
+    "telugu": {
+      "eligibility": "రొటీన్ టీకాలు అవసరమైన పిల్లలు మరియు గర్భిణీలు, ముఖ్యంగా మిస్ అయిన లేదా పూర్తికాని టీకాలు ఉన్నవారు.",
+      "benefits": "పోలియో, మీజిల్స్-రుబెల్లా, డిఫ్తీరియా, పర్టుసిస్, టెటనస్, హెపటైటిస్ B వంటి తీవ్రమైన వ్యాధుల నుంచి రక్షణకు వయస్సు ప్రకారం ఉచిత టీకాలు.",
+      "documents": "పిల్లల టీకా కార్డు లేదా MCP కార్డు, ఉంటే ఆధార్, జనన రికార్డు.",
+      "steps": "తదుపరి టీకా రోజు ఎప్పుడు అని ASHA/ANM లేదా అంగన్వాడిని అడగండి. పిల్లవాడు లేదా గర్భిణీని టీకా కేంద్రానికి తీసుకెళ్లండి. టీకా కార్డును జాగ్రత్తగా ఉంచి తదుపరి తేదీ పాటించండి."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://mis.dghs.gov.in/",
+    "contact_office": "PHC / Sub-centre / ASHA Worker",
+    "eligibility_confirmation": "ASHA / ANM - free for all children",
+    "eligibility_questions": [
+      {
+        "question_te": "0-5 సంవత్సరాల పిల్లవారు ఉన్నారా?",
+        "question_en": "Do you have children aged 0-5 years?",
+        "weight": "high"
+      },
+      {
+        "question_te": "టీకాలు లేవటం అవసరమైనదా?",
+        "question_en": "Do vaccines need to be given?",
+        "weight": "high"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Immunization Card",
+        "name_te": "టీకాकरण కార్డు",
+        "optional": true
+      },
+      {
+        "name": "Aadhaar (child)",
+        "name_te": "ఆధార్ (పిల్లవాడు)",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "phc": "PHC",
+      "sub_centre": "Sub-centre",
+      "asha": "ASHA worker",
+      "immunization_camp": "Village immunization camp"
+    }
+  },
+  "Rashtriya Bal Swasthya Karyakram (Child Health Screening)": {
+    "level": "National",
+    "category": "Child health",
+    "icon": "child",
+    "telugu_name": "రాష్ట్రీయ బాల స్వాస్థ్య కార్యక్రమం",
+    "audio_file": "static/audio/bal_swasthya.mp3",
+    "source_name": "National Health Mission",
+    "source_url": "https://nhm.gov.in/index1.php?lang=1&level=0&lid=773&linkid=499",
+    "keywords": [
+      "పిల్లల ఆరోగ్యం",
+      "స్కూల్ చెకప్",
+      "అంగన్వాడి",
+      "బాల స్వాస్థ్య",
+      "child screening",
+      "school health"
+    ],
+    "original_complex_text": "Rashtriya Bal Swasthya Karyakram screens children from birth to 18 years for defects at birth, diseases, deficiencies and developmental delays, covering 32 common health conditions. Screening happens at delivery points, Anganwadi centres and government schools through mobile health teams and ASHA/home-based care. Identified children are linked to District Early Intervention Centres and referred for free treatment, including surgeries at tertiary level where needed.",
+    "simplified": {
+      "eligibility": "Children from birth to 18 years, including children at Anganwadi centres and government schools.",
+      "benefits": "Free screening for birth defects, disease, deficiency and development delay. Free treatment or referral is arranged for identified problems.",
+      "documents": "Child Aadhaar if available, school/Anganwadi details, health card, old reports.",
+      "steps": "Send the child for school/Anganwadi health checkup. If the team finds a problem, follow the referral slip to the PHC, District Early Intervention Centre or hospital."
+    },
+    "telugu": {
+      "eligibility": "పుట్టినప్పటి నుంచి 18 సంవత్సరాల వరకు పిల్లలు, అంగన్వాడి మరియు ప్రభుత్వ పాఠశాల పిల్లలు సహా.",
+      "benefits": "జన్యుపరమైన లోపాలు, వ్యాధులు, పోషక లోపాలు, అభివృద్ధి ఆలస్యం కోసం ఉచిత స్క్రీనింగ్. సమస్య కనిపిస్తే ఉచిత చికిత్స లేదా రిఫరల్ ఏర్పాటు చేస్తారు.",
+      "documents": "ఉంటే పిల్లల ఆధార్, పాఠశాల/అంగన్వాడి వివరాలు, ఆరోగ్య కార్డు, పాత రిపోర్టులు.",
+      "steps": "పాఠశాల లేదా అంగన్వాడి ఆరోగ్య చెకప్ కు పిల్లవాడిని పంపండి. సమస్య గుర్తిస్తే రిఫరల్ స్లిప్ తీసుకుని PHC, జిల్లా ఎర్లీ ఇంటర్వెన్షన్ సెంటర్ లేదా ఆసుపత్రికి వెళ్లండి."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://nhm.gov.in/",
+    "contact_office": "School / PHC / Health Worker",
+    "eligibility_confirmation": "School screening / PHC automatic",
+    "eligibility_questions": [
+      {
+        "question_te": "పిల్లవాడు 6-18 సంవత్సరాలు?",
+        "question_en": "Is child aged 6-18 years?",
+        "weight": "high"
+      },
+      {
+        "question_te": "ఆరోగ్య పరీక్ష కావాలనుకుంటున్నారా?",
+        "question_en": "Want health screening?",
+        "weight": "medium"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "School ID (if student)",
+        "name_te": "పాఠశాల ID",
+        "optional": true
+      },
+      {
+        "name": "Aadhaar",
+        "name_te": "ఆధార్",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "school": "School health program",
+      "phc": "PHC screening camp",
+      "health_worker": "ASHA / ANM"
+    }
+  },
+  "Pradhan Mantri National Dialysis Programme": {
+    "level": "National",
+    "category": "Kidney dialysis",
+    "icon": "kidney",
+    "telugu_name": "ప్రధాన మంత్రి డయాలిసిస్ కార్యక్రమం",
+    "audio_file": "static/audio/dialysis.mp3",
+    "source_name": "Pradhan Mantri National Dialysis Programme",
+    "source_url": "https://pmndp.mohfw.gov.in/",
+    "keywords": [
+      "డయాలిసిస్",
+      "కిడ్నీ",
+      "మూత్రపిండం",
+      "bpl",
+      "kidney",
+      "dialysis"
+    ],
+    "original_complex_text": "Pradhan Mantri National Dialysis Programme is run under the National Health Mission to make renal care services accessible and affordable to BPL patients. It provides free dialysis services to poor patients through dialysis centres in district hospitals and other public/private partnership models. The programme supports hemodialysis and peritoneal dialysis services as per state implementation.",
+    "simplified": {
+      "eligibility": "Poor/BPL patients who need dialysis for kidney failure, as checked by the government hospital or dialysis centre.",
+      "benefits": "Free or government-supported dialysis services at approved district hospital dialysis centres, depending on local availability.",
+      "documents": "Aadhaar, ration/BPL card, doctor's referral, kidney reports, old dialysis records, phone number.",
+      "steps": "Visit the district hospital or kidney specialist. Ask about PM National Dialysis Programme. Submit referral and documents. Follow the dialysis schedule given by the centre."
+    },
+    "telugu": {
+      "eligibility": "కిడ్నీ సమస్య వల్ల డయాలిసిస్ అవసరమైన పేద/BPL రోగులు. అర్హతను ప్రభుత్వ ఆసుపత్రి లేదా డయాలిసిస్ కేంద్రం చెక్ చేస్తుంది.",
+      "benefits": "ఆమోదిత జిల్లా ఆసుపత్రి డయాలిసిస్ కేంద్రాల్లో స్థానికంగా అందుబాటులో ఉన్న మేరకు ఉచిత లేదా ప్రభుత్వ మద్దతు ఉన్న డయాలిసిస్ సేవలు.",
+      "documents": "ఆధార్, రేషన్/BPL కార్డు, డాక్టర్ రిఫరల్, కిడ్నీ రిపోర్టులు, పాత డయాలిసిస్ రికార్డులు, మొబైల్ నంబర్.",
+      "steps": "జిల్లా ఆసుపత్రి లేదా కిడ్నీ డాక్టర్ ను కలవండి. PM National Dialysis Programme గురించి అడగండి. రిఫరల్ మరియు పత్రాలు ఇవ్వండి. కేంద్రం చెప్పిన తేదీలకు డయాలిసిస్ కు వెళ్లండి."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://nhm.gov.in/",
+    "contact_office": "District Hospital / Dialysis Centre",
+    "eligibility_confirmation": "Hospital Nephrologist / Dialysis Centre",
+    "eligibility_questions": [
+      {
+        "question_te": "TB రోగి?",
+        "question_en": "Is patient a TB patient?",
+        "weight": "high"
+      },
+      {
+        "question_te": "డయాలిసిస్ చికిత్స అవసరమైనదా?",
+        "question_en": "Does patient need dialysis?",
+        "weight": "critical"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Medical Diagnosis Report",
+        "name_te": "వైద్య నిర్ధారణ",
+        "optional": false
+      },
+      {
+        "name": "Aadhaar",
+        "name_te": "ఆధార్",
+        "optional": true
+      },
+      {
+        "name": "Doctor Referral",
+        "name_te": "డాక్టర్ సిఫారిష్",
+        "optional": false
+      }
+    ],
+    "local_help_locations": {
+      "district_hospital": "District Hospital",
+      "dialysis_centre": "Empanelled dialysis centre",
+      "nephrologist": "Nephrologist consultation"
+    }
+  },
+  "Ni-kshay Poshan Yojana (TB Nutrition Support)": {
+    "level": "National",
+    "category": "TB support",
+    "icon": "nutrition",
+    "telugu_name": "నిక్షయ్ పోషణ యోజన",
+    "audio_file": "static/audio/nikshay_poshan_yojana.mp3",
+    "source_name": "Central TB Division, MoHFW",
+    "source_url": "https://tbcindia.mohfw.gov.in/",
+    "keywords": [
+      "టిబి",
+      "క్షయ",
+      "నిక్షయ్",
+      "పోషణ",
+      "tb",
+      "tuberculosis",
+      "nutrition"
+    ],
+    "original_complex_text": "Ni-kshay Poshan Yojana provides direct benefit transfer nutrition support to notified TB patients under the National TB Elimination Programme. Recent national guidance says every TB patient is supported at Rs. 1000 per month through DBT. TB patients should be notified in Ni-kshay and keep bank account details updated through the TB health staff.",
+    "simplified": {
+      "eligibility": "People diagnosed and notified with TB under the government TB programme.",
+      "benefits": "Monthly nutrition support through direct bank transfer during TB treatment, as per current national TB programme rules.",
+      "documents": "Aadhaar, bank passbook/account details, phone number, TB treatment card or Ni-kshay ID.",
+      "steps": "Get TB treatment from PHC, government hospital or registered doctor. Make sure your name is entered in Ni-kshay. Give bank details to TB staff. Take medicines regularly and check if DBT is received."
+    },
+    "telugu": {
+      "eligibility": "ప్రభుత్వ TB కార్యక్రమంలో TB గా నమోదు అయిన రోగులు.",
+      "benefits": "TB చికిత్స సమయంలో ప్రస్తుత జాతీయ TB నియమాల ప్రకారం పోషకాహార సహాయం ప్రతి నెలా బ్యాంక్ ఖాతాకు వస్తుంది.",
+      "documents": "ఆధార్, బ్యాంక్ పాస్ బుక్/ఖాతా వివరాలు, మొబైల్ నంబర్, TB చికిత్స కార్డు లేదా నిక్షయ్ ఐడి.",
+      "steps": "PHC, ప్రభుత్వ ఆసుపత్రి లేదా నమోదు చేసిన డాక్టర్ వద్ద TB చికిత్స తీసుకోండి. మీ పేరు నిక్షయ్ లో నమోదు అయ్యిందో చూడండి. బ్యాంక్ వివరాలు TB సిబ్బందికి ఇవ్వండి. మందులు క్రమంగా తీసుకుని DBT వచ్చిందో చెక్ చేయండి."
+    },
+    "last_updated": "2026-06-03",
+    "official_website": "https://nikshay.gov.in/",
+    "contact_office": "TB Centre / PHC / District TB Officer",
+    "eligibility_confirmation": "TB Centre / Hospital confirmed TB patient",
+    "eligibility_questions": [
+      {
+        "question_te": "TB రోగి?",
+        "question_en": "Are you a TB patient?",
+        "weight": "critical"
+      },
+      {
+        "question_te": "చికిత్స కోసం నమోదు చేసినారా?",
+        "question_en": "Registered for TB treatment?",
+        "weight": "critical"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "TB Registration",
+        "name_te": "TB నమోదు",
+        "optional": false
+      },
+      {
+        "name": "Aadhaar",
+        "name_te": "ఆధార్",
+        "optional": true
+      },
+      {
+        "name": "Medical Certificate",
+        "name_te": "వైద్య సర్టిఫికేట్",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "tb_centre": "TB Centre",
+      "phc": "PHC with TB services",
+      "district_tb": "District TB Officer",
+      "nikshay": "https://nikshay.gov.in/"
+    }
+  }
+}

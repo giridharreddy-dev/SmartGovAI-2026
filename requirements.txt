@@ -1,0 +1,5 @@
+flask
+google-genai
+pdfplumber
+gtts
+python-dotenv

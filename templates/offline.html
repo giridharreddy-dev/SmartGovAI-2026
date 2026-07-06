@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ఆఫ్‌లైన్ మోడ్ | SmartGov Health</title>
+    <style>
+        :root {
+            --bg: #f7f5ef;
+            --surface: #ffffff;
+            --ink: #17211d;
+            --green: #176b5b;
+            --green-dark: #0d4b40;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: "Noto Sans Telugu", "Nirmala UI", "Segoe UI", Arial, sans-serif;
+            font-size: 18px;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .offline-container {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 40px 24px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 22px rgba(23, 33, 29, 0.08);
+        }
+        .offline-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: var(--green-dark);
+            font-size: 28px;
+            margin: 0 0 16px;
+        }
+        p {
+            color: #59665f;
+            margin: 12px 0;
+            line-height: 1.8;
+        }
+        .button {
+            display: inline-block;
+            min-height: 52px;
+            padding: 14px 24px;
+            margin-top: 24px;
+            background: var(--green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .button:hover {
+            opacity: 0.9;
+        }
+        .tips {
+            margin-top: 32px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .tips strong {
+            color: var(--green-dark);
+            display: block;
+            margin-bottom: 12px;
+        }
+        .tips ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .tips li {
+            margin-bottom: 8px;
+            color: #59665f;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📡</div>
+        <h1>ఆఫ్‌లైన్ మోడ్</h1>
+        <p>వర్తమానానికి ఇంటర్నెట్ కనెక్షన్ లేదు.</p>
+        <p>కాష్‌ చేసిన సమాచారం ఉపయోగించడానికి హోమ్ పేజీకి తిరిగి వెళ్లండి.</p>
+        
+        <button class="button" onclick="location.href='/'">🏠 హోమ్‌కు తిరిగి వెళ్లండి</button>
+        <button class="button" onclick="location.reload()" style="background: #245a8d; margin-left: 10px;">🔄 తిరిగి ప్రయత్నించండి</button>
+        
+        <div class="tips">
+            <strong>💡 చిట్కాలు:</strong>
+            <ul>
+                <li>WiFi లేదా మోబైల్ డేటా కనెక్ట్ చేయండి</li>
+                <li>అన్ని అందుబాటులో ఉన్న పథకాలను హోమ్‌లో చూడవచ్చు</li>
+                <li>ఆడియో ఫైलుల కోసం ఇంటర్నెట్ అవసరం</li>
+                <li>మీ సమాధానాలు స్వయంచాలకంగా సేవ్ చేయబడతాయి</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

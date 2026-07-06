@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>SmartGov Health</title>
+  <rect width="512" height="512" rx="88" fill="#176b5b"/>
+  <rect x="222" y="112" width="68" height="288" rx="18" fill="#ffffff"/>
+  <rect x="112" y="222" width="288" height="68" rx="18" fill="#ffffff"/>
+  <circle cx="382" cy="134" r="42" fill="#f5a642"/>
+</svg>
