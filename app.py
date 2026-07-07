@@ -2,7 +2,6 @@ import json
 import os
 import uuid
 import urllib.parse
-import logging
 from datetime import datetime
 from typing import Dict, Any, Tuple, Optional
 from werkzeug.utils import secure_filename
@@ -18,6 +17,9 @@ from config import (
     MAX_UPLOAD_SIZE,
     MODEL_NAME,
 )
+
+from logger_config import logger
+from utils import allowed_file, voice_text
 
 from flask import Flask, jsonify, render_template, request, url_for
 from gtts import gTTS
@@ -46,12 +48,6 @@ except ImportError:
 
 
 app = Flask(__name__)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
-)
-logger = logging.getLogger(__name__)
 
 # Feature status logging (no secrets)
 logger.info("Gemini AI: %s", "Enabled" if genai and os.environ.get("GEMINI_API_KEY") else "Disabled")
@@ -93,28 +89,7 @@ except Exception:
     raise
 
 
-def allowed_file(
-    file: FileStorage,
-) -> Tuple[bool, str]:
-    """
-    Validate uploaded PDF files.
 
-    Returns:
-        (success, message_or_filename)
-    """
-    if not file:
-        return False, "No file uploaded."
-    if not file.filename:
-        return False, "No file selected."
-    filename = secure_filename(file.filename)
-    if "." not in filename:
-        return False, "Invalid filename."
-    extension = filename.rsplit(".", 1)[1].lower()
-    if extension not in ALLOWED_EXTENSIONS:
-        return False, "Only PDF files are supported."
-    if file.mimetype not in ALLOWED_MIME_TYPES:
-        return False, "Invalid file type."
-    return True, filename
 
 
 def extract_text_from_pdf(file_path: str) -> str:
@@ -195,16 +170,6 @@ Return strictly this JSON object:
         raise ValueError("Gemini returned an unexpected shape")
     return result
 
-
-def voice_text(telugu_data: Dict[str, str], scheme_name: str) -> str:
-    """Build a Telugu voice string from the simplified data."""
-    return (
-        f"{scheme_name}. "
-        f"అర్హత: {telugu_data['eligibility']}. "
-        f"ప్రయోజనాలు: {telugu_data['benefits']}. "
-        f"పత్రాలు: {telugu_data['documents']}. "
-        f"దశలు: {telugu_data['steps']}."
-    )
 
 
 def audio_url_from_static_path(static_path: Optional[str]) -> Optional[str]:
