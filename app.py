@@ -4,8 +4,7 @@ import uuid
 import urllib.parse
 from datetime import datetime
 from typing import Dict, Any, Tuple, Optional
-from werkzeug.utils import secure_filename
-from werkzeug.datastructures import FileStorage
+
 
 from config import (
     BASE_DIR,
@@ -15,34 +14,28 @@ from config import (
     ALLOWED_EXTENSIONS,
     ALLOWED_MIME_TYPES,
     MAX_UPLOAD_SIZE,
-    MODEL_NAME,
 )
 
 from logger_config import logger
 from utils import allowed_file, voice_text
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
-
+from services.gemini_service import simplify_document, is_gemini_available
 
 
 from flask import Flask, jsonify, render_template, request, url_for
 from gtts import gTTS
-import pdfplumber
+
 
 import database
-
-try:
-    from google import genai
-    from google.genai import types
-except ImportError:
-    logging.exception("Failed to import Google GenAI SDK.")
-    genai = None
-    types = None
 
 
 app = Flask(__name__)
 
 # Feature status logging (no secrets)
-logger.info("Gemini AI: %s", "Enabled" if genai and os.environ.get("GEMINI_API_KEY") else "Disabled")
+logger.info(
+    "Gemini AI: %s",
+    "Enabled" if is_gemini_available() else "Disabled"
+)
 logger.info(
     "OCR support: %s",
     "Available" if is_ocr_available() else "Not installed"
@@ -58,17 +51,6 @@ database.init_db()
 os.makedirs(AUDIO_DIR, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-api_key = os.environ.get("GEMINI_API_KEY", "").strip()
-if genai and api_key:
-    client = genai.Client(api_key=api_key)
-else:
-    client = None
-
-if not api_key:
-    logger.warning("GEMINI_API_KEY not found. PDF simplification will be disabled.")
-
-  
-
 
 def load_schemes() -> Dict[str, Any]:
     """Load the schemes database from JSON file."""
@@ -82,60 +64,6 @@ try:
 except Exception:
     logger.exception("Failed to load schemes database.")
     raise
-
-
-
-
-
-def call_gemini_simplify(complex_text: str, scheme_name: str) -> Dict[str, Any]:
-    """Call Gemini API to simplify a scheme document."""
-    if client is None:
-        raise RuntimeError(
-            "PDF simplification needs GEMINI_API_KEY. Built-in health schemes still work."
-        )
-    prompt = f"""
-You simplify Indian government health scheme documents for rural Andhra Pradesh citizens.
-
-Scheme/document name: {scheme_name}
-Text:
-\"\"\"{complex_text}\"\"\"
-
-Return simple, accurate information. Do not invent benefits that are not present in the text.
-Use easy English, then translate to clear Telugu.
-
-Return strictly this JSON object:
-{{
-  "simplified": {{
-    "eligibility": "Who can apply?",
-    "benefits": "What do they get?",
-    "documents": "What documents are needed?",
-    "steps": "How to apply step by step?"
-  }},
-  "telugu": {{
-    "eligibility": "Telugu translation of eligibility",
-    "benefits": "Telugu translation of benefits",
-    "documents": "Telugu translation of documents",
-    "steps": "Telugu translation of steps"
-  }}
-}}
-"""
-    response = client.models.generate_content(
-        model=MODEL_NAME,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            temperature=0.2,
-        ),
-    )
-    try:
-        result = json.loads(response.text)
-    except json.JSONDecodeError:
-        logger.exception("Gemini returned invalid JSON.")
-        raise ValueError("Invalid AI response.")
-    if "simplified" not in result or "telugu" not in result:
-        raise ValueError("Gemini returned an unexpected shape")
-    return result
-
 
 
 def audio_url_from_static_path(static_path: Optional[str]) -> Optional[str]:
@@ -225,7 +153,7 @@ def healthz():
     health_status = {
         "status": "ok",
         "schemes": len(schemes),
-        "gemini_pdf_support": client is not None,
+        "gemini_pdf_support": is_gemini_available(),
         "checks": {
             "upload_dir": "ok" if os.path.exists(UPLOAD_DIR) and os.access(UPLOAD_DIR, os.W_OK) else "failed",
             "audio_dir": "ok" if os.path.exists(AUDIO_DIR) and os.access(AUDIO_DIR, os.W_OK) else "failed",
@@ -247,7 +175,7 @@ def simplify():
             return jsonify({"error": result}), 400
 
         safe_filename = result
-        if client is None:
+        if not is_gemini_available():
             logger.error("PDF simplification attempted but GEMINI_API_KEY is not set.")
             return jsonify({"error": "PDF simplification is currently unavailable. Please try again later."}), 503
 
@@ -269,7 +197,7 @@ def simplify():
         request_id = database.log_request(scheme_name, "pdf")
 
         try:
-            ai_result = call_gemini_simplify(complex_text, scheme_name)
+            ai_result = simplify_document(complex_text, scheme_name)
         except Exception:
             logger.exception("Gemini simplification failed.")
             return jsonify({"error": "AI could not simplify the document at this time."}), 502

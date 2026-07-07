@@ -1,7 +1,8 @@
-from typing import Tuple
+from typing import Dict, Any, Tuple
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 from config import ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES
+
 
 def allowed_file(
     file: FileStorage,
