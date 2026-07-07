@@ -25,9 +25,7 @@ from services.audio_service import generate_telugu_audio
 
 from flask import Flask, jsonify, render_template, request, url_for
 
-
 import database
-
 
 app = Flask(__name__)
 
