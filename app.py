@@ -17,13 +17,13 @@ from config import (
 )
 
 from logger_config import logger
-from utils import allowed_file, voice_text
+from utils import allowed_file
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
 from services.gemini_service import simplify_document, is_gemini_available
+from services.audio_service import generate_telugu_audio
 
 
 from flask import Flask, jsonify, render_template, request, url_for
-from gtts import gTTS
 
 
 import database
@@ -64,42 +64,6 @@ try:
 except Exception:
     logger.exception("Failed to load schemes database.")
     raise
-
-
-def audio_url_from_static_path(static_path: Optional[str]) -> Optional[str]:
-    """Return a Flask URL for an existing audio file, or None if invalid."""
-    if not static_path:
-        return None
-    static_path = static_path.replace("\\", "/")
-    abs_path = os.path.join(BASE_DIR, static_path)
-    if os.path.exists(abs_path) and os.path.getsize(abs_path) > 0:
-        return url_for("static", filename=static_path.removeprefix("static/"))
-    return None
-
-
-def generate_telugu_audio(
-    telugu_data: Dict[str, str],
-    scheme_name: str,
-    static_path: Optional[str] = None,
-) -> Optional[str]:
-    """Generate Telugu audio for the scheme if not already present."""
-    existing_url = audio_url_from_static_path(static_path)
-    if existing_url:
-        return existing_url
-    if static_path:
-        filename = os.path.join(BASE_DIR, static_path)
-    else:
-        filename = os.path.join(AUDIO_DIR, f"{uuid.uuid4()}.mp3")
-    try:
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        tts = gTTS(text=voice_text(telugu_data, scheme_name), lang="te", slow=False)
-        tts.save(filename)
-        rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
-        return url_for("static", filename=rel_path)
-    except Exception:
-        logger.exception("Audio generation failed for scheme '%s'.", scheme_name)
-        return None
-
 
 def static_scheme_response(scheme_name: str, scheme_data: Dict[str, Any], request_id: int) -> Dict[str, Any]:
     """Build the standard response for a built‑in scheme."""

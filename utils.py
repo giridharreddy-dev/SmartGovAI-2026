@@ -27,12 +27,3 @@ def allowed_file(
         return False, "Invalid file type."
     return True, filename
 
-def voice_text(telugu_data: Dict[str, str], scheme_name: str) -> str:
-    """Build a Telugu voice string from the simplified data."""
-    return (
-        f"{scheme_name}. "
-        f"అర్హత: {telugu_data['eligibility']}. "
-        f"ప్రయోజనాలు: {telugu_data['benefits']}. "
-        f"పత్రాలు: {telugu_data['documents']}. "
-        f"దశలు: {telugu_data['steps']}."
-    )
