@@ -20,6 +20,9 @@ from config import (
 
 from logger_config import logger
 from utils import allowed_file, voice_text
+from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
+
+
 
 from flask import Flask, jsonify, render_template, request, url_for
 from gtts import gTTS
@@ -35,23 +38,15 @@ except ImportError:
     genai = None
     types = None
 
-try:
-    import pytesseract
-    from pdf2image import convert_from_path
-    OCR_AVAILABLE = True
-except ImportError:
-    OCR_AVAILABLE = False
-
-
-
-
-
 
 app = Flask(__name__)
 
 # Feature status logging (no secrets)
 logger.info("Gemini AI: %s", "Enabled" if genai and os.environ.get("GEMINI_API_KEY") else "Disabled")
-logger.info("OCR support: %s", "Available" if OCR_AVAILABLE else "Not installed")
+logger.info(
+    "OCR support: %s",
+    "Available" if is_ocr_available() else "Not installed"
+)
 
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_SIZE
 secret_key = os.environ.get("SECRET_KEY", "").strip()
@@ -90,35 +85,6 @@ except Exception:
 
 
 
-
-
-def extract_text_from_pdf(file_path: str) -> str:
-    """Extract plain text from a PDF using pdfplumber."""
-    text = ""
-    with pdfplumber.open(file_path) as pdf:
-        for page in pdf.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + "\n"
-    return text.strip()
-
-
-def extract_text_with_ocr_fallback(file_path: str) -> str:
-    """Extract text with OCR fallback if normal extraction yields little content."""
-    text = extract_text_from_pdf(file_path)
-    if len(text) > 100:
-        return text
-    if not OCR_AVAILABLE:
-        return text
-    try:
-        images = convert_from_path(file_path, dpi=200)
-        ocr_text = ""
-        for img in images:
-            ocr_text += pytesseract.image_to_string(img, lang="tel+eng") + "\n"
-        return ocr_text.strip()
-    except Exception:
-        logger.exception("OCR processing failed.")
-        return text
 
 
 def call_gemini_simplify(complex_text: str, scheme_name: str) -> Dict[str, Any]:
