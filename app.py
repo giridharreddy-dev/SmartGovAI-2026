@@ -8,7 +8,17 @@ from typing import Dict, Any, Tuple, Optional
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 
-from dotenv import load_dotenv
+from config import (
+    BASE_DIR,
+    SCHEMES_PATH,
+    UPLOAD_DIR,
+    AUDIO_DIR,
+    ALLOWED_EXTENSIONS,
+    ALLOWED_MIME_TYPES,
+    MAX_UPLOAD_SIZE,
+    MODEL_NAME,
+)
+
 from flask import Flask, jsonify, render_template, request, url_for
 from gtts import gTTS
 import pdfplumber
@@ -31,16 +41,9 @@ except ImportError:
     OCR_AVAILABLE = False
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SCHEMES_PATH = os.path.join(BASE_DIR, "schemes_complex.json")
-UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
-AUDIO_DIR = os.path.join(BASE_DIR, "static", "audio")
 
-ALLOWED_EXTENSIONS = frozenset({"pdf"})
-ALLOWED_MIME_TYPES = frozenset({"application/pdf"})
-MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
 
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+
 
 app = Flask(__name__)
 
@@ -73,10 +76,7 @@ else:
 if not api_key:
     logger.warning("GEMINI_API_KEY not found. PDF simplification will be disabled.")
 
-MODEL_NAME = os.getenv(
-    "GEMINI_MODEL",
-    "gemini-2.5-flash"
-).strip()   
+  
 
 
 def load_schemes() -> Dict[str, Any]:
