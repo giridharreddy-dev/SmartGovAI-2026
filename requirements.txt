@@ -3,3 +3,7 @@ google-genai
 pdfplumber
 gtts
 python-dotenv
+
+pytest
+pytest-cov
+pytest-mock

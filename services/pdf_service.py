@@ -7,6 +7,8 @@ try:
     from pdf2image import convert_from_path
     OCR_AVAILABLE = True
 except ImportError:
+    pytesseract = None
+    convert_from_path = None
     OCR_AVAILABLE = False
 
 
