@@ -22,7 +22,8 @@ def get_client() -> Client | None:
         return genai.Client(api_key=api_key)
     return None
 
-def is_gemini_available():
+def is_gemini_available() -> bool:
+    """Return whether the Gemini API client is available."""
     return get_client() is not None
 
 def simplify_document(complex_text: str, scheme_name: str) -> Dict[str, Any]:

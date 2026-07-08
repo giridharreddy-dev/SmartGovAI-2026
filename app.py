@@ -1,11 +1,12 @@
 import json
 import os
+import sqlite3
 import time
 import uuid
 import urllib.parse
 from datetime import datetime
 from functools import lru_cache
-from typing import Dict, Any, Tuple, Optional
+from typing import Any, Dict
 
 
 from config import (
@@ -13,8 +14,6 @@ from config import (
     SCHEMES_PATH,
     UPLOAD_DIR,
     AUDIO_DIR,
-    ALLOWED_EXTENSIONS,
-    ALLOWED_MIME_TYPES,
     MAX_UPLOAD_SIZE,
 )
 
@@ -113,35 +112,41 @@ def static_scheme_response(scheme_name: str, scheme_data: Dict[str, Any], reques
 
 
 @app.errorhandler(413)
-def too_large(_error):
+def too_large(_error) -> Any:
+    """Return a JSON response when uploaded files exceed the max content size."""
     return jsonify({"error": "File too large. Please upload a PDF below 10 MB."}), 413
 
 @app.errorhandler(404)
-def not_found(_error):
+def not_found(_error) -> Any:
+    """Return a JSON response for missing endpoints."""
     return jsonify({"error": "Resource not found."}), 404
 
 @app.errorhandler(500)
-def internal_error(error):
+def internal_error(error) -> Any:
+    """Return a JSON response for unhandled server errors."""
     logger.exception("Unhandled server error: %s", error)
     return jsonify({"error": "An unexpected server error occurred."}), 500
 
 @app.errorhandler(Exception)
-def handle_unexpected_exception(error):
+def handle_unexpected_exception(error) -> Any:
+    """Catch and report unexpected exceptions."""
     logger.exception("Unhandled exception: %s", error)
     return jsonify({"error": "An unexpected error occurred."}), 500
 
 
 @app.route("/")
-def index():
+def index() -> Any:
+    """Render the homepage with available schemes."""
     return render_template("index.html", schemes=schemes, scheme_names=scheme_names)
 
 @app.route("/offline.html")
-def offline():
+def offline() -> Any:
+    """Render an offline fallback page."""
     return render_template("offline.html")
 
 @app.route("/healthz")
-def healthz():
-    """Health check endpoint – verifies schemes and directories."""
+def healthz() -> Any:
+    """Return a JSON health status for the service."""
     health_status = {
         "status": "ok",
         "schemes": len(schemes),
@@ -159,7 +164,8 @@ def healthz():
 
 
 @app.route("/simplify", methods=["POST"])
-def simplify():
+def simplify() -> Any:
+    """Accept a PDF upload, simplify it via Gemini, and return JSON results."""
     file = request.files.get("document")
     if file:
         valid, result = allowed_file(file)
@@ -236,8 +242,8 @@ def simplify():
 
 
 @app.route("/analytics")
-def analytics():
-    import sqlite3
+def analytics() -> Any:
+    """Return analytics rendered from feedback stats."""
     conn = sqlite3.connect(os.path.join(BASE_DIR, "feedback.db"))
     cur = conn.cursor()
     cur.execute("""
@@ -255,7 +261,8 @@ def analytics():
 
 
 @app.route("/feedback", methods=["POST"])
-def feedback():
+def feedback() -> Any:
+    """Receive feedback for a request and persist it."""
     data = request.get_json(silent=True) or {}
     if "request_id" not in data or "rating" not in data:
         return jsonify({"error": "Missing request_id or rating"}), 400
@@ -284,7 +291,8 @@ def feedback():
 # ==================== NEW FEATURES ====================
 
 @app.route("/eligibility-check", methods=["POST"])
-def eligibility_check():
+def eligibility_check() -> Any:
+    """Evaluate basic eligibility answers for a scheme."""
     data = request.get_json(silent=True) or {}
     scheme_name = data.get("scheme_name")
     answers = data.get("answers", {})
@@ -319,7 +327,8 @@ def eligibility_check():
 
 
 @app.route("/document-checklist", methods=["GET"])
-def document_checklist():
+def document_checklist() -> Any:
+    """Return a document checklist for a given scheme."""
     scheme_name = request.args.get("scheme_name")
     if not scheme_name or scheme_name not in schemes:
         return jsonify({"error": "Scheme not found"}), 404
@@ -336,7 +345,8 @@ def document_checklist():
 
 
 @app.route("/whatsapp-share", methods=["POST"])
-def whatsapp_share():
+def whatsapp_share() -> Any:
+    """Build a WhatsApp share message for a scheme."""
     data = request.get_json(silent=True) or {}
     scheme_name = data.get("scheme_name")
     if not scheme_name or scheme_name not in schemes:
@@ -364,7 +374,8 @@ def whatsapp_share():
 
 
 @app.route("/enhanced-feedback", methods=["POST"])
-def enhanced_feedback():
+def enhanced_feedback() -> Any:
+    """Save extended feedback metadata for a request."""
     data = request.get_json(silent=True) or {}
     required_fields = ["request_id", "rating"]
     if not all(field in data for field in required_fields):
@@ -400,7 +411,8 @@ def enhanced_feedback():
 
 
 @app.route("/staff-report", methods=["POST"])
-def staff_report():
+def staff_report() -> Any:
+    """Accept staff reports and store them in the database."""
     data = request.get_json(silent=True) or {}
     required = ["scheme_name", "feedback_type"]
     if not all(f in data for f in required):
@@ -437,7 +449,8 @@ def staff_report():
 
 
 @app.route("/local-locations", methods=["GET"])
-def local_locations():
+def local_locations() -> Any:
+    """Return local help locations for a scheme and village."""
     scheme_name = request.args.get("scheme_name")
     village = request.args.get("village", "")
     if not scheme_name or scheme_name not in schemes:
@@ -455,7 +468,8 @@ def local_locations():
 
 
 @app.route("/offline-cache", methods=["GET"])
-def offline_cache():
+def offline_cache() -> Any:
+    """Return cached scheme metadata for offline clients."""
     return jsonify({
         "schemes": len(schemes),
         "schemes_list": {
