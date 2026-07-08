@@ -42,7 +42,9 @@ def extract_text_with_ocr_fallback(file_path: str) -> str:
             if page_text:
                 ocr_parts.append(page_text)
 
-        return "\n".join(ocr_parts).strip() or text
+        ocr_text = "\n".join(ocr_parts).strip() or text
+        logger.info("OCR fallback used for file='%s' extracted=%s chars", file_path, len(ocr_text))
+        return ocr_text
 
     except Exception:
         logger.exception("OCR processing failed.")

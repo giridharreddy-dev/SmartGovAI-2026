@@ -32,6 +32,7 @@ def simplify_document(complex_text: str, scheme_name: str) -> Dict[str, Any]:
         raise RuntimeError(
             "PDF simplification needs GEMINI_API_KEY. Built-in health schemes still work."
         )
+    logger.info("Gemini request started: scheme='%s'", scheme_name)
     prompt = f"""
 You simplify Indian government health scheme documents for rural Andhra Pradesh citizens.
 

@@ -92,7 +92,7 @@ def init_db() -> None:
 
 def log_request(scheme_name: str, source: str) -> int:
     """Insert a new request and return its ID."""
-    return execute_insert(
+    request_id = execute_insert(
         """
         INSERT INTO requests (
             scheme_name,
@@ -103,6 +103,13 @@ def log_request(scheme_name: str, source: str) -> int:
         """,
         (scheme_name, source, current_timestamp()),
     )
+    logger.info(
+        "Logged request: scheme='%s' source='%s' request_id=%s",
+        scheme_name,
+        source,
+        request_id,
+    )
+    return request_id
 
 
 def save_feedback(request_id: int, rating: int, comment: str) -> None:
@@ -118,6 +125,11 @@ def save_feedback(request_id: int, rating: int, comment: str) -> None:
         VALUES (?, ?, ?, ?)
         """,
         (request_id, rating, comment, current_timestamp()),
+    )
+    logger.info(
+        "Saved feedback: request_id=%s rating=%s",
+        request_id,
+        rating,
     )
 
 
@@ -135,6 +147,10 @@ def save_eligibility_check(user_session: str, scheme_name: str, answers: str) ->
         """,
         (user_session, scheme_name, answers, current_timestamp()),
     )
+    logger.info(
+        "Saved eligibility check for scheme='%s'",
+        scheme_name,
+    )
 
 
 def save_document_checklist(user_session: str, scheme_name: str, documents_checked: str) -> None:
@@ -151,6 +167,10 @@ def save_document_checklist(user_session: str, scheme_name: str, documents_check
         """,
         (user_session, scheme_name, documents_checked, current_timestamp()),
     )
+    logger.info(
+        "Saved document checklist for scheme='%s'",
+        scheme_name,
+    )
 
 
 def log_whatsapp_share(scheme_name: str) -> None:
@@ -165,6 +185,7 @@ def log_whatsapp_share(scheme_name: str) -> None:
         """,
         (scheme_name, current_timestamp()),
     )
+    logger.info("Logged WhatsApp share: scheme='%s'", scheme_name)
 
 
 def save_staff_feedback(scheme_name: str, village: str, feedback_text: str, issue_type: str) -> None:
@@ -181,4 +202,10 @@ def save_staff_feedback(scheme_name: str, village: str, feedback_text: str, issu
         VALUES (?, ?, ?, ?, ?)
         """,
         (scheme_name, village, feedback_text, issue_type, current_timestamp()),
+    )
+    logger.info(
+        "Saved staff feedback: scheme='%s' village='%s' issue_type='%s'",
+        scheme_name,
+        village,
+        issue_type,
     )

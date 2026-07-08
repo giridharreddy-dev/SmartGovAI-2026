@@ -16,6 +16,7 @@ def audio_url_from_static_path(static_path: Optional[str]) -> Optional[str]:
     static_path = static_path.replace("\\", "/")
     abs_path = os.path.join(BASE_DIR, static_path)
     if os.path.isfile(abs_path) and os.path.getsize(abs_path) > 0:
+        logger.info("Reusing existing audio: static_path='%s'", static_path)
         return url_for("static", filename=static_path.removeprefix("static/"))
     return None
 
@@ -38,6 +39,7 @@ def generate_telugu_audio(
         tts = gTTS(text=voice_text(telugu_data, scheme_name), lang="te", slow=False)
         tts.save(filename)
         rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
+        logger.info("Generated audio: filename='%s' scheme='%s'", filename, scheme_name)
         return url_for("static", filename=rel_path)
     except Exception:
         logger.exception("Audio generation failed for scheme '%s'.", scheme_name)

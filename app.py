@@ -1,5 +1,6 @@
 import json
 import os
+import time
 import uuid
 import urllib.parse
 from datetime import datetime
@@ -24,20 +25,45 @@ from services.gemini_service import simplify_document, is_gemini_available
 from services.audio_service import generate_telugu_audio
 
 
-from flask import Flask, jsonify, render_template, request, url_for
+from flask import Flask, g, jsonify, render_template, request, url_for
 
 import database
 
 app = Flask(__name__)
 
+@app.before_request
+def log_request_start() -> None:
+    g.request_start_time = time.perf_counter()
+    client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+    logger.info(
+        "Request received: method='%s' endpoint='%s' client_ip='%s'",
+        request.method,
+        request.endpoint or request.path,
+        client_ip,
+    )
+
+@app.after_request
+def log_request_end(response):
+    duration = time.perf_counter() - getattr(g, "request_start_time", time.perf_counter())
+    client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+    logger.info(
+        "Request completed: method='%s' endpoint='%s' status=%s client_ip='%s' duration=%.3f sec",
+        request.method,
+        request.endpoint or request.path,
+        response.status_code,
+        client_ip,
+        duration,
+    )
+    return response
+
 # Feature status logging (no secrets)
 logger.info(
-    "Gemini AI: %s",
-    "Enabled" if is_gemini_available() else "Disabled"
+    "Startup: Gemini AI %s",
+    "enabled" if is_gemini_available() else "disabled",
 )
 logger.info(
-    "OCR support: %s",
-    "Available" if is_ocr_available() else "Not installed"
+    "Startup: OCR support %s",
+    "available" if is_ocr_available() else "not installed",
 )
 
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_SIZE
@@ -62,6 +88,7 @@ def load_schemes() -> Dict[str, Any]:
 try:
     schemes = load_schemes()
     scheme_names = list(schemes.keys())
+    logger.info("Startup: loaded %d schemes.", len(schemes))
 except Exception:
     logger.exception("Failed to load schemes database.")
     raise
@@ -137,19 +164,31 @@ def simplify():
     if file:
         valid, result = allowed_file(file)
         if not valid:
+            logger.warning(
+                "Rejected upload '%s': %s",
+                file.filename,
+                result,
+            )
             return jsonify({"error": result}), 400
 
         safe_filename = result
         if not is_gemini_available():
-            logger.error("PDF simplification attempted but GEMINI_API_KEY is not set.")
+            logger.error(
+                "PDF simplification blocked: GEMINI_API_KEY is not configured",
+            )
             return jsonify({"error": "PDF simplification is currently unavailable. Please try again later."}), 503
 
         temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4()}.pdf")
         file.save(temp_path)
         try:
             complex_text = extract_text_with_ocr_fallback(temp_path)
+            logger.info(
+                "PDF uploaded: filename='%s' temp_path='%s'",
+                safe_filename,
+                temp_path,
+            )
         except Exception:
-            logger.exception("Failed to process uploaded PDF.")
+            logger.exception("PDF processing failed for '%s'", temp_path)
             return jsonify({"error": "The uploaded PDF could not be processed."}), 400
         finally:
             if os.path.exists(temp_path):
@@ -163,8 +202,12 @@ def simplify():
 
         try:
             ai_result = simplify_document(complex_text, scheme_name)
+            logger.info(
+                "Gemini called: scheme='%s' source='pdf'",
+                scheme_name,
+            )
         except Exception:
-            logger.exception("Gemini simplification failed.")
+            logger.exception("Gemini simplification failed for scheme '%s'.", scheme_name)
             return jsonify({"error": "AI could not simplify the document at this time."}), 502
 
         return jsonify({
@@ -224,9 +267,17 @@ def feedback():
         return jsonify({"error": "Rating must be between 1 and 5"}), 400
     try:
         database.save_feedback(data["request_id"], rating, data.get("comment", ""))
+        logger.info(
+            "Feedback submitted: request_id=%s rating=%s",
+            data["request_id"],
+            rating,
+        )
         return jsonify({"status": "success"})
+    except sqlite3.Error:
+        logger.exception("Feedback save failed for request_id=%s.", data["request_id"])
+        return jsonify({"error": "Unable to save feedback."}), 500
     except Exception:
-        logger.exception("Failed to save feedback.")
+        logger.exception("Unexpected feedback save failure for request_id=%s.", data["request_id"])
         return jsonify({"error": "Unable to save feedback."}), 500
 
 
@@ -334,9 +385,17 @@ def enhanced_feedback():
             f"Village: {data.get('village', 'N/A')} | "
             f"Problem: {data.get('problem', 'N/A')}"
         )
+        logger.info(
+            "Enhanced feedback submitted: request_id=%s rating=%s",
+            data["request_id"],
+            rating,
+        )
         return jsonify({"status": "success", "message": "Feedback saved successfully"})
+    except sqlite3.Error:
+        logger.exception("Enhanced feedback save failed for request_id=%s.", data["request_id"])
+        return jsonify({"error": "Unable to save feedback."}), 500
     except Exception:
-        logger.exception("Enhanced feedback database save failed.")
+        logger.exception("Unexpected enhanced feedback save failure for request_id=%s.", data["request_id"])
         return jsonify({"error": "Unable to save feedback."}), 500
 
 
@@ -358,13 +417,22 @@ def staff_report():
             data.get("feedback_text", ""),
             feedback_type
         )
+        logger.info(
+            "Staff report submitted: scheme='%s' feedback_type='%s' village='%s'",
+            scheme_name,
+            feedback_type,
+            data.get("village", ""),
+        )
         return jsonify({
             "status": "success",
             "message": "Thank you for helping improve this service",
             "message_te": "సేవ పెరుగుదలకు సహాయం చేసినందుకు ధన్యవాదాలు"
         })
+    except sqlite3.Error:
+        logger.exception("Staff feedback save failed for scheme='%s'.", scheme_name)
+        return jsonify({"error": "Unable to save staff feedback."}), 500
     except Exception:
-        logger.exception("Staff feedback database save failed.")
+        logger.exception("Unexpected staff feedback save failure for scheme='%s'.", scheme_name)
         return jsonify({"error": "Unable to save staff feedback."}), 500
 
 
