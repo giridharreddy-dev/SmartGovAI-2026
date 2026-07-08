@@ -14,3 +14,5 @@ ALLOWED_MIME_TYPES = {"application/pdf"}
 MAX_UPLOAD_SIZE = 5 * 1024 * 1024
 
 MODEL_NAME = "gemini-2.5-flash"
+
+DB_PATH = BASE_DIR / "feedback.db"

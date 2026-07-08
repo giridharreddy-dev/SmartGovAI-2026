@@ -1,92 +1,184 @@
 # database.py
 import sqlite3
-from datetime import datetime
-import os
+from collections.abc import Iterator
+from contextlib import contextmanager
+from datetime import UTC, datetime
+from typing import Any
 
-DB_PATH = 'feedback.db'
+from config import DB_PATH
+from logger_config import logger
 
-def init_db():
+def current_timestamp() -> str:
+    '''Return the current UTC timestamp as an ISO 8601 string.'''
+    return datetime.now(UTC).isoformat()
+
+@contextmanager  
+def get_connection() -> Iterator[sqlite3.Connection]:
+    '''Context manager to get a SQLite connection with foreign keys enabled.'''
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA foreign_keys = ON")
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
+def execute_insert(query: str, params: tuple[Any, ...]) -> int:  
+    '''Execute an insert query and return the last inserted row ID.'''
+    try:
+        with get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(query, params)
+            conn.commit()
+            return cur.lastrowid
+    except sqlite3.Error:
+        logger.exception("Database insert failed.")
+        raise
+
+
+def init_db() -> None:
     """Create tables if they don't exist."""
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute('''CREATE TABLE IF NOT EXISTS requests
-                        (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                         scheme_name TEXT,
-                         source TEXT,
-                         timestamp TEXT)''')
-        conn.execute('''CREATE TABLE IF NOT EXISTS feedback
-                        (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                         request_id INTEGER,
-                         rating INTEGER,
-                         comment TEXT,
-                         timestamp TEXT,
-                         FOREIGN KEY (request_id) REFERENCES requests(id))''')
-        conn.execute('''CREATE TABLE IF NOT EXISTS eligibility_checks
-                        (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                         user_session TEXT,
-                         scheme_name TEXT,
-                         answers TEXT,
-                         timestamp TEXT)''')
-        conn.execute('''CREATE TABLE IF NOT EXISTS document_checklist
-                        (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                         user_session TEXT,
-                         scheme_name TEXT,
-                         documents_checked TEXT,
-                         timestamp TEXT)''')
-        conn.execute('''CREATE TABLE IF NOT EXISTS whatsapp_shares
-                        (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                         scheme_name TEXT,
-                         timestamp TEXT)''')
-        conn.execute('''CREATE TABLE IF NOT EXISTS staff_feedback
-                        (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                         scheme_name TEXT,
-                         village TEXT,
-                         feedback_text TEXT,
-                         issue_type TEXT,
-                         timestamp TEXT)''')
-        conn.execute('''CREATE TABLE IF NOT EXISTS local_locations
-                        (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                         village TEXT,
-                         location_type TEXT,
-                         name TEXT,
-                         contact TEXT,
-                         address TEXT,
-                         timestamp TEXT)''')
-    print("✅ Database initialized (feedback.db)")
+    try:
+        with get_connection() as conn:
+            conn.execute('''CREATE TABLE IF NOT EXISTS requests
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                             scheme_name TEXT,
+                             source TEXT,
+                             timestamp TEXT)''')
+            conn.execute('''CREATE TABLE IF NOT EXISTS feedback
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                             request_id INTEGER,
+                             rating INTEGER,
+                             comment TEXT,
+                             timestamp TEXT,
+                             FOREIGN KEY (request_id) REFERENCES requests(id))''')
+            conn.execute('''CREATE TABLE IF NOT EXISTS eligibility_checks
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                             user_session TEXT,
+                             scheme_name TEXT,
+                             answers TEXT,
+                             timestamp TEXT)''')
+            conn.execute('''CREATE TABLE IF NOT EXISTS document_checklist
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                             user_session TEXT,
+                             scheme_name TEXT,
+                             documents_checked TEXT,
+                             timestamp TEXT)''')
+            conn.execute('''CREATE TABLE IF NOT EXISTS whatsapp_shares
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                             scheme_name TEXT,
+                             timestamp TEXT)''')
+            conn.execute('''CREATE TABLE IF NOT EXISTS staff_feedback
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                             scheme_name TEXT,
+                             village TEXT,
+                             feedback_text TEXT,
+                             issue_type TEXT,
+                             timestamp TEXT)''')
+            conn.execute('''CREATE TABLE IF NOT EXISTS local_locations
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                             village TEXT,
+                             location_type TEXT,
+                             name TEXT,
+                             contact TEXT,
+                             address TEXT,
+                             timestamp TEXT)''')
+            conn.commit()
+        logger.info("Database initialized successfully.")
+    except sqlite3.Error:
+        logger.exception("Failed to initialize database.")
+        raise
 
-def log_request(scheme_name, source):
+
+def log_request(scheme_name: str, source: str) -> int:
     """Insert a new request and return its ID."""
-    with sqlite3.connect(DB_PATH) as conn:
-        cur = conn.cursor()
-        cur.execute("INSERT INTO requests (scheme_name, source, timestamp) VALUES (?,?,?)",
-                    (scheme_name, source, datetime.utcnow().isoformat()))
-        return cur.lastrowid
+    return execute_insert(
+        """
+        INSERT INTO requests (
+            scheme_name,
+            source,
+            timestamp
+        )
+        VALUES (?, ?, ?)
+        """,
+        (scheme_name, source, current_timestamp()),
+    )
 
-def save_feedback(request_id, rating, comment):
+
+def save_feedback(request_id: int, rating: int, comment: str) -> None:
     """Store user feedback."""
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("INSERT INTO feedback (request_id, rating, comment, timestamp) VALUES (?,?,?,?)",
-                     (request_id, rating, comment, datetime.utcnow().isoformat()))
+    execute_insert(
+        """
+        INSERT INTO feedback (
+            request_id,
+            rating,
+            comment,
+            timestamp
+        )
+        VALUES (?, ?, ?, ?)
+        """,
+        (request_id, rating, comment, current_timestamp()),
+    )
 
-def save_eligibility_check(user_session, scheme_name, answers):
+
+def save_eligibility_check(user_session: str, scheme_name: str, answers: str) -> None:
     """Store eligibility checker responses."""
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("INSERT INTO eligibility_checks (user_session, scheme_name, answers, timestamp) VALUES (?,?,?,?)",
-                     (user_session, scheme_name, answers, datetime.utcnow().isoformat()))
+    execute_insert(
+        """
+        INSERT INTO eligibility_checks (
+            user_session,
+            scheme_name,
+            answers,
+            timestamp
+        )
+        VALUES (?, ?, ?, ?)
+        """,
+        (user_session, scheme_name, answers, current_timestamp()),
+    )
 
-def save_document_checklist(user_session, scheme_name, documents_checked):
+
+def save_document_checklist(user_session: str, scheme_name: str, documents_checked: str) -> None:
     """Store document checklist progress."""
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("INSERT INTO document_checklist (user_session, scheme_name, documents_checked, timestamp) VALUES (?,?,?,?)",
-                     (user_session, scheme_name, documents_checked, datetime.utcnow().isoformat()))
+    execute_insert(
+        """
+        INSERT INTO document_checklist (
+            user_session,
+            scheme_name,
+            documents_checked,
+            timestamp
+        )
+        VALUES (?, ?, ?, ?)
+        """,
+        (user_session, scheme_name, documents_checked, current_timestamp()),
+    )
 
-def log_whatsapp_share(scheme_name):
+
+def log_whatsapp_share(scheme_name: str) -> None:
     """Log WhatsApp shares."""
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("INSERT INTO whatsapp_shares (scheme_name, timestamp) VALUES (?,?)",
-                     (scheme_name, datetime.utcnow().isoformat()))
+    execute_insert(
+        """
+        INSERT INTO whatsapp_shares (
+            scheme_name,
+            timestamp
+        )
+        VALUES (?, ?)
+        """,
+        (scheme_name, current_timestamp()),
+    )
 
-def save_staff_feedback(scheme_name, village, feedback_text, issue_type):
+
+def save_staff_feedback(scheme_name: str, village: str, feedback_text: str, issue_type: str) -> None:
     """Save staff/community worker feedback."""
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("INSERT INTO staff_feedback (scheme_name, village, feedback_text, issue_type, timestamp) VALUES (?,?,?,?,?)",
-                     (scheme_name, village, feedback_text, issue_type, datetime.utcnow().isoformat()))
+    execute_insert(
+        """
+        INSERT INTO staff_feedback (
+            scheme_name,
+            village,
+            feedback_text,
+            issue_type,
+            timestamp
+        )
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (scheme_name, village, feedback_text, issue_type, current_timestamp()),
+    )
