@@ -3,6 +3,7 @@ import os
 import uuid
 import urllib.parse
 from datetime import datetime
+from functools import lru_cache
 from typing import Dict, Any, Tuple, Optional
 
 
@@ -50,6 +51,7 @@ os.makedirs(AUDIO_DIR, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
+@lru_cache(maxsize=1)
 def load_schemes() -> Dict[str, Any]:
     """Load the schemes database from JSON file."""
     with open(SCHEMES_PATH, "r", encoding="utf-8") as f:
@@ -59,6 +61,7 @@ def load_schemes() -> Dict[str, Any]:
 # Load schemes safely
 try:
     schemes = load_schemes()
+    scheme_names = list(schemes.keys())
 except Exception:
     logger.exception("Failed to load schemes database.")
     raise
@@ -103,7 +106,7 @@ def handle_unexpected_exception(error):
 
 @app.route("/")
 def index():
-    return render_template("index.html", schemes=schemes, scheme_names=list(schemes.keys()))
+    return render_template("index.html", schemes=schemes, scheme_names=scheme_names)
 
 @app.route("/offline.html")
 def offline():

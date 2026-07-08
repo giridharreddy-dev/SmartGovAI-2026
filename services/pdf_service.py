@@ -1,50 +1,59 @@
-import pdfplumber
+﻿import pdfplumber
+from functools import lru_cache
 
 from logger_config import logger
 
-try:
-    import pytesseract
-    from pdf2image import convert_from_path
-    OCR_AVAILABLE = True
-except ImportError:
-    pytesseract = None
-    convert_from_path = None
-    OCR_AVAILABLE = False
+@lru_cache(maxsize=32)
+def cached_pdf_text(file_path: str) -> str:
+    '''Extract text from a PDF file, caching the result for performance.'''
+    return extract_text_from_pdf(file_path)
 
 
 def extract_text_from_pdf(file_path: str) -> str:
     """Extract plain text from a PDF using pdfplumber."""
-    text = ""
+    parts = []
     with pdfplumber.open(file_path) as pdf:
         for page in pdf.pages:
             page_text = page.extract_text()
             if page_text:
-                text += page_text + "\n"
-    return text.strip()
+                parts.append(page_text)
+    return "\n".join(parts).strip()
 
 
 def extract_text_with_ocr_fallback(file_path: str) -> str:
     """Extract text with OCR fallback if normal extraction yields little content."""
-    text = extract_text_from_pdf(file_path)
+    text = cached_pdf_text(file_path)
 
     if len(text) > 100:
         return text
 
-    if not OCR_AVAILABLE:
+    try:
+        import pytesseract
+        from pdf2image import convert_from_path
+    except ImportError:
         return text
 
     try:
         images = convert_from_path(file_path, dpi=200)
-        ocr_text = ""
+        ocr_parts = []
 
         for img in images:
-            ocr_text += pytesseract.image_to_string(img, lang="tel+eng") + "\n"
+            page_text = pytesseract.image_to_string(img, lang="tel+eng")
+            if page_text:
+                ocr_parts.append(page_text)
 
-        return ocr_text.strip()
+        return "\n".join(ocr_parts).strip() or text
 
     except Exception:
         logger.exception("OCR processing failed.")
         return text
-    
+
+
 def is_ocr_available() -> bool:
-    return OCR_AVAILABLE
+    """Check if OCR dependencies are available (pytesseract and pdf2image)."""
+    try:
+        import pytesseract
+        import pdf2image
+        return True
+    except ImportError:
+        return False

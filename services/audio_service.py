@@ -15,7 +15,7 @@ def audio_url_from_static_path(static_path: Optional[str]) -> Optional[str]:
         return None
     static_path = static_path.replace("\\", "/")
     abs_path = os.path.join(BASE_DIR, static_path)
-    if os.path.exists(abs_path) and os.path.getsize(abs_path) > 0:
+    if os.path.isfile(abs_path) and os.path.getsize(abs_path) > 0:
         return url_for("static", filename=static_path.removeprefix("static/"))
     return None
 

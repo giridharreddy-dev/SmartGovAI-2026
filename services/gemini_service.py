@@ -1,6 +1,7 @@
 import json
 import os
-from typing import Dict, Any
+from functools import lru_cache
+from typing import Any, Dict
 
 from config import MODEL_NAME
 from logger_config import logger
@@ -8,21 +9,25 @@ from logger_config import logger
 try:
     from google import genai
     from google.genai import types
+    from google.genai import Client
 except ImportError:
     genai = None
     types = None
+    Client = Any
 
-api_key = os.environ.get("GEMINI_API_KEY", "").strip()
-if genai and api_key:
-    client = genai.Client(api_key=api_key)
-else:
-    client = None
+@lru_cache(maxsize=1)
+def get_client() -> Client | None:
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if genai and api_key:
+        return genai.Client(api_key=api_key)
+    return None
 
 def is_gemini_available():
-    return client is not None
+    return get_client() is not None
 
 def simplify_document(complex_text: str, scheme_name: str) -> Dict[str, Any]:
     """Call Gemini API to simplify a scheme document."""
+    client = get_client()
     if client is None:
         raise RuntimeError(
             "PDF simplification needs GEMINI_API_KEY. Built-in health schemes still work."
