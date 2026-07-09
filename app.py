@@ -57,6 +57,13 @@ def log_request_end(response):
         client_ip,
         duration,
     )
+    # Add strict but compatible security headers for browsers and intermediaries.
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=()")
+    # Content-Security-Policy kept minimal to avoid breaking templates; encourage setting via reverse proxy in prod.
+    response.headers.setdefault("Content-Security-Policy", "default-src 'self'")
     return response
 
 # Feature status logging (no secrets)
@@ -248,6 +255,23 @@ def simplify() -> Any:
 
         temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4()}.pdf")
         file.save(temp_path)
+        # Extra validation: ensure uploaded file begins with PDF header bytes.
+        # This prevents clients from bypassing checks by faking MIME type or extension.
+        try:
+            with open(temp_path, "rb") as _f:
+                header = _f.read(4)
+        except Exception:
+            header = b""
+        if not header.startswith(b"%PDF"):
+            # Remove temporary file and reject the upload
+            try:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+            except Exception:
+                logger.warning("Failed to remove invalid temp upload: %s", temp_path)
+            logger.warning("Rejected upload: not a valid PDF according to header check: %s", safe_filename)
+            return api_error("Uploaded file is not a valid PDF.", 400, error_code="INVALID_PDF")
+
         try:
             complex_text = extract_text_with_ocr_fallback(temp_path)
             logger.info(
