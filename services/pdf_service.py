@@ -1,6 +1,7 @@
 ﻿import pdfplumber
 from functools import lru_cache
 
+from config import OCR_LANGUAGES
 from logger_config import logger
 
 @lru_cache(maxsize=32)
@@ -38,7 +39,7 @@ def extract_text_with_ocr_fallback(file_path: str) -> str:
         ocr_parts = []
 
         for img in images:
-            page_text = pytesseract.image_to_string(img, lang="tel+eng")
+            page_text = pytesseract.image_to_string(img, lang=OCR_LANGUAGES)
             if page_text:
                 ocr_parts.append(page_text)
 

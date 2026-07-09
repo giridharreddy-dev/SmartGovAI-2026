@@ -6,7 +6,7 @@ from typing import Dict, Optional
 from flask import url_for
 from gtts import gTTS
 
-from config import BASE_DIR, AUDIO_DIR
+from config import AUDIO_DIR, BASE_DIR, VOICE_LANGUAGE
 from logger_config import logger
 
 def audio_url_from_static_path(static_path: Optional[str]) -> Optional[str]:
@@ -36,7 +36,7 @@ def generate_telugu_audio(
         filename = os.path.join(AUDIO_DIR, f"{uuid.uuid4()}.mp3")
     try:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        tts = gTTS(text=voice_text(telugu_data, scheme_name), lang="te", slow=False)
+        tts = gTTS(text=voice_text(telugu_data, scheme_name), lang=VOICE_LANGUAGE, slow=False)
         tts.save(filename)
         rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
         logger.info("Generated audio: filename='%s' scheme='%s'", filename, scheme_name)

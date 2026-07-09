@@ -20,41 +20,31 @@ def test_generate_audio(mock_gtts, sample_telugu_data):
 
     mock_instance.save.assert_called_once()
 
-#Invalid path
 
 from services.audio_service import audio_url_from_static_path
 
 
 def test_invalid_audio_path():
-
     assert audio_url_from_static_path(None) is None
-
-#Existing audio file
-
-from unittest.mock import patch
-
-from services.audio_service import audio_url_from_static_path
 
 
 @patch("services.audio_service.url_for")
 @patch("services.audio_service.os.path.getsize")
-@patch("services.audio_service.os.path.exists")
+@patch("services.audio_service.os.path.isfile")
 def test_existing_audio(
-    mock_exists,
+    mock_isfile,
     mock_size,
     mock_url,
 ):
-    mock_exists.return_value = True
+    mock_isfile.return_value = True
     mock_size.return_value = 100
-    mock_url.return_value = "/static/test.mp3"
+    mock_url.return_value = "/static/audio/test.mp3"
 
     result = audio_url_from_static_path("static/audio/test.mp3")
 
-    assert result == "/static/test.mp3"
+    assert result == "/static/audio/test.mp3"
+    mock_url.assert_called_once_with("static", filename="audio/test.mp3")
 
-#gtts failure
-
-from unittest.mock import patch
 
 from services.audio_service import generate_telugu_audio
 

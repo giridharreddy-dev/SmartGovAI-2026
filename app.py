@@ -15,6 +15,10 @@ from config import (
     UPLOAD_DIR,
     AUDIO_DIR,
     MAX_UPLOAD_SIZE,
+    DB_PATH,
+    SERVER_HOST,
+    SERVER_PORT,
+    DEBUG_MODE,
 )
 
 from logger_config import logger
@@ -244,7 +248,7 @@ def simplify() -> Any:
 @app.route("/analytics")
 def analytics() -> Any:
     """Return analytics rendered from feedback stats."""
-    conn = sqlite3.connect(os.path.join(BASE_DIR, "feedback.db"))
+    conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute("""
         SELECT r.scheme_name,
@@ -493,4 +497,4 @@ def offline_cache() -> Any:
 
 if __name__ == "__main__":
     logger.info("Starting SmartGovAI server...")
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    app.run(debug=DEBUG_MODE, host=SERVER_HOST, port=SERVER_PORT)

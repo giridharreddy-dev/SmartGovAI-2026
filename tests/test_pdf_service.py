@@ -1,7 +1,8 @@
-from unittest.mock import MagicMock
-from unittest.mock import patch
+import builtins
+import types
+from unittest.mock import MagicMock, patch
 
-from services.pdf_service import extract_text_from_pdf
+from services.pdf_service import extract_text_from_pdf, extract_text_with_ocr_fallback
 
 
 @patch("services.pdf_service.pdfplumber.open")
@@ -19,76 +20,58 @@ def test_extract_pdf(mock_open):
     assert text == "Hello"
 
 
-
-from unittest.mock import patch
-
-from services.pdf_service import extract_text_with_ocr_fallback
-
-
-@patch("services.pdf_service.extract_text_from_pdf")
-def test_no_ocr_needed(mock_extract):
-    mock_extract.return_value = "A" * 200
+@patch("services.pdf_service.cached_pdf_text")
+def test_no_ocr_needed(mock_cached):
+    mock_cached.return_value = "A" * 200
 
     result = extract_text_with_ocr_fallback("dummy.pdf")
 
     assert len(result) == 200
 
-#OCR unavailable
 
-from unittest.mock import patch
+@patch("services.pdf_service.cached_pdf_text")
+def test_ocr_not_available(mock_cached):
+    mock_cached.return_value = "short text"
+    real_import = builtins.__import__
 
-from services.pdf_service import extract_text_with_ocr_fallback
+    def failing_import(name, *args, **kwargs):
+        if name in {"pytesseract", "pdf2image"}:
+            raise ImportError(name)
+        return real_import(name, *args, **kwargs)
 
-
-@patch("services.pdf_service.extract_text_from_pdf")
-@patch("services.pdf_service.OCR_AVAILABLE", False)
-def test_ocr_not_available(mock_extract):
-    mock_extract.return_value = "short text"
-
-    result = extract_text_with_ocr_fallback("dummy.pdf")
+    with patch("builtins.__import__", side_effect=failing_import):
+        result = extract_text_with_ocr_fallback("dummy.pdf")
 
     assert result == "short text"
 
-from unittest.mock import MagicMock
-from unittest.mock import patch
 
-from services.pdf_service import extract_text_with_ocr_fallback
+@patch("services.pdf_service.cached_pdf_text")
+def test_ocr_success(mock_cached):
+    mock_cached.return_value = "short"
 
-#test_OCR_succeeds
+    fake_pytesseract = MagicMock()
+    fake_pytesseract.image_to_string.side_effect = ["hello", "world"]
 
-from unittest.mock import MagicMock, patch
+    pdf2image_module = types.ModuleType("pdf2image")
+    pdf2image_module.convert_from_path = MagicMock(return_value=[MagicMock(), MagicMock()])
 
-from services.pdf_service import extract_text_with_ocr_fallback
-
-
-@patch("services.pdf_service.pytesseract.image_to_string")
-@patch("services.pdf_service.convert_from_path")
-@patch("services.pdf_service.extract_text_from_pdf")
-def test_ocr_success(mock_extract, mock_convert, mock_ocr):
-    mock_extract.return_value = "short"
-
-    mock_convert.return_value = [MagicMock(), MagicMock()]
-    mock_ocr.side_effect = ["hello", "world"]
-
-    result = extract_text_with_ocr_fallback("dummy.pdf")
+    with patch.dict("sys.modules", {"pytesseract": fake_pytesseract, "pdf2image": pdf2image_module}):
+        result = extract_text_with_ocr_fallback("dummy.pdf")
 
     assert result == "hello\nworld"
 
 
-#test_ocr_failure_returns_original
+@patch("services.pdf_service.cached_pdf_text")
+def test_ocr_failure_returns_original(mock_cached):
+    mock_cached.return_value = "original"
 
-from unittest.mock import patch
+    fake_pytesseract = MagicMock()
+    fake_pytesseract.image_to_string.side_effect = RuntimeError("OCR failed")
 
-from services.pdf_service import extract_text_with_ocr_fallback
+    pdf2image_module = types.ModuleType("pdf2image")
+    pdf2image_module.convert_from_path = MagicMock(side_effect=RuntimeError("OCR failed"))
 
-
-@patch("services.pdf_service.convert_from_path")
-@patch("services.pdf_service.extract_text_from_pdf")
-def test_ocr_failure_returns_original(mock_extract, mock_convert):
-    mock_extract.return_value = "original"
-
-    mock_convert.side_effect = RuntimeError("OCR failed")
-
-    result = extract_text_with_ocr_fallback("dummy.pdf")
+    with patch.dict("sys.modules", {"pytesseract": fake_pytesseract, "pdf2image": pdf2image_module}):
+        result = extract_text_with_ocr_fallback("dummy.pdf")
 
     assert result == "original"

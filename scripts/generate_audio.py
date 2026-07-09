@@ -2,13 +2,9 @@ import json
 import os
 import time
 
+from config import AUDIO_DIR, BASE_DIR, SCHEMES_PATH, VOICE_LANGUAGE
 from gtts import gTTS
 from gtts.tts import gTTSError
-
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SCHEMES_PATH = os.path.join(BASE_DIR, "schemes_complex.json")
-AUDIO_DIR = os.path.join(BASE_DIR, "static", "audio")
 
 MAX_RETRIES = 4
 RETRY_BACKOFF_SECONDS = 2
@@ -47,7 +43,7 @@ def generate_audio_for_scheme(name, data):
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             os.makedirs(os.path.dirname(audio_path_abs), exist_ok=True)
-            gTTS(text=voice_text, lang="te", slow=False).save(audio_path_abs)
+            gTTS(text=voice_text, lang=VOICE_LANGUAGE, slow=False).save(audio_path_abs)
             print(f"Generated: {audio_path_rel}")
             return
         except (gTTSError, Exception) as exc:

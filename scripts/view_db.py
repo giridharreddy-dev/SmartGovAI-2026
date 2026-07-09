@@ -1,6 +1,8 @@
 import sqlite3
 
-conn = sqlite3.connect('feedback.db')
+from config import DB_PATH
+
+conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 
 print("\n=== REQUESTS ===")
