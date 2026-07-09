@@ -1,6 +1,6 @@
-
-
 # 🇮🇳 SmartGov Health - English Version
+
+[![pytest](https://github.com/<OWNER>/<REPO>/actions/workflows/pytest.yml/badge.svg)](https://github.com/<OWNER>/<REPO>/actions/workflows/pytest.yml)
 
 A **modern, offline-first Progressive Web App (PWA)** designed specifically for **low-literacy rural villagers in Andhra Pradesh** to access government health schemes easily.
 
@@ -15,7 +15,7 @@ A **modern, offline-first Progressive Web App (PWA)** designed specifically for 
 ✅ **SMS + WhatsApp Sharing** – Share schemes instantly  
 ✅ **Local Data Persistence** – Eligibility answers & checklists saved locally  
 ✅ **One-Click Issue Report** – Report incorrect info with device details  
-✅ **Robust Error Handling** – Works offline, shows cached data if Gemini fails  
+✅ **Robust Error Handling** – Works offline, shows cached data if Gemini fails
 
 ---
 
@@ -58,11 +58,13 @@ Open `http://localhost:5000`
 ### Step 4: Install as PWA (Offline Use)
 
 **On Mobile:**
+
 1. Open `http://localhost:5000`
 2. Tap Share → **Add to Home Screen**
 3. Go offline → App still works! ✅
 
 **On Desktop:**
+
 - Click the install button in the address bar
 
 ---
@@ -85,25 +87,30 @@ Get your key from [Google AI Studio](https://aistudio.google.com)
 ## 📱 User Guide
 
 ### 🔍 Search for a Scheme
+
 - Type in Telugu or English
 - Click 🎙️ microphone to speak
 - Your search history is auto-saved
 
 ### 📖 Listen to Page Content
+
 - Click **🔊 Read this page aloud** button
 - Uses Web Speech API or browser TTS
 - Automatically saves reading state
 
 ### 📱 Share with Friends
+
 - **WhatsApp** → 📱 WhatsApp button
 - **SMS** → 📲 SMS button (pre-filled message with `sms:` protocol)
 
 ### ⚠️ Report Wrong Information
+
 - Click **📋 Report wrong info** (footer)
 - Or use **⚠️ Issue** button in result panel
 - Sends via WhatsApp with device/scheme info
 
 ### ✅ Fill Out Forms
+
 - **🎯 Eligibility Checker** – Yes/No questions
 - **📋 Document Checklist** – Track documents needed
 - **🖨️ Print** or **💾 Save** locally
@@ -167,28 +174,32 @@ pdf2image (optional)   # PDF to image conversion
 
 ## 🎨 UI Design
 
-| Aspect | Details |
-|--------|---------|
-| **Colors** | Green (primary), Orange, Blue, Red |
-| **Font** | Noto Sans Telugu (default system fonts) |
-| **Min Tap Targets** | 48px for all buttons |
-| **Breakpoints** | Mobile <560px, Tablet <860px, Desktop 1120px max |
-| **Accessibility** | High contrast, large text, no hover-dependent UI |
+| Aspect              | Details                                          |
+| ------------------- | ------------------------------------------------ |
+| **Colors**          | Green (primary), Orange, Blue, Red               |
+| **Font**            | Noto Sans Telugu (default system fonts)          |
+| **Min Tap Targets** | 48px for all buttons                             |
+| **Breakpoints**     | Mobile <560px, Tablet <860px, Desktop 1120px max |
+| **Accessibility**   | High contrast, large text, no hover-dependent UI |
 
 ---
 
 ## ❌ Error Handling
 
 ### Gemini API fails?
+
 ✅ Built-in schemes **still work** (no API needed)
 
 ### No internet?
+
 ✅ **Offline mode** – Shows cached schemes
 
 ### Audio file missing?
+
 ✅ **Browser TTS fallback** – "🔊 Read page aloud" button works
 
 ### PWA won't install?
+
 - Make sure you're on **HTTPS** (or localhost)
 - Check browser DevTools → Application → Service Workers
 
@@ -226,11 +237,13 @@ docker build -t smartgov . && docker run -p 5000:5000 smartgov
 ## 🤝 Support
 
 **Issues?**
+
 - GitHub Issues
 - Email: support@smartgov.health
 - Use the in-app **Report Issue** button
 
 **Contributing?**
+
 - Fork → Make changes → Submit PR
 
 ---

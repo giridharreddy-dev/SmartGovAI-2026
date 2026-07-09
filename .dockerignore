@@ -1,0 +1,31 @@
+# Python artifacts
+
+**pycache**/
+_.py[cod]
+_.pyo
+\*.pyd
+
+# Virtual environment
+
+myenv/
+venv/
+
+# Environment
+
+.env
+
+# Local runtime
+
+uploads/
+\*.db
+.DS_Store
+
+# Git and CI
+
+.git/
+.github/
+
+# Tests and docs not required in production image
+
+tests/
+\*.md

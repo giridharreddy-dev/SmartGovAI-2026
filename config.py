@@ -19,8 +19,8 @@ MODEL_NAME = "gemini-2.5-flash"
 OCR_LANGUAGES = "tel+eng"
 VOICE_LANGUAGE = "te"
 
-SERVER_HOST = "0.0.0.0"
-SERVER_PORT = 5000
-DEBUG_MODE = False
+SERVER_HOST = os.getenv("SERVER_HOST", "0.0.0.0")
+SERVER_PORT = int(os.getenv("SERVER_PORT", "5000"))
+DEBUG_MODE = os.getenv("DEBUG_MODE", "0").lower() in {"1", "true", "yes"}
 
 DB_PATH = os.path.join(BASE_DIR, "feedback.db")
