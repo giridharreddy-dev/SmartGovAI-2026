@@ -1,5 +1,5 @@
+import hashlib
 import os
-import uuid
 
 from typing import Dict, Optional
 
@@ -21,6 +21,15 @@ def audio_url_from_static_path(static_path: Optional[str]) -> Optional[str]:
     return None
 
 
+def _audio_filename(telugu_data: Dict[str, str], scheme_name: str, static_path: Optional[str] = None) -> str:
+    if static_path:
+        return os.path.join(BASE_DIR, static_path)
+    voice_text_str = voice_text(telugu_data, scheme_name)
+    safe_name = hashlib.sha256(voice_text_str.encode("utf-8")).hexdigest()
+    scheme_safe = scheme_name.replace(" ", "_").replace("/", "_")
+    return os.path.join(AUDIO_DIR, f"{scheme_safe}-{safe_name}.mp3")
+
+
 def generate_telugu_audio(
     telugu_data: Dict[str, str],
     scheme_name: str,
@@ -30,10 +39,13 @@ def generate_telugu_audio(
     existing_url = audio_url_from_static_path(static_path)
     if existing_url:
         return existing_url
-    if static_path:
-        filename = os.path.join(BASE_DIR, static_path)
-    else:
-        filename = os.path.join(AUDIO_DIR, f"{uuid.uuid4()}.mp3")
+
+    filename = _audio_filename(telugu_data, scheme_name, static_path)
+    if os.path.isfile(filename) and os.path.getsize(filename) > 0:
+        rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
+        logger.info("Reusing generated audio: filename='%s' scheme='%s'", filename, scheme_name)
+        return url_for("static", filename=rel_path)
+
     try:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         tts = gTTS(text=voice_text(telugu_data, scheme_name), lang=VOICE_LANGUAGE, slow=False)
@@ -44,7 +56,8 @@ def generate_telugu_audio(
     except Exception:
         logger.exception("Audio generation failed for scheme '%s'.", scheme_name)
         return None
-    
+
+
 def voice_text(telugu_data: Dict[str, str], scheme_name: str) -> str:
     """Build a Telugu voice string from the simplified data."""
     return (
@@ -52,6 +65,4 @@ def voice_text(telugu_data: Dict[str, str], scheme_name: str) -> str:
         f"అర్హత: {telugu_data['eligibility']}. "
         f"ప్రయోజనాలు: {telugu_data['benefits']}. "
         f"పత్రాలు: {telugu_data['documents']}. "
-        f"దశలు: {telugu_data['steps']}."
-    )
-
+        f"దశలు: {telugu_data['steps']}.")
