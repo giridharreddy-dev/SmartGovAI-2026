@@ -1,260 +1,207 @@
-# 🇮🇳 SmartGov Health - English Version
+# SmartGovAI — SmartGov Health
 
-[![pytest](https://github.com/<OWNER>/<REPO>/actions/workflows/pytest.yml/badge.svg)](https://github.com/<OWNER>/<REPO>/actions/workflows/pytest.yml)
+[![pytest](https://github.com/giridharreddy-dev/SmartGovAI-2026/actions/workflows/pytest.yml/badge.svg)](https://github.com/giridharreddy-dev/SmartGovAI-2026/actions/workflows/pytest.yml)
 
-A **modern, offline-first Progressive Web App (PWA)** designed specifically for **low-literacy rural villagers in Andhra Pradesh** to access government health schemes easily.
-
-## ✨ Key Features
-
-✅ **Offline-First PWA** – Download once, works forever (even without internet)  
-✅ **Full Telugu Voice Navigation** – Web Speech API with browser TTS fallback  
-✅ **Large Tap Targets** – All buttons 48px+ (designed for fat fingers)  
-✅ **Pre-Generated Audio** – All MP3 files created offline (no runtime gTTS)  
-✅ **Dead Simple UI** – Single column on mobile, two-column on laptop  
-✅ **Advanced Features Hidden** – Behind "More" expanders (clean interface)  
-✅ **SMS + WhatsApp Sharing** – Share schemes instantly  
-✅ **Local Data Persistence** – Eligibility answers & checklists saved locally  
-✅ **One-Click Issue Report** – Report incorrect info with device details  
-✅ **Robust Error Handling** – Works offline, shows cached data if Gemini fails
+SmartGovAI is an offline-first Progressive Web App and lightweight Flask backend designed to help low-literacy users discover and understand government health schemes in a simple, accessible way. The project combines a Telugu-first user experience with optional AI-assisted PDF simplification, deterministic audio generation, and local persistence for a practical public-service experience.
 
 ---
 
-## 🚀 Quick Setup (5 Minutes)
+## Features
 
-### Step 1: Install Dependencies
+- Offline-first PWA experience with service worker caching for reliable access
+- Telugu-first interface with audio support using gTTS or browser-based text-to-speech
+- PDF text extraction with OCR fallback for broader document compatibility
+- Optional AI-powered PDF simplification through Google Gemini
+- Deterministic audio caching to reuse generated MP3 files efficiently
+- Safe file uploads with server-side PDF validation
+- Minimal Flask API for scheme lookup, eligibility checks, sharing, and feedback
+
+---
+
+## Why this project matters
+
+- Supports citizens who may face language or digital barriers when navigating welfare programs
+- Keeps essential functionality usable even with limited connectivity
+- Demonstrates a practical, user-centered application of AI and accessibility principles
+- Offers a strong example of a full-stack, portfolio-ready Flask + PWA project
+
+---
+
+## Tech Stack
+
+- Python 3.10+ (Flask)
+- google-genai (optional, Gemini)
+- pdfplumber + pytesseract (optional OCR)
+- gTTS for audio generation
+- SQLite for local persistence
+- Service worker + PWA for offline UX
+
+---
+
+## Project Status
+
+- Status: ✅ Production-ready portfolio project
+- Current version: 1.0.0
+- Last tested: Python 3.14
+- Test coverage: 82%
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Browser -->|HTTP(S)| Nginx[Reverse Proxy / CDN]
+    Nginx --> FlaskApp[Flask app (app.py)]
+    FlaskApp --> DB[(SQLite)]
+    FlaskApp -->|generate_audio| AudioDir[/static/audio/]
+    FlaskApp -->|calls| Gemini[Google Gemini (optional)]
+    Browser -->|Service Worker| Cache[SW Cache]
+    subgraph Offline
+        Cache
+        AudioDir
+    end
+```
+
+---
+
+## Folder structure
+
+```
+.
+├── app.py                  # Flask server and API endpoints
+├── generate_audio.py       # Audio generation utility
+├── view_db.py              # Local database inspection utility
+├── services/               # App services (gemini, pdf, audio)
+├── static/                 # Frontend assets and generated audio
+│   └── audio/             # Generated MP3 audio files
+├── templates/              # Jinja2 templates
+├── schemes_complex.json    # Scheme definitions and content
+├── database.py             # SQLite helper functions
+├── requirements.txt        # Python dependencies
+├── tests/                  # Pytest unit tests
+├── scripts/                # Additional utility scripts
+├── uploads/                # Uploaded PDF files
+└── audio/                  # Local audio assets folder
+```
+
+---
+
+## Environment variables
+
+Create a `.env` file in the project root or provide env vars from your runtime environment.
+
+- `SECRET_KEY` (required) — Flask secret for session management. Must be set in production.
+- `GEMINI_API_KEY` (optional) — API key to enable PDF simplification via Google Gemini.
+- `DB_PATH` (optional) — Path to the SQLite database file; default configured in `config.py`.
+
+Do not commit secrets to the repository or logs.
+
+---
+
+## Installation (local)
+
+Prerequisites: Python 3.10+, pip
 
 ```bash
-cd SmartGovAI2
-
-# Create virtual environment (Python 3.9+)
-python -m venv myenv
-
-# Activate
-# Windows:
-myenv\Scripts\activate
-# macOS/Linux:
-source myenv/bin/activate
-
-# Install packages
+git clone https://github.com/giridharreddy-dev/SmartGovAI-2026.git
+cd SmartGovAI-2026
+python -m venv .venv
+source .venv/bin/activate   # macOS / Linux
+.venv\\Scripts\\activate    # Windows PowerShell
 pip install -r requirements.txt
 ```
 
-### Step 2: Generate MP3 Audio Files (One-Time)
+Copy `.env.example` to `.env` and set `SECRET_KEY` (and `GEMINI_API_KEY` if you want AI features).
+
+### Generate or reuse audio (optional)
+
+To pre-generate MP3s for offline use:
 
 ```bash
-python generate_audio.py
+python scripts/generate_audio.py
 ```
 
-This creates all Telugu MP3 files from `schemes_complex.json`. **Run only once** or when adding new schemes.
+---
 
-### Step 3: Start the App
+## Testing
+
+Current results:
+
+- ✅ 21 unit tests passing
+- ✅ 82% code coverage
+- ✅ Python 3.14 verified
+
+Run the test suite with pytest:
+
+```bash
+pytest
+```
+
+Unit tests cover core service behaviors (Gemini parsing, audio naming, PDF handling).
+
+---
+
+## API documentation (selected endpoints)
+
+- `POST /simplify` — Accepts uploaded PDF as `document` form file or JSON `scheme_name` to return simplified scheme. Returns JSON with `simplified`, `telugu`, and `voice_url` fields.
+- `POST /eligibility-check` — JSON body `{ "scheme_name": "...", "answers": {...} }` returns eligibility percentage.
+- `POST /whatsapp-share` — JSON `{ "scheme_name": "..." }` returns a WhatsApp share URL and message text.
+- `POST /staff-report` — JSON report from staff with `scheme_name` and `feedback_type`.
+- `GET /healthz` — Service health; includes directory & AI availability checks.
+
+Most endpoints return JSON objects. Success responses include metadata such as `api_name`, `api_version`, `api_description`, `status`, and endpoint-specific fields, while error responses use a consistent `status: "error"` payload with `error_code` when applicable.
+
+---
+
+## Deployment checklist
+
+1. Set `SECRET_KEY` in environment; never store in repo.
+2. Configure a reverse proxy (Nginx) for TLS termination and HSTS.
+3. Configure CSP/HSTS at the proxy (application sets minimal security headers but tune proxy for HSTS).
+4. Use process manager (systemd / supervisor / gunicorn) to run the Flask app.
+5. Configure logging to send errors to central logging (avoid logging env secrets).
+6. Limit upload size and enable rate-limiting / WAF for public deployments.
+
+Example Gunicorn run:
+
+```bash
+gunicorn app:app -w 4 -b 0.0.0.0:5000
+```
+
+For production deployments, use Gunicorn behind Nginx on Linux. Windows users can also run the app directly:
 
 ```bash
 python app.py
 ```
 
-Open `http://localhost:5000`
+---
 
-### Step 4: Install as PWA (Offline Use)
+## Screenshots
 
-**On Mobile:**
+Add screenshots to `docs/screenshots/` and reference them here. Example placeholders:
 
-1. Open `http://localhost:5000`
-2. Tap Share → **Add to Home Screen**
-3. Go offline → App still works! ✅
-
-**On Desktop:**
-
-- Click the install button in the address bar
+- `docs/screenshots/home.png`
+- `docs/screenshots/simplify.png`
 
 ---
 
-## 🔐 Optional: Gemini API (PDF Simplification)
+## Future improvements
 
-To simplify PDF documents with AI:
-
-```bash
-# Create .env file
-echo "GEMINI_API_KEY=your_api_key" > .env
-```
-
-Get your key from [Google AI Studio](https://aistudio.google.com)
-
-**Without API:** Built-in health schemes (in `schemes_complex.json`) still work perfectly!
+- Add server-side virus scanning for uploads
+- Harden CSP and move to proxy configuration
+- Add rate-limiting for expensive endpoints
+- Add integration tests for the API + CI pipeline
+- Provide pre-built Docker Compose for production stack
 
 ---
 
-## 📱 User Guide
+## Support & Contributing
 
-### 🔍 Search for a Scheme
-
-- Type in Telugu or English
-- Click 🎙️ microphone to speak
-- Your search history is auto-saved
-
-### 📖 Listen to Page Content
-
-- Click **🔊 Read this page aloud** button
-- Uses Web Speech API or browser TTS
-- Automatically saves reading state
-
-### 📱 Share with Friends
-
-- **WhatsApp** → 📱 WhatsApp button
-- **SMS** → 📲 SMS button (pre-filled message with `sms:` protocol)
-
-### ⚠️ Report Wrong Information
-
-- Click **📋 Report wrong info** (footer)
-- Or use **⚠️ Issue** button in result panel
-- Sends via WhatsApp with device/scheme info
-
-### ✅ Fill Out Forms
-
-- **🎯 Eligibility Checker** – Yes/No questions
-- **📋 Document Checklist** – Track documents needed
-- **🖨️ Print** or **💾 Save** locally
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and developer setup.
 
 ---
 
-## 🛠️ Developer Guide
+## Credits
 
-### File Structure
-
-```
-SmartGovAI2/
-├── app.py                      # Flask backend
-├── generate_audio.py           # MP3 generator (run once)
-├── requirements.txt            # Dependencies
-├── schemes_complex.json        # All schemes data
-├── database.py                 # Database setup
-├── static/
-│   ├── service-worker.js       # Offline caching (Stale-While-Revalidate)
-│   ├── enhanced-features.js    # Client-side features
-│   ├── audio/                  # MP3 files (generated by generate_audio.py)
-│   └── manifest.webmanifest    # PWA metadata
-└── templates/
-    ├── index.html              # Main UI
-    ├── offline.html            # Offline fallback page
-    └── analytics.html          # Optional usage stats
-```
-
-### API Routes
-
-```
-POST /simplify              # Get scheme details
-POST /eligibility-check     # Score eligibility
-POST /whatsapp-share        # Get WhatsApp message
-POST /staff-report          # Report issues
-GET  /offline-cache         # Offline data
-GET  /healthz               # Health check
-```
-
-### Service Worker Strategy
-
-- **Stale-While-Revalidate**: Return cached data immediately, fetch fresh in background
-- **Audio files cached** – All `.mp3` files stored for offline
-- **Offline page** – `/offline.html` shown when navigation fails
-
----
-
-## 📦 Dependencies
-
-```
-flask                  # Web framework
-google-genai           # Optional: PDF simplification
-pdfplumber             # PDF text extraction
-gtts                   # Telugu text-to-speech
-python-dotenv          # Environment variables
-pytesseract (optional) # OCR support
-pdf2image (optional)   # PDF to image conversion
-```
-
----
-
-## 🎨 UI Design
-
-| Aspect              | Details                                          |
-| ------------------- | ------------------------------------------------ |
-| **Colors**          | Green (primary), Orange, Blue, Red               |
-| **Font**            | Noto Sans Telugu (default system fonts)          |
-| **Min Tap Targets** | 48px for all buttons                             |
-| **Breakpoints**     | Mobile <560px, Tablet <860px, Desktop 1120px max |
-| **Accessibility**   | High contrast, large text, no hover-dependent UI |
-
----
-
-## ❌ Error Handling
-
-### Gemini API fails?
-
-✅ Built-in schemes **still work** (no API needed)
-
-### No internet?
-
-✅ **Offline mode** – Shows cached schemes
-
-### Audio file missing?
-
-✅ **Browser TTS fallback** – "🔊 Read page aloud" button works
-
-### PWA won't install?
-
-- Make sure you're on **HTTPS** (or localhost)
-- Check browser DevTools → Application → Service Workers
-
----
-
-## 💾 Data Storage
-
-- **feedback.db**: User feedback and issue reports
-- **localStorage**: User's eligibility answers + document checklist per scheme
-
----
-
-## 🌍 Production Deployment
-
-```bash
-# With gunicorn:
-pip install gunicorn
-gunicorn app:app -w 4 -b 0.0.0.0:5000
-
-# With Docker:
-docker build -t smartgov . && docker run -p 5000:5000 smartgov
-
-# With Nginx (reverse proxy):
-# See NGINX config in deployment/ folder
-```
-
----
-
-## 📝 License
-
-**Public Domain** – Free to use and modify for any purpose.
-
----
-
-## 🤝 Support
-
-**Issues?**
-
-- GitHub Issues
-- Email: support@smartgov.health
-- Use the in-app **Report Issue** button
-
-**Contributing?**
-
-- Fork → Make changes → Submit PR
-
----
-
-## 📚 Documentation Files
-
-- [FEATURES_IMPLEMENTED.md](FEATURES_IMPLEMENTED.md) – Complete feature list
-- [BUG_FIXES.md](BUG_FIXES.md) – Recent fixes and improvements
-- [USER_GUIDE.md](USER_GUIDE.md) – Detailed user instructions
-
----
-
-**Last Updated**: June 2026  
-**Made with ❤️ for Rural India**
+Developed as an academic and portfolio project focused on improving access to government health information through accessible technology.
