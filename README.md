@@ -40,10 +40,35 @@ SmartGovAI is an offline-first Progressive Web App and lightweight Flask backend
 
 ## Project Status
 
-- Status: ✅ Production-ready portfolio project
+- Status: ✅ Portfolio-ready
 - Current version: 1.0.0
 - Last tested: Python 3.14
-- Test coverage: 82%
+- Test coverage: Current test coverage exceeds 80%
+
+---
+
+## Project Statistics
+
+- Language: Python
+- Framework: Flask
+- Test Framework: pytest
+- Database: SQLite
+- Offline Support: Yes
+- OCR Support: Yes
+- AI Integration: Optional
+
+---
+
+## Key Engineering Highlights
+
+- Offline-first Progressive Web App
+- OCR fallback for scanned PDFs
+- AI-assisted simplification using Gemini
+- Telugu audio generation
+- Deterministic caching for AI responses and audio
+- Comprehensive automated test suite
+- Structured logging
+- Secure file upload validation
 
 ---
 
@@ -51,15 +76,15 @@ SmartGovAI is an offline-first Progressive Web App and lightweight Flask backend
 
 ```mermaid
 flowchart LR
-    Browser -->|HTTP(S)| Nginx[Reverse Proxy / CDN]
-    Nginx --> FlaskApp[Flask app (app.py)]
-    FlaskApp --> DB[(SQLite)]
-    FlaskApp -->|generate_audio| AudioDir[/static/audio/]
-    FlaskApp -->|calls| Gemini[Google Gemini (optional)]
-    Browser -->|Service Worker| Cache[SW Cache]
+    Browser -->|HTTP(S)| ServiceWorker[Service Worker]
+    ServiceWorker --> FlaskAPI[Flask API]
+    FlaskAPI --> DB[(SQLite)]
+    FlaskAPI -->|calls| Gemini[Google Gemini (optional)]
+    FlaskAPI -->|OCR fallback| OCR[OCR Pipeline]
+    FlaskAPI -->|audio cache| AudioCache[/static/audio/]
     subgraph Offline
-        Cache
-        AudioDir
+        ServiceWorker
+        AudioCache
     end
 ```
 
@@ -179,10 +204,32 @@ python app.py
 
 ## Screenshots
 
-Add screenshots to `docs/screenshots/` and reference them here. Example placeholders:
+Suggested screenshots to add in the future:
 
-- `docs/screenshots/home.png`
-- `docs/screenshots/simplify.png`
+- Home page
+- Scheme search experience
+- Eligibility checker
+- PDF upload flow
+- AI simplified result view
+- Telugu audio playback
+- Offline mode
+
+---
+
+## Engineering Challenges Solved
+
+- Reused AI responses through deterministic caching
+- Reused generated audio instead of regenerating files
+- Added OCR fallback for scanned government PDFs
+- Improved upload security through server-side PDF validation
+- Added structured logging for easier debugging
+- Supported offline usage with service workers
+
+---
+
+## Engineering Audit
+
+An engineering audit for this project is available in [docs/ENGINEERING_AUDIT.md](docs/ENGINEERING_AUDIT.md).
 
 ---
 
