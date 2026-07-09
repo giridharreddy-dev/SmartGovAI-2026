@@ -96,6 +96,36 @@ except Exception:
     logger.exception("Failed to load schemes database.")
     raise
 
+API_NAME = "SmartGovAI"
+API_VERSION = "1.0.0"
+API_DESCRIPTION = "SmartGovAI public API for scheme lookup and simplification."
+STARTUP_TIME = datetime.utcnow()
+
+
+def api_response(data: Dict[str, Any], status_code: int = 200) -> Any:
+    response = {
+        "api_name": API_NAME,
+        "api_version": API_VERSION,
+        "api_description": API_DESCRIPTION,
+        **data,
+    }
+    if "status" not in response:
+        response["status"] = "success"
+    return jsonify(response), status_code
+
+
+def api_error(message: str, status_code: int = 400, error_code: str = None, details: Any = None) -> Any:
+    payload = {
+        "status": "error",
+        "error": message,
+    }
+    if error_code:
+        payload["error_code"] = error_code
+    if details is not None:
+        payload["details"] = details
+    return jsonify(payload), status_code
+
+
 def static_scheme_response(scheme_name: str, scheme_data: Dict[str, Any], request_id: int) -> Dict[str, Any]:
     """Build the standard response for a built‑in scheme."""
     return {
@@ -118,24 +148,24 @@ def static_scheme_response(scheme_name: str, scheme_data: Dict[str, Any], reques
 @app.errorhandler(413)
 def too_large(_error) -> Any:
     """Return a JSON response when uploaded files exceed the max content size."""
-    return jsonify({"error": "File too large. Please upload a PDF below 10 MB."}), 413
+    return api_error("File too large. Please upload a PDF below 10 MB.", 413, error_code="PAYLOAD_TOO_LARGE")
 
 @app.errorhandler(404)
 def not_found(_error) -> Any:
     """Return a JSON response for missing endpoints."""
-    return jsonify({"error": "Resource not found."}), 404
+    return api_error("Resource not found.", 404, error_code="NOT_FOUND")
 
 @app.errorhandler(500)
 def internal_error(error) -> Any:
     """Return a JSON response for unhandled server errors."""
     logger.exception("Unhandled server error: %s", error)
-    return jsonify({"error": "An unexpected server error occurred."}), 500
+    return api_error("An unexpected server error occurred.", 500, error_code="INTERNAL_SERVER_ERROR")
 
 @app.errorhandler(Exception)
 def handle_unexpected_exception(error) -> Any:
     """Catch and report unexpected exceptions."""
     logger.exception("Unhandled exception: %s", error)
-    return jsonify({"error": "An unexpected error occurred."}), 500
+    return api_error("An unexpected error occurred.", 500, error_code="UNHANDLED_EXCEPTION")
 
 
 @app.route("/")
@@ -148,23 +178,47 @@ def offline() -> Any:
     """Render an offline fallback page."""
     return render_template("offline.html")
 
+def build_health_status() -> Dict[str, Any]:
+    checks = {
+        "upload_dir": "ok" if os.path.exists(UPLOAD_DIR) and os.access(UPLOAD_DIR, os.W_OK) else "failed",
+        "audio_dir": "ok" if os.path.exists(AUDIO_DIR) and os.access(AUDIO_DIR, os.W_OK) else "failed",
+    }
+    status = "ok" if checks["upload_dir"] == "ok" and checks["audio_dir"] == "ok" else "degraded"
+    if status != "ok":
+        logger.warning("Health check: directory accessibility issue.")
+    return {
+        "service": API_NAME,
+        "status": status,
+        "schemes": len(schemes),
+        "gemini_pdf_support": is_gemini_available(),
+        "checks": checks,
+        "startup_time": STARTUP_TIME.isoformat() + "Z",
+        "current_time": datetime.utcnow().isoformat() + "Z",
+        "uptime_seconds": int((datetime.utcnow() - STARTUP_TIME).total_seconds()),
+    }
+
+
 @app.route("/healthz")
 def healthz() -> Any:
     """Return a JSON health status for the service."""
-    health_status = {
-        "status": "ok",
-        "schemes": len(schemes),
-        "gemini_pdf_support": is_gemini_available(),
-        "checks": {
-            "upload_dir": "ok" if os.path.exists(UPLOAD_DIR) and os.access(UPLOAD_DIR, os.W_OK) else "failed",
-            "audio_dir": "ok" if os.path.exists(AUDIO_DIR) and os.access(AUDIO_DIR, os.W_OK) else "failed",
-        }
-    }
-    # If either directory check failed, degrade status (but don't expose internals)
-    if health_status["checks"]["upload_dir"] != "ok" or health_status["checks"]["audio_dir"] != "ok":
-        health_status["status"] = "degraded"
-        logger.warning("Health check: directory accessibility issue.")
-    return jsonify(health_status)
+    return api_response(build_health_status())
+
+
+@app.route("/health")
+def health() -> Any:
+    """Alias for the health endpoint."""
+    return api_response(build_health_status())
+
+
+@app.route("/version")
+def version() -> Any:
+    """Return API version and metadata."""
+    return api_response({
+        "version": API_VERSION,
+        "name": API_NAME,
+        "description": API_DESCRIPTION,
+        "startup_time": STARTUP_TIME.isoformat() + "Z",
+    })
 
 
 @app.route("/simplify", methods=["POST"])
@@ -179,14 +233,18 @@ def simplify() -> Any:
                 file.filename,
                 result,
             )
-            return jsonify({"error": result}), 400
+            return api_error(result, 400, error_code="INVALID_FILE_TYPE")
 
         safe_filename = result
         if not is_gemini_available():
             logger.error(
                 "PDF simplification blocked: GEMINI_API_KEY is not configured",
             )
-            return jsonify({"error": "PDF simplification is currently unavailable. Please try again later."}), 503
+            return api_error(
+                "PDF simplification is currently unavailable. Please try again later.",
+                503,
+                error_code="SERVICE_UNAVAILABLE"
+            )
 
         temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4()}.pdf")
         file.save(temp_path)
@@ -199,13 +257,21 @@ def simplify() -> Any:
             )
         except Exception:
             logger.exception("PDF processing failed for '%s'", temp_path)
-            return jsonify({"error": "The uploaded PDF could not be processed."}), 400
+            return api_error(
+                "The uploaded PDF could not be processed.",
+                400,
+                error_code="PDF_PROCESSING_FAILED"
+            )
         finally:
             if os.path.exists(temp_path):
                 os.remove(temp_path)
 
         if not complex_text.strip():
-            return jsonify({"error": "The uploaded PDF contains no readable text."}), 400
+            return api_error(
+                "The uploaded PDF contains no readable text.",
+                400,
+                error_code="EMPTY_PDF_TEXT"
+            )
 
         scheme_name = os.path.splitext(safe_filename)[0]
         request_id = database.log_request(scheme_name, "pdf")
@@ -218,9 +284,13 @@ def simplify() -> Any:
             )
         except Exception:
             logger.exception("Gemini simplification failed for scheme '%s'.", scheme_name)
-            return jsonify({"error": "AI could not simplify the document at this time."}), 502
+            return api_error(
+                "AI could not simplify the document at this time.",
+                502,
+                error_code="AI_SIMPLIFICATION_FAILED"
+            )
 
-        return jsonify({
+        return api_response({
             "request_id": request_id,
             "scheme_name": scheme_name,
             "level": "Uploaded PDF",
@@ -235,14 +305,14 @@ def simplify() -> Any:
     data = request.get_json(silent=True) or {}
     scheme_name = data.get("scheme_name")
     if not scheme_name:
-        return jsonify({"error": "Missing scheme_name"}), 400
+        return api_error("Missing scheme_name", 400, error_code="MISSING_SCHEME_NAME")
 
     scheme_data = schemes.get(scheme_name)
     if not scheme_data:
-        return jsonify({"error": "Scheme not found"}), 404
+        return api_error("Scheme not found", 404, error_code="SCHEME_NOT_FOUND")
 
     request_id = database.log_request(scheme_name, "catalog")
-    return jsonify(static_scheme_response(scheme_name, scheme_data, request_id))
+    return api_response(static_scheme_response(scheme_name, scheme_data, request_id))
 
 
 @app.route("/analytics")
@@ -269,13 +339,13 @@ def feedback() -> Any:
     """Receive feedback for a request and persist it."""
     data = request.get_json(silent=True) or {}
     if "request_id" not in data or "rating" not in data:
-        return jsonify({"error": "Missing request_id or rating"}), 400
+        return api_error("Missing request_id or rating", 400, error_code="MISSING_REQUEST_ID_OR_RATING")
     try:
         rating = int(data["rating"])
     except (TypeError, ValueError):
-        return jsonify({"error": "Rating must be a number"}), 400
+        return api_error("Rating must be a number", 400, error_code="INVALID_RATING")
     if rating < 1 or rating > 5:
-        return jsonify({"error": "Rating must be between 1 and 5"}), 400
+        return api_error("Rating must be between 1 and 5", 400, error_code="INVALID_RATING_RANGE")
     try:
         database.save_feedback(data["request_id"], rating, data.get("comment", ""))
         logger.info(
@@ -283,13 +353,13 @@ def feedback() -> Any:
             data["request_id"],
             rating,
         )
-        return jsonify({"status": "success"})
+        return api_response({"status": "success"})
     except sqlite3.Error:
         logger.exception("Feedback save failed for request_id=%s.", data["request_id"])
-        return jsonify({"error": "Unable to save feedback."}), 500
+        return api_error("Unable to save feedback.", 500, error_code="FEEDBACK_SAVE_FAILED")
     except Exception:
-        logger.exception("Unexpected feedback save failure for request_id=%s.", data["request_id"])
-        return jsonify({"error": "Unable to save feedback."}), 500
+        logger.exception("Unexpected feedback save failure for request_id=%s", data["request_id"])
+        return api_error("Unable to save feedback.", 500, error_code="FEEDBACK_SAVE_FAILED")
 
 
 # ==================== NEW FEATURES ====================
@@ -301,11 +371,11 @@ def eligibility_check() -> Any:
     scheme_name = data.get("scheme_name")
     answers = data.get("answers", {})
     if not scheme_name or scheme_name not in schemes:
-        return jsonify({"error": "Scheme not found"}), 404
+        return api_error("Scheme not found", 404, error_code="SCHEME_NOT_FOUND")
     scheme = schemes[scheme_name]
     questions = scheme.get("eligibility_questions", [])
     if not questions:
-        return jsonify({
+        return api_response({
             "scheme_name": scheme_name,
             "likely_eligible": True,
             "message_te": "ఈ పథకం సర్వసాధారణ సేవ - ఎవరూ ఉపయోగించవచ్చు.",
@@ -319,7 +389,7 @@ def eligibility_check() -> Any:
         if answers.get(str(idx)) == "yes":
             score += weight
     eligibility_percentage = int((score / total_weight * 100)) if total_weight > 0 else 0
-    return jsonify({
+    return api_response({
         "scheme_name": scheme_name,
         "eligibility_percentage": eligibility_percentage,
         "likely_eligible": eligibility_percentage >= 60,
@@ -335,10 +405,10 @@ def document_checklist() -> Any:
     """Return a document checklist for a given scheme."""
     scheme_name = request.args.get("scheme_name")
     if not scheme_name or scheme_name not in schemes:
-        return jsonify({"error": "Scheme not found"}), 404
+        return api_error("Scheme not found", 404, error_code="SCHEME_NOT_FOUND")
     scheme = schemes[scheme_name]
     required_docs = scheme.get("required_documents", [])
-    return jsonify({
+    return api_response({
         "scheme_name": scheme_name,
         "documents": required_docs,
         "instructions_te": "నిల్వ చేయడానికి ముందు కాపీలు తీసుకోండి.",
@@ -354,7 +424,7 @@ def whatsapp_share() -> Any:
     data = request.get_json(silent=True) or {}
     scheme_name = data.get("scheme_name")
     if not scheme_name or scheme_name not in schemes:
-        return jsonify({"error": "Scheme not found"}), 404
+        return api_error("Scheme not found", 404, error_code="SCHEME_NOT_FOUND")
     scheme = schemes[scheme_name]
     message = f"""🏥 {scheme.get('telugu_name', scheme_name)}
 
@@ -370,7 +440,7 @@ def whatsapp_share() -> Any:
 
 🔗 మరిన్ని: {scheme.get('official_website', '')}"""
     database.log_whatsapp_share(scheme_name)
-    return jsonify({
+    return api_response({
         "scheme_name": scheme_name,
         "whatsapp_text": message,
         "whatsapp_api": f"https://wa.me/?text={urllib.parse.quote(message)}"
@@ -383,13 +453,17 @@ def enhanced_feedback() -> Any:
     data = request.get_json(silent=True) or {}
     required_fields = ["request_id", "rating"]
     if not all(field in data for field in required_fields):
-        return jsonify({"error": f"Missing required fields: {required_fields}"}), 400
+        return api_error(
+            f"Missing required fields: {required_fields}",
+            400,
+            error_code="MISSING_REQUIRED_FIELDS"
+        )
     try:
         rating = int(data["rating"])
         if rating < 1 or rating > 5:
-            return jsonify({"error": "Rating must be 1-5"}), 400
+            return api_error("Rating must be 1-5", 400, error_code="INVALID_RATING_RANGE")
     except (TypeError, ValueError):
-        return jsonify({"error": "Invalid rating"}), 400
+        return api_error("Invalid rating", 400, error_code="INVALID_RATING")
 
     try:
         database.save_feedback(
@@ -405,13 +479,13 @@ def enhanced_feedback() -> Any:
             data["request_id"],
             rating,
         )
-        return jsonify({"status": "success", "message": "Feedback saved successfully"})
+        return api_response({"status": "success", "message": "Feedback saved successfully"})
     except sqlite3.Error:
         logger.exception("Enhanced feedback save failed for request_id=%s.", data["request_id"])
-        return jsonify({"error": "Unable to save feedback."}), 500
+        return api_error("Unable to save feedback.", 500, error_code="FEEDBACK_SAVE_FAILED")
     except Exception:
         logger.exception("Unexpected enhanced feedback save failure for request_id=%s.", data["request_id"])
-        return jsonify({"error": "Unable to save feedback."}), 500
+        return api_error("Unable to save feedback.", 500, error_code="FEEDBACK_SAVE_FAILED")
 
 
 @app.route("/staff-report", methods=["POST"])
@@ -420,10 +494,10 @@ def staff_report() -> Any:
     data = request.get_json(silent=True) or {}
     required = ["scheme_name", "feedback_type"]
     if not all(f in data for f in required):
-        return jsonify({"error": "Missing required fields"}), 400
+        return api_error("Missing required fields", 400, error_code="MISSING_REQUIRED_FIELDS")
     scheme_name = data.get("scheme_name")
     if scheme_name not in schemes:
-        return jsonify({"error": "Scheme not found"}), 404
+        return api_error("Scheme not found", 404, error_code="SCHEME_NOT_FOUND")
     feedback_type = data.get("feedback_type")
 
     try:
@@ -439,17 +513,17 @@ def staff_report() -> Any:
             feedback_type,
             data.get("village", ""),
         )
-        return jsonify({
+        return api_response({
             "status": "success",
             "message": "Thank you for helping improve this service",
             "message_te": "సేవ పెరుగుదలకు సహాయం చేసినందుకు ధన్యవాదాలు"
         })
     except sqlite3.Error:
         logger.exception("Staff feedback save failed for scheme='%s'.", scheme_name)
-        return jsonify({"error": "Unable to save staff feedback."}), 500
+        return api_error("Unable to save staff feedback.", 500, error_code="STAFF_FEEDBACK_SAVE_FAILED")
     except Exception:
         logger.exception("Unexpected staff feedback save failure for scheme='%s'.", scheme_name)
-        return jsonify({"error": "Unable to save staff feedback."}), 500
+        return api_error("Unable to save staff feedback.", 500, error_code="STAFF_FEEDBACK_SAVE_FAILED")
 
 
 @app.route("/local-locations", methods=["GET"])
@@ -458,10 +532,10 @@ def local_locations() -> Any:
     scheme_name = request.args.get("scheme_name")
     village = request.args.get("village", "")
     if not scheme_name or scheme_name not in schemes:
-        return jsonify({"error": "Scheme not found"}), 404
+        return api_error("Scheme not found", 404, error_code="SCHEME_NOT_FOUND")
     scheme = schemes[scheme_name]
     locations = scheme.get("local_help_locations", {})
-    return jsonify({
+    return api_response({
         "scheme_name": scheme_name,
         "village": village,
         "locations": locations,
@@ -474,7 +548,7 @@ def local_locations() -> Any:
 @app.route("/offline-cache", methods=["GET"])
 def offline_cache() -> Any:
     """Return cached scheme metadata for offline clients."""
-    return jsonify({
+    return api_response({
         "schemes": len(schemes),
         "schemes_list": {
             name: {
