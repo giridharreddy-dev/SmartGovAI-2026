@@ -1,3 +1,5 @@
+"""Utilities for generating and resolving Telugu audio assets for schemes."""
+
 import hashlib
 import os
 

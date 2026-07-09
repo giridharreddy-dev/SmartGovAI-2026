@@ -1,3 +1,5 @@
+"""Flask application for SmartGovAI scheme lookup, simplification, and feedback APIs."""
+
 import json
 import os
 import sqlite3
@@ -36,6 +38,7 @@ app = Flask(__name__)
 
 @app.before_request
 def log_request_start() -> None:
+    """Record the start of an incoming request for logging and tracing."""
     g.request_start_time = time.perf_counter()
     client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     logger.info(
@@ -47,6 +50,7 @@ def log_request_start() -> None:
 
 @app.after_request
 def log_request_end(response):
+    """Log request completion and add basic security headers to the response."""
     duration = time.perf_counter() - getattr(g, "request_start_time", time.perf_counter())
     client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     logger.info(
@@ -110,6 +114,7 @@ STARTUP_TIME = datetime.utcnow()
 
 
 def api_response(data: Dict[str, Any], status_code: int = 200) -> Any:
+    """Wrap response data in the standard JSON envelope used by the API."""
     response = {
         "api_name": API_NAME,
         "api_version": API_VERSION,
@@ -122,6 +127,7 @@ def api_response(data: Dict[str, Any], status_code: int = 200) -> Any:
 
 
 def api_error(message: str, status_code: int = 400, error_code: str = None, details: Any = None) -> Any:
+    """Build a consistent JSON error response for API failures."""
     payload = {
         "status": "error",
         "error": message,
@@ -134,7 +140,7 @@ def api_error(message: str, status_code: int = 400, error_code: str = None, deta
 
 
 def static_scheme_response(scheme_name: str, scheme_data: Dict[str, Any], request_id: int) -> Dict[str, Any]:
-    """Build the standard response for a built‑in scheme."""
+    """Construct a normalized response payload for a built-in scheme."""
     return {
         "request_id": request_id,
         "scheme_name": scheme_name,
@@ -186,6 +192,7 @@ def offline() -> Any:
     return render_template("offline.html")
 
 def build_health_status() -> Dict[str, Any]:
+    """Collect health and availability details for monitoring endpoints."""
     checks = {
         "upload_dir": "ok" if os.path.exists(UPLOAD_DIR) and os.access(UPLOAD_DIR, os.W_OK) else "failed",
         "audio_dir": "ok" if os.path.exists(AUDIO_DIR) and os.access(AUDIO_DIR, os.W_OK) else "failed",

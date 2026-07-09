@@ -1,4 +1,6 @@
-﻿import pdfplumber
+﻿"""PDF extraction helpers with OCR fallback for uploaded documents."""
+
+import pdfplumber
 from functools import lru_cache
 
 from config import OCR_LANGUAGES

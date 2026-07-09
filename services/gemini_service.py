@@ -1,3 +1,5 @@
+"""Integration helpers for calling the Gemini API to simplify scheme documents."""
+
 import hashlib
 import json
 import os
@@ -25,6 +27,7 @@ _gemini_lock = threading.Lock()
 
 @lru_cache(maxsize=1)
 def get_client() -> Client | None:
+    """Return a cached Gemini client when the API key is configured."""
     api_key = os.environ.get("GEMINI_API_KEY", "").strip()
     if genai and api_key:
         return genai.Client(api_key=api_key)

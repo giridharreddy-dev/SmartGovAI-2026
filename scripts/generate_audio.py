@@ -1,3 +1,5 @@
+"""Utility script for generating Telugu audio files for the bundled schemes."""
+
 import json
 import os
 import time
@@ -11,11 +13,13 @@ RETRY_BACKOFF_SECONDS = 2
 
 
 def load_schemes():
+    """Load the scheme definitions from the JSON file used by the app."""
     with open(SCHEMES_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
 def build_voice_text(name, data):
+    """Construct the spoken Telugu text for a scheme from its structured data."""
     telugu = data["telugu"]
     display_name = data.get("telugu_name") or name
     return (
@@ -28,6 +32,7 @@ def build_voice_text(name, data):
 
 
 def generate_audio_for_scheme(name, data):
+    """Generate and save an MP3 audio file for a single scheme when needed."""
     audio_path_rel = data.get("audio_file")
     if not audio_path_rel:
         print(f"Skipping without audio_file: {name}")
@@ -57,6 +62,7 @@ def generate_audio_for_scheme(name, data):
 
 
 def main():
+    """Generate audio assets for all schemes and report success or failure."""
     schemes = load_schemes()
     os.makedirs(AUDIO_DIR, exist_ok=True)
 

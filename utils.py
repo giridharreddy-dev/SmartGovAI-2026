@@ -1,3 +1,5 @@
+"""Utility helpers for validating uploaded files in the SmartGovAI app."""
+
 from typing import Dict, Any, Tuple
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename

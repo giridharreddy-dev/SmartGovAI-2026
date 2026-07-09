@@ -1,4 +1,5 @@
-# database.py
+"""Database helpers for storing requests, feedback, and service usage events."""
+
 import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager

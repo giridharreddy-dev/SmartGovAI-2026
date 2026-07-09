@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-SmartGov Health - Quick Setup Script
-Run this once to set up the entire application with all MP3 audio files.
-"""
+"""Setup helper for creating the local environment and generating initial audio assets."""
 
 import os
 import sys
@@ -10,7 +7,7 @@ import subprocess
 from pathlib import Path
 
 def run_command(cmd, description):
-    """Run a shell command with error handling."""
+    """Run a shell command and report whether it completed successfully."""
     print(f"\n📍 {description}...")
     try:
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -24,6 +21,7 @@ def run_command(cmd, description):
         return False
 
 def main():
+    """Guide the user through virtual environment setup, dependency installation, and startup."""
     base_dir = Path(__file__).parent
     os.chdir(base_dir)
     
