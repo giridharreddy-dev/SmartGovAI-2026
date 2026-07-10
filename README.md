@@ -79,7 +79,7 @@ flowchart LR
     Browser -->|HTTP(S)| ServiceWorker[Service Worker]
     ServiceWorker --> FlaskAPI[Flask API]
     FlaskAPI --> DB[(SQLite)]
-    FlaskAPI -->|calls| Gemini[Google Gemini (optional)]
+    FlaskAPI -->|calls| Gemini["Google Gemini (optional)"]
     FlaskAPI -->|OCR fallback| OCR[OCR Pipeline]
     FlaskAPI -->|audio cache| AudioCache[/static/audio/]
     subgraph Offline
@@ -133,7 +133,7 @@ git clone https://github.com/giridharreddy-dev/SmartGovAI-2026.git
 cd SmartGovAI-2026
 python -m venv .venv
 source .venv/bin/activate   # macOS / Linux
-.venv\\Scripts\\activate    # Windows PowerShell
+.venv\Scripts\activate      # Windows PowerShell
 pip install -r requirements.txt
 ```
 

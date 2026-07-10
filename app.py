@@ -66,8 +66,6 @@ def log_request_end(response):
     response.headers.setdefault("X-Frame-Options", "DENY")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=()")
-    # Content-Security-Policy kept minimal to avoid breaking templates; encourage setting via reverse proxy in prod.
-    response.headers.setdefault("Content-Security-Policy", "default-src 'self'")
     return response
 
 # Feature status logging (no secrets)
