@@ -74,8 +74,6 @@ Return strictly this JSON object:
         "steps": "Telugu translation of steps"
     }}
 }}'''
-    # Some test environments or installs may not have google.genai.types available.
-    # If `types` is not present, call the client without the typed config.
     if types is not None and hasattr(types, "GenerateContentConfig"):
         response = client.models.generate_content(
             model=MODEL_NAME,
@@ -83,10 +81,15 @@ Return strictly this JSON object:
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 temperature=0.2,
+                http_options={'timeout': 15.0}
             ),
         )
     else:
-        response = client.models.generate_content(model=MODEL_NAME, contents=prompt)
+        response = client.models.generate_content(
+            model=MODEL_NAME, 
+            contents=prompt,
+            config={'http_options': {'timeout': 15.0}}
+        )
     try:
         result = json.loads(response.text)
     except json.JSONDecodeError:
@@ -105,8 +108,6 @@ def simplify_document(complex_text: str, scheme_name: str) -> Dict[str, Any]:
             "PDF simplification needs GEMINI_API_KEY. Built-in health schemes still work."
         )
 
-    # Include the client object's id in the cache key so different client
-    # instances (e.g., test mocks) do not share cache entries.
     cache_key = _make_gemini_cache_key(complex_text, scheme_name) + f":{id(client)}"
     with _gemini_lock:
         if cache_key in _gemini_response_cache:

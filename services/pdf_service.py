@@ -6,6 +6,9 @@ from functools import lru_cache
 from config import OCR_LANGUAGES
 from logger_config import logger
 
+MAX_OCR_PAGES = 5
+
+
 @lru_cache(maxsize=32)
 def cached_pdf_text(file_path: str) -> str:
     '''Extract text from a PDF file, caching the result for performance.'''
@@ -37,7 +40,8 @@ def extract_text_with_ocr_fallback(file_path: str) -> str:
         return text
 
     try:
-        images = convert_from_path(file_path, dpi=200)
+        # Prevent memory exhaustion by capping the number of pages converted
+        images = convert_from_path(file_path, dpi=200, first_page=1, last_page=MAX_OCR_PAGES)
         ocr_parts = []
 
         for img in images:

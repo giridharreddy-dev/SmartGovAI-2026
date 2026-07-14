@@ -2,6 +2,7 @@
 
 import hashlib
 import os
+import time
 
 from typing import Dict, Optional
 
@@ -68,3 +69,28 @@ def voice_text(telugu_data: Dict[str, str], scheme_name: str) -> str:
         f"ప్రయోజనాలు: {telugu_data['benefits']}. "
         f"పత్రాలు: {telugu_data['documents']}. "
         f"దశలు: {telugu_data['steps']}.")
+
+
+def cleanup_old_audio(days: int = 7) -> None:
+    """Prune audio files older than the specified number of days to prevent disk space exhaustion."""
+    if not os.path.exists(AUDIO_DIR):
+        return
+    
+    cutoff_time = time.time() - (days * 86400)
+    deleted_count = 0
+    
+    try:
+        for filename in os.listdir(AUDIO_DIR):
+            if not filename.endswith(".mp3"):
+                continue
+                
+            file_path = os.path.join(AUDIO_DIR, filename)
+            if os.path.isfile(file_path):
+                if os.stat(file_path).st_mtime < cutoff_time:
+                    os.remove(file_path)
+                    deleted_count += 1
+        
+        if deleted_count > 0:
+            logger.info("Audio cleanup removed %d old mp3 files.", deleted_count)
+    except Exception:
+        logger.exception("Failed during audio file cleanup.")

@@ -2,7 +2,7 @@ import builtins
 import types
 from unittest.mock import MagicMock, patch
 
-from services.pdf_service import extract_text_from_pdf, extract_text_with_ocr_fallback
+from services.pdf_service import extract_text_from_pdf, extract_text_with_ocr_fallback, MAX_OCR_PAGES
 
 
 @patch("services.pdf_service.pdfplumber.open")
@@ -59,6 +59,25 @@ def test_ocr_success(mock_cached):
         result = extract_text_with_ocr_fallback("dummy.pdf")
 
     assert result == "hello\nworld"
+
+
+@patch("services.pdf_service.cached_pdf_text")
+def test_ocr_page_limit_enforced(mock_cached):
+    """Ensure the OCR fallback bounds checks the page count to prevent memory DoS."""
+    mock_cached.return_value = "short"
+
+    fake_pytesseract = MagicMock()
+    pdf2image_module = types.ModuleType("pdf2image")
+    mock_convert = MagicMock(return_value=[])
+    pdf2image_module.convert_from_path = mock_convert
+
+    with patch.dict("sys.modules", {"pytesseract": fake_pytesseract, "pdf2image": pdf2image_module}):
+        extract_text_with_ocr_fallback("dummy.pdf")
+
+    mock_convert.assert_called_once()
+    _, kwargs = mock_convert.call_args
+    assert kwargs.get("first_page") == 1
+    assert kwargs.get("last_page") == MAX_OCR_PAGES
 
 
 @patch("services.pdf_service.cached_pdf_text")

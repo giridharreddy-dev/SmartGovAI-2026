@@ -163,8 +163,10 @@ def too_large(_error) -> Any:
 
 @app.errorhandler(404)
 def not_found(_error) -> Any:
-    """Return a JSON response for missing endpoints."""
-    return api_error("Resource not found.", 404, error_code="NOT_FOUND")
+    """Return a JSON response for missing endpoints, or HTML for browsers."""
+    if request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html:
+        return api_error("Resource not found.", 404, error_code="NOT_FOUND")
+    return render_template("offline.html"), 404
 
 @app.errorhandler(500)
 def internal_error(error) -> Any:
@@ -258,24 +260,17 @@ def simplify() -> Any:
                 error_code="SERVICE_UNAVAILABLE"
             )
 
-        temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4()}.pdf")
-        file.save(temp_path)
-        # Extra validation: ensure uploaded file begins with PDF header bytes.
-        # This prevents clients from bypassing checks by faking MIME type or extension.
-        try:
-            with open(temp_path, "rb") as _f:
-                header = _f.read(4)
-        except Exception:
-            header = b""
+        # Extra validation: ensure uploaded file begins with PDF header bytes before saving to disk.
+        # This prevents disk exhaustion from malicious large non-PDF files.
+        header = file.read(4)
+        file.seek(0)  # Reset stream position for saving and processing
+        
         if not header.startswith(b"%PDF"):
-            # Remove temporary file and reject the upload
-            try:
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
-            except Exception:
-                logger.warning("Failed to remove invalid temp upload: %s", temp_path)
             logger.warning("Rejected upload: not a valid PDF according to header check: %s", safe_filename)
             return api_error("Uploaded file is not a valid PDF.", 400, error_code="INVALID_PDF")
+
+        temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4()}.pdf")
+        file.save(temp_path)
 
         try:
             complex_text = extract_text_with_ocr_fallback(temp_path)
