@@ -1,0 +1,292 @@
+{
+  "Pradhan Mantri Surakshit Matritva Abhiyan (PMSMA)": {
+    "level": "National",
+    "category": "Maternal Health",
+    "icon": "pregnancy",
+    "telugu_name": "ప్రధానమంత్రి సురక్షిత మాతృత్వ అభియాన్",
+    "audio_file": "static/audio/pmsma.mp3",
+    "source_name": "Ministry of Health and Family Welfare",
+    "source_url": "https://pmsma.nhp.gov.in/",
+    "keywords": ["PMSMA", "pregnancy", "maternal", "pregnant women", "free checkup"],
+    "original_complex_text": "Pradhan Mantri Surakshit Matritva Abhiyan (PMSMA) is a national initiative to provide quality antenatal care (ANC) for pregnant women. Every pregnant woman in India receives a package of free comprehensive diagnostic and clinical services on the 9th day of every month at Government Health facilities (PHCs/CHCs/DHs). It aims to reduce Maternal Mortality Ratio (MMR) and Infant Mortality Rate (IMR).",
+    "simplified": {
+      "eligibility": "All pregnant women in India, specifically in their 2nd and 3rd trimesters.",
+      "benefits": "Free medical checkups, blood pressure checks, sugar checks, ultrasounds, and doctor consultations on the 9th of every month.",
+      "documents": "Pregnancy registration card, ANC card, Identity proof.",
+      "steps": "Visit the nearest government hospital, PHC, or health centre on the 9th day of any month to receive free specialist checkups."
+    },
+    "telugu": {
+      "eligibility": "భారతదేశంలోని గర్భిణీ స్త్రీలు అందరూ (ముఖ్యంగా ప్రసవానికి 3 నుండి 9 నెలల మధ్య ఉన్నవారు) అర్హులు.",
+      "benefits": "ప్రతి నెలా 9వ తేదీన ఉచిత రక్త పరీక్షలు, బీపీ మరియు షుగర్ తనిఖీలు, అల్ట్రాసౌండ్ స్కానింగ్ మరియు డాక్టర్ సంప్రదింపులు.",
+      "documents": "గర్భధారణ నమోదు కార్డు (ANC కార్డు), గుర్తింపు కార్డు.",
+      "steps": "ఏదైనా ప్రభుత్వ ఆసుపత్రి లేదా ప్రాథమిక ఆరోగ్య కేంద్రం (PHC) ని ప్రతి నెలా 9వ తేదీన సందర్శించి ఉచిత పరీక్షలు పొందవచ్చు."
+    },
+    "last_updated": "2026-04-12",
+    "official_website": "https://pmsma.nhp.gov.in/",
+    "contact_office": "ANM / Village Secretariat Health Assistant",
+    "eligibility_confirmation": "ASHA Worker or ANM",
+    "eligibility_questions": [
+      {
+        "question_te": "మీరు గర్భవతిగా ఉన్నారా?",
+        "question_en": "Are you pregnant?",
+        "weight": "critical"
+      },
+      {
+        "question_te": "మీరు గర్భధారణ రెండవ లేదా మూడవ దశలో ఉన్నారా?",
+        "question_en": "Are you in your 2nd or 3rd trimester?",
+        "weight": "high"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "ANC Registration Card",
+        "name_te": "ANC నమోదు కార్డు",
+        "optional": false
+      },
+      {
+        "name": "Aadhaar Card",
+        "name_te": "ఆధార్ కార్డు",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "Village": "ASHA Worker / Village Health Clinic"
+    }
+  },
+  "Pradhan Mantri Matru Vandana Yojana (PMMVY)": {
+    "level": "National",
+    "category": "Maternal Cash Support",
+    "icon": "mother-child",
+    "telugu_name": "ప్రధానమంత్రి మాతృ వందన యోజన",
+    "audio_file": "static/audio/pmmvy.mp3",
+    "source_name": "Ministry of Women and Child Development",
+    "source_url": "https://wcd.nic.in/",
+    "keywords": ["PMMVY", "cash support", "pregnancy money", "maternity benefit", "first child"],
+    "original_complex_text": "Pradhan Mantri Matru Vandana Yojana is a maternity benefit program run by the Government of India. It provides a cash incentive of Rs. 5000 in two installments directly to the bank account of pregnant women and lactating mothers for the first living child of the family. The financial aid helps compensate for wage loss and ensures proper nutrition during and after pregnancy.",
+    "simplified": {
+      "eligibility": "Pregnant women and lactating mothers for the first living child of the family (excluding government employees).",
+      "benefits": "Direct cash incentive of Rs. 5000 transferred to the mother's linked bank account in two installments.",
+      "documents": "Mother and Child Protection (MCP) card, bank account linked with Aadhaar, husband's Aadhaar, registration form.",
+      "steps": "Apply online through the PMMVY portal or register offline with your local Anganwadi worker or ASHA helper."
+    },
+    "telugu": {
+      "eligibility": "కుటుంబంలో మొదటి కాన్పు గర్భవతులు మరియు పాలిచ్చే తల్లులు అర్హులు (ప్రభుత్వ ఉద్యోగులు కాకూడదు).",
+      "benefits": "తల్లి బ్యాంకు ఖాతాలో నేరుగా రూ. 5000 రెండు విడతలలో జమ చేయబడుతుంది.",
+      "documents": "తల్లి మరియు పిల్లల సంరక్షణ కార్డు (MCP కార్డు), ఆధార్ అనుసంధానం చేసిన బ్యాంకు ఖాతా.",
+      "steps": "స్థానిక అంగన్‌వాడీ కేంద్రం లేదా ఆశా కార్యకర్తను సంప్రదించి దరఖాస్తు ఫారమ్ సమర్పించాలి."
+    },
+    "last_updated": "2026-05-10",
+    "official_website": "https://pmmvy.wcd.gov.in/",
+    "contact_office": "Anganwadi Centre / Village Secretariat",
+    "eligibility_confirmation": "Anganwadi Worker / ASHA Worker",
+    "eligibility_questions": [
+      {
+        "question_te": "ఇది మీ మొదటి ప్రసవమా?",
+        "question_en": "Is this your first pregnancy?",
+        "weight": "critical"
+      },
+      {
+        "question_te": "మీరు ప్రైవేట్ ఉద్యోగి లేదా గృహిణియేనా (ప్రభుత్వ ఉద్యోగి కాదా)?",
+        "question_en": "Are you NOT a government employee?",
+        "weight": "critical"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "MCP Card",
+        "name_te": "తల్లి పిల్లల రక్షణ కార్డు",
+        "optional": false
+      },
+      {
+        "name": "Aadhaar Linked Bank Passbook",
+        "name_te": "ఆధార్ లింక్డ్ బ్యాంకు పాస్‌బుక్ కాపీ",
+        "optional": false
+      }
+    ],
+    "local_help_locations": {
+      "Village": "Anganwadi Centre / Village Secretariat"
+    }
+  },
+  "YSR Village Health Clinics": {
+    "level": "Andhra Pradesh",
+    "category": "Primary Care Clinics",
+    "icon": "clinic",
+    "telugu_name": "వైఎస్ఆర్ విలేజ్ హెల్త్ క్లినిక్స్",
+    "audio_file": "static/audio/ysr_village_clinics.mp3",
+    "source_name": "Andhra Pradesh Department of Health and Family Welfare",
+    "source_url": "https://cfw.ap.nic.in/",
+    "keywords": ["YSR Village Clinic", "ANM", "doctor", "health sub centre", "village doctor", "AP health"],
+    "original_complex_text": "YSR Village Health Clinics are established at the village level in Andhra Pradesh to provide comprehensive primary healthcare services close to home. Each clinic is staffed with a B.Sc. Nursing qualified Mid-Level Health Provider (MLHP) and an ANM. They offer 12 basic health services, free screening for diabetes & hypertension, and dispense 105 essential medicines and diagnostics.",
+    "simplified": {
+      "eligibility": "All residents of rural villages in Andhra Pradesh needing basic healthcare.",
+      "benefits": "Free consultations, screening for chronic diseases, telemedicine support with expert doctors, and free essential medicines.",
+      "documents": "Aadhaar card or health card (Aarogyasri card) if available (not mandatory for basic consultation).",
+      "steps": "Walk into your local YSR Village Health Clinic during working hours to consult the MLHP/ANM."
+    },
+    "telugu": {
+      "eligibility": "ఆంధ్రప్రదేశ్‌లోని గ్రామీణ ప్రాంత ప్రజలందరికీ ఉచిత ప్రాథమిక చికిత్స అందుబాటులో ఉంటుంది.",
+      "benefits": "ఉచిత డాక్టర్ సంప్రదింపులు, బీపీ/షుగర్ ఉచిత పరీక్షలు, 105 రకాల ఉచిత మందులు మరియు టెలిమెడిసిన్ సేవలు.",
+      "documents": "ఆధార్ కార్డు లేదా ఆరోగ్యశ్రీ కార్డు (ఉంటేనే, తప్పనిసరి కాదు).",
+      "steps": "గ్రామ పరిధిలోని వైఎస్ఆర్ విలేజ్ క్లినిక్‌ను నేరుగా సందర్శించి వైద్య సేవలు పొందవచ్చు."
+    },
+    "last_updated": "2026-06-01",
+    "official_website": "https://hmfw.ap.gov.in/",
+    "contact_office": "YSR Village Clinic Helper / ANM",
+    "eligibility_confirmation": "ANM or MLHP at Village Clinic",
+    "eligibility_questions": [
+      {
+        "question_te": "మీరు ఆంధ్రప్రదేశ్ గ్రామీణ ప్రాంత నివాసియా?",
+        "question_en": "Are you a resident of rural Andhra Pradesh?",
+        "weight": "high"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Aadhaar Card",
+        "name_te": "ఆధార్ కార్డు",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "Village": "Local YSR Village Health Clinic"
+    }
+  },
+  "AP Organ Donation Programme (Jeevandan)": {
+    "level": "Andhra Pradesh",
+    "category": "Organ Donation Services",
+    "icon": "kidney",
+    "telugu_name": "జీవన్‌దాన్ అవయవ దానం పథకం",
+    "audio_file": "static/audio/jeevandan.mp3",
+    "source_name": "AP Jeevandan Registry",
+    "source_url": "http://www.jeevandan.ap.gov.in/",
+    "keywords": ["Jeevandan", "organ donation", "kidney transplant", "AP organ registry"],
+    "original_complex_text": "The Jeevandan Organ Donation Programme is run by the Government of Andhra Pradesh to regulate and promote cadaver organ transplantation. It coordinates organ retrieval and allocation between registered hospitals and patients needing kidney, liver, heart, or lung transplants. Families can pledge organs of deceased loved ones.",
+    "simplified": {
+      "eligibility": "Any citizen wishing to pledge organs, or patients needing organ transplants in registered AP hospitals.",
+      "benefits": "Enables kidney, liver, heart, and lung transplant matches under ethical guidelines, free registration.",
+      "documents": "Donor pledge form, organ recipient medical report, identity proof.",
+      "steps": "Register online at the Jeevandan portal or visit an authorized hospital coordinator."
+    },
+    "telugu": {
+      "eligibility": "అవయవ దానం చేయాలనుకునే వారందరూ మరియు అవయవ మార్పిడి అవసరమైన రోగులు రిజిస్టర్ చేసుకోవచ్చు.",
+      "benefits": "కిడ్నీ, లివర్, గుండె మొదలైన అవయవ మార్పిడి కోసం ప్రభుత్వ సమన్వయం మరియు ఉచిత నమోదు.",
+      "documents": "అవయవ దాత ఫారమ్, రోగి మెడికల్ రిపోర్టులు, ఐడెంటిటీ ప్రూఫ్.",
+      "steps": "జీవన్‌దాన్ అధికారిక వెబ్‌సైట్ లో నమోదు చేసుకోండి లేదా గుర్తింపు పొందిన ఆసుపత్రిని సంప్రదించండి."
+    },
+    "last_updated": "2026-03-20",
+    "official_website": "http://www.jeevandan.ap.gov.in/",
+    "contact_office": "Jeevandan Coordinators in Government General Hospitals",
+    "eligibility_confirmation": "Jeevandan Registry Office",
+    "eligibility_questions": [
+      {
+        "question_te": "మీరు అవయవ దానం చేయడానికి ప్రతిజ్ఞ చేయాలనుకుంటున్నారా?",
+        "question_en": "Do you wish to pledge organ donation?",
+        "weight": "high"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Consent / Pledge Form",
+        "name_te": "అవయవ దాన అంగీకార పత్రం",
+        "optional": false
+      },
+      {
+        "name": "Identity Proof",
+        "name_te": "గుర్తింపు కార్డు",
+        "optional": false
+      }
+    ],
+    "local_help_locations": {
+      "District": "Government General Hospital"
+    }
+  },
+  "National Mental Health Programme (NMHP)": {
+    "level": "National",
+    "category": "Mental Health Services",
+    "icon": "phone-doctor",
+    "telugu_name": "జాతీయ మానసిక ఆరోగ్య పథకం",
+    "audio_file": "static/audio/nmhp.mp3",
+    "source_name": "Ministry of Health and Family Welfare",
+    "source_url": "https://main.mohfw.gov.in/",
+    "keywords": ["Mental Health", "NMHP", "counseling", "psychiatrist", "stress support"],
+    "original_complex_text": "The National Mental Health Programme (NMHP) was launched to ensure the availability of primary mental healthcare services. The District Mental Health Programme (DMHP) is integrated at community health centers and district hospitals, offering counseling, medication, and rehabilitation for patients with depression, anxiety, and other conditions.",
+    "simplified": {
+      "eligibility": "Any citizen suffering from mental health issues, stress, depression, or psychiatric disorders.",
+      "benefits": "Free psychiatric counseling, diagnosis, therapy, and essential medicines at district level health facilities.",
+      "documents": "Patient OPD card, identity proof.",
+      "steps": "Visit the psychiatric or DMHP clinic at your local District Government Hospital."
+    },
+    "telugu": {
+      "eligibility": "మానసిక ఒత్తిడి, ఆందోళన లేదా మానసిక సమస్యలతో బాధపడే ఏ పౌరుడైనా అర్హుడు.",
+      "benefits": "ఉచిత కౌన్సిలింగ్, మానసిక నిపుణుల సంప్రదింపులు మరియు ఉచిత మందుల పంపిణీ.",
+      "documents": "రోగి ఓపీడీ కార్డు, గుర్తింపు కార్డు.",
+      "steps": "జిల్ల్లా కేంద్ర ఆసుపత్రిలోని మానసిక ఆరోగ్య విభాగం (DMHP) ను సంప్రదించండి."
+    },
+    "last_updated": "2026-02-15",
+    "official_website": "https://main.mohfw.gov.in/",
+    "contact_office": "District Mental Health Programme (DMHP) Cell",
+    "eligibility_confirmation": "District Hospital Psychiatrist",
+    "eligibility_questions": [
+      {
+        "question_te": "మీరు మానసిక సమస్య లేదా ఒత్తిడి కోసం సంప్రదించాలనుకుంటున్నారా?",
+        "question_en": "Do you seek support for mental health or stress?",
+        "weight": "high"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Aadhaar Card",
+        "name_te": "ఆధార్ కార్డు",
+        "optional": true
+      }
+    ],
+    "local_help_locations": {
+      "District": "District Government Hospital"
+    }
+  },
+  "National Programme for Health Care of the Elderly (NPHCE)": {
+    "level": "National",
+    "category": "Elderly Care Services",
+    "icon": "clinic",
+    "telugu_name": "జాతీయ వృద్ధుల ఆరోగ్య సంరక్షణ పథకం",
+    "audio_file": "static/audio/nphce.mp3",
+    "source_name": "Ministry of Health and Family Welfare",
+    "source_url": "https://main.mohfw.gov.in/",
+    "keywords": ["NPHCE", "elderly care", "senior citizen", "free checkup for old people", "geriatric clinic"],
+    "original_complex_text": "The National Programme for Health Care of the Elderly (NPHCE) provides dedicated health facilities for senior citizens. It sets up geriatric clinics and wards in district hospitals and community health centres to offer outpatient clinics, physiotherapy, rehabilitation, and free chronic disease diagnostics for elderly people aged 60 and above.",
+    "simplified": {
+      "eligibility": "Senior citizens aged 60 years and above.",
+      "benefits": "Dedicated geriatric queues, free screening for age-related illnesses, free physiotherapy, and medication.",
+      "documents": "Age proof (Aadhaar Card, Senior Citizen Card).",
+      "steps": "Visit the dedicated Geriatric Clinic at the local Community Health Centre or District Hospital."
+    },
+    "telugu": {
+      "eligibility": "60 సంవత్సరాలు మరియు అంతకంటే ఎక్కువ వయస్సు ఉన్న వృద్ధులు అందరూ అర్హులు.",
+      "benefits": "వృద్ధుల కోసం ప్రత్యేక కౌంటర్లు, ఉచిత ఫిజియోథెరపీ మరియు వయస్సు సంబంధిత వ్యాధులకు ఉచిత వైద్య పరీక్షలు.",
+      "documents": "వయస్సు ధృవీకరణ పత్రం (ఆధార్ కార్డు లేదా ఓటర్ కార్డు).",
+      "steps": "సమీపంలోని జిల్లా ఆసుపత్రి లేదా కమ్యూనిటీ హెల్త్ సెంటర్‌లోని వృద్ధుల క్లినిక్‌ను సంప్రదించండి."
+    },
+    "last_updated": "2026-05-18",
+    "official_website": "https://main.mohfw.gov.in/",
+    "contact_office": "Geriatric Clinic OPD",
+    "eligibility_confirmation": "Geriatric Clinic Doctor",
+    "eligibility_questions": [
+      {
+        "question_te": "మీ వయస్సు 60 సంవత్సరాలు లేదా అంతకంటే ఎక్కువ?",
+        "question_en": "Is your age 60 years or above?",
+        "weight": "critical"
+      }
+    ],
+    "required_documents": [
+      {
+        "name": "Aadhaar Card (Age Proof)",
+        "name_te": "ఆధార్ కార్డు (వయస్సు రుజువు)",
+        "optional": false
+      }
+    ],
+    "local_help_locations": {
+      "Village": "Village Secretariat ANM",
+      "District": "Geriatric Ward, District Hospital"
+    }
+  }
+}

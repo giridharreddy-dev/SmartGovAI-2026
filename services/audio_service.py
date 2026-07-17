@@ -3,24 +3,24 @@
 import hashlib
 import os
 import time
-
 from typing import Dict, Optional
 
-from flask import url_for
 from gtts import gTTS
 
 from config import AUDIO_DIR, BASE_DIR, VOICE_LANGUAGE
 from logger_config import logger
 
-def audio_url_from_static_path(static_path: Optional[str]) -> Optional[str]:
-    """Return a Flask URL for an existing audio file, or None if invalid."""
+
+def get_relative_audio_path(static_path: Optional[str]) -> Optional[str]:
+    """Return a relative path from the static directory for an existing audio file, or None if invalid."""
     if not static_path:
         return None
     static_path = static_path.replace("\\", "/")
     abs_path = os.path.join(BASE_DIR, static_path)
     if os.path.isfile(abs_path) and os.path.getsize(abs_path) > 0:
         logger.info("Reusing existing audio: static_path='%s'", static_path)
-        return url_for("static", filename=static_path.removeprefix("static/"))
+        # static_path is structured as static/audio/file.mp3, so we remove the prefix static/
+        return static_path.removeprefix("static/")
     return None
 
 
@@ -38,16 +38,16 @@ def generate_telugu_audio(
     scheme_name: str,
     static_path: Optional[str] = None,
 ) -> Optional[str]:
-    """Generate Telugu audio for the scheme if not already present."""
-    existing_url = audio_url_from_static_path(static_path)
-    if existing_url:
-        return existing_url
+    """Generate Telugu audio for the scheme if not already present, returning the relative static path."""
+    existing_rel = get_relative_audio_path(static_path)
+    if existing_rel:
+        return existing_rel
 
     filename = _audio_filename(telugu_data, scheme_name, static_path)
     if os.path.isfile(filename) and os.path.getsize(filename) > 0:
         rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
         logger.info("Reusing generated audio: filename='%s' scheme='%s'", filename, scheme_name)
-        return url_for("static", filename=rel_path)
+        return rel_path
 
     try:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -55,7 +55,7 @@ def generate_telugu_audio(
         tts.save(filename)
         rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
         logger.info("Generated audio: filename='%s' scheme='%s'", filename, scheme_name)
-        return url_for("static", filename=rel_path)
+        return rel_path
     except Exception:
         logger.exception("Audio generation failed for scheme '%s'.", scheme_name)
         return None

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <meta name="theme-color" content="#176b5b">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SmartGov Health | Andhra Pradesh</title>
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
     <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
@@ -64,7 +65,7 @@
                         <label for="schemeSelect">జాబితా నుండి పథకం</label>
                         <select id="schemeSelect">
                             <option value="">-- ఎంచుకోండి --</option>
-                            {% for scheme in schemes.keys() %}
+                            {% for scheme in schemes.keys()|sort %}
                             <option value="{{ scheme }}">{{ schemes[scheme].telugu_name }} | {{ scheme }}</option>
                             {% endfor %}
                         </select>
@@ -97,16 +98,18 @@
     <p class="footer-note">అధికారిక ఆసుపత్రి, PHC, ASHA/ANM లేదా గ్రామ సచివాలయం వద్ద చివరి అర్హతను తప్పక ధృవీకరించండి.</p>
     
     <div style="background: #f3f0e9; border-top: 2px solid var(--border); padding: 16px; margin-top: 20px; text-align: center;">
-        <button type="button" class="secondary-btn" onclick="SmartGovEnhanced.openReportForm()" style="width:100%; min-height: 52px; margin-bottom: 10px;">📋 తప్పు సమాచారం నివేదించండి</button>
+        <button type="button" id="footerReportBtn" class="secondary-btn" style="width:100%; min-height: 52px; margin-bottom: 10px;">📋 తప్పు సమాచారం నివేదించండి</button>
         <div id="offlineIndicator" style="display:none; color: var(--red); font-weight: 800; margin-top: 8px;">
             📡 ఆఫ్‌లైన్ మోడ్ - కాష్‌ చేసిన సమాచారం చూపిస్తున్నాం
         </div>
     </div>
 </main>
 
+<script src="{{ url_for('static', filename='enhanced-features.js') }}"></script>
 <script>
     const schemesCatalog = {{ schemes|tojson }};
     const schemeNames = {{ scheme_names|tojson }};
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const iconMap = {
         hospital: '🏥',
         ambulance: '🚑',
@@ -127,14 +130,10 @@
     let currentSchemeName = null;
     let deferredInstallPrompt = null;
 
-    function escapeHtml(value) {
-        return String(value || '').replace(/[&<>"']/g, char => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;'
-        }[char]));
+    // Pre-compute lowercase search haystacks once on load to optimize performance
+    const searchHaystacks = {};
+    for (const name of schemeNames) {
+        searchHaystacks[name] = haystackFor(name, schemesCatalog[name]);
     }
 
     function haystackFor(name, data) {
@@ -153,12 +152,25 @@
         return data.level === 'National';
     }
 
+    let lastQuery = '';
+    let lastFilter = 'all';
+
     function renderSchemeCards() {
-        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const rawQuery = document.getElementById('searchInput').value.trim();
+        const query = rawQuery.toLowerCase();
+        
+        // Skip rendering if search filters and queries have not changed
+        if (query === lastQuery && activeFilter === lastFilter) {
+            return;
+        }
+        lastQuery = query;
+        lastFilter = activeFilter;
+
         const grid = document.getElementById('schemeGrid');
         const matches = schemeNames.filter(name => {
             const data = schemesCatalog[name];
-            return matchesFilter(data) && (!query || haystackFor(name, data).includes(query));
+            const haystack = searchHaystacks[name];
+            return matchesFilter(data) && (!query || haystack.includes(query));
         });
 
         if (!matches.length) {
@@ -171,14 +183,14 @@
             const levelClass = data.level === 'Andhra Pradesh' ? 'ap' : '';
             const levelLabel = data.level === 'Andhra Pradesh' ? 'AP' : 'National';
             return `
-                <button class="scheme-card" type="button" data-scheme="${escapeHtml(name)}">
+                <button class="scheme-card" type="button" data-scheme="${window.escapeHtml(name)}">
                     <span class="card-top">
                         <span class="card-icon" aria-hidden="true">${iconMap[data.icon] || '➕'}</span>
                         <span class="level-badge ${levelClass}">${levelLabel}</span>
                     </span>
-                    <h2>${escapeHtml(data.telugu_name || name)}</h2>
-                    <p>${escapeHtml(name)}</p>
-                    <span class="category">${escapeHtml(data.category || '')}</span>
+                    <h2>${window.escapeHtml(data.telugu_name || name)}</h2>
+                    <p>${window.escapeHtml(name)}</p>
+                    <span class="category">${window.escapeHtml(data.category || '')}</span>
                 </button>
             `;
         }).join('');
@@ -189,13 +201,13 @@
     }
 
     function showLoading(message = 'వివరాలు తెస్తున్నాం...') {
-        document.getElementById('resultArea').innerHTML = `<div class="loading">${escapeHtml(message)}</div>`;
+        document.getElementById('resultArea').innerHTML = `<div class="loading">${window.escapeHtml(message)}</div>`;
     }
 
     function showError(message) {
         document.getElementById('resultArea').innerHTML = `
             <div class="result-inner">
-                <p class="error">${escapeHtml(message)}</p>
+                <p class="error">${window.escapeHtml(message)}</p>
             </div>
         `;
     }
@@ -203,8 +215,8 @@
     function resultCard(title, text) {
         return `
             <article class="info-card">
-                <h3>${escapeHtml(title)}</h3>
-                <p>${escapeHtml(text)}</p>
+                <h3>${window.escapeHtml(title)}</h3>
+                <p>${window.escapeHtml(text)}</p>
             </article>
         `;
     }
@@ -224,14 +236,14 @@
         const audioHtml = data.voice_url
             ? `<div class="audio-wrap">
                 <strong>🎙️ తెలుగు ఆడియో</strong>
-                <audio controls src="${escapeHtml(data.voice_url)}"></audio>
-                <button type="button" style="width:100%;margin-top:8px;padding:8px;" onclick="SmartGovEnhanced.speakText('${escapeHtml(data.scheme_name)}')">🔊 మెల్లగా చదవండి</button>
+                <audio controls src="${window.escapeHtml(data.voice_url)}"></audio>
+                <button type="button" class="speak-text-btn" data-text="${window.escapeHtml(data.scheme_name)}" style="width:100%;margin-top:8px;padding:8px;">🔊 మెల్లగా చదవండి</button>
             </div>`
             : `<div class="audio-wrap"><strong>ఆడియో అందుబాటులో లేదు</strong></div>`;
 
         const sourceHtml = data.source_url
-            ? `<a class="source-link" href="${escapeHtml(data.source_url)}" target="_blank" rel="noopener noreferrer">🌐 ${escapeHtml(data.source_name || 'Official source')}</a>`
-            : `<span>📄 ${escapeHtml(data.source_name || 'Uploaded source')}</span>`;
+            ? `<a class="source-link" href="${window.escapeHtml(data.source_url)}" target="_blank" rel="noopener noreferrer">🌐 ${window.escapeHtml(data.source_name || 'Official source')}</a>`
+            : `<span>📄 ${window.escapeHtml(data.source_name || 'Uploaded source')}</span>`;
 
         const eligibilityChecker = SmartGovEnhanced.buildEligibilityChecker(scheme);
         const documentChecklist = SmartGovEnhanced.buildDocumentChecklist(scheme);
@@ -240,8 +252,8 @@
 
         document.getElementById('resultArea').innerHTML = `
             <div class="result-head">
-                <h2>${escapeHtml(data.scheme_name || 'Health scheme')}</h2>
-                <p>${escapeHtml(data.level || '')} • ${escapeHtml(data.category || '')}</p>
+                <h2>${window.escapeHtml(data.scheme_name || 'Health scheme')}</h2>
+                <p>${window.escapeHtml(data.level || '')} • ${window.escapeHtml(data.category || '')}</p>
             </div>
             <div class="result-inner">
                 ${trustInfo}
@@ -257,14 +269,14 @@
                 <div class="result-actions">
                     ${audioHtml}
                     <div style="font-size:0.9rem;">📚 మూలం: ${sourceHtml}</div>
-                    <button type="button" class="primary-btn" style="width:100%;margin:10px 0;" onclick="SmartGovEnhanced.speakPageAloud()">🔊 ఈ పేజీ చదవండి</button>
+                    <button type="button" class="speak-page-btn primary-btn" style="width:100%;margin:10px 0;">🔊 ఈ పేజీ చదవండి</button>
                     <div class="action-buttons">
-                        <button class="action-btn whatsapp" type="button" onclick="SmartGovEnhanced.shareOnWhatsApp('${escapeHtml(data.scheme_name)}')">📱 WhatsApp</button>
-                        <button class="action-btn" type="button" onclick="SmartGovEnhanced.shareOnSMS('${escapeHtml(data.scheme_name)}')">📲 SMS</button>
+                        <button class="action-btn whatsapp share-whatsapp-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">📱 WhatsApp</button>
+                        <button class="action-btn share-sms-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">📲 SMS</button>
                     </div>
                     <div class="action-buttons">
-                        <button class="action-btn" type="button" onclick="SmartGovEnhanced.printDocumentChecklist('${escapeHtml(data.scheme_name)}')">🖨️ ముద్రణ</button>
-                        <button class="action-btn" type="button" onclick="SmartGovEnhanced.reportIssue('${escapeHtml(data.scheme_name)}')">⚠️ సమస్య</button>
+                        <button class="action-btn print-checklist-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">🖨️ ముద్రణ</button>
+                        <button class="action-btn report-issue-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">⚠️ సమస్య</button>
                     </div>
                     <details>
                         <summary>English Details</summary>
@@ -277,7 +289,7 @@
                     </details>
                     <div>
                         <div class="feedback-row">
-                            <button class="feedback-btn good" type="button" onclick="SmartGovEnhanced.openDetailedFeedback()">👍 ఇష్టమైనది</button>
+                            <button class="feedback-btn good open-feedback-btn" type="button">👍 ఇష్టమైనది</button>
                             <button class="feedback-btn" type="button" data-rating="2">👎 మెరుగుపర్చండి</button>
                         </div>
                         <div id="feedbackStatus" class="feedback-status"></div>
@@ -286,9 +298,13 @@
             </div>
         `;
 
-        document.querySelectorAll('.feedback-btn').forEach(button => {
+        document.querySelectorAll('.feedback-btn[data-rating]').forEach(button => {
             button.addEventListener('click', () => sendFeedback(button.dataset.rating));
         });
+
+        // Trigger localStorage restoration immediately after dynamic rendering
+        restoreEligibilityAnswers();
+        restoreDocumentChecks();
 
         if (window.matchMedia('(max-width: 860px)').matches) {
             document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -300,7 +316,10 @@
         try {
             const response = await fetch("{{ url_for('simplify') }}", {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
                 body: JSON.stringify({ scheme_name: schemeName })
             });
             const data = await response.json();
@@ -317,7 +336,10 @@
         try {
             const response = await fetch("{{ url_for('feedback') }}", {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
                 body: JSON.stringify({ request_id: currentRequestId, rating: Number(rating) })
             });
             const data = await response.json();
@@ -427,11 +449,17 @@
             return;
         }
 
-        showLoading('PDF చదువుతున్నాం...');
+        showLoading('PDF లోపం...');
         const formData = new FormData();
         formData.append('document', file);
         try {
-            const response = await fetch("{{ url_for('simplify') }}", { method: 'POST', body: formData });
+            const response = await fetch("{{ url_for('simplify') }}", { 
+                method: 'POST', 
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData 
+            });
             const data = await response.json();
             displayResult(data);
         } catch (error) {
@@ -456,12 +484,23 @@
         });
     }
 
-    document.getElementById('searchInput').addEventListener('input', renderSchemeCards);
+    // Debounce function to throttle search rendering
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    document.getElementById('searchInput').addEventListener('input', debounce(renderSchemeCards, 250));
+    
     document.getElementById('clearSearchBtn').addEventListener('click', () => {
         document.getElementById('searchInput').value = '';
         renderSchemeCards();
         document.getElementById('voiceStatus').textContent = 'పథకం వెతకండి లేదా మైక్ నొక్కండి';
     });
+    
     document.querySelectorAll('.filter-btn').forEach(button => {
         button.addEventListener('click', () => {
             activeFilter = button.dataset.filter;
@@ -470,9 +509,15 @@
             renderSchemeCards();
         });
     });
+    
     document.getElementById('dropdownBtn').addEventListener('click', handleDropdown);
     document.getElementById('uploadBtn').addEventListener('click', handleUpload);
     document.getElementById('schemeSelect').addEventListener('change', handleDropdown);
+
+    // Bind footer report button (remove inline onclick)
+    document.getElementById('footerReportBtn').addEventListener('click', () => {
+        SmartGovEnhanced.openReportForm();
+    });
 
     // Offline status indicator
     function updateOfflineStatus() {
@@ -489,8 +534,9 @@
 
     // Restore eligibility answers from localStorage
     function restoreEligibilityAnswers() {
+        if (!currentSchemeName) return;
         document.querySelectorAll('.question-item').forEach((item, idx) => {
-            const saved = localStorage.getItem(`eligibility_q${idx}`);
+            const saved = localStorage.getItem(`eligibility_${currentSchemeName}_q${idx}`) || localStorage.getItem(`eligibility_q${idx}`);
             if (saved) {
                 const buttons = item.querySelectorAll('.yes-no-btn');
                 buttons.forEach(btn => {
@@ -521,7 +567,6 @@
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}")
             .then(reg => {
-                // Request service worker to cache audio files
                 if (reg.active) {
                     reg.active.postMessage({ type: 'CACHE_ALL_AUDIO' });
                 }
@@ -529,7 +574,7 @@
             .catch(() => {});
     }
 
-    // Restore data on page load
+    // Restore answers initially on load after rendering scheme cards
     window.addEventListener('load', () => {
         setTimeout(() => {
             restoreEligibilityAnswers();
@@ -537,6 +582,5 @@
         }, 300);
     });
 </script>
-<script src="{{ url_for('static', filename='enhanced-features.js') }}"></script>
 </body>
 </html>

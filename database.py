@@ -9,13 +9,15 @@ from typing import Any
 from config import DB_PATH
 from logger_config import logger
 
+
 def current_timestamp() -> str:
-    '''Return the current UTC timestamp as an ISO 8601 string.'''
+    """Return the current UTC timestamp as an ISO 8601 string."""
     return datetime.now(UTC).isoformat()
 
-@contextmanager  
+
+@contextmanager
 def get_connection() -> Iterator[sqlite3.Connection]:
-    '''Context manager to get a SQLite connection with foreign keys enabled.'''
+    """Context manager to get a SQLite connection with foreign keys enabled."""
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
     try:
@@ -24,8 +26,8 @@ def get_connection() -> Iterator[sqlite3.Connection]:
         conn.close()
 
 
-def execute_insert(query: str, params: tuple[Any, ...]) -> int:  
-    '''Execute an insert query and return the last inserted row ID.'''
+def execute_insert(query: str, params: tuple[Any, ...]) -> int:
+    """Execute an insert query and return the last inserted row ID."""
     try:
         with get_connection() as conn:
             cur = conn.cursor()
@@ -53,6 +55,9 @@ def init_db() -> None:
                              comment TEXT,
                              timestamp TEXT,
                              FOREIGN KEY (request_id) REFERENCES requests(id))''')
+            
+            # TODO: These tables are currently preserved for potential future features,
+            # but their corresponding save helper functions were removed as they were dead code.
             conn.execute('''CREATE TABLE IF NOT EXISTS eligibility_checks
                             (id INTEGER PRIMARY KEY AUTOINCREMENT,
                              user_session TEXT,
@@ -65,6 +70,7 @@ def init_db() -> None:
                              scheme_name TEXT,
                              documents_checked TEXT,
                              timestamp TEXT)''')
+            
             conn.execute('''CREATE TABLE IF NOT EXISTS whatsapp_shares
                             (id INTEGER PRIMARY KEY AUTOINCREMENT,
                              scheme_name TEXT,
@@ -75,14 +81,6 @@ def init_db() -> None:
                              village TEXT,
                              feedback_text TEXT,
                              issue_type TEXT,
-                             timestamp TEXT)''')
-            conn.execute('''CREATE TABLE IF NOT EXISTS local_locations
-                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                             village TEXT,
-                             location_type TEXT,
-                             name TEXT,
-                             contact TEXT,
-                             address TEXT,
                              timestamp TEXT)''')
             conn.commit()
         logger.info("Database initialized successfully.")
@@ -130,47 +128,7 @@ def save_feedback(request_id: int, rating: int, comment: str) -> None:
     logger.info(
         "Saved feedback: request_id=%s rating=%s",
         request_id,
-        rating,
-    )
-
-
-def save_eligibility_check(user_session: str, scheme_name: str, answers: str) -> None:
-    """Store eligibility checker responses."""
-    execute_insert(
-        """
-        INSERT INTO eligibility_checks (
-            user_session,
-            scheme_name,
-            answers,
-            timestamp
-        )
-        VALUES (?, ?, ?, ?)
-        """,
-        (user_session, scheme_name, answers, current_timestamp()),
-    )
-    logger.info(
-        "Saved eligibility check for scheme='%s'",
-        scheme_name,
-    )
-
-
-def save_document_checklist(user_session: str, scheme_name: str, documents_checked: str) -> None:
-    """Store document checklist progress."""
-    execute_insert(
-        """
-        INSERT INTO document_checklist (
-            user_session,
-            scheme_name,
-            documents_checked,
-            timestamp
-        )
-        VALUES (?, ?, ?, ?)
-        """,
-        (user_session, scheme_name, documents_checked, current_timestamp()),
-    )
-    logger.info(
-        "Saved document checklist for scheme='%s'",
-        scheme_name,
+        status_code := rating,
     )
 
 

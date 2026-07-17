@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SmartGov Scheme Schema",
+  "description": "Validation schema for SmartGov welfare program catalog entries",
+  "type": "object",
+  "patternProperties": {
+    "^.*$": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["Andhra Pradesh", "National"]
+        },
+        "category": {
+          "type": "string",
+          "description": "Healthcare category of this welfare scheme"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Visual tag used for card icons in the landing UI"
+        },
+        "telugu_name": {
+          "type": "string",
+          "description": "Telugu translation of the scheme's display name"
+        },
+        "audio_file": {
+          "type": "string",
+          "description": "Relative path to pre-generated static audio MP3 file"
+        },
+        "source_name": {
+          "type": "string"
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "original_complex_text": {
+          "type": "string",
+          "description": "Full, unsimplified layout text of the welfare document"
+        },
+        "simplified": {
+          "type": "object",
+          "properties": {
+            "eligibility": { "type": "string" },
+            "benefits": { "type": "string" },
+            "documents": { "type": "string" },
+            "steps": { "type": "string" }
+          },
+          "required": ["eligibility", "benefits", "documents", "steps"],
+          "additionalProperties": false
+        },
+        "telugu": {
+          "type": "object",
+          "properties": {
+            "eligibility": { "type": "string" },
+            "benefits": { "type": "string" },
+            "documents": { "type": "string" },
+            "steps": { "type": "string" }
+          },
+          "required": ["eligibility", "benefits", "documents", "steps"],
+          "additionalProperties": false
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date"
+        },
+        "official_website": {
+          "type": "string",
+          "format": "uri"
+        },
+        "contact_office": {
+          "type": "string"
+        },
+        "eligibility_confirmation": {
+          "type": "string"
+        },
+        "eligibility_questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question_te": { "type": "string" },
+              "question_en": { "type": "string" },
+              "weight": { "type": "string", "enum": ["critical", "high", "medium"] }
+            },
+            "required": ["question_te", "question_en", "weight"],
+            "additionalProperties": false
+          }
+        },
+        "required_documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "name_te": { "type": "string" },
+              "optional": { "type": "boolean" }
+            },
+            "required": ["name", "name_te", "optional"],
+            "additionalProperties": false
+          }
+        },
+        "local_help_locations": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "required": [
+        "category",
+        "original_complex_text",
+        "simplified",
+        "telugu",
+        "required_documents"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

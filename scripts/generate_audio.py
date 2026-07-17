@@ -4,31 +4,34 @@ import json
 import os
 import time
 
-from config import AUDIO_DIR, BASE_DIR, SCHEMES_PATH, VOICE_LANGUAGE
+from config import AUDIO_DIR, BASE_DIR, SCHEMES_DIR, VOICE_LANGUAGE
 from gtts import gTTS
 from gtts.tts import gTTSError
+from services.audio_service import voice_text
 
 MAX_RETRIES = 4
 RETRY_BACKOFF_SECONDS = 2
 
 
 def load_schemes():
-    """Load the scheme definitions from the JSON file used by the app."""
-    with open(SCHEMES_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def build_voice_text(name, data):
-    """Construct the spoken Telugu text for a scheme from its structured data."""
-    telugu = data["telugu"]
-    display_name = data.get("telugu_name") or name
-    return (
-        f"{display_name}. "
-        f"అర్హత: {telugu['eligibility']}. "
-        f"ప్రయోజనాలు: {telugu['benefits']}. "
-        f"పత్రాలు: {telugu['documents']}. "
-        f"దశలు: {telugu['steps']}."
-    )
+    """Load all scheme definitions from JSON files in the data directory."""
+    merged_schemes = {}
+    if not os.path.exists(SCHEMES_DIR):
+        print(f"Schemes directory '{SCHEMES_DIR}' does not exist.")
+        return merged_schemes
+        
+    for filename in sorted(os.listdir(SCHEMES_DIR)):
+        if filename.endswith(".json") and filename != "scheme_schema.json":
+            filepath = os.path.join(SCHEMES_DIR, filename)
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    for scheme_name, scheme_data in data.items():
+                        if "telugu" in scheme_data:
+                            merged_schemes[scheme_name] = scheme_data
+            except Exception as e:
+                print(f"Failed to load or parse scheme file '{filename}': {e}")
+    return merged_schemes
 
 
 def generate_audio_for_scheme(name, data):
@@ -43,12 +46,12 @@ def generate_audio_for_scheme(name, data):
         print(f"Skipping existing: {audio_path_rel}")
         return
 
-    voice_text = build_voice_text(name, data)
+    text_to_speak = voice_text(data["telugu"], name)
     last_err = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             os.makedirs(os.path.dirname(audio_path_abs), exist_ok=True)
-            gTTS(text=voice_text, lang=VOICE_LANGUAGE, slow=False).save(audio_path_abs)
+            gTTS(text=text_to_speak, lang=VOICE_LANGUAGE, slow=False).save(audio_path_abs)
             print(f"Generated: {audio_path_rel}")
             return
         except (gTTSError, Exception) as exc:

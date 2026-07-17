@@ -1,13 +1,13 @@
 /**
  * Enhanced features for SmartGov Health App
- * - Eligibility checker with localStorage
+ * - Eligibility checker with localStorage namespace
  * - Document checklist with persistence
- * - WhatsApp + SMS sharing
+ * - WhatsApp + SMS sharing with CSRF headers
  * - Full page Telugu voice reading
  * - Issue reporting
  * - Privacy warnings
  * - Offline support with browser TTS fallback
- * - Staff/community worker mode
+ * - Event delegation for security hardening (no inline JS)
  */
 
 // ==================== HTML Utilities ====================
@@ -21,6 +21,12 @@ window.escapeHtml = function(value) {
     };
     return String(value || '').replace(/[&<>"']/g, char => map[char]);
 };
+
+// CSRF Header Helper
+function getCsrfHeader() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? { 'X-CSRFToken': meta.getAttribute('content') } : {};
+}
 
 // ==================== Voice/Speech Features ====================
 
@@ -105,7 +111,9 @@ function buildEligibilityChecker(scheme) {
 
     let html = '<div class="eligibility-checker"><strong>🎯 అర్హత పరీక్ష</strong>';
     questions.forEach((q, idx) => {
-        const saved = localStorage.getItem(`eligibility_q${idx}`) || '';
+        // Namespaced keys with fallback compatibility for existing users
+        const saved = localStorage.getItem(`eligibility_${window.currentSchemeName}_q${idx}`) || 
+                      localStorage.getItem(`eligibility_q${idx}`) || '';
         const yesClass = saved === 'yes' ? 'yes' : '';
         const noClass = saved === 'no' ? 'no' : '';
         
@@ -113,8 +121,8 @@ function buildEligibilityChecker(scheme) {
             <div class="question-item">
                 <p>${window.escapeHtml(q.question_te || q.question || '')}</p>
                 <div class="yes-no-buttons">
-                    <button class="yes-no-btn ${yesClass}" type="button" onclick="recordEligibilityAnswer(${idx}, 'yes')">✓ అవును</button>
-                    <button class="yes-no-btn ${noClass}" type="button" onclick="recordEligibilityAnswer(${idx}, 'no')">✗ కాదు</button>
+                    <button class="yes-no-btn ${yesClass}" type="button" data-idx="${idx}" data-answer="yes">✓ అవును</button>
+                    <button class="yes-no-btn ${noClass}" type="button" data-idx="${idx}" data-answer="no">✗ కాదు</button>
                 </div>
             </div>
         `;
@@ -123,16 +131,22 @@ function buildEligibilityChecker(scheme) {
     return html;
 }
 
-function recordEligibilityAnswer(questionIdx, answer) {
-    const parentDiv = event.target.closest('.question-item');
+function recordEligibilityAnswer(questionIdx, answer, event) {
+    const target = event ? event.target : null;
+    if (!target) return;
+    const parentDiv = target.closest('.question-item');
     if (!parentDiv) return;
     
     const buttons = parentDiv.querySelectorAll('.yes-no-btn');
     buttons.forEach(btn => btn.classList.remove('yes', 'no'));
-    event.target.classList.add(answer);
+    target.classList.add(answer);
     
-    // Save to localStorage
-    localStorage.setItem(`eligibility_q${questionIdx}`, answer);
+    // Save to namespaced key
+    if (window.currentSchemeName) {
+        localStorage.setItem(`eligibility_${window.currentSchemeName}_q${questionIdx}`, answer);
+    } else {
+        localStorage.setItem(`eligibility_q${questionIdx}`, answer);
+    }
     
     // Provide haptic feedback if available
     if (navigator.vibrate) {
@@ -156,7 +170,7 @@ function buildDocumentChecklist(scheme) {
         
         html += `
             <div class="checklist-item">
-                <input type="checkbox" id="doc_${idx}" ${checkedAttr} onchange="saveDocumentCheck('${window.escapeHtml(schemeName)}', ${idx})">
+                <input type="checkbox" id="doc_${idx}" ${checkedAttr} class="doc-check-box" data-idx="${idx}" data-scheme="${window.escapeHtml(schemeName)}">
                 <label for="doc_${idx}">${window.escapeHtml(docName)}${optional}</label>
             </div>
         `;
@@ -166,7 +180,7 @@ function buildDocumentChecklist(scheme) {
 }
 
 function saveDocumentCheck(schemeName, docIdx) {
-    const checkbox = document.getElementById(`doc_${docIdx}`);
+    const checkbox = document.querySelector(`.checklist-item input[type="checkbox"][data-idx="${docIdx}"]`);
     if (!checkbox) return;
     
     const key = `doc_check_${schemeName}_${docIdx}`;
@@ -252,7 +266,7 @@ function buildPrivacyWarning() {
 // ==================== Sharing Features ====================
 
 /**
- * Share on WhatsApp
+ * Share on WhatsApp with CSRF header protection
  */
 async function shareOnWhatsApp(schemeName) {
     if (!navigator.onLine && !window.offlineMode) {
@@ -263,7 +277,10 @@ async function shareOnWhatsApp(schemeName) {
     try {
         const response = await fetch('/whatsapp-share', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                ...getCsrfHeader()
+            },
             body: JSON.stringify({ scheme_name: schemeName })
         });
         
@@ -286,11 +303,9 @@ async function shareOnWhatsApp(schemeName) {
  */
 async function shareOnSMS(schemeName) {
     try {
-        // Get scheme data for message
         let message = `🏥 ${schemeName} పథకం - SmartGov Health App నుండి\n\n`;
-        message += `అధిక సమాచారం కోసం యాప్ డाউన్‌లోడ్ చేయండి।`;
+        message += `అధిక సమాచారం కోసం యాప్ డाఉన్‌లోడ్ చేయండి।`;
         
-        // Use sms: protocol which works on mobile phones
         const encodedMessage = encodeURIComponent(message);
         window.location.href = `sms:?body=${encodedMessage}`;
     } catch (error) {
@@ -323,7 +338,6 @@ async function reportIssue(schemeName) {
     }
 
     try {
-        // Option 1: Send via WhatsApp to support
         const deviceInfo = `
 Device: ${navigator.userAgent.split(' ').slice(-2).join(' ')}
 Time: ${new Date().toLocaleString('te-IN')}
@@ -369,19 +383,21 @@ function openReportForm() {
 `, '');
 
     if (form && form.trim().length > 0) {
-        // Send to server or WhatsApp
         reportIssueToServer(schemeName, form);
     }
 }
 
 /**
- * Send report to server
+ * Send report to server with CSRF header protection
  */
 async function reportIssueToServer(schemeName, feedbackText) {
     try {
         const response = await fetch('/staff-report', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                ...getCsrfHeader()
+            },
             body: JSON.stringify({
                 scheme_name: schemeName,
                 feedback_type: 'user_reported_issue',
@@ -399,7 +415,6 @@ async function reportIssueToServer(schemeName, feedbackText) {
         }
     } catch (error) {
         console.error('Report submission error:', error);
-        // Fallback to WhatsApp
         const whatsappMsg = `🔴 సమస్య నివేదన - ${schemeName}\n\n${feedbackText}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
     }
@@ -437,7 +452,10 @@ async function sendDetailedFeedback(rating, comment) {
     try {
         const response = await fetch('/enhanced-feedback', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                ...getCsrfHeader()
+            },
             body: JSON.stringify({ 
                 request_id: currentReqId, 
                 rating: Number(rating),
@@ -467,7 +485,7 @@ async function cacheForOffline() {
         const data = await response.json();
         localStorage.setItem('smartgov_offline_data', JSON.stringify(data));
         localStorage.setItem('smartgov_offline_timestamp', new Date().toISOString());
-        console.log('✅ ऑफलाइन संचयन अद्यतन: ' + data.schemes + ' पथक');
+        console.log('✅ ऑफलाइन संचयन अद्यतन: ' + data.schemes + ' పథక');
     } catch (error) {
         console.warn('Offline caching failed:', error);
     }
@@ -501,7 +519,10 @@ async function reportStaffIssue(schemeName, feedbackType) {
     try {
         const response = await fetch('/staff-report', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                ...getCsrfHeader()
+            },
             body: JSON.stringify({
                 scheme_name: window.escapeHtml(schemeName),
                 feedback_type: feedbackType,
@@ -546,6 +567,88 @@ document.addEventListener('DOMContentLoaded', () => {
         // Re-cache when online
         cacheForOffline();
     });
+
+    // Event delegation on resultArea to handle click events of dynamic elements securely
+    const resultArea = document.getElementById('resultArea');
+    if (resultArea) {
+        resultArea.addEventListener('click', event => {
+            const target = event.target;
+            
+            // Speak custom text (slowly)
+            const speakTextBtn = target.closest('.speak-text-btn');
+            if (speakTextBtn) {
+                const text = speakTextBtn.dataset.text;
+                speakText(text);
+                return;
+            }
+            
+            // Speak page aloud
+            const speakPageBtn = target.closest('.speak-page-btn');
+            if (speakPageBtn) {
+                speakPageAloud();
+                return;
+            }
+            
+            // Share on WhatsApp
+            const shareWhatsappBtn = target.closest('.share-whatsapp-btn');
+            if (shareWhatsappBtn) {
+                const schemeName = shareWhatsappBtn.dataset.scheme;
+                shareOnWhatsApp(schemeName);
+                return;
+            }
+            
+            // Share on SMS
+            const shareSmsBtn = target.closest('.share-sms-btn');
+            if (shareSmsBtn) {
+                const schemeName = shareSmsBtn.dataset.scheme;
+                shareOnSMS(schemeName);
+                return;
+            }
+            
+            // Print Document Checklist
+            const printChecklistBtn = target.closest('.print-checklist-btn');
+            if (printChecklistBtn) {
+                const schemeName = printChecklistBtn.dataset.scheme;
+                printDocumentChecklist(schemeName);
+                return;
+            }
+            
+            // Report Issue (scheme details)
+            const reportIssueBtn = target.closest('.report-issue-btn');
+            if (reportIssueBtn) {
+                const schemeName = reportIssueBtn.dataset.scheme;
+                reportIssue(schemeName);
+                return;
+            }
+            
+            // Open Detailed Feedback Form
+            const openFeedbackBtn = target.closest('.open-feedback-btn');
+            if (openFeedbackBtn) {
+                openDetailedFeedback();
+                return;
+            }
+            
+            // Yes/No Eligibility Buttons
+            const yesNoBtn = target.closest('.yes-no-btn');
+            if (yesNoBtn) {
+                const idx = parseInt(yesNoBtn.dataset.idx, 10);
+                const answer = yesNoBtn.dataset.answer;
+                recordEligibilityAnswer(idx, answer, event);
+                return;
+            }
+        });
+
+        // Event delegation on resultArea for input change events (checkboxes)
+        resultArea.addEventListener('change', event => {
+            const target = event.target;
+            // Document Checklist Checkboxes
+            if (target.matches('.checklist-item input[type="checkbox"]')) {
+                const idx = parseInt(target.dataset.idx, 10);
+                const schemeName = target.dataset.scheme;
+                saveDocumentCheck(schemeName, idx);
+            }
+        });
+    }
 });
 
 // ==================== Export for global use ====================
@@ -570,4 +673,3 @@ window.SmartGovEnhanced = {
     cacheForOffline,
     loadOfflineData
 };
-

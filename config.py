@@ -5,10 +5,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
-SCHEMES_PATH = os.path.join(BASE_DIR, "schemes_complex.json")
+SCHEMES_DIR = os.path.join(BASE_DIR, "data")
+SCHEMES_PATH = os.path.join(SCHEMES_DIR, "health.json")
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 AUDIO_DIR = os.path.join(BASE_DIR, "static", "audio")
-STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 ALLOWED_EXTENSIONS = {"pdf"}
 ALLOWED_MIME_TYPES = {"application/pdf"}

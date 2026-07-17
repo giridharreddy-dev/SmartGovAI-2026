@@ -2,6 +2,7 @@
 """Enhance schemes_complex.json with new fields for trust, eligibility, documents, local help."""
 
 import json
+import os
 from datetime import datetime
 
 schemes_enhancements = {
@@ -256,7 +257,7 @@ schemes_enhancements = {
 
 def enhance_schemes():
     """Load schemes and add new fields."""
-    with open('schemes_complex.json', 'r', encoding='utf-8') as f:
+    with open(os.path.join('data', 'health.json'), 'r', encoding='utf-8') as f:
         schemes = json.load(f)
     
     for scheme_name, scheme_data in schemes.items():
@@ -274,7 +275,7 @@ def enhance_schemes():
             scheme_data["local_help_locations"] = {}
     
     # Save enhanced schemes
-    with open('schemes_complex.json', 'w', encoding='utf-8') as f:
+    with open(os.path.join('data', 'health.json'), 'w', encoding='utf-8') as f:
         json.dump(schemes, f, indent=2, ensure_ascii=False)
     
     print(f"✅ Enhanced {len(schemes)} schemes with new fields")

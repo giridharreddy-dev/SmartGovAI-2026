@@ -4,37 +4,65 @@ import json
 import os
 import sqlite3
 import time
-import uuid
 import urllib.parse
+import uuid
 from datetime import datetime
 from functools import lru_cache
 from typing import Any, Dict
 
-
-from config import (
-    BASE_DIR,
-    SCHEMES_PATH,
-    UPLOAD_DIR,
-    AUDIO_DIR,
-    MAX_UPLOAD_SIZE,
-    DB_PATH,
-    SERVER_HOST,
-    SERVER_PORT,
-    DEBUG_MODE,
-)
-
-from logger_config import logger
-from utils import allowed_file
-from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
-from services.gemini_service import simplify_document, is_gemini_available
-from services.audio_service import generate_telugu_audio
-
-
 from flask import Flask, g, jsonify, render_template, request, url_for
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect
 
 import database
+from config import (
+    AUDIO_DIR,
+    BASE_DIR,
+    DB_PATH,
+    DEBUG_MODE,
+    MAX_UPLOAD_SIZE,
+    SCHEMES_DIR,
+    SERVER_HOST,
+    SERVER_PORT,
+    UPLOAD_DIR,
+)
+from logger_config import logger
+from services.audio_service import generate_telugu_audio
+from services.gemini_service import is_gemini_available, simplify_document
+from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
+from utils import allowed_file
 
 app = Flask(__name__)
+
+# Configure CSRF protection
+csrf = CSRFProtect(app)
+
+# Disable CSRF and Rate Limiting when running tests
+if app.config.get("TESTING") or os.environ.get("TESTING") == "true":
+    app.config["WTF_CSRF_ENABLED"] = False
+    app.config["RATELIMIT_ENABLED"] = False
+
+# Configure Rate Limiting
+redis_url = os.environ.get("REDIS_URL", "").strip()
+if redis_url:
+    storage_uri = f"{redis_url},memory://"
+else:
+    storage_uri = "memory://"
+
+default_limit = os.environ.get("RATELIMIT_DEFAULT", "200 per day; 50 per hour")
+simplify_limit = os.environ.get("RATELIMIT_SIMPLIFY", "10 per minute; 60 per hour")
+feedback_limit = os.environ.get("RATELIMIT_FEEDBACK", "20 per minute")
+report_limit = os.environ.get("RATELIMIT_REPORT", "10 per minute")
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=[default_limit],
+    storage_uri=storage_uri,
+    strategy="fixed-window"
+)
+
 
 @app.before_request
 def log_request_start() -> None:
@@ -47,6 +75,7 @@ def log_request_start() -> None:
         request.endpoint or request.path,
         client_ip,
     )
+
 
 @app.after_request
 def log_request_end(response):
@@ -61,12 +90,26 @@ def log_request_end(response):
         client_ip,
         duration,
     )
-    # Add strict but compatible security headers for browsers and intermediaries.
+    
+    # Add strict but compatible security headers
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
-    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=()")
+    
+    # Basic CSP compatible with external Google Fonts and inline scripts used in templates
+    csp_policy = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "connect-src 'self'; "
+        "media-src 'self'; "
+        "img-src 'self' data:;"
+    )
+    response.headers.setdefault("Content-Security-Policy", csp_policy)
     return response
+
 
 # Feature status logging (no secrets)
 logger.info(
@@ -81,7 +124,11 @@ logger.info(
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_SIZE
 secret_key = os.environ.get("SECRET_KEY", "").strip()
 if not secret_key:
-    raise RuntimeError("SECRET_KEY is not set. Please add it to your .env file.")
+    # Use a dummy secret key only if testing to allow tests to run
+    if app.config.get("TESTING"):
+        secret_key = "testing-secret-key"
+    else:
+        raise RuntimeError("SECRET_KEY is not set. Please add it to your .env file.")
 app.secret_key = secret_key
 
 database.init_db()
@@ -89,18 +136,67 @@ os.makedirs(AUDIO_DIR, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
+def validate_scheme(name: str, data: Dict[str, Any]) -> bool:
+    """Validate required fields in the scheme data structure."""
+    if not name or not isinstance(data, dict):
+        return False
+    
+    required_top = ["category", "original_complex_text", "required_documents"]
+    for field in required_top:
+        if field not in data:
+            logger.warning("Scheme '%s' validation failure: missing top-level field '%s'", name, field)
+            return False
+            
+    simplified = data.get("simplified")
+    if not isinstance(simplified, dict):
+        logger.warning("Scheme '%s' validation failure: missing or invalid 'simplified' section", name)
+        return False
+    for field in ["eligibility", "benefits", "documents", "steps"]:
+        if field not in simplified:
+            logger.warning("Scheme '%s' validation failure: missing 'simplified.%s' field", name, field)
+            return False
+            
+    telugu = data.get("telugu")
+    if not isinstance(telugu, dict):
+        logger.warning("Scheme '%s' validation failure: missing or invalid 'telugu' section", name)
+        return False
+    for field in ["eligibility", "benefits", "documents", "steps"]:
+        if field not in telugu:
+            logger.warning("Scheme '%s' validation failure: missing 'telugu.%s' field", name, field)
+            return False
+            
+    return True
+
+
 @lru_cache(maxsize=1)
 def load_schemes() -> Dict[str, Any]:
-    """Load the schemes database from JSON file."""
-    with open(SCHEMES_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    """Load and merge all valid scheme definitions from JSON files in the data directory."""
+    merged_schemes = {}
+    if not os.path.exists(SCHEMES_DIR):
+        logger.warning("Schemes directory '%s' does not exist.", SCHEMES_DIR)
+        return merged_schemes
+        
+    for filename in sorted(os.listdir(SCHEMES_DIR)):
+        if filename.endswith(".json") and filename != "scheme_schema.json":
+            filepath = os.path.join(SCHEMES_DIR, filename)
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    for scheme_name, scheme_data in data.items():
+                        if validate_scheme(scheme_name, scheme_data):
+                            merged_schemes[scheme_name] = scheme_data
+                        else:
+                            logger.warning("Skipping invalid scheme '%s' in file '%s'", scheme_name, filename)
+            except (json.JSONDecodeError, OSError) as e:
+                logger.error("Failed to load or parse scheme file '%s': %s", filename, e)
+    return merged_schemes
 
 
 # Load schemes safely
 try:
     schemes = load_schemes()
     scheme_names = list(schemes.keys())
-    logger.info("Startup: loaded %d schemes.", len(schemes))
+    logger.info("Startup: loaded %d valid schemes.", len(schemes))
 except Exception:
     logger.exception("Failed to load schemes database.")
     raise
@@ -139,6 +235,13 @@ def api_error(message: str, status_code: int = 400, error_code: str = None, deta
 
 def static_scheme_response(scheme_name: str, scheme_data: Dict[str, Any], request_id: int) -> Dict[str, Any]:
     """Construct a normalized response payload for a built-in scheme."""
+    audio_rel_path = generate_telugu_audio(
+        scheme_data["telugu"],
+        scheme_name,
+        scheme_data.get("audio_file"),
+    )
+    voice_url = url_for("static", filename=audio_rel_path) if audio_rel_path else None
+
     return {
         "request_id": request_id,
         "scheme_name": scheme_name,
@@ -148,18 +251,20 @@ def static_scheme_response(scheme_name: str, scheme_data: Dict[str, Any], reques
         "source_url": scheme_data.get("source_url", ""),
         "simplified": scheme_data["simplified"],
         "telugu": scheme_data["telugu"],
-        "voice_url": generate_telugu_audio(
-            scheme_data["telugu"],
-            scheme_name,
-            scheme_data.get("audio_file"),
-        ),
+        "voice_url": voice_url,
     }
 
 
 @app.errorhandler(413)
 def too_large(_error) -> Any:
     """Return a JSON response when uploaded files exceed the max content size."""
-    return api_error("File too large. Please upload a PDF below 10 MB.", 413, error_code="PAYLOAD_TOO_LARGE")
+    size_mb = MAX_UPLOAD_SIZE // (1024 * 1024)
+    return api_error(
+        f"File too large. Please upload a PDF below {size_mb} MB.",
+        413,
+        error_code="PAYLOAD_TOO_LARGE"
+    )
+
 
 @app.errorhandler(404)
 def not_found(_error) -> Any:
@@ -168,11 +273,13 @@ def not_found(_error) -> Any:
         return api_error("Resource not found.", 404, error_code="NOT_FOUND")
     return render_template("offline.html"), 404
 
+
 @app.errorhandler(500)
 def internal_error(error) -> Any:
     """Return a JSON response for unhandled server errors."""
     logger.exception("Unhandled server error: %s", error)
     return api_error("An unexpected server error occurred.", 500, error_code="INTERNAL_SERVER_ERROR")
+
 
 @app.errorhandler(Exception)
 def handle_unexpected_exception(error) -> Any:
@@ -186,10 +293,12 @@ def index() -> Any:
     """Render the homepage with available schemes."""
     return render_template("index.html", schemes=schemes, scheme_names=scheme_names)
 
+
 @app.route("/offline.html")
 def offline() -> Any:
     """Render an offline fallback page."""
     return render_template("offline.html")
+
 
 def build_health_status() -> Dict[str, Any]:
     """Collect health and availability details for monitoring endpoints."""
@@ -236,6 +345,7 @@ def version() -> Any:
 
 
 @app.route("/simplify", methods=["POST"])
+@limiter.limit(simplify_limit)
 def simplify() -> Any:
     """Accept a PDF upload, simplify it via Gemini, and return JSON results."""
     file = request.files.get("document")
@@ -260,10 +370,9 @@ def simplify() -> Any:
                 error_code="SERVICE_UNAVAILABLE"
             )
 
-        # Extra validation: ensure uploaded file begins with PDF header bytes before saving to disk.
-        # This prevents disk exhaustion from malicious large non-PDF files.
+        # Ensure uploaded file begins with PDF header bytes before saving to disk.
         header = file.read(4)
-        file.seek(0)  # Reset stream position for saving and processing
+        file.seek(0)
         
         if not header.startswith(b"%PDF"):
             logger.warning("Rejected upload: not a valid PDF according to header check: %s", safe_filename)
@@ -279,8 +388,8 @@ def simplify() -> Any:
                 safe_filename,
                 temp_path,
             )
-        except Exception:
-            logger.exception("PDF processing failed for '%s'", temp_path)
+        except OSError as e:
+            logger.exception("PDF processing failed due to system/file error for '%s': %s", temp_path, e)
             return api_error(
                 "The uploaded PDF could not be processed.",
                 400,
@@ -306,13 +415,16 @@ def simplify() -> Any:
                 "Gemini called: scheme='%s' source='pdf'",
                 scheme_name,
             )
-        except Exception:
-            logger.exception("Gemini simplification failed for scheme '%s'.", scheme_name)
+        except (ValueError, RuntimeError) as e:
+            logger.exception("Gemini simplification failed for scheme '%s': %s", scheme_name, e)
             return api_error(
                 "AI could not simplify the document at this time.",
                 502,
                 error_code="AI_SIMPLIFICATION_FAILED"
             )
+
+        audio_rel_path = generate_telugu_audio(ai_result["telugu"], scheme_name)
+        voice_url = url_for("static", filename=audio_rel_path) if audio_rel_path else None
 
         return api_response({
             "request_id": request_id,
@@ -323,7 +435,7 @@ def simplify() -> Any:
             "source_url": "",
             "simplified": ai_result["simplified"],
             "telugu": ai_result["telugu"],
-            "voice_url": generate_telugu_audio(ai_result["telugu"], scheme_name),
+            "voice_url": voice_url,
         })
 
     data = request.get_json(silent=True) or {}
@@ -359,6 +471,7 @@ def analytics() -> Any:
 
 
 @app.route("/feedback", methods=["POST"])
+@limiter.limit(feedback_limit)
 def feedback() -> Any:
     """Receive feedback for a request and persist it."""
     data = request.get_json(silent=True) or {}
@@ -378,15 +491,10 @@ def feedback() -> Any:
             rating,
         )
         return api_response({"status": "success"})
-    except sqlite3.Error:
-        logger.exception("Feedback save failed for request_id=%s.", data["request_id"])
-        return api_error("Unable to save feedback.", 500, error_code="FEEDBACK_SAVE_FAILED")
-    except Exception:
-        logger.exception("Unexpected feedback save failure for request_id=%s", data["request_id"])
+    except sqlite3.Error as e:
+        logger.exception("Feedback save failed in database for request_id=%s: %s", data["request_id"], e)
         return api_error("Unable to save feedback.", 500, error_code="FEEDBACK_SAVE_FAILED")
 
-
-# ==================== NEW FEATURES ====================
 
 @app.route("/eligibility-check", methods=["POST"])
 def eligibility_check() -> Any:
@@ -396,6 +504,11 @@ def eligibility_check() -> Any:
     answers = data.get("answers", {})
     if not scheme_name or scheme_name not in schemes:
         return api_error("Scheme not found", 404, error_code="SCHEME_NOT_FOUND")
+    
+    # Ensure answers is a dictionary structure
+    if not isinstance(answers, dict):
+        return api_error("Answers must be a structured key-value object.", 400, error_code="INVALID_ANSWERS_TYPE")
+
     scheme = schemes[scheme_name]
     questions = scheme.get("eligibility_questions", [])
     if not questions:
@@ -472,6 +585,7 @@ def whatsapp_share() -> Any:
 
 
 @app.route("/enhanced-feedback", methods=["POST"])
+@limiter.limit(feedback_limit)
 def enhanced_feedback() -> Any:
     """Save extended feedback metadata for a request."""
     data = request.get_json(silent=True) or {}
@@ -504,15 +618,13 @@ def enhanced_feedback() -> Any:
             rating,
         )
         return api_response({"status": "success", "message": "Feedback saved successfully"})
-    except sqlite3.Error:
-        logger.exception("Enhanced feedback save failed for request_id=%s.", data["request_id"])
-        return api_error("Unable to save feedback.", 500, error_code="FEEDBACK_SAVE_FAILED")
-    except Exception:
-        logger.exception("Unexpected enhanced feedback save failure for request_id=%s.", data["request_id"])
+    except sqlite3.Error as e:
+        logger.exception("Enhanced feedback save failed in database for request_id=%s: %s", data["request_id"], e)
         return api_error("Unable to save feedback.", 500, error_code="FEEDBACK_SAVE_FAILED")
 
 
 @app.route("/staff-report", methods=["POST"])
+@limiter.limit(report_limit)
 def staff_report() -> Any:
     """Accept staff reports and store them in the database."""
     data = request.get_json(silent=True) or {}
@@ -542,11 +654,8 @@ def staff_report() -> Any:
             "message": "Thank you for helping improve this service",
             "message_te": "సేవ పెరుగుదలకు సహాయం చేసినందుకు ధన్యవాదాలు"
         })
-    except sqlite3.Error:
-        logger.exception("Staff feedback save failed for scheme='%s'.", scheme_name)
-        return api_error("Unable to save staff feedback.", 500, error_code="STAFF_FEEDBACK_SAVE_FAILED")
-    except Exception:
-        logger.exception("Unexpected staff feedback save failure for scheme='%s'.", scheme_name)
+    except sqlite3.Error as e:
+        logger.exception("Staff feedback save failed in database for scheme='%s': %s", scheme_name, e)
         return api_error("Unable to save staff feedback.", 500, error_code="STAFF_FEEDBACK_SAVE_FAILED")
 
 

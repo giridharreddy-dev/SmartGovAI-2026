@@ -1,6 +1,11 @@
 import io
+import os
 import pytest
 from flask import Flask
+
+# Pre-populate environment variables for tests before app is imported
+os.environ["SECRET_KEY"] = "dummy-testing-key"
+os.environ["TESTING"] = "true"
 
 
 @pytest.fixture
@@ -10,8 +15,6 @@ def app():
 
     with app.test_request_context():
         yield app
-import pytest
-from werkzeug.datastructures import FileStorage
 
 
 @pytest.fixture
@@ -40,3 +43,6 @@ def txt_file():
         filename="sample.txt",
         content_type="text/plain",
     )
+
+
+from werkzeug.datastructures import FileStorage

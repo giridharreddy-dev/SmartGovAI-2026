@@ -3,6 +3,8 @@ google-genai
 pdfplumber
 gtts
 python-dotenv
+Flask-WTF
+Flask-Limiter
 
 pytest
 pytest-cov
