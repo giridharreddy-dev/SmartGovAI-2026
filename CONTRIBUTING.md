@@ -1,33 +1,33 @@
-# Contributing
+# Contributor Guidelines
 
-Thanks for your interest in contributing to SmartGovAI! We welcome improvements, bug reports, and documentation fixes.
+The development team welcomes contributions to the SmartGovAI repository. We invite improvements, defect reports, and documentation enhancements that align with the project's accessibility and performance objectives.
 
-Guidelines
+## Submission Guidelines
 
-- Fork the repository and create a feature branch named `feat/your-feature` or `fix/brief-description`.
-- Run tests locally and ensure they pass before opening a PR:
+- Fork the repository and initialize a feature branch utilizing standard nomenclature, such as `feat/your-feature-name` or `fix/defect-description`.
+- Execute the local test suite and ensure all validations pass prior to initiating a Pull Request:
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate    # Windows
-source .venv/bin/activate  # macOS / Linux
+.venv\Scripts\activate    # Windows execution
+source .venv/bin/activate  # macOS / Linux execution
 pip install -r requirements.txt
 pytest
 ```
 
-- Keep changes small and focused; one logical change per PR.
-- Write tests for new features or bug fixes and update CHANGELOG.md appropriately.
-- Follow the existing code style (PEP8). Use `black` and `flake8` if available.
-- Use descriptive commit messages. Example: `fix(pdf): validate header and remove temp file on invalid upload`.
+- Isolate modifications; ensure that each Pull Request addresses a single logical change or feature addition.
+- Author automated tests for all novel features or defect resolutions, and append the relevant contextual updates to the `CHANGELOG.md` file.
+- Adhere to the established code style (PEP8). Utilize formatting utilities such as `black` and `flake8` when available.
+- Employ descriptive, conventional commit messages. Example: `fix(pdf): validate header and remove temp file on invalid upload`.
 
-Code review process
+## Code Review Process
 
-- Open a Pull Request against `main` and provide a summary of the change and testing steps.
-- At least one approving review is required before merging.
-- Squash or rebase commits as requested by maintainers.
+- Initialize a Pull Request targeting the `main` branch, accompanied by a comprehensive summary of the modification and the associated validation steps.
+- At least one approving review from a core maintainer is required prior to branch integration.
+- Contributors may be requested to squash or rebase commits to preserve linear version history prior to merging.
 
-Reporting security issues
+## Security Vulnerability Reporting
 
-If you discover a security vulnerability, please do not open a public issue. Instead send a private email to the maintainers at security@smartgov.health with details and reproduction steps.
+If you identify a security vulnerability, do not submit a public issue report. Instead, securely transmit the vulnerability details and reproduction methodology to the maintainers via private email at security@smartgov.health.
 
-Thanks — maintainers.
+We appreciate your cooperation and technical contributions.

@@ -1,25 +1,37 @@
-# Codebase Review & Architecture Report: SmartGov Health
+# Codebase Review & Architecture Report: SmartGovAI
 
-This document provides a comprehensive, senior software engineering analysis of the **SmartGov Health** codebase. It outlines the project's purpose, architectural design, component layouts, data and execution flows, and external integrations.
+## Table of Contents
+1. [Project Purpose & Target Audience](#project-purpose--target-audience)
+2. [System Architecture](#system-architecture)
+3. [Folder Structure & Path Reference](#folder-structure--path-reference)
+4. [Key File Explanations & Responsibilities](#key-file-explanations--responsibilities)
+5. [Module Relationships & Dependencies](#module-relationships--dependencies)
+6. [Detailed Execution Flows](#detailed-execution-flows)
+7. [Data Flow Map](#data-flow-map)
+8. [Database Schema & Storage Interactions](#database-schema--storage-interactions)
+9. [API Reference](#api-reference)
+10. [AI & Simplification Engine](#ai--simplification-engine)
+11. [External Dependencies](#external-dependencies)
+12. [Engineering Assessment & Audit Highlights](#engineering-assessment--audit-highlights)
 
 ---
 
 ## 1. Project Purpose & Target Audience
 
-**SmartGov Health** is a portfolio-ready, offline-first Progressive Web App (PWA) with a Python Flask backend. Its primary mission is to democratize access to state and national healthcare welfare schemes for citizens in rural Andhra Pradesh, India. 
+**SmartGovAI** is an offline-first Progressive Web Application (PWA) supported by a Python Flask backend. Its primary objective is to democratize access to state and national healthcare welfare schemes for citizens residing in rural Andhra Pradesh, India.
 
 ### Key Design Considerations for Low-Literacy & Rural Audiences:
-* **Telugu-First Interface:** The default UI, audio assistance, and search system prioritize Telugu (the regional language), lowering the literacy barrier.
-* **Accessible UI (Touch-Friendly):** All buttons exceed the **48px (12mm)** physical touch target guideline (ranging from 52px to 56px) with generous padding to prevent mis-taps ("fat-finger friendly").
-* **Full Voice Assistance:** The app integrates dual-layer audio (pre-generated high-quality gTTS MP3s served locally, with a dynamic client-side `Web Speech API` Telugu text-to-speech fallback) so users can listen rather than read.
-* **Offline-First Mode:** Designed to operate in locations with unstable internet. Static assets and scheme data are aggressively cached using service workers and browser `localStorage`.
-* **Zero-Trust Client Data Storage:** No personal identifiable information (PII) like Aadhaar, phone numbers, or health cards is uploaded or stored on the server. All checklists, eligibility checks, and form entries are saved purely inside the client's browser using `localStorage`.
+* **Telugu-First Interface:** The default user interface, audio assistance, and search mechanisms prioritize Telugu (the regional language), mitigating literacy barriers.
+* **Accessible UI (Touch-Friendly):** All interactive elements exceed the 48px (12mm) physical touch target guidelines established by accessibility standards (ranging from 52px to 56px) and incorporate generous padding to accommodate imprecision during touch interactions.
+* **Comprehensive Voice Assistance:** The application integrates a dual-layer audio system. It serves pre-generated high-fidelity MP3s generated via Google Text-to-Speech (gTTS) locally, supplemented by a dynamic client-side `Web Speech API` Telugu text-to-speech fallback, facilitating auditory consumption over reading.
+* **Offline-First Resilience:** Engineered to function in geographies with unstable internet connectivity. Static assets and scheme data are persistently cached utilizing Service Workers and the browser's `localStorage` API.
+* **Zero-Trust Client Data Storage:** No personally identifiable information (PII), such as Aadhaar credentials, phone numbers, or health cards, is transmitted to or stored on the server. All operational checklists, eligibility assessments, and form inputs are contained strictly within the client's local execution environment via `localStorage`.
 
 ---
 
 ## 2. System Architecture
 
-SmartGov Health follows a classic decoupled client-server architecture, reinforced with Progressive Web App features for local persistence and offline operations.
+SmartGovAI implements a decoupled client-server architecture, enhanced with Progressive Web App features for local data persistence and offline execution.
 
 ```mermaid
 flowchart TD
@@ -66,62 +78,62 @@ flowchart TD
 ```
 
 ### Key Architectural Concepts:
-1. **Offline PWA Proxy:** The Service Worker intercepts GET requests. If the network is unavailable, it answers immediately using the local Cache Storage.
-2. **Deterministic Audio Caching:** Pre-generated audio files are stored in `static/audio/`. The application looks up files based on a SHA-256 hash of the Telugu spoken content. It only initiates a runtime gTTS API call if the file is completely missing, saving significant bandwidth and API usage.
-3. **Concurrent Request De-duplication (AI Client):** When multiple threads request simplification of the same PDF content, `gemini_service.py` blocks duplicate requests using a thread lock and wait events, protecting the API key from rate limits.
-4. **Resilient Rate Limiting:** Flask-Limiter is configured to use Redis in production if `REDIS_URL` is set, falling back automatically and gracefully to in-memory storage if Redis is down.
+1. **Offline PWA Proxy:** The Service Worker intercepts all outgoing GET requests. In the event of network unavailability, it resolves the request immediately by serving assets from the local Cache Storage.
+2. **Deterministic Audio Caching:** Pre-rendered audio files are persisted in `static/audio/`. The system queries required files utilizing a SHA-256 hash derived from the targeted Telugu spoken content. External runtime gTTS API calls are executed strictly upon cache misses, conserving bandwidth and minimizing API latency.
+3. **Concurrent Request De-duplication:** During concurrent document simplification requests within the AI client layer (`gemini_service.py`), duplicate external requests are intercepted and blocked using thread-level locks and wait events, optimizing API throughput and protecting quota thresholds.
+4. **Resilient Rate Limiting:** `Flask-Limiter` is architected to utilize Redis in production environments (via the `REDIS_URL` variable), featuring an automatic and graceful degradation to local memory storage should the Redis instance become unreachable.
 
 ---
 
 ## 3. Folder Structure & Path Reference
 
-Below is a detailed breakdown of the file structure in the repository:
+The following delineates the hierarchical file structure of the repository:
 
-```
+```text
 SmartGovAI-2026/
-├── .env.example                  # Template for environment variables (Secret keys)
-├── Dockerfile                    # Container definition for reproducible packaging
-├── docker-compose.yml            # Compose configurations for multi-service environments
+├── .env.example                  # Environment variables template
+├── Dockerfile                    # Containerization definition
+├── docker-compose.yml            # Multi-service container orchestration
 ├── data/
 │   ├── health.json               # Health schemes data catalog
-│   └── scheme_schema.json        # Schema validation rules for catalog entries
-├── app.py                        # Core Flask application, routing, and HTTP pipeline
+│   └── scheme_schema.json        # Schema validation rules for JSON catalog entries
+├── app.py                        # Core Flask application and HTTP routing controller
 ├── config.py                     # Centralized settings and environment loader
-├── database.py                   # SQLite tables, helper functions, and schema definition
-├── logger_config.py              # Structured logging basic config
-├── utils.py                      # Input/file upload validation functions
-├── requirements.txt              # Primary project dependencies
-├── pytest.ini                    # Pytest framework configuration settings
+├── database.py                   # SQLite tables, DDL execution, and schema definitions
+├── logger_config.py              # Structured logging configuration
+├── utils.py                      # Input validation and MIME-type verification
+├── requirements.txt              # Python package dependencies
+├── pytest.ini                    # Pytest framework configuration
 ├── docs/
-│   └── ENGINEERING_AUDIT.md      # High-level developer assessment & technical debt audit
+│   └── ENGINEERING_AUDIT.md      # Developer assessment and technical debt audit
 ├── services/
 │   ├── __init__.py
-│   ├── audio_service.py          # gTTS wrapper, audio hash generator, and cleanup (Flask independent)
-│   ├── gemini_service.py         # Google Gemini Client, request de-duplication, thread-safe cache
-│   └── pdf_service.py            # PDF parser (pdfplumber) with Tesseract OCR fallback
+│   ├── audio_service.py          # gTTS wrapper, hash generator, and caching service
+│   ├── gemini_service.py         # Google Gemini Client and request de-duplication cache
+│   └── pdf_service.py            # PDF text parser (pdfplumber) and Tesseract OCR controller
 ├── static/
-│   ├── audio/                    # Directory for generated or pre-cached MP3 voice files
-│   ├── enhanced-features.js      # Frontend controller (TTS, checklists, storage, reports, event delegation)
-│   ├── icon.svg                  # Application brand icon
-│   ├── manifest.webmanifest      # PWA installation details
-│   ├── service-worker.js         # Service worker file caching and pre-caching mechanism
-│   └── style.css                 # Vanilla CSS, grid variables, dynamic layouts, button sizes
+│   ├── audio/                    # Output directory for MP3 voice files
+│   ├── enhanced-features.js      # Frontend controller (TTS, storage, event delegation)
+│   ├── icon.svg                  # Application brand vector icon
+│   ├── manifest.webmanifest      # PWA installation and metadata definitions
+│   ├── service-worker.js         # Service worker implementation
+│   └── style.css                 # Vanilla CSS, layout grids, and accessibility variables
 ├── templates/
 │   ├── index.html                # Main application UI template (Jinja2)
-│   ├── offline.html              # Fallback page when client is completely disconnected
-│   └── analytics.html            # Admin feedback stats rendering template
-├── tests/                        # Pytest unit tests
-│   ├── conftest.py               # Shared test fixtures (mock files, dummy data)
-│   ├── test_app.py               # API route, response structure, and validation unit tests
+│   ├── offline.html              # Fallback template for disconnected states
+│   └── analytics.html            # Administrative statistics rendering template
+├── tests/                        # Automated unit test suite
+│   ├── conftest.py               # Shared test fixtures and mock frameworks
+│   ├── test_app.py               # API route and response validation tests
 │   ├── test_audio_service.py     # Hashing and file generation unit tests
 │   ├── test_gemini_service.py    # Request collapsing and caching unit tests
-│   ├── test_pdf_service.py       # Plumber parsing & OCR fallback unit tests
-│   └── test_utils.py             # File extension, mimetype validation tests
+│   ├── test_pdf_service.py       # Document parsing and OCR fallback unit tests
+│   └── test_utils.py             # File extension and MIME validation tests
 └── scripts/
-    ├── QUICKSTART.py             # Help/FAQ developer CLI printout
-    ├── enhance_schemes.py        # Populates data/health.json with questions & locations
-    ├── generate_audio.py         # Standalone utility to pre-render Telugu voice MP3 files
-    └── view_db.py                # Admin helper script to query SQLite requests/feedback
+    ├── QUICKSTART.py             # Developer CLI output guide
+    ├── enhance_schemes.py        # Schema expansion script for locational data
+    ├── generate_audio.py         # Standalone TTS pre-rendering utility
+    └── view_db.py                # Administrative database query script
 ```
 
 ---
@@ -129,28 +141,19 @@ SmartGovAI-2026/
 ## 4. Key File Explanations & Responsibilities
 
 ### Core Execution Modules:
-* **[app.py](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/app.py):**
-  * Initializes the Flask app, setups middleware to record performance, sets security headers (nosniff, SAMEORIGIN, CSP, Referrer-Policy, Permissions-Policy), activates CSRF protection (Flask-WTF), Rate Limiting (Flask-Limiter), and handles API routes and error pages (404, 413, 500).
-* **[config.py](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/config.py):**
-  * Reads the `.env` file via `dotenv`. Exports global settings: directories (`BASE_DIR`, `UPLOAD_DIR`, `AUDIO_DIR`, `SCHEMES_DIR`), file constraints (`MAX_UPLOAD_SIZE = 5MB`, `ALLOWED_EXTENSIONS = {"pdf"}`), models (`gemini-2.5-flash`), and languages (`tel+eng`, `te`).
-* **[database.py](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/database.py):**
-  * Manages the SQLite database connection using a thread-safe connection context manager (`get_connection`). Initializes all tables (`requests`, `feedback`, `whatsapp_shares`, `staff_feedback`) and handles insertions.
+* **`app.py`**: Initializes the Flask application context. It binds middleware for performance monitoring, establishes rigorous security headers (`nosniff`, `SAMEORIGIN`, `CSP`, `Referrer-Policy`, `Permissions-Policy`), enforces CSRF protection (`Flask-WTF`), initializes Rate Limiting (`Flask-Limiter`), and controls all API endpoints and HTTP error pages.
+* **`config.py`**: Parses the `.env` file via `dotenv`. It exports global application settings, including directory paths (`BASE_DIR`, `UPLOAD_DIR`), operational constraints (`MAX_UPLOAD_SIZE`), AI model configurations, and target locales.
+* **`database.py`**: Governs the SQLite database connection using a thread-safe context manager. It manages the execution of Data Definition Language (DDL) statements for all operational tables (`requests`, `feedback`, `whatsapp_shares`, `staff_feedback`) and abstracts the SQL insertion logic.
 
 ### Services Layer (Logic):
-* **[services/pdf_service.py](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/services/pdf_service.py):**
-  * Handles local document ingestion. First attempts layout-based text parsing using `pdfplumber`. If the resulting text is under 100 characters (indicating a scanned image), it falls back to converting the first 5 pages (`MAX_OCR_PAGES`) to images using `pdf2image` and parsing them via `pytesseract` with Telugu and English language sets (`tel+eng`).
-* **[services/gemini_service.py](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/services/gemini_service.py):**
-  * Integrates the new `google-genai` SDK. Wraps API calls to Google's model with a thread-safe cache (`OrderedDict` capped at 64 entries) and a request-collapsing mechanism. If multiple users query the same document simultaneously, threads block on a `threading.Event()` and reuse the single outbound API response.
-* **[services/audio_service.py](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/services/audio_service.py):**
-  * Builds Telugu voice scripts by concatenating eligibility, benefits, documents, and steps. Fully decoupled from Flask's `url_for` contexts. Returns relative file paths (`audio/filename.mp3`). Also provides a `cleanup_old_audio` background cleaner.
+* **`services/pdf_service.py`**: Manages local document ingestion pipelines. It attempts direct character extraction utilizing `pdfplumber`. If the extracted character count fails to meet the heuristic threshold (indicating a scanned document), the service delegates image rendering to `pdf2image` and conducts Optical Character Recognition (OCR) via `pytesseract` constrained to Telugu and English character sets.
+* **`services/gemini_service.py`**: Integrates the `google-genai` SDK. It encapsulates outbound API calls within a thread-safe cache (`OrderedDict`) and a request-collapsing semaphore structure. Concurrent requests querying identical documents block on a `threading.Event()`, ensuring that only a single network request is dispatched and the resulting response is shared across threads.
+* **`services/audio_service.py`**: Constructs Telugu voice narratives by concatenating extracted metadata fields. It operates independently of the Flask routing context to permit CLI execution, returns relative asset paths, and executes background storage rotation via `cleanup_old_audio`.
 
 ### Frontend Components:
-* **[templates/index.html](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/templates/index.html):**
-  * The main UI. Embeds `schemesCatalog` directly into JavaScript on load. Sets up event handlers for search (using a fuzzy voice matching function with debounced inputs), and renders details inside the result panel.
-* **[static/enhanced-features.js](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/static/enhanced-features.js):**
-  * Implements browser SpeechSynthesis, handles interactive eligibility checklists, maintains local state in `localStorage` for forms, builds shareable text vectors, and performs client-side fallback triggers when network status shifts. Uses event delegation on `#resultArea` to fully eliminate inline JavaScript event handlers.
-* **[static/service-worker.js](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/static/service-worker.js):**
-  * Implements a **Stale-While-Revalidate** network strategy. Intercepts fetch requests, serves cached assets instantly, runs a network check in the background to fetch updates, and updates the cache. Automatically serves `/offline.html` if the navigation request fails.
+* **`templates/index.html`**: The primary user interface shell. It injects the `schemesCatalog` directly into the Document Object Model (DOM) runtime during template compilation. It establishes interactive bounds for search behaviors (incorporating debouncing) and defines structural containers for dynamically rendered query results.
+* **`static/enhanced-features.js`**: Drives all client-side logic. It instantiates the browser's `SpeechSynthesis` API, controls interactive checklist states bounded to `localStorage`, generates shareable text vectors, and monitors network status. It employs event delegation attached to the `#resultArea` to ensure compliance with strict Content Security Policies regarding inline JavaScript execution.
+* **`static/service-worker.js`**: Implements the Stale-While-Revalidate network caching strategy. It intercepts browser HTTP fetches, fulfills requests from the local cache instantaneously, dispatches background network validations, and serves `/offline.html` during network disconnections.
 
 ---
 
@@ -230,29 +233,20 @@ classDiagram
 ### A. Startup Sequence
 
 1. **Environment Setup & Activation:** 
-   * The user runs `setup.bat` or `setup.py` to create a virtual environment (`myenv` or `.venv`) and install python packages in `requirements.txt`.
-2. **Pre-caching Audio:** 
-   * `setup.py` / `setup.bat` runs `python -m scripts.generate_audio`.
-   * `generate_audio.py` scans `data/*.json`, loads active schemes, validates schema requirements, and runs `gTTS` to save static MP3s into `static/audio/` if they do not already exist.
-3. **Web Server Instantiation:** 
-   * The user triggers `start_app.bat` or `python app.py`.
-   * `app.py` loads `config.py` (which reads `.env`).
-   * Calls `database.init_db()` to verify that `feedback.db` exists and contains all active tables.
-   * Creates upload/audio folders if missing.
-   * Scans `data/*.json` to load and merge all valid schemes into the in-memory catalog, skipping malformed entries.
-   * Logs available integrations: Gemini API status and Tesseract OCR availability.
-   * Starts the Flask WSGI server at `http://localhost:5000`.
+   The administrator provisions a virtual environment and installs documented dependencies located within `requirements.txt`.
+2. **Audio Pre-generation (Caching):** 
+   The administrator invokes `scripts.generate_audio`. The script parses `data/*.json`, validates entries against the expected schema, and triggers `gTTS` to compile and persist static MP3 artifacts to `static/audio/`.
+3. **Web Server Initialization:** 
+   The Flask application `app.py` is executed. The initialization sequence invokes `database.init_db()`, instantiates directory paths, loads and sanitizes the JSON metadata catalogs into a unified dictionary structure, verifies external API availability, and binds the WSGI server to the configured network port.
 
 ---
 
 ### B. PDF Ingestion & AI Simplification Pipeline
 
-When a community worker uploads a government PDF document for simplification:
-
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Staff as Community ASHA Worker
+    actor Staff as Community Health Worker
     participant Browser as Browser Client
     participant App as app.py (Flask)
     participant PDF as pdf_service.py
@@ -260,54 +254,54 @@ sequenceDiagram
     participant GeminiAPI as Google Gemini API
     participant Audio as audio_service.py
 
-    Staff->>Browser: Select PDF & click "PDF ను సరళీకరించు"
-    Note over Browser: Verify file is chosen
-    Browser->>App: POST /simplify with CSRF token header
-    App->>App: Check file extension & MimeType (utils.allowed_file)
-    App->>App: Read first 4 bytes. Ensure it starts with b"%PDF"
-    App->>App: Save file to uploads/[uuid].pdf
+    Staff->>Browser: Select PDF and initiate simplification
+    Note over Browser: Verify file selection
+    Browser->>App: POST /simplify (Requires CSRF Token)
+    App->>App: Validate extension and MIME Type
+    App->>App: Inspect magic bytes (Must begin with b"%PDF")
+    App->>App: Temporarily persist file to disk
     App->>PDF: extract_text_with_ocr_fallback(file_path)
-    PDF->>PDF: Attempt text extraction (pdfplumber)
+    PDF->>PDF: Attempt direct character extraction
     alt Extracted text length <= 100 characters
-        PDF->>PDF: Convert first 5 pages to images
-        PDF->>PDF: Run Tesseract OCR (Telugu + English)
+        PDF->>PDF: Convert document pages to image array
+        PDF->>PDF: Execute Tesseract OCR processing
     end
-    PDF-->>App: Return raw text
-    App->>App: Delete temp [uuid].pdf
-    App->>GemService: simplify_document(raw_text, scheme_name)
-    Note over GemService: Compute SHA-256 Cache Key
+    PDF-->>App: Return extracted textual data
+    App->>App: Purge temporary file from disk
+    App->>GemService: simplify_document(raw_text)
+    Note over GemService: Compute SHA-256 Hash Key
     alt Cache hit
-        GemService-->>App: Return cached JSON
-    else Cache miss / Request not pending
-        GemService->>GeminiAPI: generate_content(prompt, config)
-        GeminiAPI-->>GemService: Return raw JSON string
-        GemService->>GemService: Save JSON to OrderedDict cache
+        GemService-->>App: Return cached JSON struct
+    else Cache miss
+        GemService->>GeminiAPI: Dispatch generate_content request
+        GeminiAPI-->>GemService: Return unstructured JSON payload
+        GemService->>GemService: Append payload to thread-safe cache
         GemService-->>App: Return structured JSON
     end
-    App->>Audio: generate_telugu_audio(telugu_text, scheme_name)
-    Audio-->>App: Return relative static audio path (audio/...)
-    App->>App: Resolve audio path to Flask URL (url_for)
-    App-->>Browser: Return JSON (simplified, telugu, voice_url)
-    Browser->>Staff: Render simplified scheme card & enable play button
+    App->>Audio: generate_telugu_audio(telugu_text)
+    Audio-->>App: Return relative static audio URI
+    App->>App: Resolve URI to absolute Flask URL
+    App-->>Browser: Dispatch JSON response payload
+    Browser->>Staff: Render processed data and enable audio interface
 ```
 
 ---
 
 ### C. Voice Synthesis Strategy
 
-For audio delivery, the app uses a dual-layer strategy:
+The application employs a dual-layer fallback strategy to ensure continuous auditory support:
 
 ```mermaid
 flowchart TD
-    Start[User Clicks Play Audio / Speak Page] --> Type{Action Selected}
+    Start[User Initializes Auditory Playback] --> Type{Action Selected}
     
-    Type -->|Play Pre-Rendered MP3| CheckCache{Has static MP3 URL?}
-    CheckCache -->|Yes| PlayMP3[Play static MP3 via browser audio element]
-    CheckCache -->|No| FallbackToBrowser[Trigger Web Speech API fallback]
+    Type -->|Play Pre-Rendered MP3| CheckCache{Valid MP3 URI Exists?}
+    CheckCache -->|Yes| PlayMP3[Execute playback via HTMLAudioElement]
+    CheckCache -->|No| FallbackToBrowser[Delegate to Web Speech API fallback]
     
-    Type -->|Speak Page Aloud| WebSpeechSupport{Browser supports SpeechSynthesis?}
-    WebSpeechSupport -->|Yes| WebSpeech[Init SpeechSynthesisUtterance in Telugu 'te-IN' at 0.8x rate]
-    WebSpeechSupport -->|No| AlertUser[Display notice: Use built-in audio files]
+    Type -->|Synthesize Page Text| WebSpeechSupport{Browser supports SpeechSynthesis?}
+    WebSpeechSupport -->|Yes| WebSpeech[Instantiate SpeechSynthesisUtterance: 'te-IN' @ 0.8x rate]
+    WebSpeechSupport -->|No| AlertUser[Display compatibility warning]
 ```
 
 ---
@@ -316,50 +310,49 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    Catalog[(data/*.json)] -->|Pre-loaded & validated on boot| Flask[Flask App]
+    Catalog[(data/*.json)] -->|Pre-loaded & validated| Flask[Flask App]
     Flask -->|Injects Catalog| Template[templates/index.html]
-    Template -->|Fills Catalog| JSClient[enhanced-features.js]
+    Template -->|Binds DOM| JSClient[enhanced-features.js]
     
-    JSClient -->|Saves offline cache| LocalStore[(Browser LocalStorage)]
-    JSClient -->|Saves eligibility answers per scheme| LocalStore
+    JSClient -->|Serializes state| LocalStore[(Browser LocalStorage)]
     
-    Upload[User PDF Upload] -->|POST /simplify with CSRF| Flask
-    Flask -->|Call API| Gemini[Gemini API]
-    Gemini -->|Returns JSON| Flask
-    Flask -->|gTTS| AudioDir[(static/audio/)]
-    Flask -->|JSON Response| JSClient
+    Upload[User PDF Upload] -->|POST /simplify| Flask
+    Flask -->|API Query| Gemini[Gemini API]
+    Gemini -->|JSON Response| Flask
+    Flask -->|gTTS rendering| AudioDir[(static/audio/)]
+    Flask -->|HTTP JSON Response| JSClient
     
-    JSClient -->|POST /feedback with CSRF| Flask
-    JSClient -->|POST /staff-report with CSRF| Flask
-    Flask -->|Writes to| SQLite[(feedback.db)]
+    JSClient -->|POST /feedback| Flask
+    JSClient -->|POST /staff-report| Flask
+    Flask -->|SQL INSERT| SQLite[(feedback.db)]
 ```
 
 ---
 
 ## 8. Database Schema & Storage Interactions
 
-The application uses an SQLite database named `feedback.db` (path editable via config/environment variables) to log user engagements and store reports from health workers.
+The application leverages a local SQLite instance (`feedback.db`) to log transactional metrics, audit trails, and administrative feedback.
 
-### Schema Details:
+### Relational Schemas:
 
 #### 1. `requests`
-*Logs each lookup event for auditing and stats.*
+*Records system lookups for analytics.*
 ```sql
 CREATE TABLE requests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     scheme_name TEXT,
-    source TEXT,         -- 'catalog' or 'pdf'
-    timestamp TEXT       -- ISO 8601 UTC
+    source TEXT,         -- Constraint: 'catalog' or 'pdf'
+    timestamp TEXT       -- ISO 8601 UTC representation
 );
 ```
 
 #### 2. `feedback`
-*Logs ratings and text reviews.*
+*Persists quantitative and qualitative user evaluations.*
 ```sql
 CREATE TABLE feedback (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     request_id INTEGER,
-    rating INTEGER,      -- 1 to 5
+    rating INTEGER,      -- Integer range 1 to 5
     comment TEXT,
     timestamp TEXT,
     FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE
@@ -367,31 +360,31 @@ CREATE TABLE feedback (
 ```
 
 #### 3. `eligibility_checks`
-*Logs anonymized inputs to eligibility questions for volume tracking.*
+*Logs anonymized query parameters for volume analysis.*
 ```sql
 CREATE TABLE eligibility_checks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_session TEXT,
     scheme_name TEXT,
-    answers TEXT,        -- JSON string of answers
+    answers TEXT,        -- Serialized JSON object
     timestamp TEXT
 );
 ```
 
 #### 4. `document_checklist`
-*Stores checklist logs.*
+*Persists audit trails of required documentation logic.*
 ```sql
 CREATE TABLE document_checklist (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_session TEXT,
     scheme_name TEXT,
-    documents_checked TEXT, -- JSON string
+    documents_checked TEXT, -- Serialized JSON array
     timestamp TEXT
 );
 ```
 
 #### 5. `whatsapp_shares`
-*Logs sharing frequency.*
+*Quantifies the frequency of external social distribution.*
 ```sql
 CREATE TABLE whatsapp_shares (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -401,14 +394,14 @@ CREATE TABLE whatsapp_shares (
 ```
 
 #### 6. `staff_feedback`
-*Saves reports submitted by ASHA/ANM workers regarding incorrect scheme info.*
+*Collects administrative error reports from field personnel.*
 ```sql
 CREATE TABLE staff_feedback (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     scheme_name TEXT,
     village TEXT,
     feedback_text TEXT,
-    issue_type TEXT,     -- e.g., 'wrong_info', 'missing_contact'
+    issue_type TEXT,
     timestamp TEXT
 );
 ```
@@ -417,31 +410,30 @@ CREATE TABLE staff_feedback (
 
 ## 9. API Reference
 
-All backend communication occurs via the following JSON endpoints:
+System communication is exclusively mediated via the following HTTP/JSON endpoints:
 
-| Endpoint | Method | Input Format | Output Format | Description |
+| Endpoint | Method | Input Parameters | Output Format | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `/` | `GET` | Query params | HTML | Serves the main application landing page. |
-| `/offline.html` | `GET` | None | HTML | Fallback template served by Service Worker when client is offline. |
-| `/healthz` \| `/health` | `GET` | None | JSON | Returns system health, loaded schemes, directory write statuses, and uptime. |
-| `/version` | `GET` | None | JSON | Returns API metadata (version, description). |
-| `/simplify` | `POST` | `multipart/form-data` with `document` (PDF) OR JSON `{ "scheme_name": "..." }` | JSON | Takes a PDF, runs extraction and Gemini simplification, returns Telugu/English simplified texts and audio path. If JSON scheme name is sent, fetches data from static catalog. Protected by Rate Limiter. |
-| `/eligibility-check` | `POST` | JSON: `{ "scheme_name": "...", "answers": {"0": "yes", "1": "no"} }` | JSON | Computes eligibility percentage based on question weights. |
-| `/document-checklist` | `GET` | Query param `?scheme_name=...` | JSON | Returns required documents list, Telugu translations, and warnings. |
-| `/whatsapp-share` | `POST` | JSON: `{ "scheme_name": "..." }` | JSON | Generates pre-formatted Telugu text and a URL for direct WhatsApp sharing. Protected by CSRF token. |
-| `/enhanced-feedback` | `POST` | JSON: `{ "request_id": 12, "rating": 5, "comment": "..." }` | JSON | Stores structured ratings and survey feedback. Protected by Rate Limiter and CSRF token. |
-| `/staff-report` | `POST` | JSON: `{ "scheme_name": "...", "feedback_type": "...", "village": "...", "feedback_text": "..." }` | JSON | Saves errors reported by community health workers. Protected by Rate Limiter and CSRF token. |
-| `/local-locations` | `GET` | Query params `?scheme_name=...&village=...` | JSON | Returns addresses of nearest hospitals/PHCs based on selected scheme. |
-| `/offline-cache` | `GET` | None | JSON | Returns complete scheme metadata, categories, and emergency phone numbers for offline storage. |
+| `/` | `GET` | Query params | HTML | Serves the primary application shell. |
+| `/offline.html` | `GET` | None | HTML | Static fallback template served by the Service Worker during network isolation. |
+| `/healthz` | `GET` | None | JSON | Returns system telemetry, catalog volume metrics, and disk write permissions. |
+| `/simplify` | `POST` | `multipart/form-data` OR JSON `{"scheme_name": "..."}` | JSON | Executes PDF text extraction, AI simplification, and returns localized JSON nodes. Rate limited. |
+| `/eligibility-check` | `POST` | JSON: `{"scheme_name": "...", "answers": {}}` | JSON | Evaluates conditional eligibility logic against user inputs. |
+| `/document-checklist` | `GET` | Query param `?scheme_name=...` | JSON | Retrieves hierarchical documentation requirements. |
+| `/whatsapp-share` | `POST` | JSON: `{"scheme_name": "..."}` | JSON | Compiles a formatted URI string for external WhatsApp integration. CSRF protected. |
+| `/enhanced-feedback` | `POST` | JSON: `{"request_id": 1, "rating": 5}` | JSON | Inserts qualitative and quantitative user assessments. CSRF and Rate Limit protected. |
+| `/staff-report` | `POST` | JSON: `{"scheme_name": "...", "feedback_text": "..."}` | JSON | Submits administrative discrepancy alerts. CSRF and Rate Limit protected. |
+| `/local-locations` | `GET` | Query params `?scheme_name=...` | JSON | Resolves and returns localized geographical points of interest. |
+| `/offline-cache` | `GET` | None | JSON | Returns the comprehensive scheme dictionary for client-side persistence mechanisms. |
 
 ---
 
 ## 10. AI & Simplification Engine
 
-The AI integration layer uses the Google Gemini API to simplify complex government documents.
+The intelligence layer utilizes the Google Gemini API to distill complex governmental jargon into accessible prose.
 
-### The System Prompt:
-```
+### System Prompt Engineering:
+```text
 You simplify Indian government health scheme documents for rural Andhra Pradesh citizens.
 
 Scheme/document name: {scheme_name}
@@ -468,42 +460,42 @@ Return strictly this JSON object:
 }
 ```
 
-### Safety & Guardrails:
-1. **JSON Mode enforcement:** Utilizes `response_mime_type="application/json"` in the Gemini Client configurations to prevent parsing failures.
-2. **Temperature control:** Fixed at `0.2` to minimize hallucinations and keep responses factual.
-3. **Timeout limit:** Network timeout is set to `15.0` seconds to avoid thread blocking.
-4. **Offline safety:** If `GEMINI_API_KEY` is not present, `/simplify` falls back gracefully, and the UI displays a message explaining that PDF uploading is unavailable while keeping the local catalog operational.
+### Safety & Generative Guardrails:
+1. **JSON Enforcement:** Utilizes `response_mime_type="application/json"` to guarantee structured parsable outputs.
+2. **Temperature Constraints:** Set rigidly to `0.2` to constrain model variance and minimize hallucination vectors.
+3. **Network Thresholds:** A `15.0` second network timeout prevents synchronous thread exhaustion.
+4. **Resilient Failure:** The absence of `GEMINI_API_KEY` triggers a graceful degradation where document ingestion is disabled while preserving catalog functionality.
 
 ---
 
 ## 11. External Dependencies
 
-| Library | Role | Details |
+| Package | Classification | Technical Function |
 | :--- | :--- | :--- |
-| **Flask** | Web Application Framework | Handles routing, templates (Jinja2), and HTTP pipeline. |
-| **google-genai** | Google Gemini Client SDK | Handles content generation and JSON schema controls. |
-| **pdfplumber** | PDF Text Extractor | Extracts structured text from machine-readable PDF layouts. |
-| **pdf2image** | PDF to Image Converter | Converts scanned PDF pages to PNG/JPEG for OCR. |
-| **pytesseract** | OCR Engine Wrapper | Runs optical character recognition for scanned texts. |
-| **gTTS** | Google Text-to-Speech | Standalone voice generator to create Telugu audio files. |
-| **python-dotenv** | Environment Variable Loader | Loads variables from `.env` on app boot. |
-| **Flask-WTF** | CSRF Protection | Enforces anti-forgery token checks on state-changing API endpoints. |
-| **Flask-Limiter** | Rate Limiting | Implements request throttling to protect endpoints from DoS. |
-| **sqlite3** | Embedded Database | Local SQL database driver included in Python Standard Library. |
-| **pytest** / **pytest-cov** | Testing frameworks | Standard test runner and coverage reporter (current coverage: 86%). |
+| **Flask** | Framework | Manages WSGI routing, HTTP lifecycle, and Jinja2 template rendering. |
+| **google-genai** | API Client | Facilitates authenticated communication with Gemini LLM endpoints. |
+| **pdfplumber** | Parser | Extracts structured character representations from standard PDF binaries. |
+| **pdf2image** | Converter | Transforms embedded PDF pages into rasterized image arrays for OCR preprocessing. |
+| **pytesseract** | OCR Engine | Analyzes image pixel data to extract Unicode characters (`tel+eng`). |
+| **gTTS** | Audio Client | Interacts with Google TTS servers to generate MP3 streams. |
+| **python-dotenv** | Environment | Ingests and parses `.env` configurations. |
+| **Flask-WTF** | Security | Enforces strict CSRF token validation on mutable endpoints. |
+| **Flask-Limiter** | Security | Implements sliding-window request throttling backed by Redis or Memory. |
+| **sqlite3** | Database | Embedded relational database driver. |
+| **pytest** | Quality Assurance | Executes unit test suites and validates integration logic. |
 
 ---
 
 ## 12. Engineering Assessment & Audit Highlights
 
-Based on the engineering audit (`docs/ENGINEERING_AUDIT.md`), here is an overview of the codebase's current strengths and potential areas of technical debt:
+Based on the internal engineering audit (`docs/ENGINEERING_AUDIT.md`), the following represents the architectural evaluation of the current codebase:
 
-### Strengths:
-* **Strong Test Coverage:** The project maintains **86% test coverage** with modular unit tests.
-* **Deterministic Caching:** Saves substantial bandwidth/API charges by caching AI outputs and generated MP3 files.
-* **Security Hygiene:** Strong CSRF validations, debounced UI bindings, event delegation, and input magic byte verification.
+### Technical Strengths:
+* **Robust Test Coverage:** The implementation maintains an 86% test coverage ratio validated through automated mock integration.
+* **Algorithmic Caching:** Significant reduction in external API reliance via deterministic cache hashing, improving median response times.
+* **Security Hygiene:** Comprehensive application of CSRF middleware, debounced interface bindings, secure event delegation, and rigorous binary signature validations.
 
-### Technical Debt & Roadmap:
-* **Monolithic Routing:** `app.py` handles routing, request logs, and error formatting in a single file. As the app scales, splitting this into Flask **Blueprints** (e.g., `api.py`, `views.py`) will improve maintainability.
-* **Synchronous Generation Pipelines:** AI simplification and audio generation are synchronous, blocking worker threads. For higher scale, moving these tasks to an asynchronous task queue (e.g., **Celery** or **Redis Queue**) would improve performance.
-* **Broad Exception Catching:** The error handling blocks in the AI/PDF processing layer are sometimes overly broad. Catching specific exceptions (e.g., `GenAPIError`, `PDFSyntaxError`) would allow for clearer error messages.
+### Identified Technical Debt & Roadmap:
+* **Monolithic Controller Logic:** The primary `app.py` module governs routing, logic invocation, and error formatting. Refactoring into discrete Flask Blueprints (e.g., `api.py`, `views.py`) will enhance structural maintainability.
+* **Synchronous Execution Blockers:** Both AI and TTS processing are implemented synchronously, which blocks the active WSGI worker thread. Migrating these pipelines to an asynchronous task queue architecture (e.g., Celery) is recommended for scalable deployment.
+* **Exception Granularity:** Current exception catching blocks within the processing layers lack specificity. Transitioning to explicit exception classes (e.g., `GenAPIError`, `PDFSyntaxError`) will improve observability and alerting precision.

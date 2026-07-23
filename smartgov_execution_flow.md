@@ -1,12 +1,16 @@
-# SmartGov Health: Execution Flow Dictionary
+# SmartGovAI: Execution Flow Dictionary
 
-This document details the step-by-step execution flow of the SmartGov Health application, starting from server startup through to a user executing a health scheme lookup and submitting feedback.
+## Table of Contents
+1. [Phase 1: Application Initialization (Startup Sequence)](#phase-1-application-initialization-startup-sequence)
+2. [Phase 2: Client Access and Page Load](#phase-2-client-access-and-page-load)
+3. [Phase 3: Scheme Request and Execution](#phase-3-scheme-request-and-execution)
+4. [Phase 4: Feedback Submission and Evaluation](#phase-4-feedback-submission-and-evaluation)
 
 ---
 
-## 🚀 Step 1: Application Launch (Startup Sequence)
+## Phase 1: Application Initialization (Startup Sequence)
 
-When the administrator launches the application (e.g., via `python app.py` or running `start_app.bat`), the execution proceeds as follows:
+Upon execution of the application by the system administrator (e.g., via `python app.py` or the execution of `start_app.bat`), the runtime environment initializes through the following sequential operations:
 
 ```mermaid
 sequenceDiagram
@@ -30,27 +34,27 @@ sequenceDiagram
     App->>OS: Starts WSGI local server (port 5000)
 ```
 
-1. **Environment Setup**:
-   * **`app.py`** loads and imports external libraries (Flask, Flask-WTF, Flask-Limiter, etc.).
-   * **`config.py`** is parsed to extract API keys, Secret keys, and Redis database connections.
+1. **Environment Configuration**:
+   * The `app.py` module initializes the runtime by importing essential external dependencies (Flask, Flask-WTF, Flask-Limiter).
+   * The `config.py` module parses environmental configurations to extract authentication keys, cryptographic secrets, and Redis connection strings.
 2. **Database Verification**:
-   * **`app.py`** calls `init_db()` from **`database.py`**.
-   * `init_db()` connects to the local SQLite file `feedback.db` and runs DDL statements to verify and establish the `requests`, `feedback`, and `audit_logs` tables.
-3. **Data Loading**:
-   * **`app.py`** calls `load_schemes()`.
-   * It scans the **`data/`** directory, loading every `.json` file (excluding schemas).
-   * It validates each scheme definition against `scheme_schema.json`.
-   * It merges all entries into a unified, in-memory global catalog called `schemesCatalog` and extracts its keys to a list called `schemeNames`.
+   * `app.py` invokes the `init_db()` subroutine from `database.py`.
+   * The `init_db()` function establishes a connection to the local SQLite file (`feedback.db`) and executes Data Definition Language (DDL) statements to ensure the existence of the `requests`, `feedback`, and `audit_logs` relational tables.
+3. **Data Ingestion and Validation**:
+   * `app.py` invokes the `load_schemes()` subroutine.
+   * The routine enumerates the `data/` directory, reading every `.json` file (explicitly ignoring schema definition files).
+   * It validates each scheme definition against the constraints defined in `scheme_schema.json`.
+   * Validated entries are merged into a unified, in-memory global catalog (`schemesCatalog`), and the keys are aggregated into an accessible list (`schemeNames`).
 4. **Middleware Binding**:
-   * Configures `Flask-Limiter` (with Redis if active, or falling back to local memory storage).
-   * Binds CSRF protection headers through `CSRFProtect(app)`.
-   * Bootstraps the local WSGI server listening on port `5000`.
+   * The system configures the `Flask-Limiter` instance (utilizing Redis if active, or degrading to local memory storage).
+   * Cryptographic protection headers are bound via `CSRFProtect(app)`.
+   * The local Web Server Gateway Interface (WSGI) server binds and begins listening for HTTP traffic on port `5000`.
 
 ---
 
-## 🖥️ Step 2: Client Access (Page Load)
+## Phase 2: Client Access and Page Load
 
-When a citizen navigates to the application URL in their browser:
+When a client navigates to the application URL within a browser environment:
 
 ```mermaid
 sequenceDiagram
@@ -68,23 +72,23 @@ sequenceDiagram
     JS->>Client: Renders initial cards list & loads stored checklists
 ```
 
-1. **Route Matching**:
-   * The request triggers the `@app.route('/')` mapping, executing the `index()` function.
+1. **Route Resolution**:
+   * The inbound HTTP GET request triggers the `@app.route('/')` mapping, executing the `index()` controller function.
 2. **Template Compilation**:
-   * `index()` queries the rate limiter to verify the user has not exceeded access thresholds.
-   * Renders **`templates/index.html`**, passing `schemesCatalog` and `schemeNames` as context parameters.
-   * Jinja2 compiles the templates: serializing the scheme list as JSON inside script tags, and rendering the dropdown options alphabetically.
-3. **Frontend Initializations**:
-   * The client browser receives the raw HTML document and requests associated static assets like [static/style.css](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/static/style.css) and [static/enhanced-features.js](file:///c:/Users/HP/OneDrive/Desktop/SmartGovAI-2026/static/enhanced-features.js).
-   * **`static/enhanced-features.js`** registers **`static/service-worker.js`** for offline caching.
-   * It reads `localStorage` to restore any saved document checklists or answers.
-   * Renders the initial lists of scheme cards on screen via `renderSchemeCards()`.
+   * The `index()` function queries the rate limiting middleware to verify that the client has not exceeded access thresholds.
+   * The server renders `templates/index.html`, passing `schemesCatalog` and `schemeNames` as context parameters to the rendering engine.
+   * The Jinja2 engine compiles the template: serializing the scheme list as JSON inside script tags and rendering the dropdown options alphabetically.
+3. **Frontend Initialization**:
+   * The client browser receives the compiled HTML document and dispatches subsequent requests for static assets, including `static/style.css` and `static/enhanced-features.js`.
+   * `static/enhanced-features.js` executes and registers `static/service-worker.js` to facilitate offline caching protocols.
+   * The script queries the `localStorage` API to restore any previously persisted document checklists or user answers.
+   * The initial array of scheme cards is rendered to the Document Object Model (DOM) via `renderSchemeCards()`.
 
 ---
 
-## 🔍 Step 3: User Search or Dropdown Selection (Scheme Request)
+## Phase 3: Scheme Request and Execution
 
-When a user clicks a scheme card or selects an option from the dropdown menu and clicks `"వివరాలు చూపించు"`:
+When a user selects a scheme from the interface and initiates the query:
 
 ```mermaid
 sequenceDiagram
@@ -94,7 +98,7 @@ sequenceDiagram
     participant Audio as services/audio_service.py
     participant DB as database.py
 
-    Client->>UI: Selects scheme & clicks 'Show Details'
+    Client->>UI: Selects scheme and initiates query
     UI->>UI: Calls fetchScheme(name) & displays loading state
     UI->>App: HTTP POST /simplify (JSON body + CSRF Header)
     App->>App: Validates CSRF Token & Rate limits
@@ -108,30 +112,30 @@ sequenceDiagram
     UI->>UI: Renders details, voice player, eligibility forms, and checklists
 ```
 
-1. **Client Trigger**:
-   * Clicking a card or selecting an item calls `fetchScheme(schemeName)` inside **`templates/index.html`**.
-   * It alters the page state to show a loading spinner.
-   * It sends an asynchronous `POST` fetch request to `/simplify` passing the `scheme_name` in JSON and forwarding the CSRF token in the `X-CSRFToken` request header.
+1. **Client-Side Trigger**:
+   * The interaction calls the `fetchScheme(schemeName)` subroutine within `templates/index.html`.
+   * The DOM state is mutated to render a loading indicator.
+   * An asynchronous `POST` fetch request is dispatched to `/simplify`, transmitting the `scheme_name` within a JSON payload and forwarding the CSRF token via the `X-CSRFToken` request header.
 2. **Controller Handling**:
-   * **`app.py`** intercepts the request at `/simplify`.
-   * CSRF protection validates the header token against the session hash.
-   * The controller verifies the scheme name exists in the local `schemesCatalog`.
-3. **Audio Pre-Check**:
-   * The controller parses the scheme's Telugu description text.
-   * It computes a safe, sanitized filename for the TTS audio file.
-   * If the file does not exist in `static/audio/`, it calls `generate_audio_file()` from **`services/audio_service.py`**, which contacts Google TTS servers to render and save the Telugu speech MP3 locally.
-4. **Audit Logging**:
-   * The controller calls `log_request()` in **`database.py`** to insert request details into the database.
-5. **View Update**:
-   * The controller replies with the JSON scheme package (Telugu text, English text, audio path, source URL, required checklists, and eligibility questions).
-   * `templates/index.html`'s `fetchScheme()` receives the JSON payload, checks for errors, and calls `displayResult()`.
-   * `displayResult()` injects the formatted HTML layout into `#resultArea`, restoring any answers cached in `localStorage` for that specific scheme.
+   * The `app.py` controller intercepts the request at `/simplify`.
+   * CSRF middleware validates the header token against the server-side session hash.
+   * The controller confirms the existence of the requested scheme name within the local `schemesCatalog`.
+3. **Auditory Synthesis Verification**:
+   * The controller parses the scheme's localized (Telugu) description.
+   * A sanitized, deterministic filename is computed for the TTS audio file.
+   * If the file is absent from the `static/audio/` directory, the controller invokes `generate_audio_file()` from `services/audio_service.py`, which communicates with Google TTS servers to render and locally persist the MP3 asset.
+4. **Audit Logging Execution**:
+   * The controller invokes `log_request()` within `database.py` to insert transactional metadata into the SQLite database.
+5. **View Update Resolution**:
+   * The controller responds with a JSON payload containing the scheme data (localized text, English text, audio URI, authoritative URLs, required checklists, and eligibility interrogatives).
+   * The `fetchScheme()` subroutine receives the JSON payload, evaluates it for HTTP errors, and calls `displayResult()`.
+   * `displayResult()` injects the formatted HTML components into the `#resultArea` DOM node and restores any associated state data from `localStorage`.
 
 ---
 
-## 💬 Step 4: User Feedback Rating Submission
+## Phase 4: Feedback Submission and Evaluation
 
-When the user clicks `"👍 ఇష్టమైనది"` or `"👎 మెరుగుపర్చండి"` to rate the helpfulness of the scheme details:
+When the user provides qualitative or quantitative feedback via the interface:
 
 ```mermaid
 sequenceDiagram
@@ -146,16 +150,16 @@ sequenceDiagram
     App->>DB: Calls save_feedback(request_id, rating)
     DB->>DB: Saves rating to SQLite DB
     App-->>UI: Returns {"status": "success"}
-    UI->>Client: Updates feedback status text (Thank You message)
+    UI->>Client: Updates feedback status text
 ```
 
-1. **Client Request**:
-   * The click triggers `sendFeedback(rating)` in the frontend page.
-   * Sends a `POST` fetch request to `/feedback` with the active `request_id` and the integer score, alongside the `X-CSRFToken` validation header.
-2. **Feedback Logging**:
-   * **`app.py`** receives the request at `/feedback`.
-   * Validates the CSRF token.
-   * Invokes `save_feedback(request_id, rating)` from **`database.py`**, which executes an SQL write to save the rating details inside the SQLite database.
-3. **Success UI Confirmation**:
-   * The controller returns `{"status": "success"}`.
-   * The browser updates `#feedbackStatus` to thank the user.
+1. **Client Request Dispatch**:
+   * The interaction triggers the `sendFeedback(rating)` function within the frontend script.
+   * An asynchronous `POST` fetch request is dispatched to the `/feedback` endpoint, transmitting the active `request_id` and the quantitative score, secured by the `X-CSRFToken` header.
+2. **Feedback Ingestion**:
+   * `app.py` intercepts the request at `/feedback`.
+   * CSRF middleware validates the request authenticity.
+   * The controller invokes `save_feedback(request_id, rating)` from `database.py`, executing an SQL INSERT statement to persist the rating within the SQLite database.
+3. **Interface Confirmation**:
+   * The controller returns a success vector: `{"status": "success"}`.
+   * The client browser updates the `#feedbackStatus` DOM node to confirm receipt of the submission.
