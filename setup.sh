@@ -23,7 +23,7 @@ pip install -r requirements.txt
 # Step 3: Generate audio files
 echo "📍 Generating Telugu audio files..."
 echo "   (This may take 2-5 minutes...)"
-python generate_audio.py
+python -m scripts.generate_audio
 
 # Step 4: Success message
 echo ""

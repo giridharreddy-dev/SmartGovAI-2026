@@ -1,20 +1,15 @@
-const CACHE_NAME = 'smartgov-health-v1';
+const CACHE_NAME = 'smartgov-health-v2';
 const OFFLINE_URL = '/offline.html';
 
-const CORE_ASSETS = [
+// Files to cache on install — all app-shell assets
+const STATIC_CACHE_FILES = [
   '/',
+  '/offline.html',
+  '/static/style.css',
   '/static/manifest.webmanifest',
   '/static/icon.svg',
   '/static/enhanced-features.js',
   '/healthz'
-];
-
-// Files to cache on install
-const STATIC_CACHE_FILES = [
-  '/static/manifest.webmanifest',
-  '/static/icon.svg',
-  '/static/enhanced-features.js',
-  '/offline.html'
 ];
 
 self.addEventListener('install', event => {
@@ -95,7 +90,6 @@ self.addEventListener('fetch', event => {
 // Handle messages from clients
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'CACHE_ALL_AUDIO') {
-    // Pre-cache all audio files
     cacheAllAudio();
   }
 });
@@ -106,14 +100,25 @@ async function cacheAllAudio() {
     const data = await response.json();
     const cache = await caches.open(CACHE_NAME);
     
-    // Cache the schemes data
+    // Cache the schemes data JSON payload
     cache.put('/offline-cache', new Response(JSON.stringify(data), {
       headers: { 'Content-Type': 'application/json' }
     }));
     
-    console.log('✅ Offline cache updated');
+    // Cache individual scheme voice/audio URLs if available
+    const schemes = data.schemes_list || {};
+    for (const [name, scheme] of Object.entries(schemes)) {
+      if (scheme.voice_url) {
+        try {
+          await cache.add(scheme.voice_url);
+        } catch (e) {
+          // Skip audio files that fail to cache (not yet generated, etc.)
+        }
+      }
+    }
+
+    console.log('✅ Offline cache updated with scheme data and audio');
   } catch (error) {
-    console.warn('Failed to cache audio:', error);
+    console.warn('Failed to update offline cache:', error);
   }
 }
-

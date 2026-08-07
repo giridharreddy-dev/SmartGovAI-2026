@@ -81,6 +81,10 @@
                         ఆధార్, ప్రెస్క్రిప్షన్లు లేదా వ్యక్తిగత ఆరోగ్య ఫైలులను అప్‌లోడ్ చేయవద్దు.
                         మీరు విశ్వసించే పరికరమైన తర్వాత మాత్రమే అప్‌లోడ్ చేయండి.
                     </div>
+                    <label class="consent-label" style="display:flex;align-items:flex-start;gap:8px;margin:12px 0 0;font-size:0.85rem;cursor:pointer;">
+                        <input type="checkbox" id="pdfConsent" style="margin-top:3px;">
+                        <span>ఈ PDF టెక్స్ట్ సరళీకరణ కోసం Google AI కి పంపబడుతుందని నేను అర్థం చేసుకున్నాను. ఆధార్ లేదా వ్యక్తిగత వైద్య రికార్డులను అప్‌లోడ్ చేయవద్దు.</span>
+                    </label>
                 </div>
             </details>
         </section>
@@ -106,7 +110,7 @@
 </main>
 
 <script src="{{ url_for('static', filename='enhanced-features.js') }}"></script>
-<script>
+<script nonce="{{ csp_nonce }}">
     const schemesCatalog = {{ schemes|tojson }};
     const schemeNames = {{ scheme_names|tojson }};
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -449,9 +453,16 @@
             return;
         }
 
-        showLoading('PDF లోపం...');
+        const consentCheckbox = document.getElementById('pdfConsent');
+        if (!consentCheckbox || !consentCheckbox.checked) {
+            showError('దయచేసి PDF అప్‌లోడ్ చేయడానికి ముందు గోప్యతా అంగీకారం చెక్‌బాక్స్ ను టిక్ చేయండి.');
+            return;
+        }
+
+        showLoading('PDF సరళీకరిస్తున్నాం...');
         const formData = new FormData();
         formData.append('document', file);
+        formData.append('consent', 'true');
         try {
             const response = await fetch("{{ url_for('simplify') }}", { 
                 method: 'POST', 

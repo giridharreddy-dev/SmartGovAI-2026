@@ -20,6 +20,8 @@ def get_connection() -> Iterator[sqlite3.Connection]:
     """Context manager to get a SQLite connection with foreign keys enabled."""
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=5000")
     try:
         yield conn
     finally:
@@ -56,8 +58,9 @@ def init_db() -> None:
                              timestamp TEXT,
                              FOREIGN KEY (request_id) REFERENCES requests(id))''')
             
-            # TODO: These tables are currently preserved for potential future features,
-            # but their corresponding save helper functions were removed as they were dead code.
+            # DEPRECATED: These tables are no longer actively used.
+            # They are retained to avoid destructive schema migration on existing databases.
+            # Do not add new code that writes to these tables.
             conn.execute('''CREATE TABLE IF NOT EXISTS eligibility_checks
                             (id INTEGER PRIMARY KEY AUTOINCREMENT,
                              user_session TEXT,
@@ -128,7 +131,7 @@ def save_feedback(request_id: int, rating: int, comment: str) -> None:
     logger.info(
         "Saved feedback: request_id=%s rating=%s",
         request_id,
-        status_code := rating,
+        rating,
     )
 
 

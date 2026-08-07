@@ -1,12 +1,14 @@
 """Flask application for SmartGovAI scheme lookup, simplification, and feedback APIs."""
 
+import hashlib
 import json
 import os
+import secrets
 import sqlite3
 import time
 import urllib.parse
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 from functools import lru_cache
 from typing import Any, Dict
 
@@ -15,6 +17,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
 
+from auth import require_admin_token
 import database
 from config import (
     AUDIO_DIR,
@@ -31,7 +34,7 @@ from logger_config import logger
 from services.audio_service import generate_telugu_audio
 from services.gemini_service import is_gemini_available, simplify_document
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
-from utils import allowed_file
+from utils import allowed_file, safe_url, validate_pdf_content
 
 app = Flask(__name__)
 
@@ -44,11 +47,7 @@ if app.config.get("TESTING") or os.environ.get("TESTING") == "true":
     app.config["RATELIMIT_ENABLED"] = False
 
 # Configure Rate Limiting
-redis_url = os.environ.get("REDIS_URL", "").strip()
-if redis_url:
-    storage_uri = f"{redis_url},memory://"
-else:
-    storage_uri = "memory://"
+storage_uri = os.environ.get("REDIS_URL", "").strip() or "memory://"
 
 default_limit = os.environ.get("RATELIMIT_DEFAULT", "200 per day; 50 per hour")
 simplify_limit = os.environ.get("RATELIMIT_SIMPLIFY", "10 per minute; 60 per hour")
@@ -65,9 +64,10 @@ limiter = Limiter(
 
 
 @app.before_request
-def log_request_start() -> None:
-    """Record the start of an incoming request for logging and tracing."""
-    g.request_start_time = time.perf_counter()
+def before_request_setup() -> None:
+    """Store per-request values such as the CSP nonce and start time."""
+    g.start_time = time.perf_counter()
+    g.csp_nonce = secrets.token_urlsafe(16)
     client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     logger.info(
         "Request received: method='%s' endpoint='%s' client_ip='%s'",
@@ -80,7 +80,7 @@ def log_request_start() -> None:
 @app.after_request
 def log_request_end(response):
     """Log request completion and add basic security headers to the response."""
-    duration = time.perf_counter() - getattr(g, "request_start_time", time.perf_counter())
+    duration = time.perf_counter() - getattr(g, "start_time", time.perf_counter())
     client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     logger.info(
         "Request completed: method='%s' endpoint='%s' status=%s client_ip='%s' duration=%.3f sec",
@@ -97,10 +97,11 @@ def log_request_end(response):
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=()")
     
-    # Basic CSP compatible with external Google Fonts and inline scripts used in templates
+    # Basic CSP compatible with external Google Fonts; inline scripts use per-request nonce
+    nonce = getattr(g, "csp_nonce", "")
     csp_policy = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline'; "
+        f"script-src 'self' 'nonce-{nonce}'; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "connect-src 'self'; "
@@ -120,6 +121,11 @@ logger.info(
     "Startup: OCR support %s",
     "available" if is_ocr_available() else "not installed",
 )
+if storage_uri == "memory://":
+    logger.warning(
+        "Startup: Rate limiting uses in-memory storage (not shared across workers). "
+        "Set REDIS_URL for production."
+    )
 
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_SIZE
 secret_key = os.environ.get("SECRET_KEY", "").strip()
@@ -165,6 +171,16 @@ def validate_scheme(name: str, data: Dict[str, Any]) -> bool:
             logger.warning("Scheme '%s' validation failure: missing 'telugu.%s' field", name, field)
             return False
             
+    # Sanitize URL fields to prevent javascript: or data: scheme injection
+    for url_field in ("source_url", "official_website"):
+        if url_field in data:
+            sanitized = safe_url(data[url_field])
+            if sanitized != data[url_field]:
+                logger.warning(
+                    "Scheme '%s': sanitized unsafe URL in '%s'", name, url_field
+                )
+                data[url_field] = sanitized
+
     return True
 
 
@@ -204,7 +220,7 @@ except Exception:
 API_NAME = "SmartGovAI"
 API_VERSION = "1.0.0"
 API_DESCRIPTION = "SmartGovAI public API for scheme lookup and simplification."
-STARTUP_TIME = datetime.utcnow()
+STARTUP_TIME = datetime.now(UTC)
 
 
 def api_response(data: Dict[str, Any], status_code: int = 200) -> Any:
@@ -291,7 +307,7 @@ def handle_unexpected_exception(error) -> Any:
 @app.route("/")
 def index() -> Any:
     """Render the homepage with available schemes."""
-    return render_template("index.html", schemes=schemes, scheme_names=scheme_names)
+    return render_template("index.html", schemes=schemes, scheme_names=scheme_names, csp_nonce=g.csp_nonce)
 
 
 @app.route("/offline.html")
@@ -315,9 +331,9 @@ def build_health_status() -> Dict[str, Any]:
         "schemes": len(schemes),
         "gemini_pdf_support": is_gemini_available(),
         "checks": checks,
-        "startup_time": STARTUP_TIME.isoformat() + "Z",
-        "current_time": datetime.utcnow().isoformat() + "Z",
-        "uptime_seconds": int((datetime.utcnow() - STARTUP_TIME).total_seconds()),
+        "startup_time": STARTUP_TIME.isoformat(),
+        "current_time": datetime.now(UTC).isoformat(),
+        "uptime_seconds": int((datetime.now(UTC) - STARTUP_TIME).total_seconds()),
     }
 
 
@@ -340,7 +356,7 @@ def version() -> Any:
         "version": API_VERSION,
         "name": API_NAME,
         "description": API_DESCRIPTION,
-        "startup_time": STARTUP_TIME.isoformat() + "Z",
+        "startup_time": STARTUP_TIME.isoformat(),
     })
 
 
@@ -360,7 +376,40 @@ def simplify() -> Any:
             return api_error(result, 400, error_code="INVALID_FILE_TYPE")
 
         safe_filename = result
+
+        # Require explicit consent for PDF-to-AI processing
+        consent = request.form.get("consent", "").strip().lower()
+        if consent != "true":
+            return api_error(
+                "You must consent to PDF text being sent to Google AI for simplification.",
+                400,
+                error_code="CONSENT_REQUIRED"
+            )
+
+        # Validate PDF before checking Gemini — invalid PDFs should always return 400,
+        # not 503 when Gemini happens to be unavailable.
+        header = file.read(4)
+        file.seek(0)
+
+        if not header.startswith(b"%PDF"):
+            logger.warning("Rejected upload: not a valid PDF according to header check: %s", safe_filename)
+            return api_error("Uploaded file is not a valid PDF.", 400, error_code="INVALID_PDF")
+
+        temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4()}.pdf")
+        file.save(temp_path)
+
+        # Validate page count after saving
+        pdf_valid, pdf_error = validate_pdf_content(temp_path)
+        if not pdf_valid:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+            logger.warning("PDF content validation failed for '%s': %s", safe_filename, pdf_error)
+            return api_error(pdf_error, 400, error_code="INVALID_PDF")
+
+        # Only check Gemini availability after we know the PDF itself is valid
         if not is_gemini_available():
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
             logger.error(
                 "PDF simplification blocked: GEMINI_API_KEY is not configured",
             )
@@ -370,23 +419,20 @@ def simplify() -> Any:
                 error_code="SERVICE_UNAVAILABLE"
             )
 
-        # Ensure uploaded file begins with PDF header bytes before saving to disk.
-        header = file.read(4)
-        file.seek(0)
-        
-        if not header.startswith(b"%PDF"):
-            logger.warning("Rejected upload: not a valid PDF according to header check: %s", safe_filename)
-            return api_error("Uploaded file is not a valid PDF.", 400, error_code="INVALID_PDF")
-
-        temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4()}.pdf")
-        file.save(temp_path)
+        extract_start = time.time()
 
         try:
             complex_text = extract_text_with_ocr_fallback(temp_path)
+            extract_duration = time.time() - extract_start
+            # Privacy-safe audit log — no raw filenames or IPs
+            client_ip = request.headers.get("X-Forwarded-For", request.remote_addr) or ""
             logger.info(
-                "PDF uploaded: filename='%s' temp_path='%s'",
-                safe_filename,
-                temp_path,
+                "PDF audit: client_hash='%s' filename_hash='%s' text_length=%d consent=%s extract_duration=%.2fs",
+                hashlib.sha256(client_ip.encode()).hexdigest()[:12],
+                hashlib.sha256(safe_filename.encode()).hexdigest()[:12],
+                len(complex_text),
+                consent,
+                extract_duration,
             )
         except OSError as e:
             logger.exception("PDF processing failed due to system/file error for '%s': %s", temp_path, e)
@@ -436,6 +482,7 @@ def simplify() -> Any:
             "simplified": ai_result["simplified"],
             "telugu": ai_result["telugu"],
             "voice_url": voice_url,
+            "privacy_notice": "PDF text was processed by Google Gemini AI for simplification.",
         })
 
     data = request.get_json(silent=True) or {}
@@ -452,21 +499,21 @@ def simplify() -> Any:
 
 
 @app.route("/analytics")
+@require_admin_token
 def analytics() -> Any:
     """Return analytics rendered from feedback stats."""
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT r.scheme_name,
-               COUNT(f.id) AS feedback_count,
-               ROUND(AVG(f.rating), 2) AS avg_rating
-        FROM requests r
-        LEFT JOIN feedback f ON r.id = f.request_id
-        GROUP BY r.scheme_name
-        ORDER BY feedback_count DESC, avg_rating DESC
-    """)
-    stats = cur.fetchall()
-    conn.close()
+    with database.get_connection() as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT r.scheme_name,
+                   COUNT(f.id) AS feedback_count,
+                   ROUND(AVG(f.rating), 2) AS avg_rating
+            FROM requests r
+            LEFT JOIN feedback f ON r.id = f.request_id
+            GROUP BY r.scheme_name
+            ORDER BY feedback_count DESC, avg_rating DESC
+        """)
+        stats = cur.fetchall()
     return render_template("analytics.html", stats=stats)
 
 
@@ -575,7 +622,7 @@ def whatsapp_share() -> Any:
 
 📞 సంప్రదించండి: {scheme.get('eligibility_confirmation', 'Government office')}
 
-🔗 మరిన్ని: {scheme.get('official_website', '')}"""
+🔗 మరిన్ని: {safe_url(scheme.get('official_website', ''))}"""
     database.log_whatsapp_share(scheme_name)
     return api_response({
         "scheme_name": scheme_name,
@@ -689,7 +736,8 @@ def offline_cache() -> Any:
                 "category": data.get("category"),
                 "simplified": data.get("simplified"),
                 "telugu": data.get("telugu"),
-                "last_updated": data.get("last_updated")
+                "last_updated": data.get("last_updated"),
+                "voice_url": url_for("static", filename=data["audio_file"]) if data.get("audio_file") else None,
             }
             for name, data in schemes.items()
         },
@@ -698,7 +746,7 @@ def offline_cache() -> Any:
             "health_advice": "104",
             "phc_help": "Check your village"
         },
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(UTC).isoformat()
     })
 
 

@@ -52,12 +52,14 @@ def test_simplify_magic_bytes_failure(client):
     assert response.get_json()["error_code"] == "INVALID_PDF"
 
 
+@patch("app.is_gemini_available", return_value=True)
+@patch("app.validate_pdf_content", return_value=(True, ""))
 @patch("app.database.log_request")
 @patch("app.extract_text_with_ocr_fallback")
 @patch("app.simplify_document")
 @patch("app.generate_telugu_audio")
 @patch("werkzeug.datastructures.FileStorage.save")
-def test_simplify_valid_pdf_upload(mock_save, mock_audio, mock_simplify, mock_extract, mock_log, client):
+def test_simplify_valid_pdf_upload(mock_save, mock_audio, mock_simplify, mock_extract, mock_log, mock_validate, mock_gemini, client):
     """Test successful PDF upload and processing flow."""
     mock_save.return_value = None
     mock_extract.return_value = "Extracted text content"
@@ -70,7 +72,10 @@ def test_simplify_valid_pdf_upload(mock_save, mock_audio, mock_simplify, mock_ex
 
     # File starts with correct magic bytes
     pdf_content = b"%PDF-1.4\n%EOF"
-    data = {"document": (io.BytesIO(pdf_content), "scheme_doc.pdf")}
+    data = {
+        "document": (io.BytesIO(pdf_content), "scheme_doc.pdf"),
+        "consent": "true",
+    }
     
     response = client.post("/simplify", data=data, content_type="multipart/form-data")
     
@@ -79,3 +84,31 @@ def test_simplify_valid_pdf_upload(mock_save, mock_audio, mock_simplify, mock_ex
     assert json_data["scheme_name"] == "scheme_doc"
     assert json_data["request_id"] == 123
     assert "simplified" in json_data
+
+
+def test_analytics_requires_admin_token(client):
+    """Test that /analytics returns 401 without a valid admin token."""
+    response = client.get("/analytics")
+    assert response.status_code == 401
+
+
+def test_analytics_with_valid_token(client, monkeypatch):
+    """Test that /analytics returns 200 with a valid admin token."""
+    monkeypatch.setenv("ADMIN_TOKEN", "test-token")
+    response = client.get("/analytics", headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 200
+
+
+@patch("app.is_gemini_available", return_value=True)
+@patch("app.database.log_request")
+@patch("app.extract_text_with_ocr_fallback")
+@patch("app.simplify_document")
+@patch("app.generate_telugu_audio")
+@patch("werkzeug.datastructures.FileStorage.save")
+def test_simplify_pdf_requires_consent(mock_save, mock_audio, mock_simplify, mock_extract, mock_log, mock_gemini, client):
+    """Test that PDF upload without consent field returns 400."""
+    pdf_content = b"%PDF-1.4\n%EOF"
+    data = {"document": (io.BytesIO(pdf_content), "test.pdf")}
+    response = client.post("/simplify", data=data, content_type="multipart/form-data")
+    assert response.status_code == 400
+    assert response.get_json()["error_code"] == "CONSENT_REQUIRED"

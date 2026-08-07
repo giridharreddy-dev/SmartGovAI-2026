@@ -49,7 +49,7 @@ def main():
     print("\n📍 Generating Telugu audio files for all schemes...")
     print("   This may take 2-5 minutes depending on internet speed...")
     
-    if not run_command(f"{python_cmd} generate_audio.py", "Audio generation"):
+    if not run_command(f"{python_cmd} -m scripts.generate_audio", "Audio generation"):
         print("⚠️  Audio generation failed, but app can still run with browser TTS")
     
     # Step 4: Start the app
