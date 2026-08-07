@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Admin Login - SmartGovAI</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 60px auto;
+            padding: 30px;
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-container h1 {
+            margin-top: 0;
+            color: var(--ink);
+            font-size: 1.5rem;
+        }
+        .form-group {
+            margin: 20px 0;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg);
+            color: var(--ink);
+            font-size: 1rem;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+        }
+        .flash-messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        .flash-messages li {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .flash-messages li.error {
+            background: var(--surface-soft);
+            color: var(--red);
+            border-left: 4px solid var(--red);
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+    <main class="container">
+        <div class="login-container">
+            <h1>🔒 అడ్మిన్ లాగిన్ <br><small>(Admin Login)</small></h1>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flash-messages">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('admin_login', next=request.args.get('next')) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="form-group">
+                    <label for="token">అడ్మిన్ టోకెన్ (Admin Token):</label>
+                    <input type="password" id="token" name="token" required autocomplete="current-password">
+                </div>
+                
+                <button type="submit" class="btn primary-btn login-btn">లాగిన్ (Login)</button>
+            </form>
+            <div style="margin-top: 20px;">
+                <a href="/" class="btn secondary">← వెనుకకు (Back to Main)</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

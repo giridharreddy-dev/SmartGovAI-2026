@@ -4,7 +4,7 @@ import os
 from functools import wraps
 from typing import Any
 
-from flask import jsonify, request
+from flask import jsonify, request, session, redirect, url_for
 
 from logger_config import logger
 
@@ -36,40 +36,51 @@ def require_admin_token(f):
                 401,
             )
 
+        # 1. Check if token is in session (browser user)
+        if session.get("admin_authenticated"):
+            return f(*args, **kwargs)
+
+        # 2. Check for Authorization header (API users)
         auth_header = request.headers.get("Authorization", "")
-        if not auth_header.startswith("Bearer "):
-            logger.warning(
-                "Unauthorized access attempt on '%s' — missing or malformed Authorization header.",
-                request.path,
-            )
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "error": "Authentication required.",
-                        "error_code": "AUTH_REQUIRED",
-                    }
-                ),
-                401,
-            )
+        if auth_header.startswith("Bearer "):
+            token = auth_header[len("Bearer "):]
+            if token == admin_token:
+                return f(*args, **kwargs)
+            else:
+                logger.warning(
+                    "Unauthorized access attempt on '%s' — invalid token.",
+                    request.path,
+                )
+                return (
+                    jsonify(
+                        {
+                            "status": "error",
+                            "error": "Invalid authentication token.",
+                            "error_code": "INVALID_TOKEN",
+                        }
+                    ),
+                    401,
+                )
 
-        token = auth_header[len("Bearer "):]
-        if token != admin_token:
-            logger.warning(
-                "Unauthorized access attempt on '%s' — invalid token.",
-                request.path,
-            )
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "error": "Invalid authentication token.",
-                        "error_code": "INVALID_TOKEN",
-                    }
-                ),
-                401,
-            )
+        # 3. If neither session nor valid Bearer token, fallback to redirect or 401
+        logger.warning(
+            "Unauthorized access attempt on '%s' — missing session or Authorization header.",
+            request.path,
+        )
+        
+        # If the client prefers HTML, redirect to login page
+        if request.accept_mimetypes.best_match(['text/html', 'application/json']) == 'text/html':
+            return redirect(url_for("admin_login", next=request.path))
 
-        return f(*args, **kwargs)
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "error": "Authentication required.",
+                    "error_code": "AUTH_REQUIRED",
+                }
+            ),
+            401,
+        )
 
     return decorated

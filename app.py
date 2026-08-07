@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 from functools import lru_cache
 from typing import Any, Dict
 
-from flask import Flask, g, jsonify, render_template, request, url_for
+from flask import Flask, g, jsonify, render_template, request, url_for, session, flash, redirect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
@@ -498,6 +498,31 @@ def simplify() -> Any:
     return api_response(static_scheme_response(scheme_name, scheme_data, request_id))
 
 
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login() -> Any:
+    """Browser-based login for the Impact Dashboard."""
+    admin_token = os.environ.get("ADMIN_TOKEN", "").strip()
+    if not admin_token:
+        flash("Admin access is not configured on this server.", "error")
+        return render_template("admin_login.html")
+        
+    if request.method == "POST":
+        token = request.form.get("token", "").strip()
+        if token == admin_token:
+            session["admin_authenticated"] = True
+            next_url = request.args.get("next") or url_for("analytics")
+            return redirect(next_url)
+        else:
+            flash("Invalid authentication token.", "error")
+            
+    return render_template("admin_login.html")
+
+
+@app.route("/admin/logout")
+def admin_logout() -> Any:
+    """Clear admin session."""
+    session.pop("admin_authenticated", None)
+    return redirect(url_for("admin_login"))
 @app.route("/analytics")
 @require_admin_token
 def analytics() -> Any:
