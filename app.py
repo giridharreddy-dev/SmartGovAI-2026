@@ -90,13 +90,13 @@ def log_request_end(response):
         client_ip,
         duration,
     )
-    
+
     # Add strict but compatible security headers
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=()")
-    
+
     # Basic CSP compatible with external Google Fonts; inline scripts use per-request nonce
     nonce = getattr(g, "csp_nonce", "")
     csp_policy = (
@@ -146,13 +146,13 @@ def validate_scheme(name: str, data: Dict[str, Any]) -> bool:
     """Validate required fields in the scheme data structure."""
     if not name or not isinstance(data, dict):
         return False
-    
+
     required_top = ["category", "original_complex_text", "required_documents"]
     for field in required_top:
         if field not in data:
             logger.warning("Scheme '%s' validation failure: missing top-level field '%s'", name, field)
             return False
-            
+
     simplified = data.get("simplified")
     if not isinstance(simplified, dict):
         logger.warning("Scheme '%s' validation failure: missing or invalid 'simplified' section", name)
@@ -161,7 +161,7 @@ def validate_scheme(name: str, data: Dict[str, Any]) -> bool:
         if field not in simplified:
             logger.warning("Scheme '%s' validation failure: missing 'simplified.%s' field", name, field)
             return False
-            
+
     telugu = data.get("telugu")
     if not isinstance(telugu, dict):
         logger.warning("Scheme '%s' validation failure: missing or invalid 'telugu' section", name)
@@ -170,7 +170,7 @@ def validate_scheme(name: str, data: Dict[str, Any]) -> bool:
         if field not in telugu:
             logger.warning("Scheme '%s' validation failure: missing 'telugu.%s' field", name, field)
             return False
-            
+
     # Sanitize URL fields to prevent javascript: or data: scheme injection
     for url_field in ("source_url", "official_website"):
         if url_field in data:
@@ -191,7 +191,7 @@ def load_schemes() -> Dict[str, Any]:
     if not os.path.exists(SCHEMES_DIR):
         logger.warning("Schemes directory '%s' does not exist.", SCHEMES_DIR)
         return merged_schemes
-        
+
     for filename in sorted(os.listdir(SCHEMES_DIR)):
         if filename.endswith(".json") and filename != "scheme_schema.json":
             filepath = os.path.join(SCHEMES_DIR, filename)
@@ -205,6 +205,12 @@ def load_schemes() -> Dict[str, Any]:
                             logger.warning("Skipping invalid scheme '%s' in file '%s'", scheme_name, filename)
             except (json.JSONDecodeError, OSError) as e:
                 logger.error("Failed to load or parse scheme file '%s': %s", filename, e)
+
+    # Generate slugs for all valid schemes
+    from utils import generate_slug
+    for scheme_name, scheme_data in merged_schemes.items():
+        scheme_data["slug"] = generate_slug(scheme_name)
+
     return merged_schemes
 
 
@@ -212,6 +218,7 @@ def load_schemes() -> Dict[str, Any]:
 try:
     schemes = load_schemes()
     scheme_names = list(schemes.keys())
+    slug_to_scheme = {s["slug"]: name for name, s in schemes.items()}
     logger.info("Startup: loaded %d valid schemes.", len(schemes))
 except Exception:
     logger.exception("Failed to load schemes database.")
@@ -222,6 +229,44 @@ API_VERSION = "1.0.0"
 API_DESCRIPTION = "SmartGovAI public API for scheme lookup and simplification."
 STARTUP_TIME = datetime.now(UTC)
 
+# Trust reverse proxy headers ONLY if explicitly configured by the deployment environment
+# to prevent Host-header spoofing when directly exposed.
+from werkzeug.middleware.proxy_fix import ProxyFix
+trusted_proxies = int(os.environ.get("TRUSTED_PROXIES", "0"))
+if trusted_proxies > 0:
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app,
+        x_for=trusted_proxies,
+        x_proto=trusted_proxies,
+        x_host=trusted_proxies,
+        x_prefix=trusted_proxies
+    )
+
+@app.route("/scheme/<slug>")
+def scheme_by_slug(slug: str) -> Any:
+    """Public route to view a specific scheme by slug."""
+    scheme_name = slug_to_scheme.get(slug)
+    if not scheme_name:
+        return redirect(url_for('index'))
+    return render_template("index.html", schemes=schemes, scheme_names=scheme_names, csp_nonce=g.csp_nonce, auto_open_scheme=scheme_name)
+
+@app.route("/qr/<slug>.png")
+@limiter.limit("30 per minute")
+def qr_code(slug: str) -> Any:
+    """Generate a QR code for a specific scheme."""
+    if slug not in slug_to_scheme:
+        return "Not found", 404
+
+    from services.qr_service import generate_qr_image
+    from flask import Response
+
+    scheme_url = url_for("scheme_by_slug", slug=slug, _external=True)
+    qr_bytes = generate_qr_image(scheme_url)
+
+    if not qr_bytes:
+        return "QR service unavailable", 503
+
+    return Response(qr_bytes, mimetype="image/png")
 
 def api_response(data: Dict[str, Any], status_code: int = 200) -> Any:
     """Wrap response data in the standard JSON envelope used by the API."""
@@ -505,7 +550,7 @@ def admin_login() -> Any:
     if not admin_token:
         flash("Admin access is not configured on this server.", "error")
         return render_template("admin_login.html")
-        
+
     if request.method == "POST":
         token = request.form.get("token", "").strip()
         if token == admin_token:
@@ -514,7 +559,7 @@ def admin_login() -> Any:
             return redirect(next_url)
         else:
             flash("Invalid authentication token.", "error")
-            
+
     return render_template("admin_login.html")
 
 
@@ -577,7 +622,7 @@ def eligibility_check() -> Any:
     answers = data.get("answers", {})
     if not scheme_name or scheme_name not in schemes:
         return api_error("Scheme not found", 404, error_code="SCHEME_NOT_FOUND")
-    
+
     # Ensure answers is a dictionary structure
     if not isinstance(answers, dict):
         return api_error("Answers must be a structured key-value object.", 400, error_code="INVALID_ANSWERS_TYPE")

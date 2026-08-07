@@ -74,21 +74,20 @@ Return strictly this JSON object:
         "steps": "Telugu translation of steps"
     }}
 }}'''
-    if types is not None and hasattr(types, "GenerateContentConfig"):
+    if types is not None and hasattr(types, 'GenerateContentConfig'):
         response = client.models.generate_content(
             model=MODEL_NAME,
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 temperature=0.2,
-                http_options={'timeout': 15.0}
-            ),
+            )
         )
     else:
         response = client.models.generate_content(
-            model=MODEL_NAME, 
+            model=MODEL_NAME,
             contents=prompt,
-            config={'http_options': {'timeout': 15.0}}
+            config={'temperature': 0.2}
         )
     try:
         result = json.loads(response.text)

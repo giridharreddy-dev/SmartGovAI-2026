@@ -81,3 +81,34 @@ def validate_pdf_content(file_path: str) -> Tuple[bool, str]:
 
     return True, ""
 
+
+def generate_slug(name: str) -> str:
+    """Generate a stable, URL-safe slug for a scheme name.
+
+    Lowercase, replaces non-alphanumeric with hyphens, and appends a short hash
+    for uniqueness and stability.
+    """
+    import re
+    import hashlib
+    # Extract just english name if possible or use the whole string
+    # E.g. "డా. ఎన్.టి.ఆర్ వైద్య సేవ (Dr. NTR Vaidya Seva (AP Cashless Hospital Care))" -> "dr-ntr-vaidya-seva"
+
+    # Create a stable short hash (6 chars)
+    h = hashlib.sha256(name.encode('utf-8')).hexdigest()[:6]
+
+    # Clean up name: extract English part if parenthesis exist, otherwise use full
+    eng_match = re.search(r'\((.*?)\)', name)
+    base_str = eng_match.group(1) if eng_match else name
+
+    # Replace non-word chars with hyphens and lowercase
+    cleaned = re.sub(r'[^\w\s-]', '', base_str.lower())
+    slug_base = re.sub(r'[-\s]+', '-', cleaned).strip('-')
+
+    # If slug_base is empty (e.g. only telugu characters were kept by \w if we aren't careful,
+    # but \w includes telugu. Let's just limit to 50 chars).
+    slug_base = slug_base[:50]
+
+    if not slug_base:
+        slug_base = "scheme"
+
+    return f"{slug_base}-{h}"

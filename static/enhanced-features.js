@@ -112,11 +112,11 @@ function buildEligibilityChecker(scheme) {
     let html = '<div class="eligibility-checker"><strong>🎯 అర్హత పరీక్ష</strong>';
     questions.forEach((q, idx) => {
         // Namespaced keys with fallback compatibility for existing users
-        const saved = localStorage.getItem(`eligibility_${window.currentSchemeName}_q${idx}`) || 
+        const saved = localStorage.getItem(`eligibility_${window.currentSchemeName}_q${idx}`) ||
                       localStorage.getItem(`eligibility_q${idx}`) || '';
         const yesClass = saved === 'yes' ? 'yes' : '';
         const noClass = saved === 'no' ? 'no' : '';
-        
+
         html += `
             <div class="question-item">
                 <p>${window.escapeHtml(q.question_te || q.question || '')}</p>
@@ -136,18 +136,18 @@ function recordEligibilityAnswer(questionIdx, answer, event) {
     if (!target) return;
     const parentDiv = target.closest('.question-item');
     if (!parentDiv) return;
-    
+
     const buttons = parentDiv.querySelectorAll('.yes-no-btn');
     buttons.forEach(btn => btn.classList.remove('yes', 'no'));
     target.classList.add(answer);
-    
+
     // Save to namespaced key
     if (window.currentSchemeName) {
         localStorage.setItem(`eligibility_${window.currentSchemeName}_q${questionIdx}`, answer);
     } else {
         localStorage.setItem(`eligibility_q${questionIdx}`, answer);
     }
-    
+
     // Provide haptic feedback if available
     if (navigator.vibrate) {
         navigator.vibrate(50);
@@ -167,7 +167,7 @@ function buildDocumentChecklist(scheme) {
         const schemeName = window.currentSchemeName || '';
         const saved = localStorage.getItem(`doc_check_${schemeName}_${idx}`) === 'true';
         const checkedAttr = saved ? 'checked' : '';
-        
+
         html += `
             <div class="checklist-item">
                 <input type="checkbox" id="doc_${idx}" ${checkedAttr} class="doc-check-box" data-idx="${idx}" data-scheme="${window.escapeHtml(schemeName)}">
@@ -182,10 +182,10 @@ function buildDocumentChecklist(scheme) {
 function saveDocumentCheck(schemeName, docIdx) {
     const checkbox = document.querySelector(`.checklist-item input[type="checkbox"][data-idx="${docIdx}"]`);
     if (!checkbox) return;
-    
+
     const key = `doc_check_${schemeName}_${docIdx}`;
     localStorage.setItem(key, checkbox.checked);
-    
+
     // Provide haptic feedback
     if (navigator.vibrate) {
         navigator.vibrate([50, 30]);
@@ -198,13 +198,13 @@ function printDocumentChecklist(schemeName) {
         alert('డాక్యుమెంట్ చెక్‌లిస్ట్ ఉండదు');
         return;
     }
-    
+
     const printWindow = window.open('', '', 'width=600,height=800');
     if (!printWindow) {
         alert('పాప్‌అప్ బ్లాక్ చేయబడింది. దయచేసి పాప్‌అప్‌లను అనుమతించండి.');
         return;
     }
-    
+
     printWindow.document.write(`
         <!DOCTYPE html>
         <html lang="te">
@@ -229,11 +229,117 @@ function printDocumentChecklist(schemeName) {
         </html>
     `);
     printWindow.document.close();
-    
+
     // Delay print to ensure content loads
     setTimeout(() => {
         printWindow.print();
     }, 250);
+}
+
+function printSchemeQRCard(schemeName, slug, schemeData) {
+    if (!slug) {
+        alert('QR కోడ్ అందుబాటులో లేదు.');
+        return;
+    }
+
+    const printWindow = window.open('', '', 'width=700,height=900');
+    if (!printWindow) {
+        alert('పాప్‌అప్ బ్లాక్ చేయబడింది. దయచేసి పాప్‌అప్‌లను అనుమతించండి.');
+        return;
+    }
+
+    const qrUrl = `/qr/${slug}.png`;
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="te">
+        <head>
+            <meta charset="UTF-8">
+            <title>${window.escapeHtml(schemeName)} - QR కార్డు</title>
+            <style>
+                @media print {
+                    body { font-family: "Noto Sans Telugu", Arial, sans-serif; margin: 0; padding: 20px; }
+                    .card-container {
+                        border: 2px solid #176b5b;
+                        border-radius: 12px;
+                        padding: 30px;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        page-break-inside: avoid;
+                    }
+                    .header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+                    .header h1 { color: #176b5b; margin: 0; font-size: 24px; }
+                    .header h2 { color: #555; margin: 10px 0 0 0; font-size: 16px; font-weight: normal; }
+                    .section { margin-bottom: 15px; }
+                    .section h3 { color: #0d4b40; margin: 0 0 5px 0; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+                    .section p { margin: 0; color: #333; line-height: 1.5; font-size: 14px; }
+                    .qr-section { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px dashed #eee; }
+                    .qr-section img { width: 180px; height: 180px; border: 4px solid #fff; outline: 1px solid #ccc; }
+                    .qr-section p { margin-top: 10px; font-weight: bold; color: #176b5b; font-size: 16px; }
+                    .footer { text-align: center; margin-top: 20px; color: #777; font-size: 12px; }
+                    button, .no-print { display: none !important; }
+                }
+                /* Screen styles so it looks okay before print */
+                body { font-family: "Noto Sans Telugu", Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+                .card-container { background: #fff; border: 2px solid #176b5b; border-radius: 12px; padding: 30px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+                .header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+                .header h1 { color: #176b5b; margin: 0; font-size: 24px; }
+                .header h2 { color: #555; margin: 10px 0 0 0; font-size: 16px; font-weight: normal; }
+                .section { margin-bottom: 15px; }
+                .section h3 { color: #0d4b40; margin: 0 0 5px 0; font-size: 18px; }
+                .section p { margin: 0; color: #333; line-height: 1.5; font-size: 14px; }
+                .qr-section { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px dashed #eee; }
+                .qr-section img { width: 180px; height: 180px; border: 4px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+                .qr-section p { margin-top: 10px; font-weight: bold; color: #176b5b; font-size: 16px; }
+                .footer { text-align: center; margin-top: 20px; color: #777; font-size: 12px; }
+            </style>
+        </head>
+        <body>
+            <div class="card-container">
+                <div class="header">
+                    <h2>SMARTGOVAI ఆరోగ్య / ప్రభుత్వ పథకం</h2>
+                    <h1>${window.escapeHtml(schemeData.telugu_name || schemeName)}</h1>
+                    <h2>${window.escapeHtml(schemeName)}</h2>
+                </div>
+
+                <div class="section">
+                    <h3>👤 ఎవరికి? (Eligibility)</h3>
+                    <p>${window.escapeHtml(schemeData.telugu.eligibility)}</p>
+                </div>
+
+                <div class="section">
+                    <h3>🎁 ఏం లభిస్తుంది? (Benefits)</h3>
+                    <p>${window.escapeHtml(schemeData.telugu.benefits)}</p>
+                </div>
+
+                <div class="section">
+                    <h3>📋 ఏ పత్రాలు? (Documents)</h3>
+                    <p>${window.escapeHtml(schemeData.telugu.documents)}</p>
+                </div>
+
+                <div class="section">
+                    <h3>📝 ఎలా దరఖాస్తు చేసుకోవాలి? (Steps)</h3>
+                    <p>${window.escapeHtml(schemeData.telugu.steps)}</p>
+                </div>
+
+                <div class="qr-section">
+                    <img src="${qrUrl}" alt="Scheme QR Code">
+                    <p>ఈ QR కోడ్ను స్కాన్ చేసి<br>పథకం పూర్తి వివరాలను చూడండి</p>
+                </div>
+
+                <div class="footer">
+                    SmartGovAI - ${new Date().toLocaleDateString('te-IN')}
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+
+    // Delay print to ensure content loads
+    setTimeout(() => {
+        printWindow.print();
+    }, 500);
 }
 
 // ==================== Trust & Transparency ====================
@@ -242,7 +348,7 @@ function buildTrustInfo(scheme) {
     const lastUpdated = scheme.last_updated || 'తెలియదు';
     const confirmationSource = scheme.eligibility_confirmation || 'Government office';
     const officialWebsite = scheme.official_website || '#';
-    
+
     return `
         <div class="trust-info">
             <strong>🔒 విశ్వాస సమాచారం</strong><br>
@@ -270,7 +376,7 @@ function buildPrivacyWarning() {
  */
 function generateShareText(schemeName) {
     const scheme = window.schemesCatalog?.[schemeName] || {};
-    
+
     // Scheme Name
     const teluguName = scheme.telugu_name;
     let text = '';
@@ -279,12 +385,12 @@ function generateShareText(schemeName) {
     } else {
         text += `పథకం: ${schemeName}\n\n`;
     }
-    
+
     // Eligibility
     text += `అర్హత:\n`;
     const eligibility = scheme.telugu?.eligibility || scheme.simplified?.eligibility || 'వివరాలు చూడండి';
     text += `${eligibility}\n\n`;
-    
+
     // Documents
     text += `పత్రాలు:\n`;
     if (scheme.telugu?.documents) {
@@ -294,17 +400,17 @@ function generateShareText(schemeName) {
     } else {
         text += 'వివరాలు లేవు';
     }
-    
+
     // Contact
     text += `\n\nసంప్రదించండి:\n`;
     const contact = scheme.telugu?.contact_office || scheme.eligibility_confirmation || scheme.contact_office || 'Government office';
     text += contact;
-    
+
     // URL
     if (scheme.official_website) {
         text += `\n\nమరిన్ని వివరాలు:\n${scheme.official_website}`;
     }
-    
+
     return text;
 }
 
@@ -320,17 +426,17 @@ async function shareOnWhatsApp(schemeName) {
     try {
         const text = generateShareText(schemeName);
         const encodedMessage = encodeURIComponent(text);
-        
+
         // Log asynchronously without blocking
         fetch('/whatsapp-share', {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 ...getCsrfHeader()
             },
             body: JSON.stringify({ scheme_name: schemeName })
         }).catch(() => {});
-        
+
         window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
     } catch (error) {
         console.error('WhatsApp share error:', error);
@@ -389,10 +495,10 @@ function openFeedbackModal(triggerBtn) {
     previousFocusFeedback = triggerBtn || document.activeElement;
     const modal = document.getElementById('feedbackOverlay');
     if (!modal) return;
-    
+
     modal.classList.remove('hidden');
     modal.setAttribute('aria-hidden', 'false');
-    
+
     // Reset state
     currentRating = 0;
     document.querySelectorAll('.star-rating button').forEach(b => {
@@ -405,13 +511,13 @@ function openFeedbackModal(triggerBtn) {
     });
     const commentBox = document.getElementById('feedbackComment');
     if (commentBox) commentBox.value = '';
-    
+
     const status = document.getElementById('feedbackStatus');
     if (status) {
         status.textContent = '';
         status.className = 'feedback-status';
     }
-    
+
     const title = document.getElementById('feedbackTitle');
     if (title) title.focus();
 }
@@ -445,7 +551,7 @@ function setFeedbackChip(btn) {
 async function submitFeedback() {
     const statusEl = document.getElementById('feedbackStatus');
     if (!statusEl) return;
-    
+
     if (!window.currentRequestId && typeof window.currentSchemeName === 'undefined') {
         statusEl.textContent = 'దయచేసి ముందుగా పథకం ఎంచుకోండి.';
         statusEl.className = 'feedback-status error';
@@ -456,14 +562,14 @@ async function submitFeedback() {
         statusEl.className = 'feedback-status error';
         return;
     }
-    
+
     statusEl.textContent = 'పంపుతున్నాం (Submitting)...';
     statusEl.className = 'feedback-status';
-    
+
     const selectedChips = Array.from(document.querySelectorAll('.feedback-chips .chip.selected')).map(c => c.dataset.value);
     const commentBox = document.getElementById('feedbackComment');
     const comment = commentBox ? commentBox.value.trim() : '';
-    
+
     const combinedComment = [...selectedChips, comment].filter(Boolean).join(' | ');
 
     try {
@@ -485,15 +591,15 @@ async function submitFeedback() {
 
         const response = await fetch(endpoint, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 ...(typeof getCsrfHeader === 'function' ? getCsrfHeader() : {})
             },
             body: JSON.stringify(payload)
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
             statusEl.textContent = '✅ ధన్యవాదాలు! మీ అభిప్రాయం నమోదు చేయబడింది.';
             statusEl.className = 'feedback-status success';
@@ -541,15 +647,21 @@ function loadOfflineData() {
 // ==================== Initialization ====================
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Auto-open scheme if provided by backend routing
+    const autoOpenScheme = document.body.dataset.autoOpen;
+    if (autoOpenScheme && window.fetchScheme) {
+        setTimeout(() => window.fetchScheme(autoOpenScheme), 50);
+    }
+
     // Cache data for offline access
     cacheForOffline();
-    
+
     // Check if offline
     if (!navigator.onLine) {
         loadOfflineData();
         console.log('📡 ఆఫ్‌లైన్ మోడ్ చేతనం');
     }
-    
+
     // Listen for connection changes
     window.addEventListener('offline', () => {
         console.log('📡 ఇంటర్నెట్ కనెక్షన్ కోల్పోయారు');
@@ -558,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
             indicator.style.display = 'block';
         }
     });
-    
+
     window.addEventListener('online', () => {
         console.log('📡 ఇంటర్నెట్ కనెక్షన్ పునరుద్ధరించారు');
         const indicator = document.getElementById('offlineIndicator');
@@ -574,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resultArea) {
         resultArea.addEventListener('click', event => {
             const target = event.target;
-            
+
             // Speak custom text (slowly)
             const speakTextBtn = target.closest('.speak-text-btn');
             if (speakTextBtn) {
@@ -582,14 +694,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 speakText(text);
                 return;
             }
-            
+
             // Speak page aloud
             const speakPageBtn = target.closest('.speak-page-btn');
             if (speakPageBtn) {
                 speakPageAloud();
                 return;
             }
-            
+
             // Share on WhatsApp
             const shareWhatsappBtn = target.closest('.share-whatsapp-btn');
             if (shareWhatsappBtn) {
@@ -597,7 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 shareOnWhatsApp(schemeName);
                 return;
             }
-            
+
             // Share on SMS
             const shareSmsBtn = target.closest('.share-sms-btn');
             if (shareSmsBtn) {
@@ -605,7 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 shareOnSMS(schemeName);
                 return;
             }
-            
+
             // Print Document Checklist
             const printChecklistBtn = target.closest('.print-checklist-btn');
             if (printChecklistBtn) {
@@ -613,7 +725,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 printDocumentChecklist(schemeName);
                 return;
             }
-            
+
+            // Print QR Card
+            const printQrBtn = target.closest('[data-action="print-qr-card"]');
+            if (printQrBtn) {
+                const schemeName = printQrBtn.dataset.scheme;
+                const slug = printQrBtn.dataset.slug;
+                const schemeData = window.schemesCatalog ? window.schemesCatalog[schemeName] : null;
+                printSchemeQRCard(schemeName, slug, schemeData || {});
+                return;
+            }
+
             // Report Issue (scheme details)
             const reportIssueBtn = target.closest('.report-issue-btn');
             if (reportIssueBtn) {
@@ -621,14 +743,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 openFeedbackModal(reportIssueBtn);
                 return;
             }
-            
+
             // Open Detailed Feedback Form
             const openFeedbackBtn = target.closest('.open-feedback-btn');
             if (openFeedbackBtn) {
                 openFeedbackModal(openFeedbackBtn);
                 return;
             }
-            
+
             // Yes/No Eligibility Buttons
             const yesNoBtn = target.closest('.yes-no-btn');
             if (yesNoBtn) {
@@ -827,9 +949,9 @@ const SmartGovUX = (function() {
     // --- Share Result ---
     async function shareResult(schemeName) {
         if (!schemeName) return;
-        
+
         const text = window.generateShareText ? window.generateShareText(schemeName) : generateShareText(schemeName);
-        
+
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -843,7 +965,7 @@ const SmartGovUX = (function() {
                 if (err.name !== 'AbortError') console.error('Share error:', err);
             }
         }
-        
+
         // Fallback: Clipboard
         try {
             await navigator.clipboard.writeText(text);
@@ -911,7 +1033,7 @@ const SmartGovUX = (function() {
         document.getElementById('symptomCategoryView').style.display = 'none';
         document.getElementById('symptomResultsView').style.display = 'none';
         document.getElementById('homeViewContainer').style.display = 'block';
-        document.querySelector('.toolbar').style.display = ''; 
+        document.querySelector('.toolbar').style.display = '';
         const banner = document.getElementById('symptomEntryBanner');
         if(banner) banner.style.display = '';
     }
@@ -934,12 +1056,12 @@ const SmartGovUX = (function() {
 
         for (const [schemeId, data] of Object.entries(catalog)) {
             let matched = false;
-            
+
             // Priority 1: Exact scheme category match
             if (mapping.categories.includes(data.category)) {
                 matched = true;
             }
-            
+
             // Priority 2: Keyword match
             if (!matched && mapping.keywords.length > 0) {
                 const schemeKeywords = (data.keywords || []).map(k => k.toLowerCase());
@@ -950,12 +1072,12 @@ const SmartGovUX = (function() {
                     }
                 }
             }
-            
+
             if (matched) {
                 matchedSchemes.push({ id: schemeId, data });
             }
         }
-        
+
         const grid = document.getElementById('symptomSchemeGrid');
         const emptyState = document.getElementById('symptomNoResults');
         const countHeader = document.getElementById('symptomResultCount');
@@ -969,20 +1091,20 @@ const SmartGovUX = (function() {
             emptyState.style.display = 'none';
             grid.style.display = 'grid';
             countHeader.textContent = `${matchedSchemes.length} పథకాలు`;
-            
+
             grid.innerHTML = matchedSchemes.map(item => {
                 const s = item.data;
                 const name = window.escapeHtml(item.id);
                 const teluguName = window.escapeHtml(s.telugu_name || item.id);
                 const desc = window.escapeHtml((s.telugu && s.telugu.eligibility) ? s.telugu.eligibility : (s.simplified && s.simplified.eligibility) ? s.simplified.eligibility : '');
-                
+
                 const iconMap = {
                     hospital: '🏥', ambulance: '🚑', 'mobile-clinic': '🩺', shield: '🛡',
                     clinic: '➕', 'phone-doctor': '📱', 'mother-child': '🤱', pregnancy: '🤰',
                     vaccine: '💉', child: '🧒', kidney: '🧬', nutrition: '🥣'
                 };
                 const icon = iconMap[s.icon] || '🏥';
-                
+
                 return `
                     <button type="button" class="scheme-card" data-action="open-scheme" data-scheme="${name}">
                         <div class="favorite-btn ${isFavorite(item.id) ? 'active' : ''}" data-scheme="${name}" title="Mark as favorite" aria-label="Favorite">⭐</div>
@@ -1008,9 +1130,9 @@ const SmartGovUX = (function() {
 
         document.getElementById('guidedModeOverlay').style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        
+
         renderGuidedStep(currentGuidedStep);
-        
+
         // Ensure focus moves to the dialog
         setTimeout(() => {
             document.getElementById('guidedTitle').focus();
@@ -1027,7 +1149,7 @@ const SmartGovUX = (function() {
     function renderGuidedStep(step) {
         if (!currentGuidedSchemeName) return;
         const scheme = window.schemesCatalog[currentGuidedSchemeName] || {};
-        
+
         const titleEl = document.getElementById('guidedTitle');
         const progressEl = document.getElementById('guidedProgressText');
         const bodyEl = document.getElementById('guidedBody');
@@ -1043,11 +1165,11 @@ const SmartGovUX = (function() {
         progressEl.textContent = `దశ ${step} / 6`;
 
         let stepHtml = '';
-        
+
         if (step === 1) {
             let desc = 'వివరాలు అందుబాటులో లేవు.';
             if (scheme.original_complex_text) desc = scheme.original_complex_text;
-            
+
             stepHtml = `
                 <h3 class="guided-step-title">ℹ️ ఈ పథకం గురించి</h3>
                 <div class="guided-step-content">
@@ -1110,7 +1232,7 @@ const SmartGovUX = (function() {
             if (scheme.official_website) {
                 websiteHtml = `<p style="margin-top:1rem;"><a href="${window.escapeHtml(scheme.official_website)}" target="_blank" rel="noopener noreferrer">🌐 అధికారిక వెబ్‌సైట్ (Official Website)</a></p>`;
             }
-            
+
             let localHelp = '';
             if (scheme.local_help_locations && Object.values(scheme.local_help_locations).length > 0) {
                 localHelp = `<p style="margin-top:1rem;"><strong>స్థానిక సహాయం (Local Help):</strong><br>` + Object.values(scheme.local_help_locations).map(l => window.escapeHtml(l)).join('<br>') + `</p>`;
@@ -1130,7 +1252,7 @@ const SmartGovUX = (function() {
                 </div>
             `;
         }
-        
+
         bodyEl.innerHTML = stepHtml;
 
         if (step === 1) {
@@ -1188,7 +1310,7 @@ const SmartGovUX = (function() {
                 window.fetchScheme(chip.dataset.scheme);
                 return;
             }
-            
+
             const shareBtn = e.target.closest('.share-result-btn');
             if (shareBtn) {
                 shareResult(shareBtn.dataset.scheme);
@@ -1273,10 +1395,10 @@ const SmartGovUX = (function() {
                 }
             }
         });
-        
+
         // Expose functions globally so HTML inline handlers and app.js can call them
-        window.SmartGovUX = { 
-            addRecent, 
+        window.SmartGovUX = {
+            addRecent,
             isFavorite,
             openSymptomFinder,
             closeSymptomFinder,

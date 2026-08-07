@@ -10,7 +10,7 @@
     <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body {% if auto_open_scheme %}data-auto-open="{{ auto_open_scheme }}"{% endif %}>
 <main class="app-shell">
     <header class="app-header">
         <div class="brand">
@@ -72,6 +72,18 @@
             </div>
         </div>
         <button class="primary-btn symptom-start-btn">ప్రారంభించండి</button>
+    </div>
+
+    <!-- AI Chat Entry Banner -->
+    <div id="chatEntryBanner" class="chat-entry-banner" role="button" tabindex="0">
+        <div class="chat-entry-content">
+            <span class="chat-icon">🤖</span>
+            <div>
+                <div class="chat-entry-title">పథకాల గురించి అడగండి</div>
+                <div class="chat-entry-subtitle">తెలుగులో ప్రశ్నలు అడగండి, AI సహాయం పొందండి</div>
+            </div>
+        </div>
+        <button class="primary-btn" data-action="open-chat">AI సహాయం</button>
     </div>
 
     <div class="main-grid">
@@ -382,6 +394,7 @@
                     </div>
                     <div class="action-buttons">
                         <button class="action-btn print-checklist-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">🖨️ ముద్రణ</button>
+                        <button class="action-btn" type="button" data-action="print-qr-card" data-scheme="${window.escapeHtml(data.scheme_name)}" data-slug="${window.escapeHtml(scheme.slug || '')}">📄 QR కార్డు</button>
                         <button class="action-btn report-issue-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">⚠️ సమస్య</button>
                     </div>
                     <details>
@@ -753,5 +766,31 @@
             </div>
         </div>
     </div>
+
+    <!-- Tier 3A: AI Chat Overlay -->
+    <div id="chatOverlay" class="chat-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="chatTitle" aria-hidden="true">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2 id="chatTitle" tabindex="-1">🤖 పథకాల గురించి అడగండి</h2>
+                <button type="button" class="chat-close-btn" aria-label="మూసివేయండి (Close)" data-action="close-chat">✕</button>
+            </div>
+            <div id="chatMessages" class="chat-messages" aria-live="polite">
+                <div class="chat-msg bot">
+                    <p>మీకు ఏ సహాయం కావాలో తెలుగులో అడగండి. మీ ప్రశ్నకు సరిపోయే ప్రభుత్వ ఆరోగ్య పథకాలను కనుగొంటాను.</p>
+                </div>
+            </div>
+            <div class="chat-suggestions">
+                <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question="నాకు ఆసుపత్రిలో ఉచిత చికిత్స కావాలి">🏥 ఆసుపత్రి చికిత్స</button>
+                <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question="గర్భిణీ స్త్రీలకు ఏ పథకాలు ఉన్నాయి?">🤰 గర్భిణీలకు పథకాలు</button>
+                <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question="పిల్లల ఆరోగ్యం కోసం ఏ పథకాలు ఉన్నాయి?">👶 పిల్లల ఆరోగ్యం</button>
+                <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question="ఉచిత మందులు ఎక్కడ దొరుకుతాయి?">💊 మందులు కావాలి</button>
+            </div>
+            <div class="chat-input-area">
+                <textarea id="chatInput" rows="2" placeholder="మీ ప్రశ్న రాయండి..." maxlength="500"></textarea>
+                <button type="button" class="btn primary-btn chat-send-btn" data-action="send-chat" aria-label="పంపండి (Send)">పంపండి →</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

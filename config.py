@@ -14,7 +14,7 @@ ALLOWED_MIME_TYPES = {"application/pdf"}
 MAX_UPLOAD_SIZE = 5 * 1024 * 1024
 MAX_PDF_PAGES = int(os.getenv("MAX_PDF_PAGES", "50"))
 
-MODEL_NAME = "gemini-2.5-flash"
+MODEL_NAME = "gemini-3.5-flash"
 
 OCR_LANGUAGES = "tel+eng"
 VOICE_LANGUAGE = "te"
