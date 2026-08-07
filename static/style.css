@@ -892,3 +892,263 @@ audio {
         height: 40px;
     }
 }
+
+/* =========================================================================
+   Symptom Finder Styles (Tier 2A)
+   ========================================================================= */
+
+.symptom-entry-banner {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.symptom-entry-banner:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.symptom-entry-banner:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.symptom-entry-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.symptom-icon {
+    font-size: 2.2rem;
+}
+
+.symptom-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.symptom-subtitle {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.symptom-start-btn {
+    white-space: nowrap;
+}
+
+.symptom-view {
+    animation: fadeIn 0.3s ease;
+}
+
+.symptom-nav {
+    margin-bottom: 20px;
+}
+
+.symptom-header h2 {
+    font-size: 1.5rem;
+    color: var(--ink);
+    margin-bottom: 8px;
+}
+
+.symptom-header p {
+    font-size: 1rem;
+    color: var(--muted);
+    margin-bottom: 24px;
+}
+
+.symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.category-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    min-height: 100px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: var(--ink);
+    font-weight: bold;
+    font-size: 1rem;
+    line-height: 1.3;
+}
+
+.category-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.category-card:focus {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.cat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+
+@media (max-width: 480px) {
+    .symptom-entry-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+    .symptom-entry-content {
+        flex-direction: column;
+    }
+    .symptom-start-btn {
+        width: 100%;
+    }
+    .symptom-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .category-card {
+        padding: 12px 8px;
+        min-height: 90px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ============================
+   GUIDED MODE (TIER 2B)
+============================ */
+#guidedModeOverlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: var(--bg);
+    z-index: 2000;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.guided-content-wrapper {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    background: var(--surface);
+    padding: 1rem;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.guided-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.guided-header h2 {
+    font-size: 1.25rem;
+    color: var(--primary);
+    margin: 0;
+}
+
+.guided-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.guided-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--ink);
+    padding: 0.25rem 0.5rem;
+}
+
+.guided-progress {
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.guided-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.guided-step-title {
+    font-size: 1.4rem;
+    color: var(--secondary);
+    margin-bottom: 1rem;
+}
+
+.guided-step-content {
+    margin-bottom: 1.5rem;
+}
+
+.guided-step-content ul {
+    padding-left: 1.5rem;
+}
+
+.guided-step-content li {
+    margin-bottom: 0.5rem;
+}
+
+.guided-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+    border-top: 2px solid var(--border);
+    padding-top: 1rem;
+}
+
+.guided-nav-btn {
+    flex: 1;
+    min-height: 48px;
+    font-size: 1.1rem;
+}
+
+@media (max-width: 414px) {
+    .guided-content-wrapper {
+        padding: 0.75rem;
+    }
+    .guided-header h2 {
+        font-size: 1.1rem;
+    }
+    .guided-step-title {
+        font-size: 1.2rem;
+    }
+    .guided-nav-btn {
+        font-size: 1rem;
+    }
+}

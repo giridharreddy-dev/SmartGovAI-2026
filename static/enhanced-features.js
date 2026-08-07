@@ -893,6 +893,320 @@ const SmartGovUX = (function() {
         }
     }
 
+    // --- Symptom Finder Logic (Tier 2A) ---
+    const symptomMappings = {
+        hospital: {
+            title: 'ఆసుపత్రి / అత్యవసర చికిత్స',
+            categories: ['Hospital treatment', 'Emergency ambulance'],
+            keywords: []
+        },
+        pregnancy: {
+            title: 'గర్భం / ప్రసవం',
+            categories: ['Pregnancy and newborn', 'Pregnancy cash support'],
+            keywords: ['గర్భిణి', 'pregnancy', 'maternal']
+        },
+        child: {
+            title: 'పిల్లల ఆరోగ్యం',
+            categories: ['Child health', 'Vaccination'],
+            keywords: ['పిల్లలు', 'child', 'pediatric', 'neonatal']
+        },
+        medicines: {
+            title: 'మందులు / పరీక్షలు',
+            categories: ['PHC and village care', 'Affordable Medicines', 'Primary Care Clinics'],
+            keywords: []
+        },
+        eye_hearing: {
+            title: 'కన్ను మరియు వినికిడి',
+            categories: ['Eye Care Services', 'Hearing Care Services'],
+            keywords: []
+        },
+        nutrition_blood: {
+            title: 'పోషణ / రక్తం',
+            categories: ['Nutritional Services', 'Blood Bank Services'],
+            keywords: []
+        },
+        chronic: {
+            title: 'దీర్ఘకాలిక వ్యాధులు',
+            categories: ['TB support', 'TB Elimination Services', 'HIV & AIDS Services', 'Kidney dialysis', 'Leprosy Services', 'Malaria & Dengue Services', 'Rabies Prevention'],
+            keywords: []
+        },
+        phone_digital: {
+            title: 'ఫోన్ ద్వారా వైద్య సేవలు',
+            categories: ['Doctor by phone', 'Digital Health Services'],
+            keywords: []
+        }
+    };
+
+    function openSymptomFinder() {
+        document.getElementById('homeViewContainer').style.display = 'none';
+        document.getElementById('symptomResultsView').style.display = 'none';
+        document.getElementById('symptomCategoryView').style.display = 'block';
+        document.querySelector('.toolbar').style.display = 'none';
+        const banner = document.getElementById('symptomEntryBanner');
+        if(banner) banner.style.display = 'none';
+    }
+
+    function closeSymptomFinder() {
+        document.getElementById('symptomCategoryView').style.display = 'none';
+        document.getElementById('symptomResultsView').style.display = 'none';
+        document.getElementById('homeViewContainer').style.display = 'block';
+        document.querySelector('.toolbar').style.display = ''; 
+        const banner = document.getElementById('symptomEntryBanner');
+        if(banner) banner.style.display = '';
+    }
+
+    function showSymptomCategories() {
+        document.getElementById('symptomResultsView').style.display = 'none';
+        document.getElementById('symptomCategoryView').style.display = 'block';
+    }
+
+    function renderSymptomResults(categoryId) {
+        const mapping = symptomMappings[categoryId];
+        if (!mapping) return;
+
+        document.getElementById('symptomCategoryView').style.display = 'none';
+        document.getElementById('symptomResultsView').style.display = 'block';
+        document.getElementById('symptomResultTitle').textContent = mapping.title;
+
+        const catalog = window.schemesCatalog || {};
+        const matchedSchemes = [];
+
+        for (const [schemeId, data] of Object.entries(catalog)) {
+            let matched = false;
+            
+            // Priority 1: Exact scheme category match
+            if (mapping.categories.includes(data.category)) {
+                matched = true;
+            }
+            
+            // Priority 2: Keyword match
+            if (!matched && mapping.keywords.length > 0) {
+                const schemeKeywords = (data.keywords || []).map(k => k.toLowerCase());
+                for (const kw of mapping.keywords) {
+                    if (schemeKeywords.includes(kw.toLowerCase())) {
+                        matched = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (matched) {
+                matchedSchemes.push({ id: schemeId, data });
+            }
+        }
+        
+        const grid = document.getElementById('symptomSchemeGrid');
+        const emptyState = document.getElementById('symptomNoResults');
+        const countHeader = document.getElementById('symptomResultCount');
+
+        if (matchedSchemes.length === 0) {
+            grid.innerHTML = '';
+            grid.style.display = 'none';
+            emptyState.style.display = 'block';
+            countHeader.textContent = '';
+        } else {
+            emptyState.style.display = 'none';
+            grid.style.display = 'grid';
+            countHeader.textContent = `${matchedSchemes.length} పథకాలు`;
+            
+            grid.innerHTML = matchedSchemes.map(item => {
+                const s = item.data;
+                const name = window.escapeHtml(item.id);
+                const teluguName = window.escapeHtml(s.telugu_name || item.id);
+                const desc = window.escapeHtml((s.telugu && s.telugu.eligibility) ? s.telugu.eligibility : (s.simplified && s.simplified.eligibility) ? s.simplified.eligibility : '');
+                
+                const iconMap = {
+                    hospital: '🏥', ambulance: '🚑', 'mobile-clinic': '🩺', shield: '🛡',
+                    clinic: '➕', 'phone-doctor': '📱', 'mother-child': '🤱', pregnancy: '🤰',
+                    vaccine: '💉', child: '🧒', kidney: '🧬', nutrition: '🥣'
+                };
+                const icon = iconMap[s.icon] || '🏥';
+                
+                return `
+                    <button type="button" class="scheme-card" data-action="open-scheme" data-scheme="${name}">
+                        <div class="favorite-btn ${isFavorite(item.id) ? 'active' : ''}" data-scheme="${name}" title="Mark as favorite" aria-label="Favorite">⭐</div>
+                        <div class="card-icon">${icon}</div>
+                        <h2>${teluguName}</h2>
+                        <p>${desc.substring(0, 80)}...</p>
+                    </button>
+                `;
+            }).join('');
+        }
+    }
+
+    // --- Guided Mode (Tier 2B) ---
+    let currentGuidedSchemeName = null;
+    let currentGuidedStep = 1;
+    let previousFocusElement = null;
+
+    function startGuidedMode() {
+        if (!window.currentSchemeName || !window.schemesCatalog) return;
+        currentGuidedSchemeName = window.currentSchemeName;
+        currentGuidedStep = 1;
+        previousFocusElement = document.activeElement;
+
+        document.getElementById('guidedModeOverlay').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        renderGuidedStep(currentGuidedStep);
+        
+        // Ensure focus moves to the dialog
+        setTimeout(() => {
+            document.getElementById('guidedTitle').focus();
+        }, 50);
+    }
+
+    function exitGuidedMode() {
+        document.getElementById('guidedModeOverlay').style.display = 'none';
+        document.body.style.overflow = '';
+        currentGuidedSchemeName = null;
+        if (previousFocusElement) previousFocusElement.focus();
+    }
+
+    function renderGuidedStep(step) {
+        if (!currentGuidedSchemeName) return;
+        const scheme = window.schemesCatalog[currentGuidedSchemeName] || {};
+        
+        const titleEl = document.getElementById('guidedTitle');
+        const progressEl = document.getElementById('guidedProgressText');
+        const bodyEl = document.getElementById('guidedBody');
+        const prevBtn = document.getElementById('guidedPrevBtn');
+        const nextBtn = document.getElementById('guidedNextBtn');
+        const favContainer = document.getElementById('guidedFavoriteContainer');
+
+        // Render Favorite Button
+        const schemeNameSafe = window.escapeHtml(currentGuidedSchemeName);
+        favContainer.innerHTML = `<button type="button" class="favorite-btn ${isFavorite(currentGuidedSchemeName) ? 'active' : ''}" data-scheme="${schemeNameSafe}" title="Mark as favorite" aria-label="Favorite">⭐</button>`;
+
+        titleEl.textContent = scheme.telugu_name || currentGuidedSchemeName;
+        progressEl.textContent = `దశ ${step} / 6`;
+
+        let stepHtml = '';
+        
+        if (step === 1) {
+            let desc = 'వివరాలు అందుబాటులో లేవు.';
+            if (scheme.original_complex_text) desc = scheme.original_complex_text;
+            
+            stepHtml = `
+                <h3 class="guided-step-title">ℹ️ ఈ పథకం గురించి</h3>
+                <div class="guided-step-content">
+                    <p style="font-size: 1.2rem;">${window.escapeHtml(desc)}</p>
+                </div>
+            `;
+        } else if (step === 2) {
+            let elig = 'అర్హత వివరాలు అందుబాటులో లేవు.';
+            if (scheme.telugu && scheme.telugu.eligibility) elig = scheme.telugu.eligibility;
+            else if (scheme.simplified && scheme.simplified.eligibility) elig = scheme.simplified.eligibility;
+
+            stepHtml = `
+                <h3 class="guided-step-title">👤 ఎవరు పొందవచ్చు?</h3>
+                <div class="guided-step-content">
+                    <p>${window.escapeHtml(elig)}</p>
+                </div>
+            `;
+        } else if (step === 3) {
+            let ben = 'ప్రయోజనాల వివరాలు ప్రస్తుతం అందుబాటులో లేవు.';
+            if (scheme.telugu && scheme.telugu.benefits) ben = scheme.telugu.benefits;
+            else if (scheme.simplified && scheme.simplified.benefits) ben = scheme.simplified.benefits;
+
+            stepHtml = `
+                <h3 class="guided-step-title">🎁 ఏమి లభిస్తుంది?</h3>
+                <div class="guided-step-content">
+                    <p>${window.escapeHtml(ben)}</p>
+                </div>
+            `;
+        } else if (step === 4) {
+            let docsHtml = '<p>పత్రాల వివరాలు అందుబాటులో లేవు.</p>';
+            if (scheme.required_documents && scheme.required_documents.length > 0) {
+                docsHtml = `<ul>` + scheme.required_documents.map(d => `<li>✓ ${window.escapeHtml(d.name_te || d.name)}</li>`).join('') + `</ul>`;
+            } else if (scheme.telugu && scheme.telugu.documents) {
+                docsHtml = `<p>${window.escapeHtml(scheme.telugu.documents)}</p>`;
+            }
+
+            stepHtml = `
+                <h3 class="guided-step-title">📄 ఏమి తీసుకెళ్లాలి?</h3>
+                <div class="guided-step-content">
+                    ${docsHtml}
+                </div>
+            `;
+        } else if (step === 5) {
+            let stepsStr = 'దరఖాస్తు విధానం అందుబాటులో లేదు. అధికారులను సంప్రదించండి.';
+            if (scheme.telugu && scheme.telugu.steps) stepsStr = scheme.telugu.steps;
+            else if (scheme.simplified && scheme.simplified.steps) stepsStr = scheme.simplified.steps;
+
+            stepHtml = `
+                <h3 class="guided-step-title">📝 ఎలా దరఖాస్తు చేయాలి?</h3>
+                <div class="guided-step-content">
+                    <p>${window.escapeHtml(stepsStr)}</p>
+                </div>
+            `;
+        } else if (step === 6) {
+            let contactInfo = 'వివరాలు అందుబాటులో లేవు.';
+            if (scheme.contact_office) contactInfo = scheme.contact_office;
+            else if (scheme.eligibility_confirmation) contactInfo = scheme.eligibility_confirmation;
+
+            let websiteHtml = '';
+            if (scheme.official_website) {
+                websiteHtml = `<p style="margin-top:1rem;"><a href="${window.escapeHtml(scheme.official_website)}" target="_blank" rel="noopener noreferrer">🌐 అధికారిక వెబ్‌సైట్ (Official Website)</a></p>`;
+            }
+            
+            let localHelp = '';
+            if (scheme.local_help_locations && Object.values(scheme.local_help_locations).length > 0) {
+                localHelp = `<p style="margin-top:1rem;"><strong>స్థానిక సహాయం (Local Help):</strong><br>` + Object.values(scheme.local_help_locations).map(l => window.escapeHtml(l)).join('<br>') + `</p>`;
+            }
+
+            stepHtml = `
+                <h3 class="guided-step-title">📞 ఎవరిని సంప్రదించాలి?</h3>
+                <div class="guided-step-content">
+                    <p><strong>కార్యాలయం / అధికారి:</strong> ${window.escapeHtml(contactInfo)}</p>
+                    ${localHelp}
+                    ${websiteHtml}
+                    <div style="margin-top:2rem;">
+                        <button class="action-btn whatsapp share-whatsapp-btn" type="button" data-scheme="${schemeNameSafe}" style="width:100%; font-size:1.1rem; min-height:48px;">
+                            📱 WhatsApp ద్వారా షేర్ చేయండి
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        bodyEl.innerHTML = stepHtml;
+
+        if (step === 1) {
+            prevBtn.style.visibility = 'hidden';
+        } else {
+            prevBtn.style.visibility = 'visible';
+        }
+
+        if (step === 6) {
+            nextBtn.textContent = 'ముగించు';
+            nextBtn.dataset.action = 'guided-close';
+        } else {
+            nextBtn.textContent = 'తర్వాత →';
+            nextBtn.dataset.action = 'guided-next';
+        }
+    }
+
+    function nextGuidedStep() {
+        if (currentGuidedStep < 6) {
+            currentGuidedStep++;
+            renderGuidedStep(currentGuidedStep);
+            setTimeout(() => {
+                document.getElementById('guidedTitle')?.focus();
+            }, 50);
+        }
+    }
+
+    function prevGuidedStep() {
+        if (currentGuidedStep > 1) {
+            currentGuidedStep--;
+            renderGuidedStep(currentGuidedStep);
+            setTimeout(() => {
+                document.getElementById('guidedTitle')?.focus();
+            }, 50);
+        }
+    }
+
     // --- Initialize ---
     document.addEventListener('DOMContentLoaded', () => {
         initFontSize();
@@ -919,11 +1233,76 @@ const SmartGovUX = (function() {
                 shareResult(shareBtn.dataset.scheme);
                 return;
             }
+
+            // Symptom Finder entry points
+            const symptomBanner = e.target.closest('.symptom-entry-banner');
+            if (symptomBanner) {
+                openSymptomFinder();
+                return;
+            }
+
+            const symptomCategoryBtn = e.target.closest('.category-card');
+            if (symptomCategoryBtn) {
+                renderSymptomResults(symptomCategoryBtn.dataset.category);
+                return;
+            }
+
+            // Centralized CSP-safe event delegation via data-action
+            const actionTarget = e.target.closest('[data-action]');
+            if (actionTarget) {
+                const action = actionTarget.dataset.action;
+                if (action === 'start-guided-mode') {
+                    startGuidedMode();
+                    return;
+                }
+                if (action === 'guided-next') {
+                    nextGuidedStep();
+                    return;
+                }
+                if (action === 'guided-prev') {
+                    prevGuidedStep();
+                    return;
+                }
+                if (action === 'guided-close') {
+                    exitGuidedMode();
+                    return;
+                }
+                if (action === 'show-symptom-categories') {
+                    showSymptomCategories();
+                    return;
+                }
+                if (action === 'close-symptom-finder') {
+                    closeSymptomFinder();
+                    return;
+                }
+                if (action === 'open-scheme') {
+                    if (window.fetchScheme) {
+                        window.fetchScheme(actionTarget.dataset.scheme);
+                    }
+                    return;
+                }
+            }
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && document.getElementById('guidedModeOverlay').style.display === 'flex') {
+                exitGuidedMode();
+            }
         });
         
-        // Expose addRecent globally so app.js can call it
-        window.SmartGovUX = { addRecent, isFavorite };
+        // Expose functions globally so HTML inline handlers and app.js can call them
+        window.SmartGovUX = { 
+            addRecent, 
+            isFavorite,
+            openSymptomFinder,
+            closeSymptomFinder,
+            showSymptomCategories,
+            startGuidedMode,
+            exitGuidedMode,
+            nextGuidedStep,
+            prevGuidedStep
+        };
     });
 
-    return { addRecent, isFavorite };
+    return window.SmartGovUX;
 })();

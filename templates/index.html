@@ -62,19 +62,96 @@
         </div>
     </section>
 
-    <div class="main-grid">
-        <section>
-            <div id="favoritesSection" class="recently-viewed-section" style="display: none;">
-                <h2>⭐ ఇష్టమైన పథకాలు (Favorites)</h2>
-                <div id="favoritesList" class="recently-viewed-list"></div>
+    <!-- Symptom Finder Entry Banner -->
+    <div id="symptomEntryBanner" class="symptom-entry-banner" role="button" tabindex="0">
+        <div class="symptom-entry-content">
+            <span class="symptom-icon">🩺</span>
+            <div>
+                <div class="symptom-title">నా సమస్య</div>
+                <div class="symptom-subtitle">మీ సమస్యకు సరిపోయే పథకాలను కనుగొనండి</div>
             </div>
-            
-            <div id="recentlyViewedSection" class="recently-viewed-section" style="display: none;">
-                <h2>🕒 ఇటీవల చూసినవి (Recently Viewed)</h2>
-                <div id="recentlyViewedList" class="recently-viewed-list"></div>
+        </div>
+        <button class="primary-btn symptom-start-btn">ప్రారంభించండి</button>
+    </div>
+
+    <div class="main-grid">
+        <section id="leftColumnMain">
+            <!-- Home View (Default) -->
+            <div id="homeViewContainer">
+                <div id="favoritesSection" class="recently-viewed-section" style="display: none;">
+                    <h2>⭐ ఇష్టమైన పథకాలు (Favorites)</h2>
+                    <div id="favoritesList" class="recently-viewed-list"></div>
+                </div>
+                
+                <div id="recentlyViewedSection" class="recently-viewed-section" style="display: none;">
+                    <h2>🕒 ఇటీవల చూసినవి (Recently Viewed)</h2>
+                    <div id="recentlyViewedList" class="recently-viewed-list"></div>
+                </div>
+
+                <div id="schemeGrid" class="scheme-grid" aria-live="polite"></div>
             </div>
 
-            <div id="schemeGrid" class="scheme-grid" aria-live="polite"></div>
+            <!-- Symptom Category View -->
+            <div id="symptomCategoryView" class="symptom-view" style="display: none;">
+                <div class="symptom-nav">
+                    <button class="back-btn primary-btn" data-action="close-symptom-finder">← వెనుకకు</button>
+                </div>
+                <div class="symptom-header">
+                    <h2>నా సమస్య ఏమిటి?</h2>
+                    <p>మీకు ఏ రకమైన సహాయం కావాలి?</p>
+                </div>
+                <div class="symptom-grid">
+                    <button class="category-card" data-category="hospital">
+                        <span class="cat-icon">🏥</span> <span class="cat-label">ఆసుపత్రి / అత్యవసర చికిత్స</span>
+                    </button>
+                    <button class="category-card" data-category="pregnancy">
+                        <span class="cat-icon">🤰</span> <span class="cat-label">గర్భం / ప్రసవం</span>
+                    </button>
+                    <button class="category-card" data-category="child">
+                        <span class="cat-icon">👶</span> <span class="cat-label">పిల్లల ఆరోగ్యం</span>
+                    </button>
+                    <button class="category-card" data-category="medicines">
+                        <span class="cat-icon">💊</span> <span class="cat-label">మందులు / పరీక్షలు</span>
+                    </button>
+                    <button class="category-card" data-category="eye_hearing">
+                        <span class="cat-icon">👁️</span> <span class="cat-label">కన్ను మరియు వినికిడి</span>
+                    </button>
+                    <button class="category-card" data-category="nutrition_blood">
+                        <span class="cat-icon">🥗</span> <span class="cat-label">పోషణ / రక్తం</span>
+                    </button>
+                    <button class="category-card" data-category="chronic">
+                        <span class="cat-icon">🩺</span> <span class="cat-label">దీర్ఘకాలిక వ్యాధులు</span>
+                    </button>
+                    <button class="category-card" data-category="phone_digital">
+                        <span class="cat-icon">📱</span> <span class="cat-label">ఫోన్ ద్వారా వైద్య సేవలు</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Symptom Results View -->
+            <div id="symptomResultsView" class="symptom-view" style="display: none;">
+                <div class="symptom-nav" style="display: flex; justify-content: space-between;">
+                    <button class="back-btn primary-btn" data-action="show-symptom-categories">← సమస్యలు</button>
+                    <button class="back-btn secondary-btn" data-action="close-symptom-finder">అన్ని పథకాలు</button>
+                </div>
+                
+                <div class="symptom-results-header" style="margin-top: 15px; margin-bottom: 20px;">
+                    <h3 style="margin: 0; color: var(--ink); font-size: 1.1rem;">మీ ఎంపిక: <span id="symptomResultTitle" style="color: var(--primary);"></span></h3>
+                    <div id="symptomResultCount" class="result-count" style="margin-top: 8px; font-weight: bold; font-size: 1.2rem;"></div>
+                </div>
+                
+                <div id="symptomSchemeGrid" class="scheme-grid" aria-live="polite"></div>
+                
+                <div id="symptomNoResults" class="empty-state" style="display: none;">
+                    <div>
+                        <strong style="display: block; font-size: 1.2rem; margin-bottom: 10px;">ఈ సమస్యకు ప్రస్తుతం పథకాలు కనుగొనలేకపోయాము.</strong>
+                        <span style="display: block;">ఇతర సమస్యను ఎంచుకుని చూడండి.</span>
+                        <div style="margin-top: 20px;">
+                            <button class="primary-btn" style="width: 100%; margin-bottom: 10px;" data-action="show-symptom-categories">ఇతర సమస్యను ఎంచుకోండి</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <details class="staff-panel">
                 <summary>సచివాలయం / ఆరోగ్య సిబ్బంది సాధనాలు</summary>
@@ -207,7 +284,7 @@
             const levelLabel = data.level === 'Andhra Pradesh' ? 'AP' : 'National';
             const isFavorite = window.SmartGovUX ? window.SmartGovUX.isFavorite(name) : false;
             return `
-                <button class="scheme-card" type="button" data-scheme="${window.escapeHtml(name)}">
+                <button class="scheme-card" type="button" data-action="open-scheme" data-scheme="${window.escapeHtml(name)}">
                     <div class="favorite-btn ${isFavorite ? 'active' : ''}" data-scheme="${window.escapeHtml(name)}" title="ఇష్టమైనది (Favorite)" aria-label="Toggle favorite" tabindex="0">
                         ${isFavorite ? '★' : '☆'}
                     </div>
@@ -221,13 +298,6 @@
                 </button>
             `;
         }).join('');
-
-        grid.querySelectorAll('.scheme-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                if (e.target.closest('.favorite-btn')) return;
-                fetchScheme(card.dataset.scheme);
-            });
-        });
     }
 
     function showLoading(message = 'వివరాలు తెస్తున్నాం...') {
@@ -304,6 +374,7 @@
                     ${audioHtml}
                     <div style="font-size:0.9rem;">📚 మూలం: ${sourceHtml}</div>
                     <button type="button" class="speak-page-btn primary-btn" style="width:100%;margin:10px 0;">🔊 ఈ పేజీ చదవండి</button>
+                    <button type="button" class="primary-btn guided-mode-btn" style="width:100%;margin-bottom:10px;background:var(--saffron);color:#fff;" data-action="start-guided-mode">👉 సులభంగా ఒక్కొక్కటిగా చూడండి</button>
                     <button type="button" class="share-result-btn secondary-btn" style="width:100%;margin-bottom:10px;" data-scheme="${window.escapeHtml(data.scheme_name)}">📤 ఫలితాన్ని షేర్ చేయండి (Share Result)</button>
                     <div class="action-buttons">
                         <button class="action-btn whatsapp share-whatsapp-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">📱 WhatsApp</button>
@@ -624,5 +695,27 @@
         }, 300);
     });
 </script>
+    <div id="guidedModeOverlay" role="dialog" aria-modal="true" aria-labelledby="guidedTitle" style="display:none;" aria-live="polite">
+        <div class="guided-content-wrapper">
+            <div class="guided-header">
+                <h2 id="guidedTitle" tabindex="-1"></h2>
+                <div class="guided-header-actions">
+                    <!-- Favorite button will be injected here if present -->
+                    <div id="guidedFavoriteContainer"></div>
+                    <button class="guided-close-btn" aria-label="గైడెడ్ మోడ్ మూసివేయండి" data-action="guided-close">✕</button>
+                </div>
+            </div>
+            <div class="guided-progress">
+                <span id="guidedProgressText">దశ 1 / 6</span>
+            </div>
+            <div class="guided-body" id="guidedBody">
+                <!-- Content injected via JS -->
+            </div>
+            <div class="guided-footer">
+                <button type="button" id="guidedPrevBtn" class="guided-nav-btn secondary-btn" data-action="guided-prev">← వెనుకకు</button>
+                <button type="button" id="guidedNextBtn" class="guided-nav-btn primary-btn" data-action="guided-next">తర్వాత →</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
