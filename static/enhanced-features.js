@@ -266,6 +266,49 @@ function buildPrivacyWarning() {
 // ==================== Sharing Features ====================
 
 /**
+ * Generate a canonical plain-text share message for a scheme
+ */
+function generateShareText(schemeName) {
+    const scheme = window.schemesCatalog?.[schemeName] || {};
+    
+    // Scheme Name
+    const teluguName = scheme.telugu_name;
+    let text = '';
+    if (teluguName && teluguName !== schemeName) {
+        text += `${teluguName}\n\nపథకం: ${schemeName}\n\n`;
+    } else {
+        text += `పథకం: ${schemeName}\n\n`;
+    }
+    
+    // Eligibility
+    text += `అర్హత:\n`;
+    const eligibility = scheme.telugu?.eligibility || scheme.simplified?.eligibility || 'వివరాలు చూడండి';
+    text += `${eligibility}\n\n`;
+    
+    // Documents
+    text += `పత్రాలు:\n`;
+    if (scheme.telugu?.documents) {
+        text += scheme.telugu.documents;
+    } else if (scheme.required_documents && scheme.required_documents.length > 0) {
+        text += scheme.required_documents.map(doc => doc.name_te || doc.name).join(', ');
+    } else {
+        text += 'వివరాలు లేవు';
+    }
+    
+    // Contact
+    text += `\n\nసంప్రదించండి:\n`;
+    const contact = scheme.telugu?.contact_office || scheme.eligibility_confirmation || scheme.contact_office || 'Government office';
+    text += contact;
+    
+    // URL
+    if (scheme.official_website) {
+        text += `\n\nమరిన్ని వివరాలు:\n${scheme.official_website}`;
+    }
+    
+    return text;
+}
+
+/**
  * Share on WhatsApp with CSRF header protection
  */
 async function shareOnWhatsApp(schemeName) {
@@ -275,23 +318,20 @@ async function shareOnWhatsApp(schemeName) {
     }
 
     try {
-        const response = await fetch('/whatsapp-share', {
+        const text = generateShareText(schemeName);
+        const encodedMessage = encodeURIComponent(text);
+        
+        // Log asynchronously without blocking
+        fetch('/whatsapp-share', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
                 ...getCsrfHeader()
             },
             body: JSON.stringify({ scheme_name: schemeName })
-        });
+        }).catch(() => {});
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        if (data.whatsapp_api) {
-            window.open(data.whatsapp_api, '_blank');
-        }
+        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
     } catch (error) {
         console.error('WhatsApp share error:', error);
         alert(`లోపం: ${error.message}`);
@@ -303,10 +343,8 @@ async function shareOnWhatsApp(schemeName) {
  */
 async function shareOnSMS(schemeName) {
     try {
-        let message = `🏥 ${schemeName} పథకం - SmartGov Health App నుండి\n\n`;
-        message += `అధిక సమాచారం కోసం యాప్ డाఉన్‌లోడ్ చేయండి।`;
-        
-        const encodedMessage = encodeURIComponent(message);
+        const text = generateShareText(schemeName);
+        const encodedMessage = encodeURIComponent(text);
         window.location.href = `sms:?body=${encodedMessage}`;
     } catch (error) {
         console.error('SMS share error:', error);
@@ -673,3 +711,219 @@ window.SmartGovEnhanced = {
     cacheForOffline,
     loadOfflineData
 };
+
+// ==================== UX Enhancements (Tier 1) ====================
+
+const SmartGovUX = (function() {
+    // Keys
+    const KEYS = {
+        FONT_SIZE: 'app_font_size',
+        THEME: 'app_theme',
+        FAVORITES: 'app_favorites',
+        RECENT: 'app_recently_viewed'
+    };
+
+    // Safe Storage Wrapper
+    const Storage = {
+        get: (key, def) => {
+            try {
+                const val = localStorage.getItem(key);
+                return val ? JSON.parse(val) : def;
+            } catch(e) {
+                return def;
+            }
+        },
+        set: (key, val) => {
+            try {
+                localStorage.setItem(key, JSON.stringify(val));
+            } catch(e) {}
+        }
+    };
+
+    // --- Font Size ---
+    const fontSizes = ['font-small', 'font-default', 'font-large', 'font-extra-large'];
+    let currentFontIndex = 1;
+
+    function applyFontSize(index) {
+        document.body.classList.remove(...fontSizes);
+        if (index >= 0 && index < fontSizes.length) {
+            document.body.classList.add(fontSizes[index]);
+            currentFontIndex = index;
+            Storage.set(KEYS.FONT_SIZE, index);
+        }
+    }
+
+    function initFontSize() {
+        let savedIndex = Storage.get(KEYS.FONT_SIZE, 1);
+        if (savedIndex < 0 || savedIndex >= fontSizes.length) savedIndex = 1;
+        applyFontSize(savedIndex);
+
+        document.getElementById('fontDecBtn')?.addEventListener('click', () => {
+            if (currentFontIndex > 0) applyFontSize(currentFontIndex - 1);
+        });
+        document.getElementById('fontIncBtn')?.addEventListener('click', () => {
+            if (currentFontIndex < fontSizes.length - 1) applyFontSize(currentFontIndex + 1);
+        });
+        document.getElementById('fontResetBtn')?.addEventListener('click', () => {
+            applyFontSize(1); // default
+        });
+    }
+
+    // --- Theme ---
+    const themes = ['light', 'dark-mode', 'high-contrast'];
+    let currentThemeIndex = 0;
+
+    function applyTheme(index) {
+        document.body.classList.remove('dark-mode', 'high-contrast');
+        if (index === 1) document.body.classList.add('dark-mode');
+        else if (index === 2) document.body.classList.add('high-contrast');
+        currentThemeIndex = index;
+        Storage.set(KEYS.THEME, index);
+    }
+
+    function initTheme() {
+        let savedIndex = Storage.get(KEYS.THEME, 0);
+        if (savedIndex < 0 || savedIndex >= themes.length) savedIndex = 0;
+        applyTheme(savedIndex);
+
+        document.getElementById('themeToggleBtn')?.addEventListener('click', () => {
+            applyTheme((currentThemeIndex + 1) % themes.length);
+        });
+    }
+
+    // --- Favorites ---
+    function getFavorites() {
+        return Storage.get(KEYS.FAVORITES, []);
+    }
+
+    function isFavorite(schemeName) {
+        return getFavorites().includes(schemeName);
+    }
+
+    function toggleFavorite(schemeName, buttonEl) {
+        let favs = getFavorites();
+        if (favs.includes(schemeName)) {
+            favs = favs.filter(s => s !== schemeName);
+            if (buttonEl) {
+                buttonEl.classList.remove('active');
+                buttonEl.textContent = '☆';
+            }
+        } else {
+            favs.push(schemeName);
+            if (buttonEl) {
+                buttonEl.classList.add('active');
+                buttonEl.textContent = '★';
+            }
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+        Storage.set(KEYS.FAVORITES, favs);
+        renderFavoritesAndRecent();
+    }
+
+    // --- Recently Viewed ---
+    function getRecent() {
+        return Storage.get(KEYS.RECENT, []);
+    }
+
+    function addRecent(schemeName) {
+        if (!schemeName) return;
+        let recent = getRecent();
+        recent = recent.filter(s => s !== schemeName);
+        recent.unshift(schemeName);
+        if (recent.length > 10) recent = recent.slice(0, 10);
+        Storage.set(KEYS.RECENT, recent);
+        renderFavoritesAndRecent();
+    }
+
+    // --- Render Favorites and Recent ---
+    function renderFavoritesAndRecent() {
+        const favs = getFavorites();
+        const recents = getRecent();
+        const favSec = document.getElementById('favoritesSection');
+        const favList = document.getElementById('favoritesList');
+        const recSec = document.getElementById('recentlyViewedSection');
+        const recList = document.getElementById('recentlyViewedList');
+
+        if (favSec && favList) {
+            if (favs.length > 0) {
+                favSec.style.display = 'block';
+                favList.innerHTML = favs.map(name => `<a href="javascript:void(0)" class="recent-chip" data-scheme="${window.escapeHtml(name)}">${window.escapeHtml(window.schemesCatalog?.[name]?.telugu_name || name)}</a>`).join('');
+            } else {
+                favSec.style.display = 'none';
+            }
+        }
+
+        if (recSec && recList) {
+            if (recents.length > 0) {
+                recSec.style.display = 'block';
+                recList.innerHTML = recents.map(name => `<a href="javascript:void(0)" class="recent-chip" data-scheme="${window.escapeHtml(name)}">${window.escapeHtml(window.schemesCatalog?.[name]?.telugu_name || name)}</a>`).join('');
+            } else {
+                recSec.style.display = 'none';
+            }
+        }
+    }
+
+    // --- Share Result ---
+    async function shareResult(schemeName) {
+        if (!schemeName) return;
+        
+        const text = window.generateShareText ? window.generateShareText(schemeName) : generateShareText(schemeName);
+        
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'SmartGov Health Eligibility',
+                    text: text,
+                    url: window.location.origin
+                });
+                return;
+            } catch (err) {
+                // If user canceled, just return quietly
+                if (err.name !== 'AbortError') console.error('Share error:', err);
+            }
+        }
+        
+        // Fallback: Clipboard
+        try {
+            await navigator.clipboard.writeText(text);
+            alert('✅ ఫలితం కాపీ చేయబడింది! (Copied to clipboard)');
+        } catch (err) {
+            // Fallback 2: Manual copy prompt
+            window.prompt('కాపీ చేయడానికి కింద ఉన్న వచనాన్ని ఉపయోగించండి (Copy the text below):', text);
+        }
+    }
+
+    // --- Initialize ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initFontSize();
+        initTheme();
+        renderFavoritesAndRecent();
+
+        // Event delegations for new UI elements
+        document.body.addEventListener('click', e => {
+            const favBtn = e.target.closest('.favorite-btn');
+            if (favBtn) {
+                e.stopPropagation();
+                toggleFavorite(favBtn.dataset.scheme, favBtn);
+                return;
+            }
+
+            const chip = e.target.closest('.recent-chip');
+            if (chip && window.fetchScheme) {
+                window.fetchScheme(chip.dataset.scheme);
+                return;
+            }
+            
+            const shareBtn = e.target.closest('.share-result-btn');
+            if (shareBtn) {
+                shareResult(shareBtn.dataset.scheme);
+                return;
+            }
+        });
+        
+        // Expose addRecent globally so app.js can call it
+        window.SmartGovUX = { addRecent, isFavorite };
+    });
+
+    return { addRecent, isFavorite };
+})();

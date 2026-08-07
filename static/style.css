@@ -13,6 +13,36 @@
     --shadow: 0 10px 22px rgba(23, 33, 29, 0.08);
 }
 
+body.dark-mode {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --surface-soft: #2c2c2c;
+    --ink: #e0e0e0;
+    --muted: #a0a0a0;
+    --green: #2a9d8f;
+    --green-dark: #8ab4f8; /* better contrast for headings */
+    --blue: #66b2ff;
+    --saffron: #e76f51;
+    --red: #ff5252;
+    --border: #444444;
+    --shadow: 0 10px 22px rgba(0, 0, 0, 0.5);
+}
+
+body.high-contrast {
+    --bg: #000000;
+    --surface: #000000;
+    --surface-soft: #000000;
+    --ink: #ffffff;
+    --muted: #ffffff;
+    --green: #00ffff;
+    --green-dark: #00ffff;
+    --blue: #00ffff;
+    --saffron: #ffff00;
+    --red: #ff0000;
+    --border: #ffffff;
+    --shadow: none;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -27,9 +57,15 @@ body {
     background: var(--bg);
     color: var(--ink);
     font-family: "Noto Sans Telugu", "Nirmala UI", "Segoe UI", Arial, sans-serif;
-    font-size: 17px;
+    font-size: var(--app-font-size, 17px);
     line-height: 1.5;
+    transition: background-color 0.2s, color 0.2s, font-size 0.2s;
 }
+
+body.font-small { --app-font-size: 15px; }
+body.font-default { --app-font-size: 17px; }
+body.font-large { --app-font-size: 20px; }
+body.font-extra-large { --app-font-size: 24px; }
 
 button,
 input,
@@ -55,6 +91,43 @@ a {
     justify-content: space-between;
     gap: 12px;
     padding: 14px 0 18px;
+    flex-wrap: wrap;
+}
+
+.header-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.control-group {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.control-btn {
+    background: none;
+    border: none;
+    border-right: 1px solid var(--border);
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 1rem;
+}
+.control-btn:last-child {
+    border-right: none;
+}
+.control-btn:hover, .control-btn:focus {
+    background: var(--surface-soft);
 }
 
 .brand {
@@ -257,19 +330,45 @@ h1 {
 }
 
 .scheme-card {
-    min-height: 196px;
-    width: 100%;
-    text-align: left;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--ink);
-    padding: 14px;
-    cursor: pointer;
-    box-shadow: var(--shadow);
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--ink);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+    height: 100%;
+}
+
+.favorite-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--muted);
+    z-index: 2;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.favorite-btn.active {
+    color: var(--saffron);
+}
+
+.favorite-btn:hover {
+    transform: scale(1.1);
 }
 
 .scheme-card:focus,
@@ -345,7 +444,41 @@ h1 {
 }
 
 .result-inner {
-    padding: 16px;
+    padding: 20px;
+}
+
+.recently-viewed-section {
+    margin-bottom: 24px;
+}
+
+.recently-viewed-section h2 {
+    font-size: 1.1rem;
+    margin: 0 0 12px 0;
+    color: var(--green-dark);
+}
+
+.recently-viewed-list {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.recent-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--ink);
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.recent-chip:hover {
+    background: var(--surface-soft);
 }
 
 .empty-state {
