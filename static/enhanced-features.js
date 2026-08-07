@@ -356,159 +356,155 @@ async function shareOnSMS(schemeName) {
  * Report an issue with the scheme information
  */
 async function reportIssue(schemeName) {
-    if (!schemeName) {
+    if (!schemeName && typeof window.currentSchemeName === 'undefined') {
         alert('దయచేసి పథకం ఎంచుకోండి.');
         return;
     }
-
-    const feedbackText = prompt(`
-సమస్య నివేదించండి:
-
-ఉదాహరణలు:
-- సమాచారం తప్పుగా ఉందా?
-- ఇతర సంచిక మీకు తెలుసా?
-- సంప్రదించే నంబర్ మార్చాలా?
-
-మీ సమస్యను వివరించండి:`);
-    
-    if (!feedbackText || feedbackText.trim().length === 0) {
-        return;
-    }
-
-    try {
-        const deviceInfo = `
-Device: ${navigator.userAgent.split(' ').slice(-2).join(' ')}
-Time: ${new Date().toLocaleString('te-IN')}
-App: SmartGov Health
-`;
-        
-        const whatsappMessage = `🔴 సమస్య నివేదన\n\nపథకం: ${schemeName}\n\nసమస్య:\n${feedbackText}\n\n${deviceInfo}`;
-        
-        const proceed = confirm(`WhatsApp ద్వారా నివేదించాలా?\n\n${feedbackText.substring(0, 100)}...`);
-        
-        if (proceed) {
-            const encoded = encodeURIComponent(whatsappMessage);
-            window.open(`https://wa.me/?text=${encoded}`, '_blank');
-        }
-    } catch (error) {
-        console.error('Report error:', error);
-        alert(`లోపం: ${error.message}`);
-    }
+    openFeedbackModal(document.activeElement);
 }
 
 /**
  * Open detailed report form
  */
 function openReportForm() {
-    const schemeName = window.currentSchemeName || 'Unknown';
-    
-    const form = prompt(`
-📋 నిబంధన నివేదన ఫారమ్
-
-పథకం: ${schemeName}
-
-దయచేసి క్రింది వివరాలను పూరించండి:
-
-1. సమస్య రకం:
-   a) తప్పు సమాచారం
-   b) సంప్రదించే నంబర్ లేదు
-   c) అందుబాటులో లేని సేవ
-   d) ఇతర
-
-2. మీ స్థానం (గ్రామం/నగరం):
-
-3. సమస్య వివరణ:
-`, '');
-
-    if (form && form.trim().length > 0) {
-        reportIssueToServer(schemeName, form);
-    }
+    openFeedbackModal(document.activeElement);
 }
 
 /**
  * Send report to server with CSRF header protection
  */
-async function reportIssueToServer(schemeName, feedbackText) {
+// ==================== Enhanced Feedback (Tier 2C) ====================
+
+let currentRating = 0;
+let previousFocusFeedback = null;
+
+function openFeedbackModal(triggerBtn) {
+    if (!window.currentRequestId && typeof window.currentSchemeName === 'undefined') {
+        const statusEl = document.getElementById('feedbackStatus');
+        if (statusEl) {
+            statusEl.textContent = 'దయచేసి ముందుగా పథకం ఎంచుకోండి.';
+            statusEl.className = 'feedback-status error';
+        }
+    }
+    previousFocusFeedback = triggerBtn || document.activeElement;
+    const modal = document.getElementById('feedbackOverlay');
+    if (!modal) return;
+    
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    
+    // Reset state
+    currentRating = 0;
+    document.querySelectorAll('.star-rating button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+    });
+    document.querySelectorAll('.feedback-chips .chip').forEach(c => {
+        c.classList.remove('selected');
+        c.setAttribute('aria-pressed', 'false');
+    });
+    const commentBox = document.getElementById('feedbackComment');
+    if (commentBox) commentBox.value = '';
+    
+    const status = document.getElementById('feedbackStatus');
+    if (status) {
+        status.textContent = '';
+        status.className = 'feedback-status';
+    }
+    
+    const title = document.getElementById('feedbackTitle');
+    if (title) title.focus();
+}
+
+function closeFeedbackModal() {
+    const modal = document.getElementById('feedbackOverlay');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    if (previousFocusFeedback) {
+        previousFocusFeedback.focus();
+    }
+}
+
+function setRating(val) {
+    currentRating = parseInt(val, 10);
+    document.querySelectorAll('.star-rating button').forEach(b => {
+        const bVal = parseInt(b.dataset.value, 10);
+        const isActive = bVal <= currentRating;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+}
+
+function setFeedbackChip(btn) {
+    const isSelected = btn.classList.toggle('selected');
+    btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+}
+
+async function submitFeedback() {
+    const statusEl = document.getElementById('feedbackStatus');
+    if (!statusEl) return;
+    
+    if (!window.currentRequestId && typeof window.currentSchemeName === 'undefined') {
+        statusEl.textContent = 'దయచేసి ముందుగా పథకం ఎంచుకోండి.';
+        statusEl.className = 'feedback-status error';
+        return;
+    }
+    if (currentRating === 0) {
+        statusEl.textContent = 'దయచేసి రేటింగ్ ఎంచుకోండి (Please select a rating).';
+        statusEl.className = 'feedback-status error';
+        return;
+    }
+    
+    statusEl.textContent = 'పంపుతున్నాం (Submitting)...';
+    statusEl.className = 'feedback-status';
+    
+    const selectedChips = Array.from(document.querySelectorAll('.feedback-chips .chip.selected')).map(c => c.dataset.value);
+    const commentBox = document.getElementById('feedbackComment');
+    const comment = commentBox ? commentBox.value.trim() : '';
+    
+    const combinedComment = [...selectedChips, comment].filter(Boolean).join(' | ');
+
     try {
-        const response = await fetch('/staff-report', {
+        const payload = window.currentRequestId ? {
+            request_id: window.currentRequestId,
+            rating: currentRating,
+            was_clear: combinedComment.includes('సమాచారం') ? 'yes' : 'N/A',
+            got_benefit: 'unknown',
+            village: 'Unknown',
+            problem: combinedComment
+        } : {
+            scheme_name: window.currentSchemeName || 'Unknown',
+            feedback_type: 'user_reported_issue',
+            village: 'Self-reported',
+            feedback_text: `Rating: ${currentRating}. Comments: ${combinedComment}`
+        };
+
+        const endpoint = window.currentRequestId ? '/enhanced-feedback' : '/staff-report';
+
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                ...getCsrfHeader()
+                ...(typeof getCsrfHeader === 'function' ? getCsrfHeader() : {})
             },
-            body: JSON.stringify({
-                scheme_name: schemeName,
-                feedback_type: 'user_reported_issue',
-                village: 'Self-reported',
-                feedback_text: feedbackText
-            })
+            body: JSON.stringify(payload)
         });
-
+        
         const data = await response.json();
         
         if (response.ok) {
-            alert('✅ ' + (data.message_te || 'ధన్యవాదాలు! మీ నివేదన సేవ్ చేయబడింది.'));
+            statusEl.textContent = '✅ ధన్యవాదాలు! మీ అభిప్రాయం నమోదు చేయబడింది.';
+            statusEl.className = 'feedback-status success';
+            setTimeout(closeFeedbackModal, 2000);
         } else {
             throw new Error(data.error || 'Server error');
         }
     } catch (error) {
-        console.error('Report submission error:', error);
-        const whatsappMsg = `🔴 సమస్య నివేదన - ${schemeName}\n\n${feedbackText}`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
-    }
-}
-
-// ==================== Enhanced Feedback ====================
-
-function openDetailedFeedback() {
-    const feedback = prompt(`
-🎯 మీ స్పందన చాలా ముఖ్యమైనది
-
-1. సమాచారం సపష్టంగా ఉందా? (అవును/కాదు)
-2. మీరు ఆ సేవ పొందారా? (అవును/కాదు/ఇంకా చేయలేదు)
-3. ఏ ఇతర సలహా ఇవ్వాలి?
-`, '');
-    
-    if (feedback) {
-        sendDetailedFeedback(5, feedback);
-    }
-}
-
-async function sendDetailedFeedback(rating, comment) {
-    const statusEl = document.getElementById('feedbackStatus');
-    if (!statusEl) return;
-    
-    const currentReqId = typeof window.currentRequestId !== 'undefined' ? window.currentRequestId : null;
-    if (!currentReqId) {
-        alert('దయచేసి ముందుగా పథకం ఎంచుకోండి.');
-        return;
-    }
-    
-    statusEl.textContent = 'సేవ్ చేస్తున్నాం...';
-    statusEl.style.color = 'var(--muted)';
-    
-    try {
-        const response = await fetch('/enhanced-feedback', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                ...getCsrfHeader()
-            },
-            body: JSON.stringify({ 
-                request_id: currentReqId, 
-                rating: Number(rating),
-                comment: comment,
-                was_clear: comment.includes('సపష్ట') ? 'yes' : 'no',
-                got_benefit: comment.includes('సేవ') ? 'yes' : 'unknown'
-            })
-        });
-        
-        const data = await response.json();
-        statusEl.textContent = data.status === 'success' ? '✅ ధన్యవాదాలు!' : `❌ లోపం: ${data.error}`;
-        statusEl.style.color = data.status === 'success' ? 'green' : 'var(--red)';
-    } catch (error) {
-        statusEl.textContent = `❌ లోపం: ${error.message}`;
-        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = `❌ అభిప్రాయం పంపలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.`;
+        statusEl.className = 'feedback-status error';
+        console.error('Feedback submission error:', error);
     }
 }
 
@@ -540,39 +536,6 @@ function loadOfflineData() {
         return JSON.parse(offlineData);
     }
     return null;
-}
-
-// ==================== Staff/Community Worker Mode ====================
-
-async function reportStaffIssue(schemeName, feedbackType) {
-    const feedbackText = prompt(`
-సమస్య నివేదించండి (ASHA/ANM కోసం):
-- సమాచారం తప్పుగా ఉందా?
-- ఇతర సంచిక మీకు తెలుసా?
-- సంప్రదించే వివరాలు మార్చాలా?
-    `);
-    
-    if (!feedbackText) return;
-    
-    try {
-        const response = await fetch('/staff-report', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                ...getCsrfHeader()
-            },
-            body: JSON.stringify({
-                scheme_name: window.escapeHtml(schemeName),
-                feedback_type: feedbackType,
-                village: prompt('గ్రామం పేరు:') || 'Unknown',
-                feedback_text: feedbackText
-            })
-        });
-        const data = await response.json();
-        alert(data.message_te || 'రిపోర్ట్ సంరక్షించారు');
-    } catch (error) {
-        alert(`లోపం: ${error.message}`);
-    }
 }
 
 // ==================== Initialization ====================
@@ -655,14 +618,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const reportIssueBtn = target.closest('.report-issue-btn');
             if (reportIssueBtn) {
                 const schemeName = reportIssueBtn.dataset.scheme;
-                reportIssue(schemeName);
+                openFeedbackModal(reportIssueBtn);
                 return;
             }
             
             // Open Detailed Feedback Form
             const openFeedbackBtn = target.closest('.open-feedback-btn');
             if (openFeedbackBtn) {
-                openDetailedFeedback();
+                openFeedbackModal(openFeedbackBtn);
                 return;
             }
             
@@ -704,10 +667,8 @@ window.SmartGovEnhanced = {
     speakPageAloud,
     reportIssue,
     openReportForm,
-    reportIssueToServer,
-    openDetailedFeedback,
-    sendDetailedFeedback,
-    reportStaffIssue,
+    openFeedbackModal,
+    closeFeedbackModal,
     cacheForOffline,
     loadOfflineData
 };
@@ -1281,12 +1242,35 @@ const SmartGovUX = (function() {
                     }
                     return;
                 }
+                if (action === 'close-feedback') {
+                    closeFeedbackModal();
+                    return;
+                }
+                if (action === 'submit-feedback') {
+                    submitFeedback();
+                    return;
+                }
+                if (action === 'set-rating') {
+                    setRating(actionTarget.dataset.value);
+                    return;
+                }
+                if (action === 'set-feedback-chip') {
+                    setFeedbackChip(actionTarget);
+                    return;
+                }
             }
         });
 
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape' && document.getElementById('guidedModeOverlay').style.display === 'flex') {
-                exitGuidedMode();
+            if (e.key === 'Escape') {
+                const guidedOverlay = document.getElementById('guidedModeOverlay');
+                if (guidedOverlay && guidedOverlay.style.display === 'flex') {
+                    exitGuidedMode();
+                }
+                const feedbackOverlay = document.getElementById('feedbackOverlay');
+                if (feedbackOverlay && !feedbackOverlay.classList.contains('hidden')) {
+                    closeFeedbackModal();
+                }
             }
         });
         

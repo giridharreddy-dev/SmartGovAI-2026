@@ -1,18 +1,78 @@
 <!DOCTYPE html>
-<html>
-<head><title>Scheme Analytics</title></head>
-<body>
-<h1>📊 Scheme Feedback Analytics</h1>
-<table border="1">
-    <tr><th>Scheme</th><th>Feedback Count</th><th>Average Rating</th></tr>
-    {% for name, count, rating in stats %}
-    <tr>
-        <td>{{ name }}</td>
-        <td>{{ count }}</td>
-        <td>{{ rating if rating else 'No ratings' }}</td>
-    </tr>
-    {% endfor %}
-</table>
-<p><a href="/">← Back to main</a></p>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Impact Dashboard - SmartGovAI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="dashboard-body">
+    <header>
+        <h1>📊 ప్రభావం (Impact Dashboard)</h1>
+        <p class="subtitle">స్మార్ట్ గవర్నెన్స్ వినియోగ విశ్లేషణ</p>
+    </header>
+
+    <main class="container">
+        <!-- Summary Cards -->
+        <section class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>మొత్తం సందర్శనలు</h3>
+                <p class="stat-number">{{ metrics.total_requests }}</p>
+                <p class="stat-label">Total Views</p>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>మొత్తం అభిప్రాయాలు</h3>
+                <p class="stat-number">{{ metrics.total_feedback }}</p>
+                <p class="stat-label">Total Feedback</p>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>సగటు రేటింగ్</h3>
+                <p class="stat-number">{{ "%.1f"|format(metrics.avg_rating) }} / 5</p>
+                <p class="stat-label">Avg Rating</p>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>WhatsApp షేర్లు</h3>
+                <p class="stat-number">{{ metrics.total_shares }}</p>
+                <p class="stat-label">Total Shares</p>
+            </div>
+        </section>
+
+        <!-- Data Limitation Notice -->
+        <div class="notice">
+            <p>ℹ️ <strong>గమనిక (Note):</strong> ఇష్టమైన పథకాలు (Favorites) మరియు ఇటీవల చూసినవి వినియోగదారుల పరికరంలో మాత్రమే భద్రపరచబడతాయి (Stored locally). అవి ఇక్కడ ట్రాక్ చేయబడవు.</p>
+        </div>
+
+        <!-- Popular Schemes List -->
+        <section class="dashboard-list-section">
+            <h2>అత్యధికంగా చూసిన పథకాలు (Popular Schemes)</h2>
+            <ul class="popular-schemes-list">
+                {% if stats %}
+                    {% for name, count, rating in stats %}
+                    <li class="popular-scheme-item">
+                        <div class="scheme-details">
+                            <span class="scheme-rank">{{ loop.index }}</span>
+                            <span class="scheme-name">{{ name }}</span>
+                        </div>
+                        <div class="scheme-stats">
+                            <span class="badge views-badge">👁️ {{ count }} వీక్షణలు</span>
+                            {% if rating %}
+                            <span class="badge rating-badge">⭐ {{ rating }}</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="popular-scheme-item">ఇప్పటివరకు డేటా లేదు (No data yet)</li>
+                {% endif %}
+            </ul>
+        </section>
+
+        <div class="actions">
+            <a href="/" class="btn secondary">← వెనుకకు (Back to Main)</a>
+        </div>
+    </main>
 </body>
 </html>

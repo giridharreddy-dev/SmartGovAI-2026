@@ -171,3 +171,36 @@ def save_staff_feedback(scheme_name: str, village: str, feedback_text: str, issu
         village,
         issue_type,
     )
+
+
+def get_dashboard_metrics() -> dict:
+    """Fetch high-level metrics for the Impact Dashboard."""
+    try:
+        with get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT COUNT(id) FROM requests")
+            total_requests = cur.fetchone()[0] or 0
+
+            cur.execute("SELECT COUNT(id) FROM feedback")
+            total_feedback = cur.fetchone()[0] or 0
+            
+            cur.execute("SELECT ROUND(AVG(rating), 2) FROM feedback")
+            avg_rating = cur.fetchone()[0] or 0.0
+
+            cur.execute("SELECT COUNT(id) FROM whatsapp_shares")
+            total_shares = cur.fetchone()[0] or 0
+
+            return {
+                "total_requests": total_requests,
+                "total_feedback": total_feedback,
+                "avg_rating": avg_rating,
+                "total_shares": total_shares
+            }
+    except sqlite3.Error as e:
+        logger.exception("Failed to fetch dashboard metrics: %s", e)
+        return {
+            "total_requests": 0,
+            "total_feedback": 0,
+            "avg_rating": 0.0,
+            "total_shares": 0
+        }

@@ -514,7 +514,8 @@ def analytics() -> Any:
             ORDER BY feedback_count DESC, avg_rating DESC
         """)
         stats = cur.fetchall()
-    return render_template("analytics.html", stats=stats)
+        metrics = database.get_dashboard_metrics()
+    return render_template("analytics.html", stats=stats, metrics=metrics)
 
 
 @app.route("/feedback", methods=["POST"])

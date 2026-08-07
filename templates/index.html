@@ -717,5 +717,41 @@
             </div>
         </div>
     </div>
+
+    <!-- Tier 2C: Accessible Feedback Modal -->
+    <div id="feedbackOverlay" class="feedback-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle" aria-hidden="true">
+        <div class="feedback-modal">
+            <div class="feedback-header">
+                <h2 id="feedbackTitle" tabindex="-1">మీ అభిప్రాయం</h2>
+                <button type="button" class="feedback-close-btn" aria-label="మూసివేయండి (Close)" data-action="close-feedback">✕</button>
+            </div>
+            <div class="feedback-body">
+                <div id="feedbackStatus" class="feedback-status" aria-live="polite"></div>
+                
+                <p class="feedback-prompt">ఈ పథకం గురించి సమాచారం ఉపయోగకరంగా ఉందా?</p>
+                <div class="star-rating" role="group" aria-label="రేటింగ్ (Rating)">
+                    <button type="button" data-action="set-rating" data-value="1" aria-label="1 / 5 రేటింగ్">☆</button>
+                    <button type="button" data-action="set-rating" data-value="2" aria-label="2 / 5 రేటింగ్">☆</button>
+                    <button type="button" data-action="set-rating" data-value="3" aria-label="3 / 5 రేటింగ్">☆</button>
+                    <button type="button" data-action="set-rating" data-value="4" aria-label="4 / 5 రేటింగ్">☆</button>
+                    <button type="button" data-action="set-rating" data-value="5" aria-label="5 / 5 రేటింగ్">☆</button>
+                </div>
+                
+                <p class="feedback-prompt">మీకు ఎలా అనిపించింది? (ఐచ్ఛికం)</p>
+                <div class="feedback-chips">
+                    <button type="button" class="chip" data-action="set-feedback-chip" data-value="మంచి సమాచారం">మంచి సమాచారం</button>
+                    <button type="button" class="chip" data-action="set-feedback-chip" data-value="ఇంకా సులభంగా ఉండాలి">ఇంకా సులభంగా ఉండాలి</button>
+                    <button type="button" class="chip" data-action="set-feedback-chip" data-value="సమాచారం పూర్తిగా లేదు">సమాచారం పూర్తిగా లేదు</button>
+                </div>
+
+                <label for="feedbackComment" class="feedback-prompt">వివరణ (ఐచ్ఛికం)</label>
+                <textarea id="feedbackComment" rows="3" placeholder="మీ వ్యాఖ్య రాయండి..."></textarea>
+            </div>
+            <div class="feedback-footer">
+                <button type="button" class="btn secondary-btn" data-action="close-feedback">రద్దు (Cancel)</button>
+                <button type="button" class="btn primary-btn" data-action="submit-feedback">పంపండి (Submit)</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
