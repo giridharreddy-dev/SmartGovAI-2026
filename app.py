@@ -94,8 +94,9 @@ def log_request_end(response):
     # Add strict but compatible security headers
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    response.headers.setdefault("X-XSS-Protection", "1; mode=block")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
-    response.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=()")
+    response.headers.setdefault("Permissions-Policy", "geolocation=(self), microphone=()")
 
     # Basic CSP compatible with external Google Fonts; inline scripts use per-request nonce
     nonce = getattr(g, "csp_nonce", "")
@@ -106,7 +107,7 @@ def log_request_end(response):
         "font-src 'self' https://fonts.gstatic.com; "
         "connect-src 'self'; "
         "media-src 'self'; "
-        "img-src 'self' data:;"
+        "img-src 'self' data: https://*.tile.openstreetmap.org;"
     )
     response.headers.setdefault("Content-Security-Policy", csp_policy)
     return response
@@ -193,11 +194,15 @@ def load_schemes() -> Dict[str, Any]:
         return merged_schemes
 
     for filename in sorted(os.listdir(SCHEMES_DIR)):
-        if filename.endswith(".json") and filename != "scheme_schema.json":
+        if filename.endswith(".json") and filename not in {"scheme_schema.json", "facilities.json"}:
             filepath = os.path.join(SCHEMES_DIR, filename)
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     data = json.load(f)
+                    if not isinstance(data, dict):
+                        logger.error("Skipping '%s': Expected a JSON dictionary of schemes, but got %s", filename, type(data).__name__)
+                        continue
+                        
                     for scheme_name, scheme_data in data.items():
                         if validate_scheme(scheme_name, scheme_data):
                             merged_schemes[scheme_name] = scheme_data
@@ -223,6 +228,21 @@ try:
 except Exception:
     logger.exception("Failed to load schemes database.")
     raise
+
+
+def load_facilities() -> list:
+    """Load healthcare facilities from JSON file."""
+    facilities_path = os.path.join("data", "facilities.json")
+    try:
+        with open(facilities_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logger.error("Failed to load facilities data: %s", e)
+        return []
+
+# Load facilities
+facilities_data = load_facilities()
+logger.info("Startup: loaded %d facilities.", len(facilities_data))
 
 API_NAME = "SmartGovAI"
 API_VERSION = "1.0.0"
@@ -793,6 +813,54 @@ def local_locations() -> Any:
         "note_te": "కృపయా భూ-తొందరకు సమీపకు ఆసుపత్రిని సందర్శించండి.",
         "note_en": "Please visit nearby hospital / health centre.",
         "emergency": "108" if "ambulance" in scheme.get("category", "").lower() else ""
+    })
+
+
+@app.route("/api/facilities", methods=["GET"])
+def api_facilities() -> Any:
+    """Return all facilities or nearest facilities if lat/lng are provided."""
+    lat_str = request.args.get("lat")
+    lng_str = request.args.get("lng")
+    radius_str = request.args.get("radius")
+
+    if not lat_str or not lng_str:
+        return api_response({
+            "data": facilities_data,
+            "count": len(facilities_data)
+        })
+
+    try:
+        user_lat = float(lat_str)
+        user_lng = float(lng_str)
+        if not (-90 <= user_lat <= 90) or not (-180 <= user_lng <= 180):
+            return api_error("Invalid latitude or longitude range.", 400, "INVALID_COORDINATES")
+        radius = float(radius_str) if radius_str else None
+    except ValueError:
+        return api_error("Invalid latitude, longitude, or radius parameters.", 400, "INVALID_PARAMS")
+
+    from utils import calculate_distance
+    nearby_facilities = []
+    
+    for facility in facilities_data:
+        fac_lat = facility.get("lat")
+        fac_lng = facility.get("lng")
+        if fac_lat is None or fac_lng is None:
+            continue
+            
+        distance = calculate_distance(user_lat, user_lng, fac_lat, fac_lng)
+        if radius is not None and distance > radius:
+            continue
+            
+        fac_copy = facility.copy()
+        fac_copy["distance_km"] = round(distance, 2)
+        nearby_facilities.append(fac_copy)
+            
+    # Sort nearest first
+    nearby_facilities.sort(key=lambda x: x["distance_km"])
+    
+    return api_response({
+        "data": nearby_facilities,
+        "count": len(nearby_facilities)
     })
 
 
