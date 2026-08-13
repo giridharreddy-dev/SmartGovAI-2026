@@ -1783,6 +1783,14 @@ const SmartGovUX = (function() {
                         }
                         
                         applyFiltersAndRender();
+                        
+                        // Force a tight zoom to the user's location, like Google Maps
+                        if (inlineMapObj) {
+                            inlineMapObj.setView([userLat, userLng], 15);
+                        }
+                        if (fullMapObj) {
+                            fullMapObj.setView([userLat, userLng], 15);
+                        }
                     },
                     (err) => {
                         console.warn(`Geolocation Error [Code: ${err.code}]: ${err.message}`);
