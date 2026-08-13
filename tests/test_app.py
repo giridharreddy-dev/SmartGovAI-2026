@@ -46,7 +46,10 @@ def test_simplify_invalid_file_extension(client):
 def test_simplify_magic_bytes_failure(client):
     """Test upload endpoint with a valid extension but invalid file header bytes."""
     # Attempting to upload a text file disguised as a PDF
-    data = {"document": (io.BytesIO(b"NOT A PDF HEADER..."), "malicious.pdf")}
+    data = {
+        "document": (io.BytesIO(b"NOT A PDF HEADER..."), "malicious.pdf"),
+        "consent": "true"
+    }
     response = client.post("/simplify", data=data, content_type="multipart/form-data")
     assert response.status_code == 400
     assert response.get_json()["error_code"] == "INVALID_PDF"
