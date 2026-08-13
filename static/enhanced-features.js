@@ -1255,7 +1255,7 @@ const SmartGovUX = (function() {
                         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                             <div style="flex: 1 1 45%;">
                                 <label for="typeSelect" style="font-size: 0.85rem;">రకం (Type):</label>
-                                <select id="typeSelect" class="map-select" style="width:100%;"><option value="all">అన్నీ (All)</option><option value="PHC">PHC</option><option value="CHC">CHC</option><option value="Hospital">Hospital</option></select>
+                                <select id="typeSelect" class="map-select" style="width:100%;"><option value="all">అన్నీ (All)</option><option value="PHC">PHC</option><option value="CHC">CHC</option><option value="Hospital">Hospital</option><option value="none">కేవలం మ్యాప్ (Map Only)</option></select>
                             </div>
                             <div style="flex: 1 1 45%;">
                                 <label for="districtSelect" style="font-size: 0.85rem;">జిల్లా (District):</label>
@@ -1775,11 +1775,13 @@ const SmartGovUX = (function() {
                             inlineUserMarker = L.circleMarker([userLat, userLng], {radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8})
                                                 .addTo(inlineMapObj).bindPopup("<b>మీ స్థానం (Your Location)</b>");
                         }
+                        
                         if (fullMapObj) {
                             if (fullUserMarker) fullMapObj.removeLayer(fullUserMarker);
                             fullUserMarker = L.circleMarker([userLat, userLng], {radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8})
                                               .addTo(fullMapObj).bindPopup("<b>మీ స్థానం (Your Location)</b>");
                         }
+                        
                         applyFiltersAndRender();
                     },
                     (err) => {
@@ -1807,48 +1809,45 @@ const SmartGovUX = (function() {
     }
 
     function fitFacilitiesBounds(map, facilities) {
-        if (!map || facilities.length === 0) return;
-
-        const validFacilities =
-            facilities.filter(hasValidCoordinates);
-
-        if (validFacilities.length === 0) return;
-
-        if (validFacilities.length === 1) {
-            map.setView(
-                [
-                    Number(validFacilities[0].lat),
-                    Number(validFacilities[0].lng)
-                ],
-                14
-            );
-            return;
-        }
+        if (!map) return;
 
         let minLat = 90;
         let maxLat = -90;
         let minLng = 180;
         let maxLng = -180;
+        let hasPoints = false;
 
-        validFacilities.forEach(f => {
-            const lat = Number(f.lat);
-            const lng = Number(f.lng);
+        const validFacilities = (facilities || []).filter(hasValidCoordinates);
 
-            if (lat < minLat) minLat = lat;
-            if (lat > maxLat) maxLat = lat;
-            if (lng < minLng) minLng = lng;
-            if (lng > maxLng) maxLng = lng;
-        });
+        if (validFacilities.length > 0) {
+            validFacilities.forEach(f => {
+                const lat = Number(f.lat);
+                const lng = Number(f.lng);
+                if (lat < minLat) minLat = lat;
+                if (lat > maxLat) maxLat = lat;
+                if (lng < minLng) minLng = lng;
+                if (lng > maxLng) maxLng = lng;
+                hasPoints = true;
+            });
+        }
 
-        const bounds = [
-            [minLat, minLng],
-            [maxLat, maxLng]
-        ];
+        if (userLat !== null && userLng !== null) {
+            if (userLat < minLat) minLat = userLat;
+            if (userLat > maxLat) maxLat = userLat;
+            if (userLng < minLng) minLng = userLng;
+            if (userLng > maxLng) maxLng = userLng;
+            hasPoints = true;
+        }
 
-        map.fitBounds(bounds, {
-            padding: [20, 20],
-            maxZoom: 14
-        });
+        if (!hasPoints) return;
+
+        if (minLat === maxLat && minLng === maxLng) {
+            map.setView([minLat, minLng], 14);
+            return;
+        }
+
+        const bounds = [[minLat, minLng], [maxLat, maxLng]];
+        map.fitBounds(bounds, { padding: [20, 20], maxZoom: 14 });
     }
 
     function applyFiltersAndRender() {
@@ -1904,10 +1903,12 @@ const SmartGovUX = (function() {
             if (inlineMapObj) {
                 inlineMarkers.forEach(m => inlineMapObj.removeLayer(m));
                 inlineMarkers.length = 0;
+                fitFacilitiesBounds(inlineMapObj, []);
             }
             if (fullMapObj) {
                 fullMarkers.forEach(m => fullMapObj.removeLayer(m));
                 fullMarkers.length = 0;
+                fitFacilitiesBounds(fullMapObj, []);
             }
         }
     }
