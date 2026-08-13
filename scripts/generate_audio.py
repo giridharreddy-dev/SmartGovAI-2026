@@ -21,11 +21,14 @@ def load_schemes():
         return merged_schemes
         
     for filename in sorted(os.listdir(SCHEMES_DIR)):
-        if filename.endswith(".json") and filename != "scheme_schema.json":
+        if filename.endswith(".json") and filename not in {"scheme_schema.json", "facilities.json"}:
             filepath = os.path.join(SCHEMES_DIR, filename)
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     data = json.load(f)
+                    if not isinstance(data, dict):
+                        print(f"Skipping '{filename}': Expected a JSON dictionary.")
+                        continue
                     for scheme_name, scheme_data in data.items():
                         if "telugu" in scheme_data:
                             merged_schemes[scheme_name] = scheme_data
