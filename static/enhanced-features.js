@@ -1783,11 +1783,16 @@ const SmartGovUX = (function() {
                         applyFiltersAndRender();
                     },
                     (err) => {
-                        console.warn("Location denied/unavailable", err);
-                        btns.forEach(b => { if(b) b.innerHTML = '❌ స్థానం దొరకలేదు'; });
+                        console.warn(`Geolocation Error [Code: ${err.code}]: ${err.message}`);
+                        let errorMsg = '❌ స్థానం దొరకలేదు';
+                        if (err.code === 1) errorMsg = '❌ అనుమతి నిరాకరించబడింది (Denied)';
+                        else if (err.code === 2) errorMsg = '❌ స్థానం అందుబాటులో లేదు (Unavailable)';
+                        else if (err.code === 3) errorMsg = '❌ సమయం ముగిసింది (Timeout)';
+                        
+                        btns.forEach(b => { if(b) b.innerHTML = errorMsg; });
                         setTimeout(() => { btns.forEach(b => { if(b) b.innerHTML = '📍 నా స్థానం (My Location)'; }); }, 3000);
                     },
-                    { timeout: 5000 }
+                    { enableHighAccuracy: true, timeout: 15000 }
                 );
             }
         };
