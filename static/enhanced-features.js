@@ -1238,12 +1238,51 @@ const SmartGovUX = (function() {
                 localHelp = `<p style="margin-top:1rem;"><strong>స్థానిక సహాయం (Local Help):</strong><br>` + Object.values(scheme.local_help_locations).map(l => window.escapeHtml(l)).join('<br>') + `</p>`;
             }
 
+            let mapHtml = `
+                <div class="inline-map-container" id="inlineMapContainer" style="margin-top: 1.5rem;">
+                    <div class="map-toolbar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h4 style="margin:0;">📍 దగ్గరలోని ఆరోగ్య కేంద్రాలు</h4>
+                        <button class="action-btn" type="button" data-action="expand-map" style="padding: 4px 12px; min-height:36px; font-size:0.9rem;">విస్తరించు (Expand)</button>
+                    </div>
+                    <div class="map-filters-ui" id="mapFiltersUi" style="padding: 10px; background: var(--surface-1); border-radius: 8px; margin-bottom: 8px;">
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+                            <button type="button" class="secondary-btn" id="btnLocation" style="flex:1; font-size: 0.85rem; min-height: 36px; padding: 4px;">📍 నా స్థానం (My Location)</button>
+                            <button type="button" class="secondary-btn" id="btnMode" style="flex:1; font-size: 0.85rem; min-height: 36px; padding: 4px;">🗺️ మొత్తం AP (View All AP)</button>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <input type="text" id="searchInput" class="map-select" placeholder="🔍 వెతకండి (Search name, village...)" style="width:100%; box-sizing: border-box;">
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <div style="flex: 1 1 45%;">
+                                <label for="typeSelect" style="font-size: 0.85rem;">రకం (Type):</label>
+                                <select id="typeSelect" class="map-select" style="width:100%;"><option value="all">అన్నీ (All)</option><option value="PHC">PHC</option><option value="CHC">CHC</option><option value="Hospital">Hospital</option></select>
+                            </div>
+                            <div style="flex: 1 1 45%;">
+                                <label for="districtSelect" style="font-size: 0.85rem;">జిల్లా (District):</label>
+                                <select id="districtSelect" class="map-select" style="width:100%;"><option value="">-- ఎంచుకోండి --</option></select>
+                            </div>
+                            <div style="flex: 1 1 45%;">
+                                <label for="mandalSelect" style="font-size: 0.85rem;">మండలం (Mandal):</label>
+                                <select id="mandalSelect" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
+                            </div>
+                            <div style="flex: 1 1 45%;">
+                                <label for="villageSelect" style="font-size: 0.85rem;">గ్రామం (Village):</label>
+                                <select id="villageSelect" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
+                            </div>
+                        </div>
+                        <div id="searchResults" style="margin-top: 8px; font-weight: bold; color: var(--primary);"></div>
+                    </div>
+                    <div id="inlineMap" class="map-container" style="height: 250px; border-radius: 8px; z-index:1; background: #e0e0e0; border: 1px solid #ccc;"></div>
+                </div>
+            `;
+
             stepHtml = `
                 <h3 class="guided-step-title">📞 ఎవరిని సంప్రదించాలి?</h3>
                 <div class="guided-step-content">
                     <p><strong>కార్యాలయం / అధికారి:</strong> ${window.escapeHtml(contactInfo)}</p>
                     ${localHelp}
                     ${websiteHtml}
+                    ${mapHtml}
                     <div style="margin-top:2rem;">
                         <button class="action-btn whatsapp share-whatsapp-btn" type="button" data-scheme="${schemeNameSafe}" style="width:100%; font-size:1.1rem; min-height:48px;">
                             📱 WhatsApp ద్వారా షేర్ చేయండి
@@ -1264,6 +1303,11 @@ const SmartGovUX = (function() {
         if (step === 6) {
             nextBtn.textContent = 'ముగించు';
             nextBtn.dataset.action = 'guided-close';
+            
+            // Initialize map after it is added to DOM
+            setTimeout(() => {
+                if (window.initInlineMap) window.initInlineMap();
+            }, 50);
         } else {
             nextBtn.textContent = 'తర్వాత →';
             nextBtn.dataset.action = 'guided-next';
@@ -1380,6 +1424,14 @@ const SmartGovUX = (function() {
                     setFeedbackChip(actionTarget);
                     return;
                 }
+                if (action === 'expand-map') {
+                    window.expandMap();
+                    return;
+                }
+                if (action === 'close-map') {
+                    window.closeMapOverlay();
+                    return;
+                }
             }
         });
 
@@ -1392,6 +1444,10 @@ const SmartGovUX = (function() {
                 const feedbackOverlay = document.getElementById('feedbackOverlay');
                 if (feedbackOverlay && !feedbackOverlay.classList.contains('hidden')) {
                     closeFeedbackModal();
+                }
+                const mapOverlay = document.getElementById('mapOverlay');
+                if (mapOverlay && !mapOverlay.classList.contains('hidden')) {
+                    window.closeMapOverlay();
                 }
             }
         });
@@ -1409,6 +1465,589 @@ const SmartGovUX = (function() {
             prevGuidedStep
         };
     });
+
+    // --- Tier 4 Map Logic ---
+    let mapFacilities = [];
+    let inlineMapObj = null;
+    let fullMapObj = null;
+    let inlineMarkers = [];
+    let fullMarkers = [];
+    let inlineUserMarker = null;
+    let fullUserMarker = null;
+    let userLat = null;
+    let userLng = null;
+    let isFetchingFacilities = false;
+    let fetchPromise = null;
+
+    let mapState = {
+        mode: 'ANANTHAPURAMU', // 'ANANTHAPURAMU' or 'AP'
+        type: 'all',
+        district: 'Ananthapuramu',
+        mandal: '',
+        village: '',
+        search: ''
+    };
+
+    function hasValidCoordinates(fac) {
+        const lat = Number(fac?.lat);
+        const lng = Number(fac?.lng);
+
+        return (
+            Number.isFinite(lat) &&
+            Number.isFinite(lng) &&
+            lat >= -90 &&
+            lat <= 90 &&
+            lng >= -180 &&
+            lng <= 180
+        );
+    }
+
+    function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+        lat1 = Number(lat1);
+        lon1 = Number(lon1);
+        lat2 = Number(lat2);
+        lon2 = Number(lon2);
+
+        if (
+            !Number.isFinite(lat1) ||
+            !Number.isFinite(lon1) ||
+            !Number.isFinite(lat2) ||
+            !Number.isFinite(lon2)
+        ) {
+            return null;
+        }
+
+        const R = 6371;
+
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+
+        const a =
+            Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1 * Math.PI / 180) *
+            Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) ** 2;
+
+        const c =
+            2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return parseFloat((R * c).toFixed(2));
+    }
+
+    async function loadFacilities(forceDistanceRecalc = false) {
+        if (mapFacilities.length === 0) {
+            if (isFetchingFacilities) {
+                try {
+                    await fetchPromise;
+                } catch (e) {
+                    return [];
+                }
+            } else {
+                isFetchingFacilities = true;
+
+                fetchPromise = (async () => {
+                    const response = await fetch('/api/facilities');
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `Facilities API failed: ${response.status}`
+                        );
+                    }
+
+                    const data = await response.json();
+
+                    mapFacilities = Array.isArray(data.data)
+                        ? data.data
+                        : [];
+
+                    return mapFacilities;
+                })();
+
+                try {
+                    await fetchPromise;
+                } catch (e) {
+                    console.error('Failed to load facilities', e);
+                    mapFacilities = [];
+                    return [];
+                } finally {
+                    isFetchingFacilities = false;
+                }
+            }
+        }
+
+        if (
+            forceDistanceRecalc &&
+            userLat !== null &&
+            userLng !== null
+        ) {
+            mapFacilities.forEach(fac => {
+                if (hasValidCoordinates(fac)) {
+                    fac.distance_km = calculateHaversineDistance(
+                        userLat,
+                        userLng,
+                        Number(fac.lat),
+                        Number(fac.lng)
+                    );
+                } else {
+                    delete fac.distance_km;
+                }
+            });
+
+            mapFacilities.sort(
+                (a, b) =>
+                    (a.distance_km ?? Infinity) -
+                    (b.distance_km ?? Infinity)
+            );
+        }
+
+        populateDropdowns();
+        syncUiFromState();
+
+        return mapFacilities;
+    }
+
+    function populateDropdowns() {
+        if (!mapFacilities || !mapFacilities.length) return;
+        
+        let availableFacilities = mapFacilities;
+        if (mapState.mode === 'ANANTHAPURAMU') {
+            availableFacilities = availableFacilities.filter(f => f.district === 'Ananthapuramu');
+        }
+
+        const districts = [...new Set(availableFacilities.map(f => f.district).filter(Boolean))].sort();
+        let distHtml = '<option value="">-- ఎంచుకోండి (Select) --</option>';
+        districts.forEach(d => distHtml += `<option value="${d}">${d}</option>`);
+        ['districtSelect', 'districtSelectFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = distHtml;
+        });
+
+        const mandals = mapState.district 
+            ? [...new Set(availableFacilities.filter(f => f.district === mapState.district).map(f => f.mandal).filter(Boolean))].sort()
+            : [];
+        let mandalHtml = '<option value="">-- ఎంచుకోండి (Select) --</option>';
+        mandals.forEach(m => mandalHtml += `<option value="${m}">${m}</option>`);
+        ['mandalSelect', 'mandalSelectFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerHTML = mandalHtml;
+                el.disabled = !mapState.district;
+            }
+        });
+
+        const villages = (mapState.district && mapState.mandal)
+            ? [...new Set(availableFacilities.filter(f => f.district === mapState.district && f.mandal === mapState.mandal).map(f => f.village).filter(Boolean))].sort()
+            : [];
+        let villHtml = '<option value="">-- ఎంచుకోండి (Select) --</option>';
+        villages.forEach(v => villHtml += `<option value="${v}">${v}</option>`);
+        ['villageSelect', 'villageSelectFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerHTML = villHtml;
+                el.disabled = !mapState.mandal;
+            }
+        });
+
+        if (mapState.district && !districts.includes(mapState.district)) {
+            if (mapState.mode === 'ANANTHAPURAMU') {
+                mapState.district = 'Ananthapuramu';
+            } else {
+                mapState.district = '';
+            }
+        }
+        if (mapState.mandal && !mandals.includes(mapState.mandal)) {
+            mapState.mandal = '';
+        }
+        if (mapState.village && !villages.includes(mapState.village)) {
+            mapState.village = '';
+        }
+    }
+
+    function syncUiFromState() {
+        ['typeSelect', 'typeSelectFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = mapState.type;
+        });
+
+        ['districtSelect', 'districtSelectFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = mapState.district;
+        });
+
+        ['mandalSelect', 'mandalSelectFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = mapState.mandal;
+        });
+
+        ['villageSelect', 'villageSelectFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = mapState.village;
+        });
+
+        ['searchInput', 'searchInputFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = mapState.search;
+        });
+
+        const nextModeLabel =
+            mapState.mode === 'AP'
+                ? '📍 అనంతపురం (View Ananthapuramu)'
+                : '🗺️ మొత్తం AP (View All AP)';
+
+        ['btnMode', 'btnModeFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = nextModeLabel;
+        });
+    }
+
+    let listenersAttached = false;
+    function setupEventListenersOnce() {
+        if (listenersAttached) return;
+        listenersAttached = true;
+
+        const handleTypeChange = (e) => { 
+            mapState.type = e.target.value; 
+            syncUiFromState(); 
+            applyFiltersAndRender(); 
+        };
+        const handleDistChange = (e) => { 
+            mapState.district = e.target.value; 
+            mapState.mandal = ''; 
+            mapState.village = ''; 
+            populateDropdowns(); 
+            syncUiFromState(); 
+            applyFiltersAndRender(); 
+        };
+        const handleMandalChange = (e) => {
+            mapState.mandal = e.target.value;
+            mapState.village = '';
+            populateDropdowns();
+            syncUiFromState();
+            applyFiltersAndRender();
+        };
+        const handleVillageChange = (e) => { 
+            mapState.village = e.target.value; 
+            syncUiFromState(); 
+            applyFiltersAndRender(); 
+        };
+        
+        const handleSearch = (e) => {
+            mapState.search = e.target.value.toLowerCase().trim();
+            syncUiFromState();
+            applyFiltersAndRender();
+        };
+        
+        const handleModeToggle = () => {
+            if (mapState.mode === 'ANANTHAPURAMU') {
+                mapState.mode = 'AP';
+                mapState.district = '';
+                mapState.mandal = '';
+                mapState.village = '';
+                mapState.type = 'all';
+                mapState.search = '';
+            } else {
+                mapState.mode = 'ANANTHAPURAMU';
+                mapState.district = 'Ananthapuramu';
+                mapState.mandal = '';
+                mapState.village = '';
+                mapState.type = 'all';
+                mapState.search = '';
+            }
+            populateDropdowns();
+            syncUiFromState();
+            applyFiltersAndRender();
+        };
+
+        const handleLocation = () => {
+            if (navigator.geolocation) {
+                const btns = [document.getElementById('btnLocation'), document.getElementById('btnLocationFull')];
+                btns.forEach(b => { if(b) b.innerHTML = '⏳ వెతుకుతోంది...'; });
+                
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        userLat = pos.coords.latitude;
+                        userLng = pos.coords.longitude;
+                        await loadFacilities(true);
+                        btns.forEach(b => { if(b) b.innerHTML = '📍 నా స్థానం (My Location)'; });
+                        
+                        if (inlineMapObj) {
+                            if (inlineUserMarker) inlineMapObj.removeLayer(inlineUserMarker);
+                            inlineUserMarker = L.circleMarker([userLat, userLng], {radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8})
+                                                .addTo(inlineMapObj).bindPopup("<b>మీ స్థానం (Your Location)</b>");
+                        }
+                        if (fullMapObj) {
+                            if (fullUserMarker) fullMapObj.removeLayer(fullUserMarker);
+                            fullUserMarker = L.circleMarker([userLat, userLng], {radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8})
+                                              .addTo(fullMapObj).bindPopup("<b>మీ స్థానం (Your Location)</b>");
+                        }
+                        applyFiltersAndRender();
+                    },
+                    (err) => {
+                        console.warn("Location denied/unavailable", err);
+                        btns.forEach(b => { if(b) b.innerHTML = '❌ స్థానం దొరకలేదు'; });
+                        setTimeout(() => { btns.forEach(b => { if(b) b.innerHTML = '📍 నా స్థానం (My Location)'; }); }, 3000);
+                    },
+                    { timeout: 5000 }
+                );
+            }
+        };
+
+        ['typeSelect', 'typeSelectFull'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', handleTypeChange); });
+        ['districtSelect', 'districtSelectFull'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', handleDistChange); });
+        ['mandalSelect', 'mandalSelectFull'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', handleMandalChange); });
+        ['villageSelect', 'villageSelectFull'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', handleVillageChange); });
+        ['searchInput', 'searchInputFull'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', handleSearch); });
+        ['btnMode', 'btnModeFull'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('click', handleModeToggle); });
+        ['btnLocation', 'btnLocationFull'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('click', handleLocation); });
+    }
+
+    function fitFacilitiesBounds(map, facilities) {
+        if (!map || facilities.length === 0) return;
+
+        const validFacilities =
+            facilities.filter(hasValidCoordinates);
+
+        if (validFacilities.length === 0) return;
+
+        if (validFacilities.length === 1) {
+            map.setView(
+                [
+                    Number(validFacilities[0].lat),
+                    Number(validFacilities[0].lng)
+                ],
+                14
+            );
+            return;
+        }
+
+        let minLat = 90;
+        let maxLat = -90;
+        let minLng = 180;
+        let maxLng = -180;
+
+        validFacilities.forEach(f => {
+            const lat = Number(f.lat);
+            const lng = Number(f.lng);
+
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+            if (lng < minLng) minLng = lng;
+            if (lng > maxLng) maxLng = lng;
+        });
+
+        const bounds = [
+            [minLat, minLng],
+            [maxLat, maxLng]
+        ];
+
+        map.fitBounds(bounds, {
+            padding: [20, 20],
+            maxZoom: 14
+        });
+    }
+
+    function applyFiltersAndRender() {
+        if (!mapFacilities || !mapFacilities.length) return;
+        
+        let filtered = mapFacilities;
+        
+        if (mapState.mode === 'ANANTHAPURAMU') {
+            filtered = filtered.filter(f => f.district === 'Ananthapuramu');
+        }
+        
+        if (mapState.type !== 'all') {
+            if (mapState.type === 'Hospital') {
+                filtered = filtered.filter(f =>
+                    typeof f.type === 'string' &&
+                    f.type.toLowerCase().includes('hospital')
+                );
+            } else {
+                filtered = filtered.filter(f => f.type === mapState.type);
+            }
+        }
+        if (mapState.mode === 'AP' && mapState.district) {
+            filtered = filtered.filter(f => f.district === mapState.district);
+        }
+        if (mapState.mandal) filtered = filtered.filter(f => f.mandal === mapState.mandal);
+        if (mapState.village) filtered = filtered.filter(f => f.village === mapState.village);
+        
+        if (mapState.search) {
+            filtered = filtered.filter(f => {
+                return (f.name && f.name.toLowerCase().includes(mapState.search)) ||
+                       (f.village && f.village.toLowerCase().includes(mapState.search)) ||
+                       (f.mandal && f.mandal.toLowerCase().includes(mapState.search)) ||
+                       (f.district && f.district.toLowerCase().includes(mapState.search));
+            });
+        }
+        
+        const resultText = `కనుగొనబడినవి: ${filtered.length}`;
+        ['searchResults', 'searchResultsFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = resultText;
+        });
+
+        if (filtered.length > 0) {
+            if (inlineMapObj) {
+                fitFacilitiesBounds(inlineMapObj, filtered);
+                renderFacilitiesOnMap(inlineMapObj, filtered, inlineMarkers);
+            }
+            if (fullMapObj) {
+                fitFacilitiesBounds(fullMapObj, filtered);
+                renderFacilitiesOnMap(fullMapObj, filtered, fullMarkers);
+            }
+        } else {
+            if (inlineMapObj) {
+                inlineMarkers.forEach(m => inlineMapObj.removeLayer(m));
+                inlineMarkers.length = 0;
+            }
+            if (fullMapObj) {
+                fullMarkers.forEach(m => fullMapObj.removeLayer(m));
+                fullMarkers.length = 0;
+            }
+        }
+    }
+
+    function getMarkerIcon(type) {
+        let emoji = '🏥';
+        if (type === 'PHC') emoji = '🩺';
+        if (type === 'CHC') emoji = '🚑';
+        
+        return L.divIcon({
+            html: `<div style="font-size:24px; text-shadow: 0 0 2px white; text-align:center;">${emoji}</div>`,
+            className: 'custom-div-icon',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -15]
+        });
+    }
+
+    function renderFacilitiesOnMap(map, facilities, markersArray) {
+        markersArray.forEach(m => map.removeLayer(m));
+        markersArray.length = 0;
+        
+        let renderedCount = 0;
+        let singleMarkerToOpen = null;
+        
+        facilities.forEach(fac => {
+            if (!hasValidCoordinates(fac)) return;
+            
+            const marker = L.marker([Number(fac.lat), Number(fac.lng)], {
+                icon: getMarkerIcon(fac.type)
+            }).addTo(map);
+            
+            renderedCount++;
+            singleMarkerToOpen = marker;
+            
+            const safeName = window.escapeHtml(fac.name || '');
+            const safeType = window.escapeHtml(fac.type || '');
+            const safeVillage = window.escapeHtml(fac.village || '');
+            const safeMandal = window.escapeHtml(fac.mandal || '');
+            const safeDistrict = window.escapeHtml(fac.district || '');
+            const safeContact = window.escapeHtml(fac.contact || '');
+            
+            let popupContent = '';
+            if (safeName) popupContent += `<b>${safeName}</b><br>`;
+            if (safeType) popupContent += `<i>${safeType}</i><br>`;
+            
+            let locParts = [];
+            if (safeVillage) locParts.push(safeVillage);
+            if (safeMandal) locParts.push(`${safeMandal} (Mandal)`);
+            if (safeDistrict) locParts.push(safeDistrict);
+            
+            if (locParts.length > 0) popupContent += locParts.join(', ') + '<br>';
+            if (safeContact) popupContent += `<b>సంప్రదించండి (Contact):</b> ${safeContact}<br>`;
+            if (fac.distance_km !== undefined && fac.distance_km !== null) {
+                popupContent += `<b>దూరం (Distance):</b> ${fac.distance_km} km<br>`;
+            }
+            
+            marker.bindPopup(popupContent);
+            markersArray.push(marker);
+        });
+        
+        if (renderedCount === 1 && singleMarkerToOpen) {
+            setTimeout(() => {
+                singleMarkerToOpen.openPopup();
+            }, 200);
+        }
+    }
+
+    window.initInlineMap = async function() {
+        const container = document.getElementById('inlineMap');
+        const containerWrap = document.getElementById('inlineMapContainer');
+        if (!container || !containerWrap || !window.L) return;
+        
+        containerWrap.style.display = 'block';
+        setupEventListenersOnce();
+        
+        if (inlineMapObj) {
+            inlineMapObj.remove();
+            inlineMapObj = null;
+            inlineMarkers = [];
+            inlineUserMarker = null;
+        }
+        
+        inlineMapObj = L.map('inlineMap');
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(inlineMapObj);
+        
+        if (userLat !== null && userLng !== null) {
+            inlineUserMarker = L.circleMarker([userLat, userLng], {
+                radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8
+            }).addTo(inlineMapObj).bindPopup("<b>మీ స్థానం (Your Location)</b>");
+        }
+
+        setTimeout(() => inlineMapObj.invalidateSize(), 100);
+
+        await loadFacilities();
+        applyFiltersAndRender();
+    };
+
+    window.expandMap = async function() {
+        const overlay = document.getElementById('mapOverlay');
+        const mapDiv = document.getElementById('fullScreenMap');
+        if (!overlay || !mapDiv || !window.L) return;
+        
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        setupEventListenersOnce();
+        
+        if (!fullMapObj) {
+            fullMapObj = L.map('fullScreenMap');
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(fullMapObj);
+            
+            if (userLat !== null && userLng !== null) {
+                fullUserMarker = L.circleMarker([userLat, userLng], {
+                    radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8
+                }).addTo(fullMapObj).bindPopup("<b>మీ స్థానం (Your Location)</b>");
+            }
+        }
+        
+        if (inlineMapObj) {
+            fullMapObj.setView(inlineMapObj.getCenter(), inlineMapObj.getZoom());
+        }
+        
+        setTimeout(() => fullMapObj.invalidateSize(), 300);
+
+        await loadFacilities();
+        applyFiltersAndRender();
+    };
+
+    window.closeMapOverlay = function() {
+        const overlay = document.getElementById('mapOverlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+            document.body.style.overflow = '';
+            
+            if (fullMapObj && inlineMapObj) {
+                inlineMapObj.setView(fullMapObj.getCenter(), fullMapObj.getZoom());
+            }
+        }
+    };
 
     return window.SmartGovUX;
 })();
