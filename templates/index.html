@@ -8,6 +8,7 @@
     <title>SmartGov Health | Andhra Pradesh</title>
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
     <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body {% if auto_open_scheme %}data-auto-open="{{ auto_open_scheme }}"{% endif %}>
@@ -41,7 +42,7 @@
             <span>ఆరోగ్య సలహా</span>
             <strong>104</strong>
         </a>
-        <a class="call-tile phc" href="#schemeGrid">
+        <a class="call-tile phc" href="#" data-action="expand-map">
             <span>దగ్గర సేవ</span>
             <strong>PHC</strong>
         </a>
@@ -791,6 +792,44 @@
             </div>
         </div>
     </div>
+    <!-- Tier 4: Map Overlay -->
+    <div id="mapOverlay" class="map-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="mapTitle" aria-hidden="true">
+        <div class="map-header">
+            <h2 id="mapTitle" tabindex="-1">🏥 దగ్గరలోని ఆరోగ్య కేంద్రాలు (Nearby Facilities)</h2>
+            <button type="button" class="map-close-btn" aria-label="మూసివేయండి (Close)" data-action="close-map">✕</button>
+        </div>
+        <div class="map-filters-ui" id="mapFiltersUiFull" style="padding: 10px; background: white; border-bottom: 1px solid #ccc; max-height: 40vh; overflow-y: auto;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+                <button type="button" class="secondary-btn" id="btnLocationFull" style="flex:1;">📍 నా స్థానం (My Location)</button>
+                <button type="button" class="secondary-btn" id="btnModeFull" style="flex:1;">🗺️ మొత్తం AP (View All AP)</button>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <input type="text" id="searchInputFull" class="map-select" placeholder="🔍 వెతకండి (Search name, village...)" style="width:100%; box-sizing: border-box;">
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <div style="flex: 1 1 45%;">
+                    <label for="typeSelectFull" style="font-size: 0.85rem;">రకం (Type):</label>
+                    <select id="typeSelectFull" class="map-select" style="width:100%;"><option value="all">అన్నీ (All)</option><option value="PHC">PHC</option><option value="CHC">CHC</option><option value="Hospital">Hospital</option><option value="none">కేవలం మ్యాప్ (Map Only)</option></select>
+                </div>
+                <div style="flex: 1 1 45%;">
+                    <label for="districtSelectFull" style="font-size: 0.85rem;">జిల్లా (District):</label>
+                    <select id="districtSelectFull" class="map-select" style="width:100%;"><option value="">-- ఎంచుకోండి --</option></select>
+                </div>
+                <div style="flex: 1 1 45%;">
+                    <label for="mandalSelectFull" style="font-size: 0.85rem;">మండలం (Mandal):</label>
+                    <select id="mandalSelectFull" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
+                </div>
+                <div style="flex: 1 1 45%;">
+                    <label for="villageSelectFull" style="font-size: 0.85rem;">గ్రామం (Village):</label>
+                    <select id="villageSelectFull" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
+                </div>
+            </div>
+            <div id="searchResultsFull" style="margin-top: 8px; font-weight: bold; color: var(--primary);"></div>
+        </div>
+        <div id="fullScreenMap" class="map-container"></div>
+    </div>
 
+    <!-- Map Scripts -->
+    <script src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
 </body>
 </html>

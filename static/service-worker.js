@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smartgov-health-v2';
+const CACHE_NAME = 'smartgov-health-v3';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache on install — all app-shell assets
@@ -9,6 +9,9 @@ const STATIC_CACHE_FILES = [
   '/static/manifest.webmanifest',
   '/static/icon.svg',
   '/static/enhanced-features.js',
+  '/static/leaflet/leaflet.js',
+  '/static/leaflet/leaflet.css',
+  '/api/facilities',
   '/healthz'
 ];
 
@@ -70,7 +73,7 @@ self.addEventListener('fetch', event => {
       })
     );
   } else {
-    // For other requests, try network first, then cache
+    // For API and other requests: Network First, then exact cache, then fallback to base cache (for /api/)
     event.respondWith(
       fetch(event.request)
         .then(response => {
@@ -82,7 +85,16 @@ self.addEventListener('fetch', event => {
           }
           return response;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() => {
+            return caches.match(event.request).then(cached => {
+                if (cached) return cached;
+                // Fallback to base API URL if offline and exact query isn't cached
+                if (url.pathname.startsWith('/api/')) {
+                    return caches.match(url.pathname);
+                }
+                return null;
+            });
+        })
     );
   }
 });
