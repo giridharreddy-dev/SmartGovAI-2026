@@ -9,7 +9,7 @@ echo ╚════════════════════════
 echo.
 
 REM Activate virtual environment
-call myenv\Scripts\activate.bat
+call .venv\Scripts\activate.bat
 
 REM Start the Flask app
 echo 📱 Starting Flask app...

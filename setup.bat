@@ -11,8 +11,8 @@ echo.
 
 REM Step 1: Create virtual environment
 echo 📍 Creating virtual environment...
-python -m venv myenv
-call myenv\Scripts\activate.bat
+python -m venv .venv
+call .venv\Scripts\activate.bat
 
 REM Step 2: Install dependencies
 echo 📍 Installing dependencies...

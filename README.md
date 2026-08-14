@@ -69,6 +69,26 @@ The application employs a decoupled client-server architecture:
 
 ---
 
+## Repository Structure
+
+```text
+SmartGovAI-2026/
+├── .github/workflows/    # CI/CD pipelines
+├── data/                 # JSON scheme definitions
+├── docs/                 # Detailed technical documentation
+├── scripts/              # Utility scripts (e.g., generate_audio.py)
+├── services/             # Core backend logic (audio, chat, Gemini, PDF, QR)
+├── static/               # Frontend assets (CSS, JS, Service Worker)
+├── templates/            # HTML/Jinja2 templates
+├── tests/                # Pytest suite
+├── app.py                # Main Flask application and routing
+├── database.py           # SQLite database setup and helper functions
+├── requirements.txt      # Python dependencies
+└── config.py             # Environment configuration parser
+```
+
+---
+
 ## Features
 
 * **Modular Scheme Loading:** During application startup, the server dynamically scans the `data/` directory, validates JSON entries against structural schema constraints, and merges valid schemes into a single in-memory catalog.
@@ -82,6 +102,19 @@ The application employs a decoupled client-server architecture:
 * **ASHA/Field Staff Reporting:** Dedicated interface for community health workers to report discrepancies, add local details, and manage scheme information.
 * **Enterprise-Grade Security:** Implements Cross-Site Request Forgery (CSRF) protection, Content Security Policy (CSP) headers with per-request nonces, strict HTTP headers, and robust file upload validation (including magic byte verification and consent-gated PDF processing).
 * **Resilient Rate Limiting:** Utilizes an in-memory tracking fallback mechanism if the primary Redis server becomes unavailable, guaranteeing continuous availability.
+
+---
+
+## Documentation
+
+Detailed technical documentation can be found in the `docs/` directory:
+* [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) - System architecture, folder structure, and technical execution flows.
+* [`docs/FEATURES_IMPLEMENTED.md`](docs/FEATURES_IMPLEMENTED.md) - Deep dive into all implemented features.
+* [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) - Detailed guide on how citizens use the application.
+* [`docs/EXECUTION_FLOW.md`](docs/EXECUTION_FLOW.md) - Sequence diagrams for request routing and parsing.
+* [`docs/CHANGELOG.md`](docs/CHANGELOG.md) - Version history and historical bug fixes.
+* [`docs/IMPLEMENTATION_LOG.md`](docs/IMPLEMENTATION_LOG.md) - Development implementation log.
+* [`docs/ENGINEERING_AUDIT.md`](docs/ENGINEERING_AUDIT.md) - Pre-deployment technical review findings.
 
 ---
 

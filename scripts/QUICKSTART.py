@@ -15,16 +15,17 @@ print("""
 2. Double-click: start_app.bat              (Every time to run)
 
 Or from PowerShell:
-$ python -m venv myenv
-$ myenv\\Scripts\\Activate.ps1
+$ python -m venv .venv
+$ .venv\Scripts\Activate.ps1
 $ pip install -r requirements.txt
 $ python generate_audio.py                  (One-time, creates MP3s)
 $ python app.py                             (Start the app)
 
 🚀 QUICK START (macOS/Linux)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-$ bash setup.sh                             (One-time setup)
-$ source myenv/bin/activate                (Activate environment)
+$ python3 -m venv .venv                    (Create environment)
+$ source .venv/bin/activate                (Activate environment)
+$ pip install -r requirements.txt          (Install dependencies)
 $ python app.py                             (Start the app)
 
 📱 USER FEATURES
@@ -140,10 +141,11 @@ Base size: 17px (readable for low-literacy users)
 📚 DOCUMENTATION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 README.md                     ← Setup & user guide
-IMPLEMENTATION_SUMMARY.md     ← All 10 requirements
-FEATURES_IMPLEMENTED.md       ← Complete feature list
-BUG_FIXES.md                  ← Recent improvements
-USER_GUIDE.md                 ← Detailed user instructions
+docs/ARCHITECTURE.md          ← Architecture and scaling
+docs/FEATURES_IMPLEMENTED.md  ← Complete feature list
+docs/CHANGELOG.md             ← Recent improvements
+docs/USER_GUIDE.md            ← Detailed user instructions
+docs/ENGINEERING_AUDIT.md     ← Pre-deployment audit
 
 ❓ QUICK Q&A
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -185,7 +187,7 @@ localStorage: https://developer.mozilla.org/web/api/window/localstorage
 ✨ HAPPY CODING! ✨
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Made with ❤️ for Rural India
-Questions? Check README.md or IMPLEMENTATION_SUMMARY.md
+Questions? Check README.md or docs/ARCHITECTURE.md
 
 Last updated: June 2026
 """)

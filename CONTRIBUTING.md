@@ -16,7 +16,7 @@ pytest
 ```
 
 - Isolate modifications; ensure that each Pull Request addresses a single logical change or feature addition.
-- Author automated tests for all novel features or defect resolutions, and append the relevant contextual updates to the `CHANGELOG.md` file.
+- Author automated tests for all novel features or defect resolutions, and append the relevant contextual updates to the `docs/CHANGELOG.md` file.
 - Adhere to the established code style (PEP8). Utilize formatting utilities such as `black` and `flake8` when available.
 - Employ descriptive, conventional commit messages. Example: `fix(pdf): validate header and remove temp file on invalid upload`.
 

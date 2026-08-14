@@ -33,14 +33,14 @@ def main():
     """)
     
     # Step 1: Virtual Environment
-    if not (base_dir / "myenv" / "Scripts" / "python.exe").exists() and \
-       not (base_dir / "myenv" / "bin" / "python").exists():
-        if not run_command("python -m venv myenv", "Creating virtual environment"):
+    if not (base_dir / ".venv" / "Scripts" / "python.exe").exists() and \
+       not (base_dir / ".venv" / "bin" / "python").exists():
+        if not run_command("python -m venv .venv", "Creating virtual environment"):
             sys.exit(1)
     
     # Step 2: Install requirements
-    python_cmd = str(base_dir / "myenv" / "Scripts" / "python.exe") if os.name == 'nt' \
-                 else f"source {base_dir}/myenv/bin/activate && python"
+    python_cmd = str(base_dir / ".venv" / "Scripts" / "python.exe") if os.name == 'nt' \
+                 else f"source {base_dir}/.venv/bin/activate && python"
     
     if not run_command(f"{python_cmd} -m pip install -r requirements.txt", "Installing dependencies"):
         sys.exit(1)
@@ -75,7 +75,7 @@ def main():
         if os.name == 'nt':
             os.system(f"{python_cmd} app.py")
         else:
-            os.system(f"source myenv/bin/activate && python app.py")
+            os.system(f"source .venv/bin/activate && python app.py")
 
 if __name__ == "__main__":
     main()

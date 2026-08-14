@@ -26,3 +26,26 @@ __pycache__/
 .pytest_cache/
 coverage.xml
 htmlcov/
+# Uploaded documents
+uploads/
+
+# Root audio (legacy, unused)
+audio/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Python build artifacts
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Type checking / linting caches
+.mypy_cache/
+.ruff_cache/

@@ -12,8 +12,8 @@ echo ""
 
 # Step 1: Create virtual environment
 echo "📍 Creating virtual environment..."
-python3 -m venv myenv
-source myenv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 
 # Step 2: Install dependencies
 echo "📍 Installing dependencies..."
@@ -33,7 +33,7 @@ echo "╠═══════════════════════�
 echo "║  Your app is ready!                        ║"
 echo "║                                            ║"
 echo "║  To start the app:                         ║"
-echo "║  $ source myenv/bin/activate               ║"
+echo "║  $ source .venv/bin/activate               ║"
 echo "║  $ python app.py                           ║"
 echo "║                                            ║"
 echo "║  Then open: http://localhost:5000          ║"
