@@ -149,3 +149,75 @@ def test_i18n_dictionary_completeness():
 
     for key in required_keys:
         assert f"{key}:" in content, f"i18n.js missing key {key}"
+
+
+def test_i18n_microphone_errors_and_staff_tools_keys():
+    """Verify i18n dictionary contains keys for mic errors, staff tools, feedback status, and map controls."""
+    i18n_path = Path(__file__).resolve().parent.parent / "static" / "i18n.js"
+    content = i18n_path.read_text(encoding="utf-8")
+
+    expected_keys = [
+        "voiceErrNotAllowed",
+        "voiceErrNoSpeech",
+        "voiceErrAudioCapture",
+        "voiceErrNetwork",
+        "voiceErrAborted",
+        "voiceErrGeneric",
+        "voiceNotSupported",
+        "voiceStartError",
+        "voiceBtnTitle",
+        "selectSchemeFromList",
+        "selectDropdownPlaceholder",
+        "showDetailsBtn",
+        "pdfDocumentLabel",
+        "feedbackSuccess",
+        "feedbackError",
+        "feedbackSaving",
+        "networkError",
+        "mapSelectDistrict",
+        "mapSelectMandal",
+        "mapSelectVillage",
+        "mapLocationFinding",
+        "mapLocationBtn",
+        "mapErrDenied",
+        "mapErrUnavailable",
+        "mapErrTimeout",
+        "mapErrNotFound",
+        "mapYourLocationPopup",
+        "mapFoundCount",
+    ]
+    for key in expected_keys:
+        assert f"{key}:" in content, f"i18n.js missing key {key}"
+
+
+def test_i18n_helper_functions_defined():
+    """Verify i18n.js exposes required helper functions for scheme names, subtitles, descriptions, and mic errors."""
+    i18n_path = Path(__file__).resolve().parent.parent / "static" / "i18n.js"
+    content = i18n_path.read_text(encoding="utf-8")
+
+    assert "getLocalizedSchemeName" in content
+    assert "getLocalizedSchemeSubtitle" in content
+    assert "getLocalizedSchemeDescription" in content
+    assert "getLocalizedMicError" in content
+    assert "translateCategory" in content
+    assert "translateLevel" in content
+
+
+def test_template_staff_tools_and_voice_elements(client):
+    """Verify templates/index.html includes all i18n attributes for staff tools and voice controls."""
+    response = client.get("/")
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+
+    # Staff tools i18n markup
+    assert 'data-i18n="staffToolsSummary"' in html
+    assert 'data-i18n="selectSchemeFromList"' in html
+    assert 'data-i18n="showDetailsBtn"' in html
+    assert 'data-i18n="pdfDocumentLabel"' in html
+    assert 'data-i18n="pdfSimplifyBtn"' in html
+
+    # Voice search status element
+    assert 'id="voiceStatus"' in html
+    assert 'id="voiceBtn"' in html
+    assert 'id="schemeSelect"' in html
+

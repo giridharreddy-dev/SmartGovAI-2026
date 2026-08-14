@@ -33,10 +33,19 @@
 
             // Search & Filters
             searchPlaceholder: 'పథకం పేరు లేదా సమస్య రాయండి...',
-            voiceBtnAria: 'పథకం పేరు మాట్లాడండి',
+            voiceBtnAria: 'వాయిస్ ద్వారా వెతకండి',
+            voiceBtnTitle: 'వాయిస్ ద్వారా వెతకండి',
             clearSearchAria: 'శోధన తొలగించండి',
             voiceStatusDefault: 'పథకం వెతకండి లేదా మైక్ నొక్కండి',
             voiceListening: 'వింటున్నాం... మాట్లాడండి',
+            voiceNotSupported: 'ఈ బ్రౌజర్ వాయిస్ సెర్చ్‌కు మద్దతు ఇవ్వదు.',
+            voiceStartError: 'మైక్ ప్రారంభం కాలేదు. మళ్లీ ప్రయత్నించండి.',
+            voiceErrNotAllowed: 'మైక్రోఫోన్ అనుమతి నిరాకరించబడింది. దయచేసి బ్రౌజర్ సెట్టింగ్స్‌లో మైక్ అనుమతించండి.',
+            voiceErrNoSpeech: 'మాట వినిపించలేదు. దయచేసి మళ్లీ మాట్లాడండి.',
+            voiceErrAudioCapture: 'మైక్రోఫోన్ కనుగొనబడలేదు లేదా ఆడియో రికార్డింగ్ విఫలమైంది.',
+            voiceErrNetwork: 'వాయిస్ గుర్తింపులో నెట్‌వర్క్ సమస్య ఏర్పడింది.',
+            voiceErrAborted: 'వాయిస్ ఇన్‌పుట్ రద్దు చేయబడింది.',
+            voiceErrGeneric: 'మైక్ లోపం: {error}',
             filterAll: 'అన్నీ',
             filterAp: 'ఆంధ్రప్రదేశ్',
             filterNational: 'జాతీయ',
@@ -50,13 +59,13 @@
             chatBtn: 'AI సహాయం',
 
             // Lists & Favorites
-            favoritesTitle: '⭐ ఇష్టమైన పథకాలు (Favorites)',
-            recentlyViewedTitle: '🕒 ఇటీవల చూసినవి (Recently Viewed)',
+            favoritesTitle: '⭐ ఇష్టమైన పథకాలు',
+            recentlyViewedTitle: '🕒 ఇటీవల చూసిన పథకాలు',
             emptyResultsTitle: 'ఫలితాలు లేవు',
             emptyResultsMsg: 'మరో పదంతో వెతకండి.',
             levelAp: 'ఆంధ్రప్రదేశ్',
             levelNational: 'జాతీయ',
-            favoriteBtnTitle: 'ఇష్టమైనది (Favorite)',
+            favoriteBtnTitle: 'ఇష్టమైనదిగా గుర్తించండి',
 
             // Scheme Detail Panel
             loadingDetails: 'వివరాలు తెస్తున్నాం...',
@@ -80,6 +89,12 @@
             reportIssueBtn: '⚠️ సమస్య',
             feedbackGood: '👍 ఇష్టమైనది',
             feedbackImprove: '👎 మెరుగుపర్చండి',
+            feedbackSaving: 'సేవ్ చేస్తున్నాం...',
+            feedbackSuccess: '✅ ధన్యవాదాలు! మీ అభిప్రాయం నమోదు చేయబడింది.',
+            feedbackError: '❌ అభిప్రాయం పంపలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.',
+            networkError: 'నెట్‌వర్క్ లోపం: {error}',
+            selectSchemeError: 'దయచేసి పథకం ఎంచుకోండి.',
+            selectPdfError: 'దయచేసి PDF ఫైల్ ఎంచుకోండి.',
             trustVerified: 'ధృవీకరించిన అధికారి:',
             trustLastUpdated: 'చివరిగా నవీకరించబడింది:',
             trustOfficialSite: '🌐 అధికారిక వెబ్‌సైట్',
@@ -95,7 +110,7 @@
             quizHigh: 'మీరు ఈ పథకానికి అర్హత పొందే అవకాశం చాలా ఉంది.',
             quizMedium: 'మీరు కొన్ని నిబంధనలతో అర్హత పొందవచ్చు.',
             quizLow: 'ఈ పథకానికి అర్హత తక్కువగా ఉండవచ్చు.',
-            quizDisclaimer: 'అధికారిక కార్యాలయంలో లేదా ఆసుపత్రిలో ధృవీకరించుకోండి.',
+            quizDisclaimer: 'అధికారిక ఆసుపత్రి, PHC, ASHA/ANM లేదా గ్రామ సచివాలయం వద్ద చివరి అర్హతను తప్పక ధృవీకరించండి.',
 
             // Document Checklist
             docChecklistTitle: '📋 డాక్యుమెంట్ చెక్‌లిస్ట్',
@@ -113,8 +128,8 @@
             guidedTitle5: '📝 ఎలా దరఖాస్తు చేయాలి?',
             guidedTitle6: '📍 ఎక్కడ సహాయం పొందాలి?',
             guidedPrev: '← వెనుకకు',
-            guidedNext: 'తరువాత →',
-            guidedFinish: 'పూర్తయింది',
+            guidedNext: 'తర్వాత →',
+            guidedFinish: 'ముగించు',
             guidedClose: 'మూసివేయి',
             localHelp: 'స్థానిక సహాయం:',
             nearbyCentres: 'దగ్గరలోని ఆరోగ్య కేంద్రాలు:',
@@ -137,10 +152,10 @@
 
             // Facilities GIS Map
             mapHeader: '📍 దగ్గరలోని ఆరోగ్య కేంద్రాలు',
-            mapExpand: 'విస్తరించు (Expand)',
-            mapCollapse: 'కుదించు (Collapse)',
-            mapLocationBtn: '📍 నా స్థానం (My Location)',
-            mapViewAllBtn: '🗺️ మొత్తం AP (View All AP)',
+            mapExpand: 'విస్తరించు',
+            mapCollapse: 'కుదించు',
+            mapLocationBtn: '📍 నా స్థానం',
+            mapViewAllBtn: '🗺️ మొత్తం AP',
             mapRadiusLabel: 'దూరం: {km} కి.మీ',
             mapTypeAll: 'అన్నీ',
             mapTypePhc: 'PHC',
@@ -155,6 +170,16 @@
             mapVillage: 'గ్రామం:',
             mapContact: 'సంప్రదించండి:',
             mapKm: 'కి.మీ',
+            mapSelectDistrict: '-- జిల్లాను ఎంచుకోండి --',
+            mapSelectMandal: '-- మండలాన్ని ఎంచుకోండి --',
+            mapSelectVillage: '-- గ్రామాన్ని ఎంచుకోండి --',
+            mapLocationFinding: '⏳ వెతుకుతోంది...',
+            mapYourLocationPopup: 'మీ స్థానం',
+            mapErrDenied: '❌ అనుమతి నిరాకరించబడింది',
+            mapErrUnavailable: '❌ స్థానం అందుబాటులో లేదు',
+            mapErrTimeout: '❌ సమయం ముగిసింది',
+            mapErrNotFound: '❌ స్థానం దొరకలేదు',
+            mapFoundCount: 'కనుగొనబడినవి: {count}',
 
             // AI Chat
             chatModalTitle: '💬 SmartGov AI సహాయకుడు',
@@ -173,9 +198,14 @@
 
             // Secretariat / Staff Tools
             staffToolsSummary: 'సచివాలయం / ఆరోగ్య సిబ్బంది సాధనాలు',
-            pdfSimplifyTitle: '📄 పాలసీ పత్రాన్ని సరళీకరించండి (PDF Simplification)',
+            selectSchemeFromList: 'జాబితా నుండి పథకం',
+            selectDropdownPlaceholder: '-- ఎంచుకోండి --',
+            showDetailsBtn: 'వివరాలు చూపించు',
+            pdfDocumentLabel: 'PDF పత్రం',
+            pdfSimplifyTitle: '📄 పాలసీ పత్రాన్ని సరళీకరించండి',
             pdfConsent: 'నేను వ్యక్తిగత డేటాను అప్‌లోడ్ చేయడం లేదని ధృవీకరిస్తున్నాను (I consent to document processing without PII)',
             pdfSimplifyBtn: 'PDF ను సరళీకరించు',
+            offlineModeNotice: '📡 ఆఫ్‌లైన్ మోడ్ - కాష్‌ చేసిన సమాచారం చూపిస్తున్నాం',
             staffReportTitle: 'సమస్య నివేదించండి',
             staffVillage: 'గ్రామం',
             staffDetails: 'వివరాలు',
@@ -187,7 +217,7 @@
             feedbackComment: 'వ్యాఖ్యలు:',
             feedbackSubmit: 'పంపండి',
             feedbackCancel: 'రద్దు',
-            shareSuccess: 'ఫలితం కాపీ చేయబడింది!',
+            shareSuccess: '✅ ఫలితం కాపీ చేయబడింది!',
             qrCardTitle: 'పథకం కరపత్రం (QR Card)',
             qrPrintBtn: '🖨️ ముద్రించండి',
             qrCloseBtn: 'మూసివేయి'
@@ -215,10 +245,19 @@
 
             // Search & Filters
             searchPlaceholder: 'Search scheme name or health condition...',
-            voiceBtnAria: 'Speak scheme name',
+            voiceBtnAria: 'Search by voice',
+            voiceBtnTitle: 'Search by voice',
             clearSearchAria: 'Clear search',
             voiceStatusDefault: 'Search schemes or tap microphone',
             voiceListening: 'Listening... please speak',
+            voiceNotSupported: 'Voice search is not supported on this browser.',
+            voiceStartError: 'Could not start microphone. Please try again.',
+            voiceErrNotAllowed: 'Microphone permission was denied. Please allow microphone access in browser settings.',
+            voiceErrNoSpeech: 'No speech was detected. Please try speaking again.',
+            voiceErrAudioCapture: 'No microphone found or audio capture failed.',
+            voiceErrNetwork: 'Network error during voice recognition.',
+            voiceErrAborted: 'Voice input was cancelled.',
+            voiceErrGeneric: 'Microphone error: {error}',
             filterAll: 'All Schemes',
             filterAp: 'Andhra Pradesh',
             filterNational: 'National',
@@ -238,7 +277,7 @@
             emptyResultsMsg: 'Try searching with different keywords.',
             levelAp: 'Andhra Pradesh',
             levelNational: 'National',
-            favoriteBtnTitle: 'Favorite',
+            favoriteBtnTitle: 'Toggle favorite',
 
             // Scheme Detail Panel
             loadingDetails: 'Loading scheme details...',
@@ -262,6 +301,12 @@
             reportIssueBtn: '⚠️ Report Issue',
             feedbackGood: '👍 Helpful',
             feedbackImprove: '👎 Needs Improvement',
+            feedbackSaving: 'Saving...',
+            feedbackSuccess: '✅ Thank you! Your feedback has been recorded.',
+            feedbackError: '❌ Could not submit feedback. Please try again.',
+            networkError: 'Network error: {error}',
+            selectSchemeError: 'Please select a scheme.',
+            selectPdfError: 'Please select a PDF file.',
             trustVerified: 'Verifying Authority:',
             trustLastUpdated: 'Last Updated:',
             trustOfficialSite: '🌐 Official Website',
@@ -277,7 +322,7 @@
             quizHigh: 'You are highly likely to be eligible for this scheme.',
             quizMedium: 'You may be eligible subject to specific conditions.',
             quizLow: 'Eligibility criteria may not be fully met.',
-            quizDisclaimer: 'Please verify with the official government office or hospital.',
+            quizDisclaimer: 'Please verify final eligibility at an official hospital, PHC, ASHA/ANM or Village Secretariat.',
 
             // Document Checklist
             docChecklistTitle: '📋 Document Checklist',
@@ -337,6 +382,16 @@
             mapVillage: 'Village:',
             mapContact: 'Contact:',
             mapKm: 'km',
+            mapSelectDistrict: '-- Select District --',
+            mapSelectMandal: '-- Select Mandal --',
+            mapSelectVillage: '-- Select Village --',
+            mapLocationFinding: '⏳ Locating...',
+            mapYourLocationPopup: 'Your Location',
+            mapErrDenied: '❌ Location permission denied',
+            mapErrUnavailable: '❌ Location unavailable',
+            mapErrTimeout: '❌ Location request timed out',
+            mapErrNotFound: '❌ Location not found',
+            mapFoundCount: 'Found: {count}',
 
             // AI Chat
             chatModalTitle: '💬 SmartGov AI Assistant',
@@ -355,9 +410,14 @@
 
             // Secretariat / Staff Tools
             staffToolsSummary: 'Village Secretariat / Health Staff Tools',
-            pdfSimplifyTitle: '📄 Simplify Policy Document (PDF Simplification)',
+            selectSchemeFromList: 'Select Scheme From List',
+            selectDropdownPlaceholder: '-- Select Scheme --',
+            showDetailsBtn: 'Show Details',
+            pdfDocumentLabel: 'PDF Document',
+            pdfSimplifyTitle: '📄 Simplify Policy Document',
             pdfConsent: 'I confirm this document contains no personal data / PII and consent to processing',
             pdfSimplifyBtn: 'Simplify PDF Document',
+            offlineModeNotice: '📡 Offline Mode - Showing cached data',
             staffReportTitle: 'Report Scheme Discrepancy',
             staffVillage: 'Village / Mandal',
             staffDetails: 'Details',
@@ -369,7 +429,7 @@
             feedbackComment: 'Comments:',
             feedbackSubmit: 'Submit Feedback',
             feedbackCancel: 'Cancel',
-            shareSuccess: 'Result link copied!',
+            shareSuccess: '✅ Result copied to clipboard!',
             qrCardTitle: 'Scheme Flyer (QR Card)',
             qrPrintBtn: '🖨️ Print Flyer',
             qrCloseBtn: 'Close'
@@ -379,29 +439,57 @@
     // Category translations mapping
     const CATEGORIES = {
         'Hospital treatment': { te: 'ఆసుపత్రి చికిత్స', en: 'Hospital Treatment' },
+        'Hospital Treatment': { te: 'ఆసుపత్రి చికిత్స', en: 'Hospital Treatment' },
+        'Hospital Care': { te: 'ఆసుపత్రి చికిత్స', en: 'Hospital Care' },
         'Maternal & Child': { te: 'తల్లీ బిడ్డల సంరక్షణ', en: 'Maternal & Child Care' },
+        'Maternal Health': { te: 'తల్లీ బిడ్డల ఆరోగ్యం', en: 'Maternal Health' },
+        'Maternal Cash Support': { te: 'గర్భిణులకు నగదు ప్రోత్సాహం', en: 'Maternal Cash Support' },
         'Emergency Medical': { te: 'అత్యవసర వైద్య సేవలు', en: 'Emergency Medical Services' },
         'National Health': { te: 'జాతీయ ఆరోగ్య పథకం', en: 'National Health Scheme' },
         'De-addiction Services': { te: 'వ్యసన విముక్తి సేవలు', en: 'De-addiction Services' },
         'Leprosy Services': { te: 'కుష్టు నివారణ సేవలు', en: 'Leprosy Eradication Services' },
+        'Leprosy Eradication Services': { te: 'కుష్టు నివారణ సేవలు', en: 'Leprosy Eradication Services' },
         'Malaria & Dengue Services': { te: 'మలేరియా & డెంగ్యూ నివారణ', en: 'Vector Borne Disease Services' },
+        'Vector Borne Disease Services': { te: 'మలేరియా & డెంగ్యూ నివారణ', en: 'Vector Borne Disease Services' },
         'Eye Care Services': { te: 'నేత్ర చికిత్స సేవలు', en: 'Eye Care Services' },
+        'Hearing Care Services': { te: 'వినికిడి సంరక్షణ సేవలు', en: 'Hearing Care Services' },
         'Dental Health': { te: 'దంత ఆరోగ్యం', en: 'Dental Healthcare' },
         'Nutrition Services': { te: 'పోషకాహార సేవలు', en: 'Nutrition Services' },
+        'Nutritional Services': { te: 'పోషకాహార సేవలు', en: 'Nutritional Services' },
         'Cancer Care': { te: 'క్యాన్సర్ చికిత్స సేవలు', en: 'Cancer Care' },
         'Mental Health': { te: 'మానసిక ఆరోగ్య సేవలు', en: 'Mental Healthcare' },
+        'Mental Health Services': { te: 'మానసిక ఆరోగ్య సేవలు', en: 'Mental Health Services' },
         'Elderly Care': { te: 'వృద్ధుల సంరక్షణ', en: 'Elderly Care' },
+        'Elderly Care Services': { te: 'వృద్ధుల సంరక్షణ', en: 'Elderly Care Services' },
         'Palliative Care': { te: 'ఉపశమన సంరక్షణ', en: 'Palliative Care' },
         'Adolescent Health': { te: 'కౌమార ఆరోగ్య సేవలు', en: 'Adolescent Health' },
         'TB Services': { te: 'క్షయ వ్యాధి నివారణ', en: 'TB Elimination Services' },
+        'TB Elimination Services': { te: 'క్షయ వ్యాధి నివారణ', en: 'TB Elimination Services' },
+        'TB support': { te: 'క్షయ పోషణ సహాయం', en: 'TB Nutrition Support' },
+        'HIV & AIDS Services': { te: 'హెచ్‌ఐవి & ఎయిడ్స్ సేవలు', en: 'HIV & AIDS Services' },
+        'Kidney dialysis': { te: 'డయాలసిస్ & కిడ్నీ సంరక్షణ', en: 'Kidney Dialysis Services' },
         'Disability Welfare': { te: 'దివ్యాంగుల సంక్షేమం', en: 'Disability Welfare' },
         'Ayurveda & AYUSH': { te: 'ఆయుష్ & ఆయుర్వేదం', en: 'AYUSH & Traditional Medicine' },
         'Occupational Health': { te: 'వృత్తిపరమైన ఆరోగ్యం', en: 'Occupational Health' },
         'Rabies Control': { te: 'రేబీస్ నివారణ', en: 'Rabies Control' },
+        'Rabies Prevention': { te: 'రేబీస్ నివారణ', en: 'Rabies Prevention' },
         'Dialysis & Kidney Care': { te: 'డయాలసిస్ & కిడ్నీ సంరక్షణ', en: 'Dialysis & Renal Care' },
+        'Blood Bank Services': { te: 'రక్తనిధి సేవలు', en: 'Blood Bank Services' },
         'Blood Transfusion': { te: 'రక్తనిధి సేవలు', en: 'Blood Bank Services' },
         'Tele-Medicine': { te: 'టెలి-మెడిసిన్ సేవలు', en: 'Telemedicine Services' },
-        'Vaccination / Immunization': { te: 'టీకాల కార్యక్రమం', en: 'Vaccination & Immunization' }
+        'Digital Health Services': { te: 'డిజిటల్ ఆరోగ్య సేవలు', en: 'Digital Health Services' },
+        'Doctor by phone': { te: 'ఫోన్ ద్వారా డాక్టర్ సలహా', en: 'Doctor by Phone' },
+        'PHC and village care': { te: 'గ్రామ ప్రాథమిక ఆరోగ్య సేవలు', en: 'Primary Healthcare & Village Clinics' },
+        'Village health service': { te: 'గ్రామ ఆరోగ్య సేవలు', en: 'Village Health Service' },
+        'Primary Care Clinics': { te: 'పట్టణ & ప్రాథమిక ఆరోగ్య కేంద్రాలు', en: 'Primary Care Clinics' },
+        'Affordable Medicines': { te: 'తక్కువ ధరల మందులు (జన ఔషధి)', en: 'Affordable Generic Medicines' },
+        'Pregnancy and newborn': { te: 'గర్భిణి & నవజాత శిశు సంరక్షణ', en: 'Pregnancy & Newborn Care' },
+        'Pregnancy cash support': { te: 'గర్భిణులకు నగదు ప్రోత్సాహం', en: 'Maternity Cash Assistance' },
+        'Child health': { te: 'పిల్లల ఆరోగ్య సేవలు', en: 'Child Health & Screening' },
+        'Vaccination': { te: 'టీకాల కార్యక్రమం', en: 'Vaccination & Immunization' },
+        'Vaccination / Immunization': { te: 'టీకాల కార్యక్రమం', en: 'Vaccination & Immunization' },
+        'Emergency ambulance': { te: 'అత్యవసర అంబులెన్స్ సేవ', en: 'Emergency Ambulance Service' },
+        'Organ Donation Services': { te: 'అవయవ దాన సేవలు', en: 'Organ Donation Services' }
     };
 
     let currentLang = DEFAULT_LANG;
@@ -426,10 +514,11 @@
         return currentLang;
     }
 
-    // Translate string key with optional param replacement {param}
-    function t(key, params) {
-        const langDict = TRANSLATIONS[currentLang] || TRANSLATIONS[DEFAULT_LANG];
-        let text = langDict[key] || TRANSLATIONS[DEFAULT_LANG][key] || key;
+    // Translate string key with optional param replacement {param} and optional lang override
+    function t(key, params, lang) {
+        const l = lang || currentLang;
+        const langDict = TRANSLATIONS[l] || TRANSLATIONS[DEFAULT_LANG];
+        let text = langDict[key] || (TRANSLATIONS[DEFAULT_LANG] ? TRANSLATIONS[DEFAULT_LANG][key] : '') || key;
         if (params && typeof params === 'object') {
             Object.keys(params).forEach(function (param) {
                 text = text.replace(new RegExp('\\{' + param + '\\}', 'g'), params[param]);
@@ -438,21 +527,94 @@
         return text;
     }
 
-    // Translate category
-    function translateCategory(cat) {
+    // Translate category with optional lang override
+    function translateCategory(cat, lang) {
         if (!cat) return '';
+        const l = lang || currentLang;
         if (CATEGORIES[cat]) {
-            return CATEGORIES[cat][currentLang] || cat;
+            return CATEGORIES[cat][l] || cat;
+        }
+        for (const k in CATEGORIES) {
+            if (CATEGORIES[k].en === cat || CATEGORIES[k].te === cat) {
+                return CATEGORIES[k][l] || cat;
+            }
         }
         return cat;
     }
 
-    // Translate level badge
-    function translateLevel(level) {
+    // Translate level badge with optional lang override
+    function translateLevel(level, lang) {
+        const l = lang || currentLang;
         if (level === 'Andhra Pradesh') {
-            return currentLang === 'te' ? 'ఆంధ్రప్రదేశ్' : 'Andhra Pradesh';
+            return l === 'te' ? 'ఆంధ్రప్రదేశ్' : 'AP';
         }
-        return currentLang === 'te' ? 'జాతీయ' : 'National';
+        return l === 'te' ? 'జాతీయ' : 'National';
+    }
+
+    // Central Scheme Name Resolver
+    function getLocalizedSchemeName(schemeOrName, lang) {
+        if (!schemeOrName) return '';
+        const l = lang || currentLang;
+        let scheme = schemeOrName;
+        if (typeof schemeOrName === 'string' && window.schemesCatalog) {
+            scheme = window.schemesCatalog[schemeOrName] || { name: schemeOrName };
+        }
+        if (l === 'en') {
+            return scheme.name || scheme.scheme_name || (typeof schemeOrName === 'string' ? schemeOrName : '');
+        }
+        return scheme.telugu_name || scheme.name || scheme.scheme_name || (typeof schemeOrName === 'string' ? schemeOrName : '');
+    }
+
+    // Central Scheme Subtitle Resolver
+    function getLocalizedSchemeSubtitle(schemeOrName, lang) {
+        if (!schemeOrName) return '';
+        const l = lang || currentLang;
+        let scheme = schemeOrName;
+        if (typeof schemeOrName === 'string' && window.schemesCatalog) {
+            scheme = window.schemesCatalog[schemeOrName] || { name: schemeOrName };
+        }
+        if (l === 'en') {
+            // In English mode, show localized category (NO TELUGU)
+            return scheme.category ? translateCategory(scheme.category, 'en') : '';
+        }
+        // In Telugu mode, show English name as secondary reference
+        return scheme.name || scheme.scheme_name || (typeof schemeOrName === 'string' ? schemeOrName : '');
+    }
+
+    // Central Scheme Description Resolver
+    function getLocalizedSchemeDescription(schemeOrName, lang) {
+        if (!schemeOrName) return '';
+        const l = lang || currentLang;
+        let scheme = schemeOrName;
+        if (typeof schemeOrName === 'string' && window.schemesCatalog) {
+            scheme = window.schemesCatalog[schemeOrName] || {};
+        }
+        if (l === 'en') {
+            return scheme.english_description || scheme.simplified?.description || scheme.simplified?.benefits || '';
+        }
+        return scheme.telugu_description || scheme.telugu?.description || scheme.telugu?.benefits || '';
+    }
+
+    // Microphone error localization
+    function getLocalizedMicError(errorType, lang) {
+        const l = lang || currentLang;
+        const err = (errorType || '').toLowerCase();
+        if (err.includes('not-allowed') || err.includes('permission') || err.includes('denied')) {
+            return t('voiceErrNotAllowed', null, l);
+        }
+        if (err.includes('no-speech')) {
+            return t('voiceErrNoSpeech', null, l);
+        }
+        if (err.includes('audio-capture')) {
+            return t('voiceErrAudioCapture', null, l);
+        }
+        if (err.includes('network')) {
+            return t('voiceErrNetwork', null, l);
+        }
+        if (err.includes('aborted')) {
+            return t('voiceErrAborted', null, l);
+        }
+        return t('voiceErrGeneric', { error: errorType || 'unknown' }, l);
     }
 
     // Set active language and apply across DOM
@@ -530,6 +692,10 @@
         t: t,
         translateCategory: translateCategory,
         translateLevel: translateLevel,
+        getLocalizedSchemeName: getLocalizedSchemeName,
+        getLocalizedSchemeSubtitle: getLocalizedSchemeSubtitle,
+        getLocalizedSchemeDescription: getLocalizedSchemeDescription,
+        getLocalizedMicError: getLocalizedMicError,
         applyStaticTranslations: applyStaticTranslations,
         TRANSLATIONS: TRANSLATIONS,
         CATEGORIES: CATEGORIES
@@ -539,5 +705,9 @@
     window.t = t;
     window.getLang = getLang;
     window.setLang = setLang;
+    window.getLocalizedSchemeName = getLocalizedSchemeName;
+    window.getLocalizedSchemeSubtitle = getLocalizedSchemeSubtitle;
+    window.getLocalizedSchemeDescription = getLocalizedSchemeDescription;
+    window.getLocalizedMicError = getLocalizedMicError;
 
 })();

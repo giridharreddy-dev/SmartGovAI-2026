@@ -174,7 +174,7 @@
                 <summary data-i18n="staffToolsSummary">సచివాలయం / ఆరోగ్య సిబ్బంది సాధనాలు</summary>
                 <div class="staff-body">
                     <div class="field">
-                        <label for="schemeSelect">జాబితా నుండి పథకం</label>
+                        <label for="schemeSelect" data-i18n="selectSchemeFromList">జాబితా నుండి పథకం</label>
                         <select id="schemeSelect">
                             <option value="">-- ఎంచుకోండి --</option>
                             {% for scheme in schemes.keys()|sort %}
@@ -182,9 +182,9 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <button id="dropdownBtn" class="primary-btn" type="button">వివరాలు చూపించు</button>
+                    <button id="dropdownBtn" class="primary-btn" type="button" data-i18n="showDetailsBtn">వివరాలు చూపించు</button>
                     <div class="field">
-                        <label for="pdfUpload">PDF పత్రం</label>
+                        <label for="pdfUpload" data-i18n="pdfDocumentLabel">PDF పత్రం</label>
                         <input type="file" id="pdfUpload" accept="application/pdf">
                     </div>
                     <button id="uploadBtn" class="secondary-btn" type="button" data-i18n="pdfSimplifyBtn">PDF ను సరళీకరించు</button>
@@ -435,13 +435,13 @@
         }
 
         grid.innerHTML = matches.map(name => {
-            const data = schemesCatalog[name];
+            const data = schemesCatalog[name] || {};
             const levelClass = data.level === 'Andhra Pradesh' ? 'ap' : '';
             const levelLabel = window.SmartGovI18n ? window.SmartGovI18n.translateLevel(data.level) : (data.level === 'Andhra Pradesh' ? 'AP' : 'National');
             const categoryLabel = window.SmartGovI18n ? window.SmartGovI18n.translateCategory(data.category) : (data.category || '');
             const isFavorite = window.SmartGovUX ? window.SmartGovUX.isFavorite(name) : false;
             const primaryTitle = isEn ? name : (data.telugu_name || name);
-            const secondaryTitle = isEn ? (data.telugu_name || '') : name;
+            const secondaryTitle = isEn ? categoryLabel : name;
             const favTitle = window.t ? window.t('favoriteBtnTitle') : 'Favorite';
 
             return `
@@ -499,10 +499,10 @@
         const currentLang = window.getLang ? window.getLang() : 'te';
         const isEn = currentLang === 'en';
 
-        const mainTitle = isEn ? (data.scheme_name || '') : (scheme.telugu_name || data.scheme_name || '');
-        const subTitle = isEn ? (scheme.telugu_name || '') : (data.scheme_name || '');
         const levelLabel = window.SmartGovI18n ? window.SmartGovI18n.translateLevel(data.level) : (data.level || '');
         const categoryLabel = window.SmartGovI18n ? window.SmartGovI18n.translateCategory(data.category) : (data.category || '');
+        const mainTitle = isEn ? (data.scheme_name || '') : (scheme.telugu_name || data.scheme_name || '');
+        const subTitle = isEn ? (categoryLabel || '') : (data.scheme_name || '');
 
         const audioTitle = window.t ? window.t('audioTitle') : '🎙️ ఆడియో గైడ్';
         const speakSlow = window.t ? window.t('speakSlowBtn') : '🔊 మెల్లగా చదవండి';
@@ -634,14 +634,14 @@
                 });
                 return;
             }
-            showError(`నెట్ వర్క్ లోపం: ${error.message}`);
+            showError(window.t ? window.t('networkError', { error: error.message }) : `నెట్ వర్క్ లోపం: ${error.message}`);
         }
     }
 
     async function sendFeedback(rating) {
         if (!currentRequestId) return;
         const status = document.getElementById('feedbackStatus');
-        status.textContent = 'సేవ్ చేస్తున్నాం...';
+        status.textContent = window.t ? window.t('feedbackSaving') : 'సేవ్ చేస్తున్నాం...';
         try {
             const response = await fetch("{{ url_for('feedback') }}", {
                 method: 'POST',
@@ -652,10 +652,28 @@
                 body: JSON.stringify({ request_id: currentRequestId, rating: Number(rating) })
             });
             const data = await response.json();
-            status.textContent = data.status === 'success' ? 'ధన్యవాదాలు. మీ స్పందన సేవ్ అయింది.' : `లోపం: ${data.error}`;
+            status.textContent = data.status === 'success' ? (window.t ? window.t('feedbackSuccess') : 'ధన్యవాదాలు. మీ స్పందన సేవ్ అయింది.') : (window.t ? window.t('feedbackError') : `లోపం: ${data.error}`);
         } catch (error) {
-            status.textContent = `లోపం: ${error.message}`;
+            status.textContent = window.t ? window.t('networkError', { error: error.message }) : `లోపం: ${error.message}`;
         }
+    }
+
+    function populateSchemeDropdown(lang) {
+        const select = document.getElementById('schemeSelect');
+        if (!select) return;
+        const currentVal = select.value;
+        const l = lang || (window.getLang ? window.getLang() : 'te');
+        const isEn = l === 'en';
+        const placeholder = window.t ? window.t('selectDropdownPlaceholder') : (isEn ? '-- Select Scheme --' : '-- ఎంచుకోండి --');
+
+        let html = `<option value="">${window.escapeHtml(placeholder)}</option>`;
+        schemeNames.slice().sort().forEach(scheme => {
+            const data = schemesCatalog[scheme] || {};
+            const label = isEn ? scheme : `${data.telugu_name || scheme} | ${scheme}`;
+            const selected = scheme === currentVal ? 'selected' : '';
+            html += `<option value="${window.escapeHtml(scheme)}" ${selected}>${window.escapeHtml(label)}</option>`;
+        });
+        select.innerHTML = html;
     }
 
     function bestVoiceMatch(spokenText) {
@@ -703,10 +721,19 @@
     function setupVoice() {
         const voiceBtn = document.getElementById('voiceBtn');
         const status = document.getElementById('voiceStatus');
+        if (!voiceBtn || !status) return;
+
+        function updateVoiceTooltips() {
+            const titleText = window.t ? window.t('voiceBtnTitle') : 'వాయిస్ ద్వారా వెతకండి';
+            const ariaText = window.t ? window.t('voiceBtnAria') : 'వాయిస్ ద్వారా వెతకండి';
+            voiceBtn.setAttribute('title', titleText);
+            voiceBtn.setAttribute('aria-label', ariaText);
+        }
+        updateVoiceTooltips();
 
         if (!recognition) {
             voiceBtn.addEventListener('click', () => {
-                status.textContent = window.getLang && window.getLang() === 'en' ? 'Voice recognition not supported.' : 'ఈ బ్రౌజర్ మైక్ గుర్తింపుకు మద్దతు ఇవ్వదు.';
+                status.textContent = window.t ? window.t('voiceNotSupported') : (window.getLang && window.getLang() === 'en' ? 'Voice recognition not supported.' : 'ఈ బ్రౌజర్ మైక్ గుర్తింపుకు మద్దతు ఇవ్వదు.');
             });
             return;
         }
@@ -721,7 +748,7 @@
                 recognition.start();
             } catch (_error) {
                 voiceBtn.disabled = false;
-                status.textContent = 'మైక్ ప్రారంభం కాలేదు. మళ్లీ ప్రయత్నించండి.';
+                status.textContent = window.t ? window.t('voiceStartError') : 'మైక్ ప్రారంభం కాలేదు. మళ్లీ ప్రయత్నించండి.';
             }
         });
 
@@ -737,7 +764,9 @@
         };
 
         recognition.onerror = event => {
-            status.textContent = `మైక్ లోపం: ${event.error || 'unknown'}`;
+            const errCode = event.error || 'unknown';
+            const localizedMsg = window.SmartGovI18n ? window.SmartGovI18n.getLocalizedMicError(errCode) : (window.getLang && window.getLang() === 'en' ? `Microphone error: ${errCode}` : `మైక్ లోపం: ${errCode}`);
+            status.textContent = localizedMsg;
         };
 
         recognition.onend = () => {
@@ -748,7 +777,7 @@
     async function handleDropdown() {
         const schemeName = document.getElementById('schemeSelect').value;
         if (!schemeName) {
-            showError('దయచేసి పథకం ఎంచుకోండి.');
+            showError(window.t ? window.t('selectSchemeError') : 'దయచేసి పథకం ఎంచుకోండి.');
             return;
         }
         await fetchScheme(schemeName);
@@ -757,17 +786,17 @@
     async function handleUpload() {
         const file = document.getElementById('pdfUpload').files[0];
         if (!file) {
-            showError('దయచేసి PDF ఫైల్ ఎంచుకోండి.');
+            showError(window.t ? window.t('selectPdfError') : 'దయచేసి PDF ఫైల్ ఎంచుకోండి.');
             return;
         }
 
         const consentCheckbox = document.getElementById('pdfConsent');
         if (!consentCheckbox || !consentCheckbox.checked) {
-            showError('దయచేసి PDF అప్‌లోడ్ చేయడానికి ముందు గోప్యతా అంగీకారం చెక్‌బాక్స్ ను టిక్ చేయండి.');
+            showError(window.t ? window.t('pdfConsent') : 'దయచేసి PDF అప్‌లోడ్ చేయడానికి ముందు గోప్యతా అంగీకారం చెక్‌బాక్స్ ను టిక్ చేయండి.');
             return;
         }
 
-        showLoading('PDF సరళీకరిస్తున్నాం...');
+        showLoading(window.t ? window.t('loadingPdf') : 'PDF సరళీకరిస్తున్నాం...');
         const formData = new FormData();
         formData.append('document', file);
         formData.append('consent', 'true');
@@ -782,7 +811,7 @@
             const data = await response.json();
             displayResult(data);
         } catch (error) {
-            showError(`PDF లోపం: ${error.message}`);
+            showError(window.t ? window.t('networkError', { error: error.message }) : `PDF లోపం: ${error.message}`);
         }
     }
 
@@ -840,6 +869,7 @@
     // Global listener for language change events
     window.addEventListener('languagechange', (event) => {
         const lang = event.detail.lang;
+        populateSchemeDropdown(lang);
         renderSchemeCards(true);
         if (currentSchemeData) {
             displayResult(currentSchemeData);
@@ -916,6 +946,7 @@
         }
     }
 
+    populateSchemeDropdown();
     renderSchemeCards();
     setupVoice();
     setupInstallPrompt();
