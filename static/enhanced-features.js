@@ -36,7 +36,7 @@ function getCsrfHeader() {
  */
 function speakPageAloud() {
     if (!window.currentSchemeName) {
-        alert('దయచేసి ముందుగా పథకం ఎంచుకోండి.');
+        alert(window.t ? window.t('selectSchemeError') : 'దయచేసి ముందుగా పథకం ఎంచుకోండి.');
         return;
     }
 
@@ -205,25 +205,30 @@ function saveDocumentCheck(schemeName, docIdx) {
 
 function printDocumentChecklist(schemeName) {
     const checklist = document.querySelector('.document-checklist');
+    const isEn = window.getLang && window.getLang() === 'en';
     if (!checklist) {
-        alert('డాక్యుమెంట్ చెక్‌లిస్ట్ ఉండదు');
+        alert(isEn ? 'Document checklist not available.' : 'డాక్యుమెంట్ చెక్‌లిస్ట్ ఉండదు.');
         return;
     }
 
     const printWindow = window.open('', '', 'width=600,height=800');
     if (!printWindow) {
-        alert('పాప్‌అప్ బ్లాక్ చేయబడింది. దయచేసి పాప్‌అప్‌లను అనుమతించండి.');
+        alert(isEn ? 'Popup blocked. Please allow popups to print.' : 'పాప్‌అప్ బ్లాక్ చేయబడింది. దయచేసి పాప్‌అప్‌లను అనుమతించండి.');
         return;
     }
 
+    const title = isEn ? `${window.escapeHtml(schemeName)} - Document Checklist` : `${window.escapeHtml(schemeName)} - చెక్‌లిస్ట్`;
+    const heading = isEn ? '📋 Required Documents' : '📋 అవసరమైన డాక్యుమెంట్‌లు';
+    const footerText = isEn ? 'For more information: SmartGov Health App' : 'మరిన్ని సమాచారం కోసం: SmartGov Health App';
+
     printWindow.document.write(`
         <!DOCTYPE html>
-        <html lang="te">
+        <html lang="${isEn ? 'en' : 'te'}">
         <head>
             <meta charset="UTF-8">
-            <title>${window.escapeHtml(schemeName)} - చెక్‌లిస్ట్</title>
+            <title>${title}</title>
             <style>
-                body { font-family: "Noto Sans Telugu", Arial; margin: 20px; }
+                body { font-family: ${isEn ? 'Arial, sans-serif' : '"Noto Sans Telugu", Arial'}; margin: 20px; }
                 h1 { color: #176b5b; }
                 h2 { color: #0d4b40; }
                 .checklist-item { margin: 10px 0; }
@@ -231,10 +236,10 @@ function printDocumentChecklist(schemeName) {
         </head>
         <body>
             <h1>${window.escapeHtml(schemeName)}</h1>
-            <h2>📋 అవసరమైన డాక్యుమెంట్‌లు</h2>
+            <h2>${heading}</h2>
             ${checklist.innerHTML}
             <p style="margin-top: 40px; color: #999; font-size: 12px;">
-                మరిన్ని సమాచారం కోసం: SmartGov Health App
+                ${footerText}
             </p>
         </body>
         </html>
@@ -248,28 +253,49 @@ function printDocumentChecklist(schemeName) {
 }
 
 function printSchemeQRCard(schemeName, slug, schemeData) {
+    const isEn = window.getLang && window.getLang() === 'en';
     if (!slug) {
-        alert('QR కోడ్ అందుబాటులో లేదు.');
+        alert(isEn ? 'QR code not available.' : 'QR కోడ్ అందుబాటులో లేదు.');
         return;
     }
 
     const printWindow = window.open('', '', 'width=700,height=900');
     if (!printWindow) {
-        alert('పాప్‌అప్ బ్లాక్ చేయబడింది. దయచేసి పాప్‌అప్‌లను అనుమతించండి.');
+        alert(isEn ? 'Popup blocked. Please allow popups to print.' : 'పాప్‌అప్ బ్లాక్ చేయబడింది. దయచేసి పాప్‌అప్‌లను అనుమతించండి.');
         return;
     }
 
     const qrUrl = `/qr/${slug}.png`;
+    const docLang = isEn ? 'en' : 'te';
+    const pageTitle = isEn ? `${window.escapeHtml(schemeName)} - Scheme Flyer` : `${window.escapeHtml(schemeName)} - QR కార్డు`;
+    const headerTitle = isEn ? 'SMARTGOV HEALTH / GOVERNMENT SCHEME' : 'SMARTGOVAI ఆరోగ్య / ప్రభుత్వ పథకం';
+    const primaryHeading = isEn ? schemeName : (schemeData?.telugu_name || schemeName);
+    const secondaryHeading = isEn ? (schemeData?.category || '') : schemeName;
+
+    const eligTitle = isEn ? '👤 Who is Eligible?' : '👤 ఎవరికి? (Eligibility)';
+    const eligText = isEn ? (schemeData?.simplified?.eligibility || '') : (schemeData?.telugu?.eligibility || '');
+
+    const benTitle = isEn ? '🎁 Key Benefits' : '🎁 ఏం లభిస్తుంది? (Benefits)';
+    const benText = isEn ? (schemeData?.simplified?.benefits || '') : (schemeData?.telugu?.benefits || '');
+
+    const docTitle = isEn ? '📋 Required Documents' : '📋 ఏ పత్రాలు? (Documents)';
+    const docText = isEn ? (schemeData?.simplified?.documents || '') : (schemeData?.telugu?.documents || '');
+
+    const stepTitle = isEn ? '📝 How to Apply' : '📝 ఎలా దరఖాస్తు చేసుకోవాలి? (Steps)';
+    const stepText = isEn ? (schemeData?.simplified?.steps || '') : (schemeData?.telugu?.steps || '');
+
+    const qrInstruction = isEn ? 'Scan this QR code to view<br>complete scheme details' : 'ఈ QR కోడ్ను స్కాన్ చేసి<br>పథకం పూర్తి వివరాలను చూడండి';
+    const footerDate = new Date().toLocaleDateString(isEn ? 'en-IN' : 'te-IN');
 
     printWindow.document.write(`
         <!DOCTYPE html>
-        <html lang="te">
+        <html lang="${docLang}">
         <head>
             <meta charset="UTF-8">
-            <title>${window.escapeHtml(schemeName)} - QR కార్డు</title>
+            <title>${pageTitle}</title>
             <style>
                 @media print {
-                    body { font-family: "Noto Sans Telugu", Arial, sans-serif; margin: 0; padding: 20px; }
+                    body { font-family: ${isEn ? 'Arial, sans-serif' : '"Noto Sans Telugu", Arial, sans-serif'}; margin: 0; padding: 20px; }
                     .card-container {
                         border: 2px solid #176b5b;
                         border-radius: 12px;
@@ -290,8 +316,7 @@ function printSchemeQRCard(schemeName, slug, schemeData) {
                     .footer { text-align: center; margin-top: 20px; color: #777; font-size: 12px; }
                     button, .no-print { display: none !important; }
                 }
-                /* Screen styles so it looks okay before print */
-                body { font-family: "Noto Sans Telugu", Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+                body { font-family: ${isEn ? 'Arial, sans-serif' : '"Noto Sans Telugu", Arial, sans-serif'}; background: #f9f9f9; padding: 20px; }
                 .card-container { background: #fff; border: 2px solid #176b5b; border-radius: 12px; padding: 30px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
                 .header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
                 .header h1 { color: #176b5b; margin: 0; font-size: 24px; }
@@ -308,38 +333,38 @@ function printSchemeQRCard(schemeName, slug, schemeData) {
         <body>
             <div class="card-container">
                 <div class="header">
-                    <h2>SMARTGOVAI ఆరోగ్య / ప్రభుత్వ పథకం</h2>
-                    <h1>${window.escapeHtml(schemeData.telugu_name || schemeName)}</h1>
-                    <h2>${window.escapeHtml(schemeName)}</h2>
+                    <h2>${headerTitle}</h2>
+                    <h1>${window.escapeHtml(primaryHeading)}</h1>
+                    ${secondaryHeading ? `<h2>${window.escapeHtml(secondaryHeading)}</h2>` : ''}
                 </div>
 
                 <div class="section">
-                    <h3>👤 ఎవరికి? (Eligibility)</h3>
-                    <p>${window.escapeHtml(schemeData.telugu.eligibility)}</p>
+                    <h3>${eligTitle}</h3>
+                    <p>${window.escapeHtml(eligText)}</p>
                 </div>
 
                 <div class="section">
-                    <h3>🎁 ఏం లభిస్తుంది? (Benefits)</h3>
-                    <p>${window.escapeHtml(schemeData.telugu.benefits)}</p>
+                    <h3>${benTitle}</h3>
+                    <p>${window.escapeHtml(benText)}</p>
                 </div>
 
                 <div class="section">
-                    <h3>📋 ఏ పత్రాలు? (Documents)</h3>
-                    <p>${window.escapeHtml(schemeData.telugu.documents)}</p>
+                    <h3>${docTitle}</h3>
+                    <p>${window.escapeHtml(docText)}</p>
                 </div>
 
                 <div class="section">
-                    <h3>📝 ఎలా దరఖాస్తు చేసుకోవాలి? (Steps)</h3>
-                    <p>${window.escapeHtml(schemeData.telugu.steps)}</p>
+                    <h3>${stepTitle}</h3>
+                    <p>${window.escapeHtml(stepText)}</p>
                 </div>
 
                 <div class="qr-section">
                     <img src="${qrUrl}" alt="Scheme QR Code">
-                    <p>ఈ QR కోడ్ను స్కాన్ చేసి<br>పథకం పూర్తి వివరాలను చూడండి</p>
+                    <p>${qrInstruction}</p>
                 </div>
 
                 <div class="footer">
-                    SmartGovAI - ${new Date().toLocaleDateString('te-IN')}
+                    SmartGovAI - ${footerDate}
                 </div>
             </div>
         </body>
@@ -464,8 +489,9 @@ function generateShareText(schemeName) {
  * Share on WhatsApp with CSRF header protection
  */
 async function shareOnWhatsApp(schemeName) {
+    const isEn = window.getLang && window.getLang() === 'en';
     if (!navigator.onLine && !window.offlineMode) {
-        alert('నెట్‌వర్క్ కనెక్షన్ లేదు. WhatsApp శేయర్ ఇంటర్నెట్ అవసరం.');
+        alert(isEn ? 'No network connection. Internet is required for WhatsApp sharing.' : 'నెట్‌వర్క్ కనెక్షన్ లేదు. WhatsApp షేర్ కొరకు ఇంటర్నెట్ అవసరం.');
         return;
     }
 
@@ -486,7 +512,7 @@ async function shareOnWhatsApp(schemeName) {
         window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
     } catch (error) {
         console.error('WhatsApp share error:', error);
-        alert(`లోపం: ${error.message}`);
+        alert(isEn ? `Error: ${error.message}` : `లోపం: ${error.message}`);
     }
 }
 
@@ -494,13 +520,14 @@ async function shareOnWhatsApp(schemeName) {
  * Share on SMS using sms: protocol
  */
 async function shareOnSMS(schemeName) {
+    const isEn = window.getLang && window.getLang() === 'en';
     try {
         const text = generateShareText(schemeName);
         const encodedMessage = encodeURIComponent(text);
         window.location.href = `sms:?body=${encodedMessage}`;
     } catch (error) {
         console.error('SMS share error:', error);
-        alert(`లోపం: ${error.message}`);
+        alert(isEn ? `Error: ${error.message}` : `లోపం: ${error.message}`);
     }
 }
 
@@ -509,7 +536,7 @@ async function shareOnSMS(schemeName) {
  */
 async function reportIssue(schemeName) {
     if (!schemeName && typeof window.currentSchemeName === 'undefined') {
-        alert('దయచేసి పథకం ఎంచుకోండి.');
+        alert(window.t ? window.t('selectSchemeError') : 'దయచేసి పథకం ఎంచుకోండి.');
         return;
     }
     openFeedbackModal(document.activeElement);
@@ -1329,7 +1356,7 @@ const SmartGovUX = (function() {
         if (step === 1) {
             let desc = isEn ? 'Details not available.' : 'వివరాలు అందుబాటులో లేవు.';
             if (isEn) {
-                desc = scheme.english_description || scheme.simplified?.description || scheme.simplified?.benefits || scheme.original_complex_text || 'Details not available.';
+                desc = scheme.english_description || scheme.simplified?.description || scheme.simplified?.benefits || 'Details not available.';
             } else {
                 desc = scheme.telugu_description || scheme.telugu?.description || scheme.telugu?.benefits || 'వివరాలు అందుబాటులో లేవు.';
             }
@@ -1346,7 +1373,6 @@ const SmartGovUX = (function() {
             let elig = isEn ? 'Eligibility details not available.' : 'అర్హత వివరాలు అందుబాటులో లేవు.';
             if (isEn) {
                 if (scheme.simplified && scheme.simplified.eligibility) elig = scheme.simplified.eligibility;
-                else if (scheme.telugu && scheme.telugu.eligibility) elig = scheme.telugu.eligibility;
             } else {
                 if (scheme.telugu && scheme.telugu.eligibility) elig = scheme.telugu.eligibility;
                 else if (scheme.simplified && scheme.simplified.eligibility) elig = scheme.simplified.eligibility;
@@ -1364,7 +1390,6 @@ const SmartGovUX = (function() {
             let ben = isEn ? 'Benefits details not available.' : 'ప్రయోజనాల వివరాలు ప్రస్తుతం అందుబాటులో లేవు.';
             if (isEn) {
                 if (scheme.simplified && scheme.simplified.benefits) ben = scheme.simplified.benefits;
-                else if (scheme.telugu && scheme.telugu.benefits) ben = scheme.telugu.benefits;
             } else {
                 if (scheme.telugu && scheme.telugu.benefits) ben = scheme.telugu.benefits;
                 else if (scheme.simplified && scheme.simplified.benefits) ben = scheme.simplified.benefits;
@@ -1387,7 +1412,7 @@ const SmartGovUX = (function() {
                 }).join('') + `</ul>`;
             } else if (isEn && scheme.simplified && scheme.simplified.documents) {
                 docsHtml = `<p>${window.escapeHtml(scheme.simplified.documents)}</p>`;
-            } else if (scheme.telugu && scheme.telugu.documents) {
+            } else if (!isEn && scheme.telugu && scheme.telugu.documents) {
                 docsHtml = `<p>${window.escapeHtml(scheme.telugu.documents)}</p>`;
             }
 
@@ -1403,7 +1428,6 @@ const SmartGovUX = (function() {
             let stepsStr = isEn ? 'Application process not available. Please contact official authorities.' : 'దరఖాస్తు విధానం అందుబాటులో లేదు. అధికారులను సంప్రదించండి.';
             if (isEn) {
                 if (scheme.simplified && scheme.simplified.steps) stepsStr = scheme.simplified.steps;
-                else if (scheme.telugu && scheme.telugu.steps) stepsStr = scheme.telugu.steps;
             } else {
                 if (scheme.telugu && scheme.telugu.steps) stepsStr = scheme.telugu.steps;
                 else if (scheme.simplified && scheme.simplified.steps) stepsStr = scheme.simplified.steps;
@@ -1424,13 +1448,13 @@ const SmartGovUX = (function() {
 
             let websiteHtml = '';
             if (scheme.official_website) {
-                const siteLabel = isEn ? '🌐 Official Website' : '🌐 అధికారిక వెబ్‌సైట్ (Official Website)';
+                const siteLabel = isEn ? '🌐 Official Website' : '🌐 అధికారిక వెబ్‌సైట్';
                 websiteHtml = `<p style="margin-top:1rem;"><a href="${window.escapeHtml(scheme.official_website)}" target="_blank" rel="noopener noreferrer">${siteLabel}</a></p>`;
             }
 
             let localHelp = '';
             if (scheme.local_help_locations && Object.values(scheme.local_help_locations).length > 0) {
-                const helpTitle = isEn ? 'Local Help:' : 'స్థానిక సహాయం (Local Help):';
+                const helpTitle = isEn ? 'Local Help:' : 'స్థానిక సహాయం:';
                 localHelp = `<p style="margin-top:1rem;"><strong>${helpTitle}</strong><br>` + Object.values(scheme.local_help_locations).map(l => window.escapeHtml(l)).join('<br>') + `</p>`;
             }
 
@@ -1438,7 +1462,7 @@ const SmartGovUX = (function() {
                 <div class="inline-map-container" id="inlineMapContainer" style="margin-top: 1.5rem;">
                     <div class="map-toolbar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                         <h4 style="margin:0;">📍 ${isEn ? 'Nearby Healthcare Facilities' : 'దగ్గరలోని ఆరోగ్య కేంద్రాలు'}</h4>
-                        <button class="action-btn" type="button" data-action="expand-map" style="padding: 4px 12px; min-height:36px; font-size:0.9rem;">${isEn ? 'Expand Map' : 'విస్తరించు (Expand)'}</button>
+                        <button class="action-btn" type="button" data-action="expand-map" style="padding: 4px 12px; min-height:36px; font-size:0.9rem;">${isEn ? 'Expand Map' : 'విస్తరించు'}</button>
                     </div>
                     <div class="map-filters-ui" id="mapFiltersUi" style="padding: 10px; background: var(--surface-1); border-radius: 8px; margin-bottom: 8px;">
                         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
@@ -1692,6 +1716,7 @@ const SmartGovUX = (function() {
                 sendChatQuestion();
             }
         });
+    });
 
         // Expose functions globally so HTML inline handlers and app.js can call them
         window.SmartGovUX = {
@@ -1702,7 +1727,30 @@ const SmartGovUX = (function() {
             showSymptomCategories,
             startGuidedMode,
             exitGuidedMode,
-              function populateDropdowns() {
+            renderFavoritesAndRecent,
+            toggleFavorite
+        };
+
+        // Map Module State
+        let mapFacilities = [];
+        let inlineMapObj = null;
+        let fullMapObj = null;
+        let inlineUserMarker = null;
+        let fullUserMarker = null;
+        let userLat = null;
+        let userLng = null;
+        let inlineFacilityMarkers = [];
+        let fullFacilityMarkers = [];
+        const mapState = {
+            mode: 'ANANTHAPURAMU',
+            district: 'Ananthapuramu',
+            mandal: '',
+            village: '',
+            type: 'all',
+            search: ''
+        };
+
+        function populateDropdowns() {
         if (!mapFacilities || !mapFacilities.length) return;
         
         let availableFacilities = mapFacilities;
@@ -1907,88 +1955,6 @@ const SmartGovUX = (function() {
                         
                         btns.forEach(b => { if(b) b.innerHTML = errorMsg; });
                         setTimeout(() => { btns.forEach(b => { if(b) b.innerHTML = locationBtnText; }); }, 3000);
-                    },
-                    { enableHighAccuracy: true, timeout: 15000 }
-                );
-            }
-        };ender();
-        };
-        const handleVillageChange = (e) => { 
-            mapState.village = e.target.value; 
-            syncUiFromState(); 
-            applyFiltersAndRender(); 
-        };
-        
-        const handleSearch = (e) => {
-            mapState.search = e.target.value.toLowerCase().trim();
-            syncUiFromState();
-            applyFiltersAndRender();
-        };
-        
-        const handleModeToggle = () => {
-            if (mapState.mode === 'ANANTHAPURAMU') {
-                mapState.mode = 'AP';
-                mapState.district = '';
-                mapState.mandal = '';
-                mapState.village = '';
-                mapState.type = 'all';
-                mapState.search = '';
-            } else {
-                mapState.mode = 'ANANTHAPURAMU';
-                mapState.district = 'Ananthapuramu';
-                mapState.mandal = '';
-                mapState.village = '';
-                mapState.type = 'all';
-                mapState.search = '';
-            }
-            populateDropdowns();
-            syncUiFromState();
-            applyFiltersAndRender();
-        };
-
-        const handleLocation = () => {
-            if (navigator.geolocation) {
-                const btns = [document.getElementById('btnLocation'), document.getElementById('btnLocationFull')];
-                btns.forEach(b => { if(b) b.innerHTML = '⏳ వెతుకుతోంది...'; });
-                
-                navigator.geolocation.getCurrentPosition(
-                    async (pos) => {
-                        userLat = pos.coords.latitude;
-                        userLng = pos.coords.longitude;
-                        await loadFacilities(true);
-                        btns.forEach(b => { if(b) b.innerHTML = '📍 నా స్థానం (My Location)'; });
-                        
-                        if (inlineMapObj) {
-                            if (inlineUserMarker) inlineMapObj.removeLayer(inlineUserMarker);
-                            inlineUserMarker = L.circleMarker([userLat, userLng], {radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8})
-                                                .addTo(inlineMapObj).bindPopup("<b>మీ స్థానం (Your Location)</b>");
-                        }
-                        
-                        if (fullMapObj) {
-                            if (fullUserMarker) fullMapObj.removeLayer(fullUserMarker);
-                            fullUserMarker = L.circleMarker([userLat, userLng], {radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8})
-                                              .addTo(fullMapObj).bindPopup("<b>మీ స్థానం (Your Location)</b>");
-                        }
-                        
-                        applyFiltersAndRender();
-                        
-                        // Force a tight zoom to the user's location, like Google Maps
-                        if (inlineMapObj) {
-                            inlineMapObj.setView([userLat, userLng], 15);
-                        }
-                        if (fullMapObj) {
-                            fullMapObj.setView([userLat, userLng], 15);
-                        }
-                    },
-                    (err) => {
-                        console.warn(`Geolocation Error [Code: ${err.code}]: ${err.message}`);
-                        let errorMsg = '❌ స్థానం దొరకలేదు';
-                        if (err.code === 1) errorMsg = '❌ అనుమతి నిరాకరించబడింది (Denied)';
-                        else if (err.code === 2) errorMsg = '❌ స్థానం అందుబాటులో లేదు (Unavailable)';
-                        else if (err.code === 3) errorMsg = '❌ సమయం ముగిసింది (Timeout)';
-                        
-                        btns.forEach(b => { if(b) b.innerHTML = errorMsg; });
-                        setTimeout(() => { btns.forEach(b => { if(b) b.innerHTML = '📍 నా స్థానం (My Location)'; }); }, 3000);
                     },
                     { enableHighAccuracy: true, timeout: 15000 }
                 );

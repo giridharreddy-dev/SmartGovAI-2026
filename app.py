@@ -451,7 +451,7 @@ def catalog_chat_fallback(matched_schemes: list[Dict[str, Any]], lang: str = "te
 
     if lang == "en":
         suggestions = "\n".join(
-            f"• {scheme['scheme_name']} ({scheme.get('telugu_name', '')})"
+            f"• {scheme['scheme_name']}"
             for scheme in matched_schemes
         )
         return (

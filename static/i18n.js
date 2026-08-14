@@ -497,7 +497,8 @@
     // Initialize language from localStorage (defaults to Telugu)
     function initLanguage() {
         try {
-            const saved = localStorage.getItem(STORAGE_KEY);
+            const storage = (typeof window !== 'undefined' && window.localStorage) ? window.localStorage : (typeof localStorage !== 'undefined' ? localStorage : null);
+            const saved = storage ? (storage.getItem(STORAGE_KEY) || storage.getItem('smartgov_language')) : null;
             if (saved === 'en' || saved === 'te') {
                 currentLang = saved;
             } else {
@@ -551,14 +552,27 @@
         return l === 'te' ? 'జాతీయ' : 'National';
     }
 
+    function findSchemeInCatalog(schemeOrName) {
+        if (!schemeOrName) return null;
+        if (typeof schemeOrName === 'object') return schemeOrName;
+        if (!window.schemesCatalog) return { name: schemeOrName };
+        if (window.schemesCatalog[schemeOrName]) {
+            return Object.assign({ name: schemeOrName }, window.schemesCatalog[schemeOrName]);
+        }
+        for (const key in window.schemesCatalog) {
+            const item = window.schemesCatalog[key];
+            if (key === schemeOrName || item.telugu_name === schemeOrName || item.name === schemeOrName) {
+                return Object.assign({ name: key }, item);
+            }
+        }
+        return { name: schemeOrName };
+    }
+
     // Central Scheme Name Resolver
     function getLocalizedSchemeName(schemeOrName, lang) {
         if (!schemeOrName) return '';
         const l = lang || currentLang;
-        let scheme = schemeOrName;
-        if (typeof schemeOrName === 'string' && window.schemesCatalog) {
-            scheme = window.schemesCatalog[schemeOrName] || { name: schemeOrName };
-        }
+        const scheme = findSchemeInCatalog(schemeOrName);
         if (l === 'en') {
             return scheme.name || scheme.scheme_name || (typeof schemeOrName === 'string' ? schemeOrName : '');
         }
@@ -569,10 +583,7 @@
     function getLocalizedSchemeSubtitle(schemeOrName, lang) {
         if (!schemeOrName) return '';
         const l = lang || currentLang;
-        let scheme = schemeOrName;
-        if (typeof schemeOrName === 'string' && window.schemesCatalog) {
-            scheme = window.schemesCatalog[schemeOrName] || { name: schemeOrName };
-        }
+        const scheme = findSchemeInCatalog(schemeOrName);
         if (l === 'en') {
             // In English mode, show localized category (NO TELUGU)
             return scheme.category ? translateCategory(scheme.category, 'en') : '';
@@ -585,10 +596,7 @@
     function getLocalizedSchemeDescription(schemeOrName, lang) {
         if (!schemeOrName) return '';
         const l = lang || currentLang;
-        let scheme = schemeOrName;
-        if (typeof schemeOrName === 'string' && window.schemesCatalog) {
-            scheme = window.schemesCatalog[schemeOrName] || {};
-        }
+        const scheme = findSchemeInCatalog(schemeOrName);
         if (l === 'en') {
             return scheme.english_description || scheme.simplified?.description || scheme.simplified?.benefits || '';
         }
@@ -622,7 +630,11 @@
         if (lang !== 'te' && lang !== 'en') return;
         currentLang = lang;
         try {
-            localStorage.setItem(STORAGE_KEY, lang);
+            const storage = (typeof window !== 'undefined' && window.localStorage) ? window.localStorage : (typeof localStorage !== 'undefined' ? localStorage : null);
+            if (storage) {
+                storage.setItem(STORAGE_KEY, lang);
+                storage.setItem('smartgov_language', lang);
+            }
         } catch (e) {
             // ignore localStorage quota/privacy errors
         }
@@ -689,6 +701,7 @@
     window.SmartGovI18n = {
         getLang: getLang,
         setLang: setLang,
+        initLanguage: initLanguage,
         t: t,
         translateCategory: translateCategory,
         translateLevel: translateLevel,

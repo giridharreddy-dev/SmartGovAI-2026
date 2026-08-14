@@ -221,3 +221,36 @@ def test_template_staff_tools_and_voice_elements(client):
     assert 'id="voiceBtn"' in html
     assert 'id="schemeSelect"' in html
 
+
+def test_scheme_cards_subtitle_has_no_telugu_leakage():
+    """Verify that in English mode, scheme cards use English category and not Telugu subtitles."""
+    template_path = Path(__file__).resolve().parent.parent / "templates" / "index.html"
+    template = template_path.read_text(encoding="utf-8")
+
+    # The card rendering logic must set secondaryTitle to categoryLabel when isEn is true
+    assert "const secondaryTitle = isEn ? categoryLabel : name;" in template
+    assert "const mainTitle = isEn ? (data.scheme_name || '') : (scheme.telugu_name || data.scheme_name || '');" in template
+    assert "const subTitle = isEn ? (categoryLabel || '') : (data.scheme_name || '');" in template
+
+
+def test_microphone_not_allowed_error_mapping():
+    """Verify getLocalizedMicError maps not-allowed and permission errors to user-friendly messages."""
+    i18n_path = Path(__file__).resolve().parent.parent / "static" / "i18n.js"
+    content = i18n_path.read_text(encoding="utf-8")
+
+    # Must contain proper handler for not-allowed, no-speech, audio-capture, etc.
+    assert "voiceErrNotAllowed" in content
+    assert "Microphone permission was denied" in content
+    assert "మైక్రోఫోన్ అనుమతి నిరాకరించబడింది" in content
+
+
+def test_guided_mode_slide1_and_steps_bilingual():
+    """Verify Guided Mode renders clean Telugu in te mode and clean English in en mode."""
+    features_path = Path(__file__).resolve().parent.parent / "static" / "enhanced-features.js"
+    content = features_path.read_text(encoding="utf-8")
+
+    assert "scheme.english_description" in content
+    assert "scheme.telugu_description" in content
+    assert "renderGuidedStep(currentGuidedStep)" in content
+
+
