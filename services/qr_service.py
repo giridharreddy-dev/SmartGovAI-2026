@@ -27,5 +27,9 @@ def generate_qr_image(url: str) -> Optional[bytes]:
     img = qr.make_image(fill_color="black", back_color="white")
     
     img_byte_arr = io.BytesIO()
-    img.save(img_byte_arr, format='PNG')
+    try:
+        img.save(img_byte_arr, format='PNG')
+    except TypeError:
+        img.save(img_byte_arr)
     return img_byte_arr.getvalue()
+

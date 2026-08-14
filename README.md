@@ -4,7 +4,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/giridharreddy-dev/SmartGovAI-2026)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/giridharreddy-dev/SmartGovAI-2026)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![Coverage](https://img.shields.io/badge/coverage-86%25-green.svg)](https://github.com/giridharreddy-dev/SmartGovAI-2026)
+[![Coverage](https://img.shields.io/badge/coverage-73%25-green.svg)](https://github.com/giridharreddy-dev/SmartGovAI-2026)
 
 ## Table of Contents
 1. [Abstract/Overview](#abstractoverview)
@@ -13,7 +13,7 @@
 4. [Tech Stack](#tech-stack)
 5. [Features](#features)
 6. [System Setup/Installation](#system-setupinstallation)
-7. [Team & Faculty Guide](#team--faculty-guide)
+7. [API Endpoints](#api-endpoints)
 8. [Future Scope](#future-scope)
 
 ---
@@ -51,23 +51,36 @@ The application employs a decoupled client-server architecture:
 * **Persistence:** `localStorage` (Answers, Documents)
 * **Accessibility:** Web Speech API (Telugu Text-to-Speech)
 * **Offline Management:** Service Worker (Stale-While-Revalidate caching strategy)
+* **Maps:** Leaflet.js (Interactive healthcare facility maps)
 
 ### Server-Side
 * **Framework:** Python 3.10+ with Flask
 * **Database:** SQLite (`feedback.db`)
 * **File Parsing:** `pdfplumber` with Tesseract OCR fallback
 * **Audio Generation:** gTTS (Google Text-to-Speech)
-* **Artificial Intelligence:** Google Gemini API
+* **Artificial Intelligence:** Google Gemini API (`gemini-3.5-flash`)
+* **QR Codes:** `qrcode[pil]` (Dynamic scheme QR code generation)
 * **Security & Rate Limiting:** Flask-Limiter, Redis, Flask-WTF
+* **Production Server:** Gunicorn (Linux/macOS)
+
+### Infrastructure
+* **Containerization:** Docker, Docker Compose
+* **CI/CD:** GitHub Actions (pytest workflow)
 
 ---
 
 ## Features
 
 * **Modular Scheme Loading:** During application startup, the server dynamically scans the `data/` directory, validates JSON entries against structural schema constraints, and merges valid schemes into a single in-memory catalog.
+* **AI Chat Assistant:** A Telugu-language RAG (Retrieval-Augmented Generation) chat assistant that answers citizen questions using grounded scheme data, with strict guardrails against hallucination and system prompt leakage.
 * **Artificial Intelligence Simplification:** Extends Google Gemini API to parse complex policy documents, extracting relevant eligibility and benefit criteria and translating them into simple Telugu.
+* **Healthcare Facilities GIS Locator:** Interactive Leaflet.js map with 400+ AP healthcare facilities (PHC, CHC, Hospitals), GPS-based proximity search via Haversine distance calculation.
+* **Scheme Deep Links & QR Codes:** Human-readable URL slugs (`/scheme/<slug>`) and on-the-fly QR code PNG generation (`/qr/<slug>.png`) for field distribution and flyer printing.
+* **Impact Analytics Dashboard:** Admin-protected dashboard (`/analytics`) with aggregate, anonymized usage metrics, secured via Bearer token and session-based authentication.
 * **Deterministic Audio Caching:** Pre-renders audio MP3 assets for all schemes. It only initiates an external Text-to-Speech call when a cache miss occurs, conserving bandwidth and ensuring immediate availability.
-* **Enterprise-Grade Security:** Implements Cross-Site Request Forgery (CSRF) protection, Content Security Policy (CSP) headers, strict HTTP headers, and robust file upload validation (including magic byte verification).
+* **WhatsApp & SMS Sharing:** Pre-formatted WhatsApp message generation and SMS intent triggers for viral, frictionless information propagation through social networks.
+* **ASHA/Field Staff Reporting:** Dedicated interface for community health workers to report discrepancies, add local details, and manage scheme information.
+* **Enterprise-Grade Security:** Implements Cross-Site Request Forgery (CSRF) protection, Content Security Policy (CSP) headers with per-request nonces, strict HTTP headers, and robust file upload validation (including magic byte verification and consent-gated PDF processing).
 * **Resilient Rate Limiting:** Utilizes an in-memory tracking fallback mechanism if the primary Redis server becomes unavailable, guaranteeing continuous availability.
 
 ---
@@ -79,31 +92,23 @@ The application employs a decoupled client-server architecture:
 * `pip` and `virtualenv`
 * *Optional:* Tesseract-OCR and Poppler binaries installed on the system path for advanced PDF parsing.
 
-### Environment Configuration
+### Quick Start
 
-Configure the required parameters by adding them to the local `.env` file:
-
+**Option 1: One-click setup scripts**
 ```bash
-# Flask Session Encryption Key (Required in production)
-SECRET_KEY=your-production-secret-key-here
+# Windows
+setup.bat
 
-# Optional: Google Gemini API Key (Enables PDF simplification upload feature)
-GEMINI_API_KEY=<YOUR_API_KEY>
-
-# Optional: SQLite Database Path (Defaults to feedback.db)
-DB_PATH=feedback.db
-
-# Optional: Redis URL for Rate Limit Storage
-REDIS_URL=redis://localhost:6379
-
-# Configure API Rate limits
-RATELIMIT_DEFAULT="200 per day; 50 per hour"
-RATELIMIT_SIMPLIFY="10 per minute; 60 per hour"
-RATELIMIT_FEEDBACK="20 per minute"
-RATELIMIT_REPORT="10 per minute"
+# macOS / Linux
+chmod +x setup.sh && ./setup.sh
 ```
 
-### Installation Steps
+**Option 2: Docker**
+```bash
+docker compose up --build
+```
+
+**Option 3: Manual setup**
 
 1. Clone the repository and navigate to the directory:
    ```bash
@@ -111,27 +116,59 @@ RATELIMIT_REPORT="10 per minute"
    cd SmartGovAI-2026
    ```
 
-2. Establish and activate the virtual environment:
+2. Configure your environment:
+   ```bash
+   cp .env.example .env
+   # Edit .env and set SECRET_KEY and ADMIN_TOKEN (see below)
+   ```
+
+3. Establish and activate the virtual environment:
    ```bash
    python -m venv .venv
    .\.venv\Scripts\activate       # Windows PowerShell
+   source .venv/bin/activate      # macOS / Linux
    ```
 
-3. Install project dependencies:
+4. Install project dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Pre-generate the audio files:
+5. Pre-generate the audio files:
    ```bash
    python -m scripts.generate_audio
    ```
 
-5. Launch the application server:
+6. Launch the application server:
    ```bash
    python app.py
    ```
    The application will be accessible at `http://localhost:5000`.
+
+### Environment Configuration
+
+Configure the required parameters by adding them to the local `.env` file:
+
+```bash
+# ── Required ──────────────────────────────────────────────
+SECRET_KEY=your-secret-key         # Flask session encryption — generate with: python -c "import secrets; print(secrets.token_hex(32))"
+ADMIN_TOKEN=your-admin-token       # Bearer token for /analytics — generate with: python -c "import secrets; print(secrets.token_urlsafe(32))"
+
+# ── Optional (defaults shown) ────────────────────────────
+GEMINI_API_KEY=                    # Enables AI PDF simplification and chat responses
+DB_PATH=feedback.db                # SQLite database path
+REDIS_URL=                         # e.g. redis://localhost:6379/0 — falls back to in-memory if unset
+TRUSTED_PROXIES=0                  # Number of upstream reverse proxies (e.g. 1 behind Nginx/Cloudflare)
+
+# ── Rate Limiting ────────────────────────────────────────
+RATELIMIT_DEFAULT=200 per day; 50 per hour
+RATELIMIT_SIMPLIFY=10 per minute; 60 per hour
+RATELIMIT_FEEDBACK=20 per minute
+RATELIMIT_REPORT=10 per minute
+RATELIMIT_CHAT=15 per minute; 100 per hour
+```
+
+> **Note:** `SECRET_KEY` is mandatory — the application will not start without it. `GEMINI_API_KEY` is optional; without it, the app runs in catalog-only mode (no AI chat or PDF simplification).
 
 ### Testing
 To execute the automated test suite and review code coverage:
@@ -141,10 +178,31 @@ pytest
 
 ---
 
-## Team & Faculty Guide
+## API Endpoints
 
-* **Development Team:** [Student Names]
-* **Faculty Guide:** [Faculty Guide Name]
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | `GET` | Primary application shell |
+| `/chat` | `POST` | AI chat assistant with Telugu RAG retrieval |
+| `/simplify` | `POST` | PDF simplification / catalog scheme simplification |
+| `/scheme/<slug>` | `GET` | Deep link to a specific scheme |
+| `/qr/<slug>.png` | `GET` | QR code PNG for a scheme |
+| `/api/facilities` | `GET` | Healthcare facilities with GPS distance |
+| `/analytics` | `GET` | Admin Impact Dashboard (protected) |
+| `/admin/login` | `GET, POST` | Admin authentication |
+| `/admin/logout` | `GET` | Admin session termination |
+| `/eligibility-check` | `POST` | Eligibility evaluation |
+| `/document-checklist` | `GET` | Document requirements |
+| `/whatsapp-share` | `POST` | WhatsApp sharing |
+| `/feedback` | `POST` | User feedback |
+| `/enhanced-feedback` | `POST` | Detailed user feedback |
+| `/staff-report` | `POST` | Field staff reports |
+| `/local-locations` | `GET` | Local service information |
+| `/offline-cache` | `GET` | Full catalog for PWA caching |
+| `/healthz` | `GET` | Health check |
+| `/health` | `GET` | Health check alias |
+| `/version` | `GET` | API version and metadata |
+| `/offline.html` | `GET` | Offline fallback page |
 
 ---
 
@@ -154,4 +212,5 @@ Subsequent iterations of the SmartGovAI system may address the following objecti
 * **Asynchronous Processing:** Transitioning AI simplification and audio generation tasks to an asynchronous message queue (e.g., Celery) to prevent thread blocking under high concurrent loads.
 * **Modular Refactoring:** Restructuring the monolithic routing file into Flask Blueprints to isolate responsibilities and improve maintainability as the application scales.
 * **Expanded Linguistic Support:** Extending the translation and text-to-speech architecture to accommodate additional regional languages to broaden accessibility across different states.
-* **Infrastructure Automation:** Introducing Docker and continuous integration/continuous deployment (CI/CD) pipelines to standardize production environments.
+* **Enhanced Observability:** Integrating application performance monitoring and structured log aggregation for production deployments.
+* **API Documentation:** Generating OpenAPI/Swagger specifications for all endpoints.

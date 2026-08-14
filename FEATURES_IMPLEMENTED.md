@@ -26,7 +26,7 @@
 - **Verification Panel**: Deployed a dynamic rendering component within the UI that visualizes the modification date, the verifying authority, and direct authoritative links, encapsulating these within a formalized "trust badge" component.
 
 ### Modified Source Files:
-- `schemes_complex.json` - Injected fields: `last_updated`, `official_website`, `contact_office`, `eligibility_confirmation`.
+- `data/*.json` - Injected fields: `last_updated`, `official_website`, `contact_office`, `eligibility_confirmation`.
 - `templates/index.html` - Appended trust information HTML components and routing icons.
 
 ---
@@ -49,7 +49,7 @@
 - The administrative interface permits dynamic mutations to localized service nodes.
 
 ### Modified Source Files:
-- `schemes_complex.json` - Injected object: `local_help_locations`.
+- `data/*.json` - Injected object: `local_help_locations`.
 - `app.py` - Initialized API endpoint: `/local-locations`.
 
 ---
@@ -71,7 +71,7 @@
 5. Assessment state variables are serialized and stored via the `localStorage` API.
 
 ### Modified Source Files:
-- `schemes_complex.json` - Injected array: `eligibility_questions`.
+- `data/*.json` - Injected array: `eligibility_questions`.
 - `app.py` - Initialized API endpoint: `/eligibility-check`.
 - `static/enhanced-features.js` - Client-side state management and arithmetic evaluation logic.
 - `templates/index.html` - DOM framework for the evaluator interface.
@@ -95,8 +95,8 @@
 - Enables localized offline review of requirement statuses.
 
 ### Modified Source Files:
-- `schemes_complex.json` - Injected array: `required_documents`.
-- `database.py` - Defined SQL schema: `document_checklist`.
+- `data/*.json` - Injected array: `required_documents`.
+- `database.py` - Document checklist table (DEPRECATED; state now stored client-side via localStorage).
 - `static/enhanced-features.js` - Serialization and DOM manipulation controllers.
 - `templates/index.html` - Integrated matrix DOM component.
 
@@ -171,7 +171,7 @@
   - Localized coordinate insertion interfaces.
 
 ### Modified Source Files:
-- `database.py` - Initialized SQL schemas: `staff_feedback`, `local_locations`.
+- `database.py` - Initialized SQL schema: `staff_feedback`.
 - `app.py` - Initialized API endpoints: `/staff-report`, `/local-locations`.
 - `templates/index.html` - Expanded the administrative interface payload.
 
@@ -218,3 +218,66 @@ Client interaction triggers parameterized URL encoding (e.g., `whatsapp://send?t
 - `app.py` - Initialized API endpoint: `/whatsapp-share`.
 - `static/enhanced-features.js` - URI compilation and dispatch logic.
 - `templates/index.html` - UI DOM element integration.
+
+---
+
+## 11. AI Chat Assistant
+**Objective**: To provide an interactive, Telugu-language question-answering assistant grounded in the scheme catalog.
+
+### Technical Implementation:
+- **Retrieval-Augmented Generation (RAG)**: Token-overlap and alias-expansion scoring retrieves the most relevant schemes.
+- **Gemini Grounding**: Matched scheme context is injected into a strict system prompt, constraining the AI to answer only from provided data.
+- **Safety Guardrails**: The response is sanitized to prevent system prompt leakage, API key exposure, or fabricated eligibility claims.
+- **Catalog Fallback**: When Gemini is unavailable, the chat returns matched scheme summaries directly without AI augmentation.
+
+### Modified Source Files:
+- `services/chat_service.py` - RAG retrieval and Gemini chat generation.
+- `app.py` - Initialized API endpoint: `/chat`.
+- `static/enhanced-features.js` - Chat UI handlers, keyboard shortcuts, event delegation.
+- `templates/index.html` - Chat overlay DOM components.
+
+---
+
+## 12. Healthcare Facilities GIS Locator
+**Objective**: To enable citizens to locate the nearest healthcare facilities (PHC, CHC, Hospitals) via GPS.
+
+### Technical Implementation:
+- **Facilities Database**: 400+ Andhra Pradesh healthcare facilities loaded from `data/facilities.json`.
+- **Haversine Distance**: Server-side geodesic distance calculation when user GPS coordinates are provided.
+- **Interactive Map**: Leaflet.js-powered map with facility markers, user location, and filtering by facility type and radius.
+
+### Modified Source Files:
+- `data/facilities.json` - Healthcare facility records.
+- `app.py` - Initialized API endpoint: `/api/facilities`.
+- `static/enhanced-features.js` - Map initialization, filtering, and geolocation logic.
+
+---
+
+## 13. Scheme Deep Links & QR Codes
+**Objective**: To generate sharable, human-readable URLs and printable QR codes for individual schemes.
+
+### Technical Implementation:
+- **URL Slugs**: Each scheme gets a deterministic, URL-safe slug using transliteration and SHA-256 hashing.
+- **QR Code Generation**: On-the-fly PNG generation via `qrcode[pil]` for flyers and field distribution.
+
+### Modified Source Files:
+- `utils.py` - Slug generation function.
+- `services/qr_service.py` - QR code PNG rendering.
+- `app.py` - Initialized API endpoints: `/scheme/<slug>`, `/qr/<slug>.png`.
+
+---
+
+## 14. Impact Analytics Dashboard
+**Objective**: To provide administrators with aggregate, anonymized usage metrics.
+
+### Technical Implementation:
+- **Token & Session Auth**: Dual authentication via Bearer token header or session cookie.
+- **Aggregate Metrics**: Total requests, feedback count, average rating, WhatsApp shares.
+- **Admin Login UI**: Dedicated login page with CSRF protection.
+
+### Modified Source Files:
+- `auth.py` - Authentication decorators and session management.
+- `database.py` - Dashboard metrics query.
+- `app.py` - Initialized API endpoints: `/analytics`, `/admin/login`, `/admin/logout`.
+- `templates/admin_login.html` - Login page template.
+- `templates/analytics.html` - Dashboard rendering template.

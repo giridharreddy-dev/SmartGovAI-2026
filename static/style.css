@@ -11,6 +11,14 @@
     --red: #b42318;
     --border: #d8ded7;
     --shadow: 0 10px 22px rgba(23, 33, 29, 0.08);
+    --primary: var(--green);
+    --secondary: var(--blue);
+    --text-muted: var(--muted);
+    --telugu-primary: var(--green);
+    --yellow: #ffc107;
+    --radius: 8px;
+    --spacing: 12px;
+    --surface-secondary: var(--surface-soft);
 }
 
 body.dark-mode {
@@ -82,7 +90,7 @@ a {
 .app-shell {
     width: min(1120px, 100%);
     margin: 0 auto;
-    padding: 16px;
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
 }
 
 .app-header {
@@ -844,7 +852,6 @@ audio {
 
     .result-panel {
         position: static;
-        order: -1;
     }
 
     .emergency-strip {
@@ -858,7 +865,7 @@ audio {
     }
 
     .app-shell {
-        padding: 10px;
+        padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
     }
 
     .app-header {
@@ -1151,6 +1158,7 @@ audio {
     .guided-nav-btn {
         font-size: 1rem;
     }
+}
 
 /* =========================================================
    TIER 2C: IMPACT DASHBOARD
@@ -1403,7 +1411,7 @@ audio {
 
 .feedback-status.error {
     color: var(--red);
-}}
+}
 
 /* ── Tier 3A: AI Chat ─────────────────────────────────── */
 

@@ -1,5 +1,5 @@
 
-from utils import allowed_file
+from utils import allowed_file, safe_url
 
 
 def test_valid_pdf(pdf_file):
@@ -66,3 +66,9 @@ def test_no_extension():
     ok, _ = allowed_file(file)
 
     assert ok is False
+
+
+def test_safe_url_requires_http_host():
+    assert safe_url("https://example.gov.in/scheme") == "https://example.gov.in/scheme"
+    assert safe_url("https:example.gov.in") == ""
+    assert safe_url("javascript:alert(1)") == ""

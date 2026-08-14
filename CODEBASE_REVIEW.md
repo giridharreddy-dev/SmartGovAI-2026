@@ -95,9 +95,13 @@ SmartGovAI-2026/
 ├── Dockerfile                    # Containerization definition
 ├── docker-compose.yml            # Multi-service container orchestration
 ├── data/
+│   ├── extra_schemes.json        # Additional health schemes catalog
+│   ├── facilities.json           # Geo-location data for health facilities
 │   ├── health.json               # Health schemes data catalog
+│   ├── national_and_ap_schemes.json # National and AP specific schemes catalog
 │   └── scheme_schema.json        # Schema validation rules for JSON catalog entries
 ├── app.py                        # Core Flask application and HTTP routing controller
+├── auth.py                       # Authentication mechanisms and admin session management
 ├── config.py                     # Centralized settings and environment loader
 ├── database.py                   # SQLite tables, DDL execution, and schema definitions
 ├── logger_config.py              # Structured logging configuration
@@ -109,29 +113,35 @@ SmartGovAI-2026/
 ├── services/
 │   ├── __init__.py
 │   ├── audio_service.py          # gTTS wrapper, hash generator, and caching service
+│   ├── chat_service.py           # RAG-based AI chat capabilities
 │   ├── gemini_service.py         # Google Gemini Client and request de-duplication cache
-│   └── pdf_service.py            # PDF text parser (pdfplumber) and Tesseract OCR controller
+│   ├── pdf_service.py            # PDF text parser (pdfplumber) and Tesseract OCR controller
+│   └── qr_service.py             # QR code generation service
 ├── static/
 │   ├── audio/                    # Output directory for MP3 voice files
+│   ├── leaflet/                  # Leaflet.js map integration
 │   ├── enhanced-features.js      # Frontend controller (TTS, storage, event delegation)
 │   ├── icon.svg                  # Application brand vector icon
 │   ├── manifest.webmanifest      # PWA installation and metadata definitions
 │   ├── service-worker.js         # Service worker implementation
 │   └── style.css                 # Vanilla CSS, layout grids, and accessibility variables
 ├── templates/
+│   ├── admin_login.html          # Authentication interface for administrators
+│   ├── analytics.html            # Administrative statistics rendering template
 │   ├── index.html                # Main application UI template (Jinja2)
-│   ├── offline.html              # Fallback template for disconnected states
-│   └── analytics.html            # Administrative statistics rendering template
+│   └── offline.html              # Fallback template for disconnected states
 ├── tests/                        # Automated unit test suite
 │   ├── conftest.py               # Shared test fixtures and mock frameworks
 │   ├── test_app.py               # API route and response validation tests
 │   ├── test_audio_service.py     # Hashing and file generation unit tests
+│   ├── test_frontend_contract.py # Contract tests for API and client sync
 │   ├── test_gemini_service.py    # Request collapsing and caching unit tests
 │   ├── test_pdf_service.py       # Document parsing and OCR fallback unit tests
 │   └── test_utils.py             # File extension and MIME validation tests
 └── scripts/
     ├── QUICKSTART.py             # Developer CLI output guide
     ├── enhance_schemes.py        # Schema expansion script for locational data
+    ├── fetch_ap_facilities.py    # Script to retrieve live facilities data
     ├── generate_audio.py         # Standalone TTS pre-rendering utility
     └── view_db.py                # Administrative database query script
 ```
@@ -200,12 +210,24 @@ classDiagram
         +voice_text()
     }
 
+    class chat_service {
+        +retrieve_relevant_schemes()
+        +generate_chat_response()
+    }
+
+    class qr_service {
+        +generate_qr_code()
+    }
+
     class app {
         +Flask app
         +index()
         +simplify()
         +feedback()
         +eligibility_check()
+        +chat()
+        +facilities()
+        +analytics()
     }
 
     app --> config : Import settings
@@ -215,6 +237,10 @@ classDiagram
     app --> pdf_service : Extract PDF text
     app --> gemini_service : Simplify text
     app --> audio_service : Render audio paths
+    app --> chat_service : RAG chat
+    app --> qr_service : QR generation
+    chat_service --> config
+    chat_service --> gemini_service
     
     pdf_service --> config
     pdf_service --> logger_config
@@ -355,13 +381,14 @@ CREATE TABLE feedback (
     rating INTEGER,      -- Integer range 1 to 5
     comment TEXT,
     timestamp TEXT,
-    FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE
+    FOREIGN KEY (request_id) REFERENCES requests(id)
 );
 ```
 
 #### 3. `eligibility_checks`
 *Logs anonymized query parameters for volume analysis.*
 ```sql
+-- DEPRECATED: Retained for schema compatibility, no longer actively written to.
 CREATE TABLE eligibility_checks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_session TEXT,
@@ -374,6 +401,7 @@ CREATE TABLE eligibility_checks (
 #### 4. `document_checklist`
 *Persists audit trails of required documentation logic.*
 ```sql
+-- DEPRECATED: Retained for schema compatibility, no longer actively written to.
 CREATE TABLE document_checklist (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_session TEXT,
@@ -425,6 +453,16 @@ System communication is exclusively mediated via the following HTTP/JSON endpoin
 | `/staff-report` | `POST` | JSON: `{"scheme_name": "...", "feedback_text": "..."}` | JSON | Submits administrative discrepancy alerts. CSRF and Rate Limit protected. |
 | `/local-locations` | `GET` | Query params `?scheme_name=...` | JSON | Resolves and returns localized geographical points of interest. |
 | `/offline-cache` | `GET` | None | JSON | Returns the comprehensive scheme dictionary for client-side persistence mechanisms. |
+| `/health` | `GET` | None | JSON | Alias for `/healthz`. |
+| `/version` | `GET` | None | JSON | Returns API version, uptime, and metadata. |
+| `/chat` | `POST` | JSON: `{"question": "..."}` | JSON | AI chat assistant with Telugu RAG retrieval and Gemini grounding. Rate limited. |
+| `/scheme/<slug>` | `GET` | Path param | HTML redirect | Deep link to a specific scheme via human-readable URL slug. |
+| `/qr/<slug>.png` | `GET` | Path param | PNG | Generates downloadable QR code image for a scheme URL. |
+| `/api/facilities` | `GET` | Query params `?lat=...&lng=...&radius=...&type=...` | JSON | Returns healthcare facilities with optional GPS-based Haversine distance sorting. |
+| `/analytics` | `GET` | None (Admin-protected) | HTML | Impact Dashboard with aggregate usage metrics. Requires `@require_admin_token`. |
+| `/admin/login` | `GET, POST` | Session cookie or Bearer token | HTML | Admin authentication endpoint. |
+| `/admin/logout` | `GET` | Session cookie | Redirect | Terminates admin session. |
+| `/feedback` | `POST` | JSON: `{"request_id": 1, "rating": 5, "comment": "..."}` | JSON | Simple feedback submission endpoint. CSRF protected. |
 
 ---
 
@@ -463,7 +501,7 @@ Return strictly this JSON object:
 ### Safety & Generative Guardrails:
 1. **JSON Enforcement:** Utilizes `response_mime_type="application/json"` to guarantee structured parsable outputs.
 2. **Temperature Constraints:** Set rigidly to `0.2` to constrain model variance and minimize hallucination vectors.
-3. **Network Thresholds:** A `15.0` second network timeout prevents synchronous thread exhaustion.
+3. **Network Thresholds:** The absence of GEMINI_API_KEY triggers graceful degradation where AI-dependent features are disabled while preserving catalog functionality.
 4. **Resilient Failure:** The absence of `GEMINI_API_KEY` triggers a graceful degradation where document ingestion is disabled while preserving catalog functionality.
 
 ---
@@ -483,6 +521,9 @@ Return strictly this JSON object:
 | **Flask-Limiter** | Security | Implements sliding-window request throttling backed by Redis or Memory. |
 | **sqlite3** | Database | Embedded relational database driver. |
 | **pytest** | Quality Assurance | Executes unit test suites and validates integration logic. |
+| **qrcode[pil]** | Generator | Renders QR code PNG images for scheme deep links. |
+| **gunicorn** | WSGI Server | Production-grade multi-worker HTTP server (Linux/macOS only). |
+| **redis** | Cache | Optional backend for persistent rate limit storage. |
 
 ---
 

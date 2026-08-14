@@ -95,7 +95,7 @@ All newly developed application features are seamlessly bound to the user interf
 ### 1.5 `static/enhanced-features.js` – Core Client Logic
 
 **Implemented Modifications:**
-- Conducted a complete structural rewrite, expanding the codebase from 200 to over 400 lines to encompass new functionalities.
+- Conducted a complete structural rewrite, expanding the codebase from 200 to over 2,100 lines (89 KB) to encompass new functionalities.
 
 **New Function Definitions:**
 1. `speakPageAloud()`: Synthesizes the entire visible scheme in Telugu.
@@ -183,6 +183,14 @@ function speakPageAloud() {
 6. `setup.bat`: Windows batch provisioning script.
 7. `start_app.bat`: Windows application execution wrapper.
 8. `QUICKSTART.py`: Terminal documentation utility.
+9. `auth.py`: Admin authentication and session management.
+10. `services/chat_service.py`: AI chat retrieval and Gemini grounding.
+11. `services/qr_service.py`: Dynamic QR code PNG generation.
+12. `templates/admin_login.html`: Admin login page template.
+13. `Dockerfile`: Container build definition.
+14. `docker-compose.yml`: Multi-service container orchestration.
+15. `.github/workflows/pytest.yml`: GitHub Actions CI workflow.
+16. `tests/test_frontend_contract.py`: Frontend behavioral contract tests.
 
 ---
 
@@ -213,7 +221,7 @@ source myenv/bin/activate  # Alternately: myenv\Scripts\activate on Windows
 pip install -r requirements.txt
 
 # 3. Audio generation initialization
-python generate_audio.py
+python -m scripts.generate_audio
 
 # 4. Local execution verification
 python app.py
@@ -245,7 +253,7 @@ gunicorn app:app -w 4 -b 0.0.0.0:5000
 - Client data (e.g., Aadhaar documents) is explicitly restricted from cloud persistence.
 - Modifiable client state resides exclusively within isolated `localStorage` boundaries.
 - External Google Gemini API invocations are safely encapsulated and optional.
-- Implicit data collection (analytics tracking) has been omitted to preserve anonymity.
+- An administrative Impact Dashboard (`/analytics`) provides aggregate, anonymized usage metrics without tracking individual users.
 
 ---
 
@@ -264,6 +272,16 @@ gunicorn app:app -w 4 -b 0.0.0.0:5000
 | `/local-locations` | `GET` | Retrieves geographically proximate service locations. |
 | `/offline-cache` | `GET` | Emits bulk scheme payloads for background caching. |
 | `/healthz` | `GET` | Emits internal server status and dependency checks. |
+| `/health` | `GET` | Alias for `/healthz`. |
+| `/version` | `GET` | Returns API version and metadata. |
+| `/chat` | `POST` | AI chat assistant with Telugu RAG retrieval. |
+| `/scheme/<slug>` | `GET` | Deep link to a specific scheme via URL slug. |
+| `/qr/<slug>.png` | `GET` | Generates downloadable QR code PNG for a scheme. |
+| `/api/facilities` | `GET` | Returns healthcare facilities with optional GPS distance. |
+| `/analytics` | `GET` | Admin-protected Impact Dashboard. |
+| `/admin/login` | `GET, POST` | Admin authentication endpoint. |
+| `/admin/logout` | `GET` | Admin session termination. |
+| `/feedback` | `POST` | Simple feedback submission. |
 
 ---
 
@@ -290,18 +308,40 @@ gunicorn app:app -w 4 -b 0.0.0.0:5000
 ```sql
 -- Operational metrics logging
 CREATE TABLE requests (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     scheme_name TEXT,
-    request_type TEXT,
-    timestamp DATETIME
+    source TEXT,
+    timestamp TEXT
 );
 
--- Quantitative and qualitative user assessment logging
+-- User assessment logging
 CREATE TABLE feedback (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     request_id INTEGER,
     rating INTEGER,
     comment TEXT,
-    timestamp DATETIME
+    timestamp TEXT,
+    FOREIGN KEY (request_id) REFERENCES requests(id)
+);
+
+-- DEPRECATED: Retained for schema compatibility
+CREATE TABLE eligibility_checks (...);
+CREATE TABLE document_checklist (...);
+
+-- Social distribution metrics
+CREATE TABLE whatsapp_shares (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    scheme_name TEXT,
+    timestamp TEXT
+);
+
+-- Field personnel reports
+CREATE TABLE staff_feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    scheme_name TEXT,
+    village TEXT,
+    feedback_text TEXT,
+    issue_type TEXT,
+    timestamp TEXT
 );
 ```

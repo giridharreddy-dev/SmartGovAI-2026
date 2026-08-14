@@ -13,9 +13,9 @@ This document outlines the findings of the engineering assessment conducted on t
 ## Assessment Findings
 
 - **High Severity (Maintainability Risk):** The primary Flask entry point (`app.py`) aggregates HTTP routing, request lifecycle management, component orchestration, and response formatting within a single module. While this does not compromise runtime correctness, it introduces significant friction for future feature expansion and isolated component testing.
-- **Medium Severity (Exception Handling):** The PDF simplification pipeline employs broad `try-except` exception handling surrounding the PDF processing and Google Gemini integration routines. Although the application exhibits stable failure modes, narrowing these exception handlers would improve maintainability and facilitate precise telemetry reporting.
+- **Medium Severity (Exception Handling):** The PDF simplification pipeline has been hardened with explicit HTTP error codes (INVALID_FILE_TYPE, CONSENT_REQUIRED, INVALID_PDF, PDF_PROCESSING_FAILED, etc.), but some exception handlers in the chat and audio pipelines remain broad. Narrowing these would improve telemetry reporting.
 - **Medium Severity (Execution Blocking):** The AI document parsing and auditory generation pipelines operate synchronously. While acceptable under the current deployment scale, synchronous execution may induce thread starvation as concurrent usage scales.
-- **Medium Severity (Deployment Automation):** Deployment automation protocols are minimal. The current operational setup is suitable for an academic portfolio evaluation, but transitioning to a production environment necessitates the introduction of Docker containerization, Continuous Integration/Continuous Deployment (CI/CD) pipelines, and enhanced observability integrations.
+- **Low Severity (Deployment Automation):** Docker containerization (`Dockerfile`, `docker-compose.yml`) and CI/CD via GitHub Actions (`.github/workflows/pytest.yml`) have been implemented. Remaining work includes enhanced observability integrations and monitoring infrastructure.
 - **Low Severity (Maintenance Surface):** The inclusion of peripheral utility scripts and environment setup helpers provides developer convenience but inadvertently expands the maintenance surface area external to the core application runtime path.
 
 ## Recommended Remediation Strategies
@@ -38,7 +38,7 @@ This document outlines the findings of the engineering assessment conducted on t
 - Execute the separation of the primary application into Flask Blueprints or segmented route modules.
 - Author comprehensive integration and API tests to validate the complete HTTP request-response lifecycle.
 - Implement asynchronous background processing paradigms to offload computationally expensive AI and auditory generation tasks.
-- Construct deployment automation workflows, including Docker Compose configurations and automated CI/CD pipelines.
+- Enhance deployment observability with structured log aggregation and application performance monitoring.
 - Integrate API documentation generation tooling (e.g., OpenAPI/Swagger specifications).
 - Implement robust application monitoring and observability systems, including operational metrics and structured log aggregation infrastructure.
 

@@ -476,6 +476,76 @@ function openReportForm() {
     openFeedbackModal(document.activeElement);
 }
 
+let previousFocusChat = null;
+
+function appendChatMessage(text, role) {
+    const messages = document.getElementById('chatMessages');
+    if (!messages) return;
+
+    const message = document.createElement('div');
+    message.className = `chat-msg ${role}`;
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    message.appendChild(paragraph);
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+function openChat(trigger) {
+    const overlay = document.getElementById('chatOverlay');
+    if (!overlay) return;
+
+    previousFocusChat = trigger || document.activeElement;
+    overlay.classList.remove('hidden');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('chatInput')?.focus();
+}
+
+function closeChat() {
+    const overlay = document.getElementById('chatOverlay');
+    if (!overlay) return;
+
+    overlay.classList.add('hidden');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    previousFocusChat?.focus();
+}
+
+async function sendChatQuestion(question) {
+    const input = document.getElementById('chatInput');
+    const trimmedQuestion = (question || input?.value || '').trim();
+    if (!trimmedQuestion) return;
+
+    appendChatMessage(trimmedQuestion, 'user');
+    if (input) input.value = '';
+
+    const messages = document.getElementById('chatMessages');
+    const loading = document.createElement('div');
+    loading.className = 'chat-msg bot loading';
+    loading.textContent = 'సమాధానం వెతుకుతున్నాం...';
+    messages?.appendChild(loading);
+
+    try {
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getCsrfHeader()
+            },
+            body: JSON.stringify({ question: trimmedQuestion })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Chat request failed');
+        appendChatMessage(data.answer, 'bot');
+    } catch (error) {
+        appendChatMessage('క్షమించండి. ప్రస్తుతం సమాధానం ఇవ్వలేకపోతున్నాం. దయచేసి మళ్లీ ప్రయత్నించండి.', 'bot');
+        console.error('Chat request failed:', error);
+    } finally {
+        loading.remove();
+    }
+}
+
 /**
  * Send report to server with CSRF header protection
  */
@@ -1368,6 +1438,12 @@ const SmartGovUX = (function() {
                 return;
             }
 
+            const chatBanner = e.target.closest('.chat-entry-banner');
+            if (chatBanner) {
+                openChat(chatBanner);
+                return;
+            }
+
             const symptomCategoryBtn = e.target.closest('.category-card');
             if (symptomCategoryBtn) {
                 renderSymptomResults(symptomCategoryBtn.dataset.category);
@@ -1425,11 +1501,28 @@ const SmartGovUX = (function() {
                     return;
                 }
                 if (action === 'expand-map') {
+                    e.preventDefault();
                     window.expandMap();
                     return;
                 }
                 if (action === 'close-map') {
                     window.closeMapOverlay();
+                    return;
+                }
+                if (action === 'open-chat') {
+                    openChat(actionTarget);
+                    return;
+                }
+                if (action === 'close-chat') {
+                    closeChat();
+                    return;
+                }
+                if (action === 'chat-suggestion') {
+                    sendChatQuestion(actionTarget.dataset.question);
+                    return;
+                }
+                if (action === 'send-chat') {
+                    sendChatQuestion();
                     return;
                 }
             }
@@ -1449,6 +1542,17 @@ const SmartGovUX = (function() {
                 if (mapOverlay && !mapOverlay.classList.contains('hidden')) {
                     window.closeMapOverlay();
                 }
+                const chatOverlay = document.getElementById('chatOverlay');
+                if (chatOverlay && !chatOverlay.classList.contains('hidden')) {
+                    closeChat();
+                }
+            }
+        });
+
+        document.getElementById('chatInput')?.addEventListener('keydown', event => {
+            if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+                event.preventDefault();
+                sendChatQuestion();
             }
         });
 

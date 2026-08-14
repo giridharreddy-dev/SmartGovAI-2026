@@ -16,6 +16,7 @@ from flask import Flask, g, jsonify, render_template, request, url_for, session,
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.exceptions import HTTPException
 
 from auth import require_admin_token
 import database
@@ -32,6 +33,7 @@ from config import (
 )
 from logger_config import logger
 from services.audio_service import generate_telugu_audio
+from services.chat_service import generate_chat_response, retrieve_relevant_schemes
 from services.gemini_service import is_gemini_available, simplify_document
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
 from utils import allowed_file, safe_url, validate_pdf_content
@@ -53,6 +55,7 @@ default_limit = os.environ.get("RATELIMIT_DEFAULT", "200 per day; 50 per hour")
 simplify_limit = os.environ.get("RATELIMIT_SIMPLIFY", "10 per minute; 60 per hour")
 feedback_limit = os.environ.get("RATELIMIT_FEEDBACK", "20 per minute")
 report_limit = os.environ.get("RATELIMIT_REPORT", "10 per minute")
+chat_limit = os.environ.get("RATELIMIT_CHAT", "15 per minute; 100 per hour")
 
 limiter = Limiter(
     key_func=get_remote_address,
@@ -232,7 +235,7 @@ except Exception:
 
 def load_facilities() -> list:
     """Load healthcare facilities from JSON file."""
-    facilities_path = os.path.join("data", "facilities.json")
+    facilities_path = os.path.join(SCHEMES_DIR, "facilities.json")
     try:
         with open(facilities_path, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -364,7 +367,13 @@ def internal_error(error) -> Any:
 
 @app.errorhandler(Exception)
 def handle_unexpected_exception(error) -> Any:
-    """Catch and report unexpected exceptions."""
+    """Report unexpected errors without changing Flask HTTP error responses."""
+    # Flask-Limiter and Werkzeug raise HTTPException instances (for example,
+    # 429 Too Many Requests).  Returning a generic 500 here would hide the
+    # original status code from clients and defeat rate-limit handling.
+    if isinstance(error, HTTPException):
+        return error
+
     logger.exception("Unhandled exception: %s", error)
     return api_error("An unexpected error occurred.", 500, error_code="UNHANDLED_EXCEPTION")
 
@@ -422,6 +431,60 @@ def version() -> Any:
         "name": API_NAME,
         "description": API_DESCRIPTION,
         "startup_time": STARTUP_TIME.isoformat(),
+    })
+
+
+def catalog_chat_fallback(matched_schemes: list[Dict[str, Any]]) -> str:
+    """Return a useful answer when the optional Gemini service is unavailable."""
+    if not matched_schemes:
+        return (
+            "క్షమించండి. SmartGovAI ప్రస్తుతం ఆరోగ్య సంబంధిత ప్రభుత్వ పథకాల "
+            "గురించి సమాచారాన్ని అందిస్తుంది. ఆరోగ్య పథకాలు, ఆసుపత్రి చికిత్స, "
+            "మందులు, గర్భం లేదా పిల్లల ఆరోగ్యం గురించి అడగండి."
+        )
+
+    suggestions = "\n".join(
+        f"• {scheme['telugu_name']} ({scheme['scheme_name']})"
+        for scheme in matched_schemes
+    )
+    return (
+        "మీ ప్రశ్నకు సరిపోయే పథకాలు ఇవి:\n"
+        f"{suggestions}\n\n"
+        "చివరి అర్హత కోసం అధికారిక కార్యాలయం లేదా ఆసుపత్రిని సంప్రదించండి."
+    )
+
+
+@app.route("/chat", methods=["POST"])
+@limiter.limit(chat_limit)
+def chat() -> Any:
+    """Answer scheme questions using catalog retrieval and optional Gemini grounding."""
+    data = request.get_json(silent=True) or {}
+    question = data.get("question", "")
+    if not isinstance(question, str):
+        return api_error("Question must be text.", 400, error_code="INVALID_QUESTION")
+
+    question = question.strip()
+    if not question:
+        return api_error("Please enter a question.", 400, error_code="MISSING_QUESTION")
+    if len(question) > 500:
+        return api_error("Question must be 500 characters or fewer.", 400, error_code="QUESTION_TOO_LONG")
+
+    matched_schemes = retrieve_relevant_schemes(question, schemes)
+    answer = generate_chat_response(question, matched_schemes)
+    used_ai = answer is not None
+    if answer is None:
+        answer = catalog_chat_fallback(matched_schemes)
+
+    return api_response({
+        "answer": answer,
+        "matched_schemes": [
+            {
+                "scheme_name": scheme["scheme_name"],
+                "telugu_name": scheme["telugu_name"],
+            }
+            for scheme in matched_schemes
+        ],
+        "used_ai": used_ai,
     })
 
 
@@ -835,6 +898,8 @@ def api_facilities() -> Any:
         if not (-90 <= user_lat <= 90) or not (-180 <= user_lng <= 180):
             return api_error("Invalid latitude or longitude range.", 400, "INVALID_COORDINATES")
         radius = float(radius_str) if radius_str else None
+        if radius is not None and radius < 0:
+            return api_error("Radius must be zero or greater.", 400, "INVALID_RADIUS")
     except ValueError:
         return api_error("Invalid latitude, longitude, or radius parameters.", 400, "INVALID_PARAMS")
 
@@ -876,7 +941,11 @@ def offline_cache() -> Any:
                 "simplified": data.get("simplified"),
                 "telugu": data.get("telugu"),
                 "last_updated": data.get("last_updated"),
-                "voice_url": url_for("static", filename=data["audio_file"]) if data.get("audio_file") else None,
+                # Scheme data stores audio files as "static/audio/...", while
+                # url_for("static") expects a path relative to static/.
+                "voice_url": url_for(
+                    "static", filename=data["audio_file"].removeprefix("static/")
+                ) if data.get("audio_file") else None,
             }
             for name, data in schemes.items()
         },

@@ -28,6 +28,7 @@ pytest
 
 ## Security Vulnerability Reporting
 
-If you identify a security vulnerability, do not submit a public issue report. Instead, securely transmit the vulnerability details and reproduction methodology to the maintainers via private email at security@smartgov.health.
+If you identify a security vulnerability, please do not submit a public issue report. Instead, open a private security report under the repository's Security tab on GitHub or contact the project maintainers directly.
 
 We appreciate your cooperation and technical contributions.
+

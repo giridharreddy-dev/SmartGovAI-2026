@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smartgov-health-v3';
+const CACHE_NAME = 'smartgov-health-v4';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache on install — all app-shell assets

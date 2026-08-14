@@ -56,5 +56,49 @@ This dual declaration generated a scope conflict, resulting in desynchronized st
 - [ ] The user feedback endpoints trigger and resolve successfully.
 - [ ] The browser developer console remains devoid of undefined reference exceptions.
 
+---
+
+## Phase 5: Backend, Security & Deployment Fixes
+
+### 4. **Static Audio URL Double-Prefix**
+**Problem Statement**: The `/offline-cache` endpoint returned audio paths prefixed as `/static/static/audio/...` instead of `/static/audio/...`, causing broken audio playback in cached/offline mode.
+
+**Implementation Fix**: Applied `removeprefix("static/")` to audio paths before prepending the `/static/` URL prefix.
+
+### 5. **HTTP Exception Status Preservation**
+**Problem Statement**: The global exception handler in `app.py` was rewriting all exceptions (including intentional HTTP errors like 429 Too Many Requests) to status 500.
+
+**Implementation Fix**: Modified the handler to check for `werkzeug.exceptions.HTTPException` and preserve its original status code.
+
+### 6. **Facilities Negative Radius Validation**
+**Problem Statement**: The `/api/facilities` endpoint accepted negative radius values, producing nonsensical search results.
+
+**Implementation Fix**: Added server-side validation to reject negative `radius` query parameters with a 400 error.
+
+### 7. **Dockerfile Port Binding**
+**Problem Statement**: The Dockerfile CMD was hard-coded to `gunicorn --bind 0.0.0.0:5000`, ignoring the `$PORT` environment variable required by Render and similar PaaS platforms, causing HTTP 502 errors.
+
+**Implementation Fix**: Changed CMD to `sh -c "gunicorn --bind 0.0.0.0:${PORT:-5000} app:app"` to respect the platform-assigned port.
+
+### 8. **CSS Media Query Brace Imbalance**
+**Problem Statement**: A misplaced closing brace in `static/style.css` caused dashboard, chat, and map styles to be incorrectly scoped inside a `@media (max-width: 414px)` block, making them invisible on desktop.
+
+**Implementation Fix**: Corrected the brace balance so all styles apply at their intended breakpoints.
+
+### 9. **Chat Endpoint Missing Client Handlers**
+**Problem Statement**: The `/chat` backend route existed but had no corresponding client-side JavaScript to open the chat UI, send messages, or display responses.
+
+**Implementation Fix**: Added complete chat UI handlers in `enhanced-features.js`: `openChat()`, `closeChat()`, `sendChatQuestion()`, `appendChatMessage()`, with keyboard shortcuts (Escape to close, Ctrl+Enter to send) and event delegation.
+
+### 10. **"అన్నీ" (All) Filter Button Persistent Highlight**
+**Problem Statement**: The "అన్నీ" filter button remained visually highlighted/selected even when it should not have been.
+
+**Implementation Fix**: Removed the hardcoded `active` class from the template. The button now receives the active style only through JavaScript when it is the actual active filter.
+
+### 11. **Scheme Details Scroll Position**
+**Problem Statement**: When a user clicked on a scheme card, the page did not scroll to the scheme details area, leaving users stranded at their current scroll position.
+
+**Implementation Fix**: Added `scrollIntoView({ behavior: 'smooth', block: 'start' })` on the result area after scheme selection, with `prefers-reduced-motion` respect.
+
 ## Final Status
 All identified scope and definition errors within the JavaScript components have been resolved. The application executes synchronously across both inline and external script boundaries.

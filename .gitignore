@@ -5,8 +5,12 @@
 static/audio/
 
 # Virtual environments
+.venv/
 venv/
 myenv/
+
+# Scratch files
+scratch/
 
 # Python cache
 __pycache__/

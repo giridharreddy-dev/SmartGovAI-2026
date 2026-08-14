@@ -57,7 +57,7 @@
         </div>
         <div id="voiceStatus" class="voice-status">పథకం వెతకండి లేదా మైక్ నొక్కండి</div>
         <div class="filters" role="group" aria-label="Scheme filters">
-            <button class="filter-btn active" type="button" data-filter="all">అన్నీ</button>
+            <button class="filter-btn" type="button" data-filter="all">అన్నీ</button>
             <button class="filter-btn" type="button" data-filter="ap">ఆంధ్రప్రదేశ్</button>
             <button class="filter-btn" type="button" data-filter="national">జాతీయ</button>
         </div>
@@ -265,8 +265,9 @@
         return data.level === 'National';
     }
 
+    // Start with no previous filter so the initial scheme grid is rendered.
     let lastQuery = '';
-    let lastFilter = 'all';
+    let lastFilter = null;
 
     function renderSchemeCards() {
         const rawQuery = document.getElementById('searchInput').value.trim();
@@ -426,9 +427,10 @@
         restoreEligibilityAnswers();
         restoreDocumentChecks();
 
-        if (window.matchMedia('(max-width: 860px)').matches) {
-            document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        document.getElementById('resultArea').scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            block: 'start'
+        });
     }
 
     window.fetchScheme = async function fetchScheme(schemeName) {
@@ -445,6 +447,22 @@
             const data = await response.json();
             displayResult(data);
         } catch (error) {
+            const offlineData = window.SmartGovEnhanced?.loadOfflineData();
+            const cachedScheme = offlineData?.schemes_list?.[schemeName];
+            if (cachedScheme) {
+                displayResult({
+                    request_id: null,
+                    scheme_name: schemeName,
+                    level: 'Cached copy',
+                    category: cachedScheme.category || '',
+                    source_name: 'Cached SmartGovAI data',
+                    source_url: '',
+                    simplified: cachedScheme.simplified,
+                    telugu: cachedScheme.telugu,
+                    voice_url: cachedScheme.voice_url
+                });
+                return;
+            }
             showError(`నెట్ వర్క్ లోపం: ${error.message}`);
         }
     }

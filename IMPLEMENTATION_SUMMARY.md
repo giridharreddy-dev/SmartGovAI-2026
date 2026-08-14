@@ -20,7 +20,7 @@
 **Technical Characteristics:**
 - Incorporates a Stale-While-Revalidate HTTP caching strategy.
 - Enforces autonomous background caching of essential static binaries (CSS, JS, HTML, MP3).
-- Implements a deterministic offline fallback URI: `/templates/offline.html`.
+- Implements a deterministic offline fallback URI: `/offline.html`.
 - Automates the serialization of JSON scheme dictionaries via Service Worker interception.
 
 **Execution Flow:**
@@ -55,7 +55,7 @@
 **Source Modules:** `generate_audio.py`, `app.py`
 
 **Technical Characteristics:**
-- Executes bulk, pre-runtime synthesis of all MP3 binaries via `python generate_audio.py`.
+- Executes bulk, pre-runtime synthesis of all MP3 binaries via `python -m scripts.generate_audio`.
 - Persists all audio assets rigidly within the `static/audio/` directory.
 - Entirely bypasses runtime network dependencies for TTS execution during standard catalog interaction.
 - Reverts to the client-side `Web Speech API` exclusively during cache miss scenarios.
@@ -111,7 +111,7 @@
 
 **Technical Characteristics:**
 - Encapsulates error submission logic via `reportIssueToServer(schemeName, feedback)`.
-- Dispatches serialized error dictionaries (Scheme Name, Defect Classification, Geographic Origin, Client Device Fingerprint) via an asynchronous HTTP POST to the backend database endpoints.
+- Dispatches serialized error dictionaries (Scheme Name, Defect Classification, Geographic Origin) via an asynchronous HTTP POST to the backend database endpoints.
 
 ---
 

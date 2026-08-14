@@ -44,7 +44,7 @@ def safe_url(value: Optional[str]) -> str:
     if not value:
         return ""
     parsed = urllib.parse.urlparse(value)
-    return value if parsed.scheme in {"http", "https"} else ""
+    return value if parsed.scheme in {"http", "https"} and parsed.netloc else ""
 
 
 def validate_pdf_content(file_path: str) -> Tuple[bool, str]:

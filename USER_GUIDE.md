@@ -124,7 +124,35 @@
 ### Network-Dependent Features:
 - WhatsApp sharing external intents (మీకు సంపర్క అందుకుంటుంది)
 - AI-driven PDF simplification (GEMINI AI చేస్తుంది)
+- AI Chat Assistant (తెలుగులో ప్రశ్నలు అడగండి)
 - Dynamic repository updates (నవీకరించిన సమాచారం డౌన్‌లోడ్ చేయడం)
+
+---
+
+<a id="ai-chat-assistant"></a>
+## AI Chat Assistant (చాట్ సహాయకుడు)
+
+### Using the Chat Feature:
+1. పేజీలో "💬 చాట్" బటన్ నొక్కండి
+2. మీ ప్రశ్నను తెలుగులో టైప్ చేయండి (ఉదా: "ఉచిత మందులు ఎలా పొందాలి?")
+3. Send బటన్ నొక్కండి లేదా Ctrl+Enter నొక్కండి
+4. AI తెలుగులో సమాధానం ఇస్తుంది
+5. సూచించిన ప్రశ్నలు నొక్కి త్వరగా సమాచారం పొందండి
+
+> **Note:** AI chat requires internet and a configured Gemini API key. Without it, the system returns matching scheme summaries from the catalog.
+
+---
+
+<a id="healthcare-facilities-map"></a>
+## Healthcare Facilities Map (ఆరోగ్య సేవల మ్యాప్)
+
+### Finding Nearest Facilities:
+1. మ్యాప్ విభాగం చూడండి
+2. "📍 నా స్థానం" బటన్ నొక్కండి (GPS అనుమతి ఇవ్వండి)
+3. సమీపంలోని PHC, CHC, ఆసుపత్రులు మ్యాప్ లో కనిపిస్తాయి
+4. Filter buttons ద్వారా facility type ఎంచుకోండి
+5. Radius slider ద్వారా దూరం పరిధి మార్చండి
+6. ప్రతి marker నొక్కి సంపూర్ణ సమాచారం చూడండి
 
 ---
 
@@ -161,8 +189,9 @@
 
 ### Fault: PDF Ingestion Failure
 **Resolution Actions**:
-- PDF < 10 MB ఉందో చెక్ చేయండి
-- .env ఫైలులో సక్రియ API కీ సెట్ చేసిందా చెక్ చేయండి
+- PDF < 5 MB ఉందో చెక్ చేయండి (గరిష్టంగా 50 పేజీలు)
+- PDF upload చేసే ముందు "I consent" checkbox ✓ చేయండి
+- .env ఫైలులో సక్రియ GEMINI_API_KEY సెట్ చేసిందా చెక్ చేయండి
 - Internet connection చెక్ చేయండి
 
 ### Fault: Telugu Typographical Rendering Errors
@@ -215,6 +244,6 @@
 
 ---
 
-**Document Version**: 2026-06 Release
+**Document Version**: 1.0.0
 **Localization Target**: Telugu
-**Last Modification Date**: 2026-06-03
+**Last Modification Date**: 2026-08-14

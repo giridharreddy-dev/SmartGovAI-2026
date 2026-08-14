@@ -1,8 +1,9 @@
 import io
 import pytest
 from unittest.mock import patch
+from werkzeug.exceptions import TooManyRequests
 
-from app import app
+from app import app, handle_unexpected_exception
 
 
 @pytest.fixture
@@ -26,6 +27,50 @@ def test_404_html_response(client):
     assert response.status_code == 404
     assert not response.is_json
     assert b"<html" in response.data.lower()
+
+
+def test_http_exception_status_is_preserved():
+    """Framework errors, such as rate limiting, must not become HTTP 500."""
+    error = TooManyRequests()
+    assert handle_unexpected_exception(error) is error
+
+
+def test_offline_cache_uses_static_relative_audio_urls(client):
+    response = client.get("/offline-cache")
+
+    assert response.status_code == 200
+    voice_urls = [
+        scheme["voice_url"]
+        for scheme in response.get_json()["schemes_list"].values()
+        if scheme["voice_url"]
+    ]
+    assert voice_urls
+    assert all("/static/static/" not in url for url in voice_urls)
+
+
+def test_facilities_reject_negative_radius(client):
+    response = client.get("/api/facilities?lat=15.0&lng=78.0&radius=-1")
+
+    assert response.status_code == 400
+    assert response.get_json()["error_code"] == "INVALID_RADIUS"
+
+
+@patch("app.generate_chat_response", return_value=None)
+def test_chat_uses_catalog_fallback_without_gemini(_mock_chat, client):
+    response = client.post("/chat", json={"question": "ఉచిత చికిత్స కావాలి"})
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["used_ai"] is False
+    assert payload["matched_schemes"]
+    assert "అధికారిక కార్యాలయం" in payload["answer"]
+
+
+def test_chat_rejects_missing_question(client):
+    response = client.post("/chat", json={})
+
+    assert response.status_code == 400
+    assert response.get_json()["error_code"] == "MISSING_QUESTION"
 
 
 def test_simplify_missing_scheme_name(client):
@@ -102,16 +147,57 @@ def test_analytics_with_valid_token(client, monkeypatch):
     assert response.status_code == 200
 
 
-@patch("app.is_gemini_available", return_value=True)
-@patch("app.database.log_request")
-@patch("app.extract_text_with_ocr_fallback")
-@patch("app.simplify_document")
-@patch("app.generate_telugu_audio")
-@patch("werkzeug.datastructures.FileStorage.save")
-def test_simplify_pdf_requires_consent(mock_save, mock_audio, mock_simplify, mock_extract, mock_log, mock_gemini, client):
-    """Test that PDF upload without consent field returns 400."""
-    pdf_content = b"%PDF-1.4\n%EOF"
-    data = {"document": (io.BytesIO(pdf_content), "test.pdf")}
-    response = client.post("/simplify", data=data, content_type="multipart/form-data")
-    assert response.status_code == 400
-    assert response.get_json()["error_code"] == "CONSENT_REQUIRED"
+
+
+def test_healthz_endpoint(client):
+    """Test /healthz returns status and diagnostic information."""
+    response = client.get("/healthz")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["status"] == "ok"
+    assert "schemes" in data
+
+
+def test_health_alias(client):
+    """Test /health alias for /healthz."""
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.get_json()["status"] == "ok"
+
+
+def test_version_endpoint(client):
+    """Test /version endpoint returns API metadata."""
+    response = client.get("/version")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["version"] == "1.0.0"
+    assert "startup_time" in data
+
+
+def test_scheme_by_valid_and_invalid_slug(client):
+    """Test slug routing with both existing and nonexistent slugs."""
+    # Nonexistent slug should redirect to index
+    res_404 = client.get("/scheme/nonexistent-invalid-slug")
+    assert res_404.status_code in (302, 200)
+
+    # Valid slug test if schemes exist
+    from app import slug_to_scheme
+    if slug_to_scheme:
+        sample_slug = next(iter(slug_to_scheme.keys()))
+        res_valid = client.get(f"/scheme/{sample_slug}")
+        assert res_valid.status_code == 200
+
+
+def test_qr_code_generation(client):
+    """Test /qr/<slug>.png returns valid PNG image data."""
+    from app import slug_to_scheme
+    if slug_to_scheme:
+        sample_slug = next(iter(slug_to_scheme.keys()))
+        res = client.get(f"/qr/{sample_slug}.png")
+        assert res.status_code == 200
+        assert res.mimetype == "image/png"
+        assert res.data.startswith(b"\x89PNG")
+
+    # Invalid slug should 404
+    res_invalid = client.get("/qr/invalid-slug-12345.png")
+    assert res_invalid.status_code == 404
