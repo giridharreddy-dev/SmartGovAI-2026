@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smartgov-health-v4';
+const CACHE_NAME = 'smartgov-health-v5';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache on install — all app-shell assets
@@ -8,6 +8,7 @@ const STATIC_CACHE_FILES = [
   '/static/style.css',
   '/static/manifest.webmanifest',
   '/static/icon.svg',
+  '/static/i18n.js',
   '/static/enhanced-features.js',
   '/static/leaflet/leaflet.js',
   '/static/leaflet/leaflet.css',

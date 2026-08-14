@@ -109,6 +109,49 @@ a {
     flex-wrap: wrap;
 }
 
+.lang-toggle-group {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.lang-btn {
+    background: none;
+    border: none;
+    border-right: 1px solid var(--border);
+    min-height: 44px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.95rem;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lang-btn:last-child {
+    border-right: none;
+}
+
+.lang-btn.active {
+    background: var(--green);
+    color: #fff;
+}
+
+.lang-btn:hover:not(.active), .lang-btn:focus-visible:not(.active) {
+    background: var(--surface-soft);
+}
+
+.lang-btn:focus-visible {
+    outline: 2px solid var(--saffron);
+    outline-offset: -2px;
+}
+
 .control-group {
     display: flex;
     background: var(--surface);

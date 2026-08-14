@@ -23,6 +23,14 @@
           "type": "string",
           "description": "Telugu translation of the scheme's display name"
         },
+        "telugu_description": {
+          "type": "string",
+          "description": "Comprehensive Telugu summary / description for localized view and Guided Mode Slide 1"
+        },
+        "english_description": {
+          "type": "string",
+          "description": "Comprehensive English summary / description faithfully translated from Telugu"
+        },
         "audio_file": {
           "type": "string",
           "description": "Relative path to pre-generated static audio MP3 file"
@@ -48,7 +56,8 @@
             "eligibility": { "type": "string" },
             "benefits": { "type": "string" },
             "documents": { "type": "string" },
-            "steps": { "type": "string" }
+            "steps": { "type": "string" },
+            "description": { "type": "string" }
           },
           "required": ["eligibility", "benefits", "documents", "steps"],
           "additionalProperties": false
@@ -59,7 +68,8 @@
             "eligibility": { "type": "string" },
             "benefits": { "type": "string" },
             "documents": { "type": "string" },
-            "steps": { "type": "string" }
+            "steps": { "type": "string" },
+            "description": { "type": "string" }
           },
           "required": ["eligibility", "benefits", "documents", "steps"],
           "additionalProperties": false

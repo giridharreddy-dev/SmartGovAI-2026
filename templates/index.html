@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <meta name="theme-color" content="#176b5b">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>SmartGov Health | Andhra Pradesh</title>
+    <title data-i18n="appTitle">SmartGov Health | Andhra Pradesh</title>
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
     <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="{{ url_for('static', filename='leaflet/leaflet.css') }}">
@@ -17,33 +17,37 @@
         <div class="brand">
             <div class="brand-mark" aria-hidden="true">+</div>
             <div>
-                <p class="eyebrow">ఆంధ్రప్రదేశ్ ఆరోగ్య సహాయం</p>
-                <h1>SmartGov Health</h1>
-                <p class="subhead">జాతీయ మరియు రాష్ట్ర ఆరోగ్య పథకాలు</p>
+                <p class="eyebrow" data-i18n="appEyebrow">ఆంధ్రప్రదేశ్ ఆరోగ్య సహాయం</p>
+                <h1 data-i18n="appTitle">SmartGov Health</h1>
+                <p class="subhead" data-i18n="appSubhead">జాతీయ మరియు రాష్ట్ర ఆరోగ్య పథకాలు</p>
             </div>
         </div>
         <div class="header-controls">
-            <div class="control-group" role="group" aria-label="Text size controls">
-                <button id="fontDecBtn" class="control-btn" type="button" aria-label="Decrease text size" title="చిన్న అక్షరాలు">A-</button>
-                <button id="fontResetBtn" class="control-btn" type="button" aria-label="Reset text size" title="సాధారణ అక్షరాలు">A</button>
-                <button id="fontIncBtn" class="control-btn" type="button" aria-label="Increase text size" title="పెద్ద అక్షరాలు">A+</button>
+            <div class="lang-toggle-group" role="group" aria-label="Language selection">
+                <button id="langTeBtn" class="lang-btn active" type="button" aria-pressed="true" title="తెలుగులోకి మార్చండి" data-i18n="langToggleTe">తెలుగు</button>
+                <button id="langEnBtn" class="lang-btn" type="button" aria-pressed="false" title="Switch to English" data-i18n="langToggleEn">English</button>
             </div>
-            <button id="themeToggleBtn" class="control-btn control-group" type="button" aria-label="Toggle theme" title="థీమ్ మార్చండి" style="padding: 0 12px; border-right: none;">🌙</button>
+            <div class="control-group" role="group" aria-label="Text size controls">
+                <button id="fontDecBtn" class="control-btn" type="button" aria-label="Decrease text size" title="చిన్న అక్షరాలు" data-i18n-title="fontSizeSmall">A-</button>
+                <button id="fontResetBtn" class="control-btn" type="button" aria-label="Reset text size" title="సాధారణ అక్షరాలు" data-i18n-title="fontSizeNormal">A</button>
+                <button id="fontIncBtn" class="control-btn" type="button" aria-label="Increase text size" title="పెద్ద అక్షరాలు" data-i18n-title="fontSizeLarge">A+</button>
+            </div>
+            <button id="themeToggleBtn" class="control-btn control-group" type="button" aria-label="Toggle theme" title="థీమ్ మార్చండి" data-i18n-title="themeToggle" style="padding: 0 12px; border-right: none;">🌙</button>
         </div>
-        <button id="installBtn" class="install-btn" type="button" hidden>Install</button>
+        <button id="installBtn" class="install-btn" type="button" data-i18n="installApp" hidden>Install</button>
     </header>
 
     <section class="emergency-strip" aria-label="Emergency contacts">
         <a class="call-tile emergency" href="tel:108">
-            <span>అత్యవసరం</span>
+            <span data-i18n="emergency">అత్యవసరం</span>
             <strong>108</strong>
         </a>
         <a class="call-tile health" href="tel:104">
-            <span>ఆరోగ్య సలహా</span>
+            <span data-i18n="healthAdvice">ఆరోగ్య సలహా</span>
             <strong>104</strong>
         </a>
         <a class="call-tile phc" href="#" data-action="expand-map">
-            <span>దగ్గర సేవ</span>
+            <span data-i18n="nearbyPhc">దగ్గర సేవ</span>
             <strong>PHC</strong>
         </a>
     </section>
@@ -51,15 +55,15 @@
     <section class="toolbar" aria-label="Search health schemes">
         <div class="search-row">
             <input id="searchInput" class="search-input" type="search" autocomplete="off"
-                   placeholder="పథకం పేరు లేదా సమస్య రాయండి">
-            <button id="voiceBtn" class="icon-btn" type="button" aria-label="Speak scheme name">🎙</button>
-            <button id="clearSearchBtn" class="icon-btn clear" type="button" aria-label="Clear search">×</button>
+                   placeholder="పథకం పేరు లేదా సమస్య రాయండి..." data-i18n-placeholder="searchPlaceholder">
+            <button id="voiceBtn" class="icon-btn" type="button" aria-label="Speak scheme name" data-i18n-aria="voiceBtnAria">🎙</button>
+            <button id="clearSearchBtn" class="icon-btn clear" type="button" aria-label="Clear search" data-i18n-aria="clearSearchAria">×</button>
         </div>
-        <div id="voiceStatus" class="voice-status">పథకం వెతకండి లేదా మైక్ నొక్కండి</div>
+        <div id="voiceStatus" class="voice-status" data-i18n="voiceStatusDefault">పథకం వెతకండి లేదా మైక్ నొక్కండి</div>
         <div class="filters" role="group" aria-label="Scheme filters">
-            <button class="filter-btn" type="button" data-filter="all">అన్నీ</button>
-            <button class="filter-btn" type="button" data-filter="ap">ఆంధ్రప్రదేశ్</button>
-            <button class="filter-btn" type="button" data-filter="national">జాతీయ</button>
+            <button class="filter-btn" type="button" data-filter="all" data-i18n="filterAll">అన్నీ</button>
+            <button class="filter-btn" type="button" data-filter="ap" data-i18n="filterAp">ఆంధ్రప్రదేశ్</button>
+            <button class="filter-btn" type="button" data-filter="national" data-i18n="filterNational">జాతీయ</button>
         </div>
     </section>
 
@@ -68,11 +72,11 @@
         <div class="symptom-entry-content">
             <span class="symptom-icon">🩺</span>
             <div>
-                <div class="symptom-title">నా సమస్య</div>
-                <div class="symptom-subtitle">మీ సమస్యకు సరిపోయే పథకాలను కనుగొనండి</div>
+                <div class="symptom-title" data-i18n="symptomTitle">నా సమస్య</div>
+                <div class="symptom-subtitle" data-i18n="symptomSubtitle">మీ సమస్యకు సరిపోయే పథకాలను కనుగొనండి</div>
             </div>
         </div>
-        <button class="primary-btn symptom-start-btn">ప్రారంభించండి</button>
+        <button class="primary-btn symptom-start-btn" data-i18n="symptomStartBtn">ప్రారంభించండి</button>
     </div>
 
     <!-- AI Chat Entry Banner -->
@@ -80,11 +84,11 @@
         <div class="chat-entry-content">
             <span class="chat-icon">🤖</span>
             <div>
-                <div class="chat-entry-title">పథకాల గురించి అడగండి</div>
-                <div class="chat-entry-subtitle">తెలుగులో ప్రశ్నలు అడగండి, AI సహాయం పొందండి</div>
+                <div class="chat-entry-title" data-i18n="chatTitle">పథకాల గురించి అడగండి</div>
+                <div class="chat-entry-subtitle" data-i18n="chatSubtitle">తెలుగులో ప్రశ్నలు అడగండి, AI సహాయం పొందండి</div>
             </div>
         </div>
-        <button class="primary-btn" data-action="open-chat">AI సహాయం</button>
+        <button class="primary-btn" data-action="open-chat" data-i18n="chatBtn">AI సహాయం</button>
     </div>
 
     <div class="main-grid">
@@ -92,12 +96,12 @@
             <!-- Home View (Default) -->
             <div id="homeViewContainer">
                 <div id="favoritesSection" class="recently-viewed-section" style="display: none;">
-                    <h2>⭐ ఇష్టమైన పథకాలు (Favorites)</h2>
+                    <h2 data-i18n="favoritesTitle">⭐ ఇష్టమైన పథకాలు (Favorites)</h2>
                     <div id="favoritesList" class="recently-viewed-list"></div>
                 </div>
                 
                 <div id="recentlyViewedSection" class="recently-viewed-section" style="display: none;">
-                    <h2>🕒 ఇటీవల చూసినవి (Recently Viewed)</h2>
+                    <h2 data-i18n="recentlyViewedTitle">🕒 ఇటీవల చూసినవి (Recently Viewed)</h2>
                     <div id="recentlyViewedList" class="recently-viewed-list"></div>
                 </div>
 
@@ -107,36 +111,36 @@
             <!-- Symptom Category View -->
             <div id="symptomCategoryView" class="symptom-view" style="display: none;">
                 <div class="symptom-nav">
-                    <button class="back-btn primary-btn" data-action="close-symptom-finder">← వెనుకకు</button>
+                    <button class="back-btn primary-btn" data-action="close-symptom-finder" data-i18n="symptomNavBack">← వెనుకకు</button>
                 </div>
                 <div class="symptom-header">
-                    <h2>నా సమస్య ఏమిటి?</h2>
-                    <p>మీకు ఏ రకమైన సహాయం కావాలి?</p>
+                    <h2 data-i18n="symptomHeaderTitle">నా సమస్య ఏమిటి?</h2>
+                    <p data-i18n="symptomHeaderSubtitle">మీకు ఏ రకమైన సహాయం కావాలి?</p>
                 </div>
                 <div class="symptom-grid">
                     <button class="category-card" data-category="hospital">
-                        <span class="cat-icon">🏥</span> <span class="cat-label">ఆసుపత్రి / అత్యవసర చికిత్స</span>
+                        <span class="cat-icon">🏥</span> <span class="cat-label" data-i18n="catHospital">ఆసుపత్రి / అత్యవసర చికిత్స</span>
                     </button>
                     <button class="category-card" data-category="pregnancy">
-                        <span class="cat-icon">🤰</span> <span class="cat-label">గర్భం / ప్రసవం</span>
+                        <span class="cat-icon">🤰</span> <span class="cat-label" data-i18n="catPregnancy">గర్భం / ప్రసవం</span>
                     </button>
                     <button class="category-card" data-category="child">
-                        <span class="cat-icon">👶</span> <span class="cat-label">పిల్లల ఆరోగ్యం</span>
+                        <span class="cat-icon">👶</span> <span class="cat-label" data-i18n="catChild">పిల్లల ఆరోగ్యం</span>
                     </button>
                     <button class="category-card" data-category="medicines">
-                        <span class="cat-icon">💊</span> <span class="cat-label">మందులు / పరీక్షలు</span>
+                        <span class="cat-icon">💊</span> <span class="cat-label" data-i18n="catMedicines">మందులు / పరీక్షలు</span>
                     </button>
                     <button class="category-card" data-category="eye_hearing">
-                        <span class="cat-icon">👁️</span> <span class="cat-label">కన్ను మరియు వినికిడి</span>
+                        <span class="cat-icon">👁️</span> <span class="cat-label" data-i18n="catEyeHearing">కన్ను మరియు వినికిడి</span>
                     </button>
                     <button class="category-card" data-category="nutrition_blood">
-                        <span class="cat-icon">🥗</span> <span class="cat-label">పోషణ / రక్తం</span>
+                        <span class="cat-icon">🥗</span> <span class="cat-label" data-i18n="catNutrition">పోషణ / రక్తం</span>
                     </button>
                     <button class="category-card" data-category="chronic">
-                        <span class="cat-icon">🩺</span> <span class="cat-label">దీర్ఘకాలిక వ్యాధులు</span>
+                        <span class="cat-icon">🩺</span> <span class="cat-label" data-i18n="catChronic">దీర్ఘకాలిక వ్యాధులు</span>
                     </button>
                     <button class="category-card" data-category="phone_digital">
-                        <span class="cat-icon">📱</span> <span class="cat-label">ఫోన్ ద్వారా వైద్య సేవలు</span>
+                        <span class="cat-icon">📱</span> <span class="cat-label" data-i18n="catTelehealth">ఫోన్ ద్వారా వైద్య సేవలు</span>
                     </button>
                 </div>
             </div>
@@ -144,12 +148,12 @@
             <!-- Symptom Results View -->
             <div id="symptomResultsView" class="symptom-view" style="display: none;">
                 <div class="symptom-nav" style="display: flex; justify-content: space-between;">
-                    <button class="back-btn primary-btn" data-action="show-symptom-categories">← సమస్యలు</button>
-                    <button class="back-btn secondary-btn" data-action="close-symptom-finder">అన్ని పథకాలు</button>
+                    <button class="back-btn primary-btn" data-action="show-symptom-categories" data-i18n="symptomNavCategories">← సమస్యలు</button>
+                    <button class="back-btn secondary-btn" data-action="close-symptom-finder" data-i18n="symptomNavAll">అన్ని పథకాలు</button>
                 </div>
                 
                 <div class="symptom-results-header" style="margin-top: 15px; margin-bottom: 20px;">
-                    <h3 style="margin: 0; color: var(--ink); font-size: 1.1rem;">మీ ఎంపిక: <span id="symptomResultTitle" style="color: var(--primary);"></span></h3>
+                    <h3 style="margin: 0; color: var(--ink); font-size: 1.1rem;"><span data-i18n="symptomTitle">మీ ఎంపిక:</span> <span id="symptomResultTitle" style="color: var(--primary);"></span></h3>
                     <div id="symptomResultCount" class="result-count" style="margin-top: 8px; font-weight: bold; font-size: 1.2rem;"></div>
                 </div>
                 
@@ -157,17 +161,17 @@
                 
                 <div id="symptomNoResults" class="empty-state" style="display: none;">
                     <div>
-                        <strong style="display: block; font-size: 1.2rem; margin-bottom: 10px;">ఈ సమస్యకు ప్రస్తుతం పథకాలు కనుగొనలేకపోయాము.</strong>
-                        <span style="display: block;">ఇతర సమస్యను ఎంచుకుని చూడండి.</span>
+                        <strong style="display: block; font-size: 1.2rem; margin-bottom: 10px;" data-i18n="emptyResultsTitle">ఈ సమస్యకు ప్రస్తుతం పథకాలు కనుగొనలేకపోయాము.</strong>
+                        <span style="display: block;" data-i18n="emptyResultsMsg">ఇతర సమస్యను ఎంచుకుని చూడండి.</span>
                         <div style="margin-top: 20px;">
-                            <button class="primary-btn" style="width: 100%; margin-bottom: 10px;" data-action="show-symptom-categories">ఇతర సమస్యను ఎంచుకోండి</button>
+                            <button class="primary-btn" style="width: 100%; margin-bottom: 10px;" data-action="show-symptom-categories" data-i18n="symptomNavCategories">ఇతర సమస్యను ఎంచుకోండి</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <details class="staff-panel">
-                <summary>సచివాలయం / ఆరోగ్య సిబ్బంది సాధనాలు</summary>
+                <summary data-i18n="staffToolsSummary">సచివాలయం / ఆరోగ్య సిబ్బంది సాధనాలు</summary>
                 <div class="staff-body">
                     <div class="field">
                         <label for="schemeSelect">జాబితా నుండి పథకం</label>
@@ -183,15 +187,13 @@
                         <label for="pdfUpload">PDF పత్రం</label>
                         <input type="file" id="pdfUpload" accept="application/pdf">
                     </div>
-                    <button id="uploadBtn" class="secondary-btn" type="button">PDF ను సరళీకరించు</button>
-                    <div class="privacy-warning" style="margin: 12px 0 0; font-size: 0.85rem;">
-                        ⚠️ <strong>గోప్యతా హెచ్చరిక:</strong><br>
-                        ఆధార్, ప్రెస్క్రిప్షన్లు లేదా వ్యక్తిగత ఆరోగ్య ఫైలులను అప్‌లోడ్ చేయవద్దు.
-                        మీరు విశ్వసించే పరికరమైన తర్వాత మాత్రమే అప్‌లోడ్ చేయండి.
+                    <button id="uploadBtn" class="secondary-btn" type="button" data-i18n="pdfSimplifyBtn">PDF ను సరళీకరించు</button>
+                    <div class="privacy-warning" style="margin: 12px 0 0; font-size: 0.85rem;" data-i18n="privacyWarning">
+                        🔒 గోప్యతా నోటీసు: ఆధార్ కార్డు నంబర్లు లేదా వ్యక్తిగత వైద్య పత్రాలను ఇక్కడ అప్‌లోడ్ చేయవద్దు.
                     </div>
                     <label class="consent-label" style="display:flex;align-items:flex-start;gap:8px;margin:12px 0 0;font-size:0.85rem;cursor:pointer;">
                         <input type="checkbox" id="pdfConsent" style="margin-top:3px;">
-                        <span>ఈ PDF టెక్స్ట్ సరళీకరణ కోసం Google AI కి పంపబడుతుందని నేను అర్థం చేసుకున్నాను. ఆధార్ లేదా వ్యక్తిగత వైద్య రికార్డులను అప్‌లోడ్ చేయవద్దు.</span>
+                        <span data-i18n="pdfConsent">నేను వ్యక్తిగత డేటాను అప్‌లోడ్ చేయడం లేదని ధృవీకరిస్తున్నాను (I consent to document processing without PII)</span>
                     </label>
                 </div>
             </details>
@@ -200,24 +202,155 @@
         <aside id="resultArea" class="result-panel" aria-live="polite">
             <div class="empty-state">
                 <div>
-                    <strong>పథకం ఎంచుకోండి</strong>
-                    <span>వివరాలు ఇక్కడ కనిపిస్తాయి.</span>
+                    <strong data-i18n="aboutSchemeTitle">పథకం ఎంచుకోండి</strong>
+                    <span data-i18n="emptyResultsMsg">వివరాలు ఇక్కడ కనిపిస్తాయి.</span>
                 </div>
             </div>
         </aside>
     </div>
 
-    <p class="footer-note">అధికారిక ఆసుపత్రి, PHC, ASHA/ANM లేదా గ్రామ సచివాలయం వద్ద చివరి అర్హతను తప్పక ధృవీకరించండి.</p>
+    <p class="footer-note" data-i18n="quizDisclaimer">అధికారిక ఆసుపత్రి, PHC, ASHA/ANM లేదా గ్రామ సచివాలయం వద్ద చివరి అర్హతను తప్పక ధృవీకరించండి.</p>
     
     <div style="background: #f3f0e9; border-top: 2px solid var(--border); padding: 16px; margin-top: 20px; text-align: center;">
-        <button type="button" id="footerReportBtn" class="secondary-btn" style="width:100%; min-height: 52px; margin-bottom: 10px;">📋 తప్పు సమాచారం నివేదించండి</button>
+        <button type="button" id="footerReportBtn" class="secondary-btn" style="width:100%; min-height: 52px; margin-bottom: 10px;" data-i18n="reportIssueBtn">⚠️ సమస్య నివేదించండి</button>
         <div id="offlineIndicator" style="display:none; color: var(--red); font-weight: 800; margin-top: 8px;">
             📡 ఆఫ్‌లైన్ మోడ్ - కాష్‌ చేసిన సమాచారం చూపిస్తున్నాం
         </div>
     </div>
 </main>
 
+<!-- Guided Mode Modal -->
+<div id="guidedModeOverlay" role="dialog" aria-modal="true" aria-labelledby="guidedTitle" style="display:none;" aria-live="polite">
+    <div class="guided-content-wrapper">
+        <div class="guided-header">
+            <h2 id="guidedTitle" tabindex="-1"></h2>
+            <div class="guided-header-actions">
+                <div id="guidedFavoriteContainer"></div>
+                <button class="guided-close-btn" aria-label="Close guided mode" data-action="guided-close">✕</button>
+            </div>
+        </div>
+        <div class="guided-progress">
+            <span id="guidedProgressText">దశ 1 / 6</span>
+        </div>
+        <div class="guided-body" id="guidedBody">
+            <!-- Dynamic Content -->
+        </div>
+        <div class="guided-footer">
+            <button type="button" id="guidedPrevBtn" class="guided-nav-btn secondary-btn" data-action="guided-prev">← వెనుకకు</button>
+            <button type="button" id="guidedNextBtn" class="guided-nav-btn primary-btn" data-action="guided-next">తర్వాత →</button>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div id="feedbackOverlay" class="feedback-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle" aria-hidden="true">
+    <div class="feedback-modal">
+        <div class="feedback-header">
+            <h2 id="feedbackTitle" tabindex="-1" data-i18n="feedbackTitle">మీ అభిప్రాయం</h2>
+            <button type="button" class="feedback-close-btn" aria-label="Close" data-action="close-feedback">✕</button>
+        </div>
+        <div class="feedback-body">
+            <div id="feedbackStatus" class="feedback-status" aria-live="polite"></div>
+            
+            <p class="feedback-prompt" data-i18n="feedbackRating">ఈ పథకం గురించి సమాచారం ఉపయోగకరంగా ఉందా?</p>
+            <div class="star-rating" role="group" aria-label="Rating">
+                <button type="button" data-action="set-rating" data-value="1" aria-label="1 / 5">☆</button>
+                <button type="button" data-action="set-rating" data-value="2" aria-label="2 / 5">☆</button>
+                <button type="button" data-action="set-rating" data-value="3" aria-label="3 / 5">☆</button>
+                <button type="button" data-action="set-rating" data-value="4" aria-label="4 / 5">☆</button>
+                <button type="button" data-action="set-rating" data-value="5" aria-label="5 / 5">☆</button>
+            </div>
+            
+            <p class="feedback-prompt" data-i18n="feedbackComment">మీకు ఎలా అనిపించింది? (ఐచ్ఛికం)</p>
+            <div class="feedback-chips">
+                <button type="button" class="chip" data-action="set-feedback-chip" data-value="మంచి సమాచారం">మంచి సమాచారం</button>
+                <button type="button" class="chip" data-action="set-feedback-chip" data-value="ఇంకా సులభంగా ఉండాలి">ఇంకా సులభంగా ఉండాలి</button>
+                <button type="button" class="chip" data-action="set-feedback-chip" data-value="సమాచారం పూర్తిగా లేదు">సమాచారం పూర్తిగా లేదు</button>
+            </div>
+
+            <label for="feedbackComment" class="feedback-prompt" data-i18n="feedbackComment">వివరణ (ఐచ్ఛికం)</label>
+            <textarea id="feedbackComment" rows="3" placeholder="మీ వ్యాఖ్య రాయండి..."></textarea>
+        </div>
+        <div class="feedback-footer">
+            <button type="button" class="btn secondary-btn" data-action="close-feedback" data-i18n="feedbackCancel">రద్దు (Cancel)</button>
+            <button type="button" class="btn primary-btn" data-action="submit-feedback" data-i18n="feedbackSubmit">పంపండి (Submit)</button>
+        </div>
+    </div>
+</div>
+
+<!-- AI Chat Overlay -->
+<div id="chatOverlay" class="chat-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="chatTitle" aria-hidden="true">
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2 id="chatTitle" tabindex="-1" data-i18n="chatModalTitle">🤖 SmartGov AI సహాయకుడు</h2>
+            <button type="button" class="chat-close-btn" aria-label="Close chat" data-action="close-chat">✕</button>
+        </div>
+        <div id="chatMessages" class="chat-messages" aria-live="polite">
+            <div class="chat-msg bot">
+                <p data-i18n="chatWelcome">నమస్కారం! నేను SmartGov AI సహాయకుడిని. ఆంధ్రప్రదేశ్ ప్రభుత్వ ఆరోగ్య పథకాల గురించి మీరు ఏమైనా అడగవచ్చు.</p>
+            </div>
+        </div>
+        <div class="chat-suggestions" id="chatSuggestionsContainer">
+            <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question-te="నాకు ఆసుపత్రిలో ఉచిత చికిత్స కావాలి" data-question-en="How to get free hospital treatment?">🏥 <span data-i18n="chatSugg1">ఉచిత చికిత్స</span></button>
+            <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question-te="గర్భిణీ స్త్రీలకు ఏ పథకాలు ఉన్నాయి?" data-question-en="What schemes are available for pregnant women?">🤰 <span data-i18n="chatSugg2">గర్భిణీలకు పథకాలు</span></button>
+            <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question-te="ఆరోగ్యశ్రీకి అర్హత ఏమిటి?" data-question-en="What is the eligibility for Aarogyasri?">⭐ <span data-i18n="chatSugg3">ఆరోగ్యశ్రీ అర్హత</span></button>
+            <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question-te="108 అంబులెన్స్ సేవ ఎలా పొందాలి?" data-question-en="How to call the 108 emergency ambulance?">🚑 <span data-i18n="chatSugg4">108 అంబులెన్స్</span></button>
+        </div>
+        <div class="chat-input-area">
+            <textarea id="chatInput" rows="2" placeholder="మీ ప్రశ్న రాయండి..." maxlength="500" data-i18n-placeholder="chatPlaceholder"></textarea>
+            <button type="button" class="btn primary-btn chat-send-btn" data-action="send-chat" aria-label="Send" data-i18n="chatSendBtn">పంపండి →</button>
+        </div>
+    </div>
+</div>
+
+<!-- Map Overlay -->
+<div id="mapOverlay" class="map-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="mapTitle" aria-hidden="true">
+    <div class="map-header">
+        <h2 id="mapTitle" tabindex="-1" data-i18n="mapHeader">🏥 దగ్గరలోని ఆరోగ్య కేంద్రాలు</h2>
+        <button type="button" class="map-close-btn" aria-label="Close" data-action="close-map">✕</button>
+    </div>
+    <div class="map-filters-ui" id="mapFiltersUiFull" style="padding: 10px; background: white; border-bottom: 1px solid #ccc; max-height: 40vh; overflow-y: auto;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+            <button type="button" class="secondary-btn" id="btnLocationFull" style="flex:1;" data-i18n="mapLocationBtn">📍 నా స్థానం</button>
+            <button type="button" class="secondary-btn" id="btnModeFull" style="flex:1;" data-i18n="mapViewAllBtn">🗺️ మొత్తం AP</button>
+        </div>
+        <div style="margin-bottom: 8px;">
+            <input type="text" id="searchInputFull" class="map-select" placeholder="🔍 వెతకండి..." style="width:100%; box-sizing: border-box;">
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <div style="flex: 1 1 45%;">
+                <label for="typeSelectFull" style="font-size: 0.85rem;" data-i18n="mapType">రకం:</label>
+                <select id="typeSelectFull" class="map-select" style="width:100%;">
+                    <option value="all">అన్నీ</option>
+                    <option value="PHC">PHC</option>
+                    <option value="CHC">CHC</option>
+                    <option value="Hospital">Hospital</option>
+                    <option value="none">కేవలం మ్యాప్</option>
+                </select>
+            </div>
+            <div style="flex: 1 1 45%;">
+                <label for="districtSelectFull" style="font-size: 0.85rem;" data-i18n="mapDistrict">జిల్లా:</label>
+                <select id="districtSelectFull" class="map-select" style="width:100%;"><option value="">-- ఎంచుకోండి --</option></select>
+            </div>
+            <div style="flex: 1 1 45%;">
+                <label for="mandalSelectFull" style="font-size: 0.85rem;" data-i18n="mapMandal">మండలం:</label>
+                <select id="mandalSelectFull" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
+            </div>
+            <div style="flex: 1 1 45%;">
+                <label for="villageSelectFull" style="font-size: 0.85rem;" data-i18n="mapVillage">గ్రామం:</label>
+                <select id="villageSelectFull" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
+            </div>
+        </div>
+        <div id="searchResultsFull" style="margin-top: 8px; font-weight: bold; color: var(--primary);"></div>
+    </div>
+    <div id="fullScreenMap" class="map-container"></div>
+</div>
+
+<!-- Scripts Loading -->
+<script src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
+<script src="{{ url_for('static', filename='i18n.js') }}"></script>
 <script src="{{ url_for('static', filename='enhanced-features.js') }}"></script>
+
 <script nonce="{{ csp_nonce }}">
     const schemesCatalog = {{ schemes|tojson }};
     window.schemesCatalog = schemesCatalog;
@@ -241,6 +374,7 @@
     let activeFilter = 'all';
     let currentRequestId = null;
     let currentSchemeName = null;
+    let currentSchemeData = null;
     let deferredInstallPrompt = null;
 
     // Pre-compute lowercase search haystacks once on load to optimize performance
@@ -252,9 +386,11 @@
     function haystackFor(name, data) {
         return [
             name,
-            data.telugu_name,
-            data.category,
-            data.level,
+            data.telugu_name || '',
+            data.category || '',
+            data.level || '',
+            data.english_description || '',
+            data.telugu_description || '',
             ...(data.keywords || [])
         ].join(' ').toLowerCase();
     }
@@ -265,22 +401,26 @@
         return data.level === 'National';
     }
 
-    // Start with no previous filter so the initial scheme grid is rendered.
     let lastQuery = '';
     let lastFilter = null;
+    let lastLang = null;
 
-    function renderSchemeCards() {
+    function renderSchemeCards(force = false) {
         const rawQuery = document.getElementById('searchInput').value.trim();
         const query = rawQuery.toLowerCase();
+        const currentLang = window.getLang ? window.getLang() : 'te';
+        const isEn = currentLang === 'en';
         
-        // Skip rendering if search filters and queries have not changed
-        if (query === lastQuery && activeFilter === lastFilter) {
+        if (!force && query === lastQuery && activeFilter === lastFilter && currentLang === lastLang) {
             return;
         }
         lastQuery = query;
         lastFilter = activeFilter;
+        lastLang = currentLang;
 
         const grid = document.getElementById('schemeGrid');
+        if (!grid) return;
+
         const matches = schemeNames.filter(name => {
             const data = schemesCatalog[name];
             const haystack = searchHaystacks[name];
@@ -288,34 +428,42 @@
         });
 
         if (!matches.length) {
-            grid.innerHTML = '<div class="empty-state"><strong>ఫలితాలు లేవు</strong><span>మరో పదంతో వెతకండి.</span></div>';
+            const emptyTitle = window.t ? window.t('emptyResultsTitle') : 'ఫలితాలు లేవు';
+            const emptyMsg = window.t ? window.t('emptyResultsMsg') : 'మరో పదంతో వెతకండి.';
+            grid.innerHTML = `<div class="empty-state"><strong>${emptyTitle}</strong><span>${emptyMsg}</span></div>`;
             return;
         }
 
         grid.innerHTML = matches.map(name => {
             const data = schemesCatalog[name];
             const levelClass = data.level === 'Andhra Pradesh' ? 'ap' : '';
-            const levelLabel = data.level === 'Andhra Pradesh' ? 'AP' : 'National';
+            const levelLabel = window.SmartGovI18n ? window.SmartGovI18n.translateLevel(data.level) : (data.level === 'Andhra Pradesh' ? 'AP' : 'National');
+            const categoryLabel = window.SmartGovI18n ? window.SmartGovI18n.translateCategory(data.category) : (data.category || '');
             const isFavorite = window.SmartGovUX ? window.SmartGovUX.isFavorite(name) : false;
+            const primaryTitle = isEn ? name : (data.telugu_name || name);
+            const secondaryTitle = isEn ? (data.telugu_name || '') : name;
+            const favTitle = window.t ? window.t('favoriteBtnTitle') : 'Favorite';
+
             return `
                 <button class="scheme-card" type="button" data-action="open-scheme" data-scheme="${window.escapeHtml(name)}">
-                    <div class="favorite-btn ${isFavorite ? 'active' : ''}" data-scheme="${window.escapeHtml(name)}" title="ఇష్టమైనది (Favorite)" aria-label="Toggle favorite" tabindex="0">
+                    <div class="favorite-btn ${isFavorite ? 'active' : ''}" data-scheme="${window.escapeHtml(name)}" title="${favTitle}" aria-label="Toggle favorite" tabindex="0">
                         ${isFavorite ? '★' : '☆'}
                     </div>
                     <span class="card-top">
                         <span class="card-icon" aria-hidden="true">${iconMap[data.icon] || '➕'}</span>
                         <span class="level-badge ${levelClass}">${levelLabel}</span>
                     </span>
-                    <h2>${window.escapeHtml(data.telugu_name || name)}</h2>
-                    <p>${window.escapeHtml(name)}</p>
-                    <span class="category">${window.escapeHtml(data.category || '')}</span>
+                    <h2>${window.escapeHtml(primaryTitle)}</h2>
+                    <p>${window.escapeHtml(secondaryTitle)}</p>
+                    <span class="category">${window.escapeHtml(categoryLabel)}</span>
                 </button>
             `;
         }).join('');
     }
 
-    function showLoading(message = 'వివరాలు తెస్తున్నాం...') {
-        document.getElementById('resultArea').innerHTML = `<div class="loading">${window.escapeHtml(message)}</div>`;
+    function showLoading(message) {
+        const loadingMsg = message || (window.t ? window.t('loadingDetails') : 'వివరాలు తెస్తున్నాం...');
+        document.getElementById('resultArea').innerHTML = `<div class="loading">${window.escapeHtml(loadingMsg)}</div>`;
     }
 
     function showError(message) {
@@ -343,21 +491,43 @@
 
         currentRequestId = data.request_id;
         currentSchemeName = data.scheme_name;
+        currentSchemeData = data;
         window.currentRequestId = data.request_id;
         window.currentSchemeName = data.scheme_name;
         const scheme = schemesCatalog[data.scheme_name] || {};
 
-        const audioHtml = data.voice_url
+        const currentLang = window.getLang ? window.getLang() : 'te';
+        const isEn = currentLang === 'en';
+
+        const mainTitle = isEn ? (data.scheme_name || '') : (scheme.telugu_name || data.scheme_name || '');
+        const subTitle = isEn ? (scheme.telugu_name || '') : (data.scheme_name || '');
+        const levelLabel = window.SmartGovI18n ? window.SmartGovI18n.translateLevel(data.level) : (data.level || '');
+        const categoryLabel = window.SmartGovI18n ? window.SmartGovI18n.translateCategory(data.category) : (data.category || '');
+
+        const audioTitle = window.t ? window.t('audioTitle') : '🎙️ ఆడియో గైడ్';
+        const speakSlow = window.t ? window.t('speakSlowBtn') : '🔊 మెల్లగా చదవండి';
+        const audioNotAvail = window.t ? window.t('audioNotAvailable') : 'ఆడియో అందుబాటులో లేదు';
+
+        const audioHtml = data.voice_url && !isEn
             ? `<div class="audio-wrap">
-                <strong>🎙️ తెలుగు ఆడియో</strong>
+                <strong>${audioTitle}</strong>
                 <audio controls src="${window.escapeHtml(data.voice_url)}"></audio>
-                <button type="button" class="speak-text-btn" data-text="${window.escapeHtml(data.scheme_name)}" style="width:100%;margin-top:8px;padding:8px;">🔊 మెల్లగా చదవండి</button>
+                <button type="button" class="speak-text-btn" data-text="${window.escapeHtml(data.scheme_name)}" style="width:100%;margin-top:8px;padding:8px;">${speakSlow}</button>
             </div>`
-            : `<div class="audio-wrap"><strong>ఆడియో అందుబాటులో లేదు</strong></div>`;
+            : (isEn 
+                ? `<div class="audio-wrap">
+                    <strong>${audioTitle}</strong>
+                    <button type="button" class="speak-text-btn primary-btn" data-text="${window.escapeHtml(data.scheme_name)}" style="width:100%;margin-top:8px;padding:8px;">${window.t ? window.t('speakPageBtn') : '🔊 Read Aloud'}</button>
+                </div>`
+                : `<div class="audio-wrap"><strong>${audioNotAvail}</strong></div>`);
+
+        const sourceLabel = window.t ? window.t('sourceLabel') : 'మూలం:';
+        const officialSource = window.t ? window.t('officialSource') : 'అధికారిక మూలం';
+        const uploadedSource = window.t ? window.t('uploadedSource') : 'అప్‌లోడ్ చేసిన పత్రం';
 
         const sourceHtml = data.source_url
-            ? `<a class="source-link" href="${window.escapeHtml(data.source_url)}" target="_blank" rel="noopener noreferrer">🌐 ${window.escapeHtml(data.source_name || 'Official source')}</a>`
-            : `<span>📄 ${window.escapeHtml(data.source_name || 'Uploaded source')}</span>`;
+            ? `<a class="source-link" href="${window.escapeHtml(data.source_url)}" target="_blank" rel="noopener noreferrer">🌐 ${window.escapeHtml(data.source_name || officialSource)}</a>`
+            : `<span>📄 ${window.escapeHtml(data.source_name || uploadedSource)}</span>`;
 
         const eligibilityChecker = SmartGovEnhanced.buildEligibilityChecker(scheme);
         const documentChecklist = SmartGovEnhanced.buildDocumentChecklist(scheme);
@@ -368,50 +538,52 @@
             window.SmartGovUX.addRecent(data.scheme_name);
         }
 
+        const eligContent = isEn ? (data.simplified?.eligibility || '') : (data.telugu?.eligibility || '');
+        const benContent = isEn ? (data.simplified?.benefits || '') : (data.telugu?.benefits || '');
+        const docContent = isEn ? (data.simplified?.documents || '') : (data.telugu?.documents || '');
+        const stepContent = isEn ? (data.simplified?.steps || '') : (data.telugu?.steps || '');
+
+        const eligTitle = window.t ? window.t('eligibilityTitle') : 'అర్హత';
+        const benTitle = window.t ? window.t('benefitsTitle') : 'ప్రయోజనాలు';
+        const docTitle = window.t ? window.t('documentsTitle') : 'కావలసిన పత్రాలు';
+        const stepTitle = window.t ? window.t('stepsTitle') : 'దరఖాస్తు విధానం';
+
         document.getElementById('resultArea').innerHTML = `
             <div class="result-head">
-                <h2>${window.escapeHtml(data.scheme_name || 'Health scheme')}</h2>
-                <p>${window.escapeHtml(data.level || '')} • ${window.escapeHtml(data.category || '')}</p>
+                <h2>${window.escapeHtml(mainTitle)}</h2>
+                ${subTitle ? `<p style="font-size:0.95rem;color:var(--muted);">${window.escapeHtml(subTitle)}</p>` : ''}
+                <p>${window.escapeHtml(levelLabel)} • ${window.escapeHtml(categoryLabel)}</p>
             </div>
             <div class="result-inner">
                 ${trustInfo}
                 ${privacyWarning}
                 <div class="info-list">
-                    ${resultCard('అర్హత', data.telugu.eligibility)}
-                    ${resultCard('ప్రయోజనాలు', data.telugu.benefits)}
-                    ${resultCard('పత్రాలు', data.telugu.documents)}
-                    ${resultCard('దశలు', data.telugu.steps)}
+                    ${resultCard(eligTitle, eligContent)}
+                    ${resultCard(benTitle, benContent)}
+                    ${resultCard(docTitle, docContent)}
+                    ${resultCard(stepTitle, stepContent)}
                 </div>
                 ${eligibilityChecker}
                 ${documentChecklist}
                 <div class="result-actions">
                     ${audioHtml}
-                    <div style="font-size:0.9rem;">📚 మూలం: ${sourceHtml}</div>
-                    <button type="button" class="speak-page-btn primary-btn" style="width:100%;margin:10px 0;">🔊 ఈ పేజీ చదవండి</button>
-                    <button type="button" class="primary-btn guided-mode-btn" style="width:100%;margin-bottom:10px;background:var(--saffron);color:#fff;" data-action="start-guided-mode">👉 సులభంగా ఒక్కొక్కటిగా చూడండి</button>
-                    <button type="button" class="share-result-btn secondary-btn" style="width:100%;margin-bottom:10px;" data-scheme="${window.escapeHtml(data.scheme_name)}">📤 ఫలితాన్ని షేర్ చేయండి (Share Result)</button>
+                    <div style="font-size:0.9rem;">📚 ${sourceLabel} ${sourceHtml}</div>
+                    <button type="button" class="speak-page-btn primary-btn" style="width:100%;margin:10px 0;">${window.t ? window.t('speakPageBtn') : '🔊 ఈ పేజీ చదవండి'}</button>
+                    <button type="button" class="primary-btn guided-mode-btn" style="width:100%;margin-bottom:10px;background:var(--saffron);color:#fff;" data-action="start-guided-mode">${window.t ? window.t('startGuidedModeBtn') : '👉 సులభంగా ఒక్కొక్కటిగా చూడండి'}</button>
+                    <button type="button" class="share-result-btn secondary-btn" style="width:100%;margin-bottom:10px;" data-scheme="${window.escapeHtml(data.scheme_name)}">${window.t ? window.t('shareResultBtn') : '📤 ఫలితాన్ని షేర్ చేయండి'}</button>
                     <div class="action-buttons">
                         <button class="action-btn whatsapp share-whatsapp-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">📱 WhatsApp</button>
                         <button class="action-btn share-sms-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">📲 SMS</button>
                     </div>
                     <div class="action-buttons">
-                        <button class="action-btn print-checklist-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">🖨️ ముద్రణ</button>
-                        <button class="action-btn" type="button" data-action="print-qr-card" data-scheme="${window.escapeHtml(data.scheme_name)}" data-slug="${window.escapeHtml(scheme.slug || '')}">📄 QR కార్డు</button>
-                        <button class="action-btn report-issue-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">⚠️ సమస్య</button>
+                        <button class="action-btn print-checklist-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">${window.t ? window.t('printChecklistBtn') : '🖨️ ముద్రణ'}</button>
+                        <button class="action-btn" type="button" data-action="print-qr-card" data-scheme="${window.escapeHtml(data.scheme_name)}" data-slug="${window.escapeHtml(scheme.slug || '')}">${window.t ? window.t('qrCardBtn') : '📄 QR కార్డు'}</button>
+                        <button class="action-btn report-issue-btn" type="button" data-scheme="${window.escapeHtml(data.scheme_name)}">${window.t ? window.t('reportIssueBtn') : '⚠️ సమస్య'}</button>
                     </div>
-                    <details>
-                        <summary>English Details</summary>
-                        <div class="info-list" style="margin-top:10px">
-                            ${resultCard('Eligibility', data.simplified.eligibility)}
-                            ${resultCard('Benefits', data.simplified.benefits)}
-                            ${resultCard('Documents', data.simplified.documents)}
-                            ${resultCard('Steps', data.simplified.steps)}
-                        </div>
-                    </details>
                     <div>
                         <div class="feedback-row">
-                            <button class="feedback-btn good open-feedback-btn" type="button">👍 ఇష్టమైనది</button>
-                            <button class="feedback-btn" type="button" data-rating="2">👎 మెరుగుపర్చండి</button>
+                            <button class="feedback-btn good open-feedback-btn" type="button">${window.t ? window.t('feedbackGood') : '👍 ఇష్టమైనది'}</button>
+                            <button class="feedback-btn" type="button" data-rating="2">${window.t ? window.t('feedbackImprove') : '👎 మెరుగుపర్చండి'}</button>
                         </div>
                         <div id="feedbackStatus" class="feedback-status"></div>
                     </div>
@@ -423,7 +595,6 @@
             button.addEventListener('click', () => sendFeedback(button.dataset.rating));
         });
 
-        // Trigger localStorage restoration immediately after dynamic rendering
         restoreEligibilityAnswers();
         restoreDocumentChecks();
 
@@ -524,7 +695,7 @@
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = 'te-IN';
+        recognition.lang = window.getLang && window.getLang() === 'en' ? 'en-IN' : 'te-IN';
         recognition.continuous = false;
         recognition.interimResults = false;
     }
@@ -535,15 +706,18 @@
 
         if (!recognition) {
             voiceBtn.addEventListener('click', () => {
-                status.textContent = 'ఈ బ్రౌజర్ మైక్ గుర్తింపుకు మద్దతు ఇవ్వదు.';
+                status.textContent = window.getLang && window.getLang() === 'en' ? 'Voice recognition not supported.' : 'ఈ బ్రౌజర్ మైక్ గుర్తింపుకు మద్దతు ఇవ్వదు.';
             });
             return;
         }
 
         voiceBtn.addEventListener('click', () => {
-            status.textContent = 'వింటున్నాం...';
+            status.textContent = window.t ? window.t('voiceListening') : 'వింటున్నాం... మాట్లాడండి';
             voiceBtn.disabled = true;
             try {
+                if (recognition) {
+                    recognition.lang = window.getLang && window.getLang() === 'en' ? 'en-IN' : 'te-IN';
+                }
                 recognition.start();
             } catch (_error) {
                 voiceBtn.disabled = false;
@@ -555,10 +729,10 @@
             const spoken = event.results[0][0].transcript;
             const match = bestVoiceMatch(spoken);
             if (match) {
-                status.textContent = `మీరు చెప్పింది: ${spoken}. సరిపోలిన పథకం తెస్తున్నాం.`;
+                status.textContent = `${spoken} -> ${match}`;
                 fetchScheme(match);
             } else {
-                status.textContent = `మీరు చెప్పింది: ${spoken}. సరిపోలే పథకం దొరకలేదు.`;
+                status.textContent = `${spoken}`;
             }
         };
 
@@ -629,7 +803,6 @@
         });
     }
 
-    // Debounce function to throttle search rendering
     function debounce(func, delay) {
         let timeout;
         return function(...args) {
@@ -643,7 +816,7 @@
     document.getElementById('clearSearchBtn').addEventListener('click', () => {
         document.getElementById('searchInput').value = '';
         renderSchemeCards();
-        document.getElementById('voiceStatus').textContent = 'పథకం వెతకండి లేదా మైక్ నొక్కండి';
+        document.getElementById('voiceStatus').textContent = window.t ? window.t('voiceStatusDefault') : 'పథకం వెతకండి లేదా మైక్ నొక్కండి';
     });
     
     document.querySelectorAll('.filter-btn').forEach(button => {
@@ -654,17 +827,36 @@
             renderSchemeCards();
         });
     });
+
+    // Language switcher toggle handlers
+    document.getElementById('langTeBtn')?.addEventListener('click', () => {
+        if (window.setLang) window.setLang('te');
+    });
+
+    document.getElementById('langEnBtn')?.addEventListener('click', () => {
+        if (window.setLang) window.setLang('en');
+    });
+
+    // Global listener for language change events
+    window.addEventListener('languagechange', (event) => {
+        const lang = event.detail.lang;
+        renderSchemeCards(true);
+        if (currentSchemeData) {
+            displayResult(currentSchemeData);
+        }
+        if (window.SmartGovUX?.renderFavoritesAndRecent) {
+            window.SmartGovUX.renderFavoritesAndRecent();
+        }
+    });
     
     document.getElementById('dropdownBtn').addEventListener('click', handleDropdown);
     document.getElementById('uploadBtn').addEventListener('click', handleUpload);
     document.getElementById('schemeSelect').addEventListener('change', handleDropdown);
 
-    // Bind footer report button (remove inline onclick)
     document.getElementById('footerReportBtn').addEventListener('click', () => {
         SmartGovEnhanced.openReportForm();
     });
 
-    // Offline status indicator
     function updateOfflineStatus() {
         const indicator = document.getElementById('offlineIndicator');
         if (!navigator.onLine) {
@@ -677,7 +869,6 @@
     window.addEventListener('offline', updateOfflineStatus);
     updateOfflineStatus();
 
-    // Restore eligibility answers from localStorage
     function restoreEligibilityAnswers() {
         if (!currentSchemeName) return;
         document.querySelectorAll('.question-item').forEach((item, idx) => {
@@ -686,8 +877,8 @@
                 const buttons = item.querySelectorAll('.yes-no-btn');
                 buttons.forEach(btn => {
                     btn.classList.remove('yes', 'no');
-                    if ((saved === 'yes' && btn.textContent.includes('అవును')) ||
-                        (saved === 'no' && btn.textContent.includes('కాదు'))) {
+                    if ((saved === 'yes' && (btn.textContent.includes('అవును') || btn.textContent.includes('Yes'))) ||
+                        (saved === 'no' && (btn.textContent.includes('కాదు') || btn.textContent.includes('No')))) {
                         btn.classList.add(saved);
                     }
                 });
@@ -695,13 +886,33 @@
         });
     }
 
-    // Restore document checklist from localStorage
     function restoreDocumentChecks() {
         if (currentSchemeName) {
             document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach((checkbox, idx) => {
                 const saved = localStorage.getItem(`doc_check_${currentSchemeName}_${idx}`);
                 if (saved === 'true') checkbox.checked = true;
             });
+        }
+    }
+
+    // Initialize initial language states on startup
+    if (window.SmartGovI18n) {
+        window.SmartGovI18n.applyStaticTranslations();
+        const activeLang = window.getLang ? window.getLang() : 'te';
+        const teBtn = document.getElementById('langTeBtn');
+        const enBtn = document.getElementById('langEnBtn');
+        if (teBtn && enBtn) {
+            if (activeLang === 'te') {
+                teBtn.classList.add('active');
+                teBtn.setAttribute('aria-pressed', 'true');
+                enBtn.classList.remove('active');
+                enBtn.setAttribute('aria-pressed', 'false');
+            } else {
+                enBtn.classList.add('active');
+                enBtn.setAttribute('aria-pressed', 'true');
+                teBtn.classList.remove('active');
+                teBtn.setAttribute('aria-pressed', 'false');
+            }
         }
     }
 
@@ -719,7 +930,6 @@
             .catch(() => {});
     }
 
-    // Restore answers initially on load after rendering scheme cards
     window.addEventListener('load', () => {
         setTimeout(() => {
             restoreEligibilityAnswers();
@@ -727,127 +937,5 @@
         }, 300);
     });
 </script>
-    <div id="guidedModeOverlay" role="dialog" aria-modal="true" aria-labelledby="guidedTitle" style="display:none;" aria-live="polite">
-        <div class="guided-content-wrapper">
-            <div class="guided-header">
-                <h2 id="guidedTitle" tabindex="-1"></h2>
-                <div class="guided-header-actions">
-                    <!-- Favorite button will be injected here if present -->
-                    <div id="guidedFavoriteContainer"></div>
-                    <button class="guided-close-btn" aria-label="గైడెడ్ మోడ్ మూసివేయండి" data-action="guided-close">✕</button>
-                </div>
-            </div>
-            <div class="guided-progress">
-                <span id="guidedProgressText">దశ 1 / 6</span>
-            </div>
-            <div class="guided-body" id="guidedBody">
-                <!-- Content injected via JS -->
-            </div>
-            <div class="guided-footer">
-                <button type="button" id="guidedPrevBtn" class="guided-nav-btn secondary-btn" data-action="guided-prev">← వెనుకకు</button>
-                <button type="button" id="guidedNextBtn" class="guided-nav-btn primary-btn" data-action="guided-next">తర్వాత →</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tier 2C: Accessible Feedback Modal -->
-    <div id="feedbackOverlay" class="feedback-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle" aria-hidden="true">
-        <div class="feedback-modal">
-            <div class="feedback-header">
-                <h2 id="feedbackTitle" tabindex="-1">మీ అభిప్రాయం</h2>
-                <button type="button" class="feedback-close-btn" aria-label="మూసివేయండి (Close)" data-action="close-feedback">✕</button>
-            </div>
-            <div class="feedback-body">
-                <div id="feedbackStatus" class="feedback-status" aria-live="polite"></div>
-                
-                <p class="feedback-prompt">ఈ పథకం గురించి సమాచారం ఉపయోగకరంగా ఉందా?</p>
-                <div class="star-rating" role="group" aria-label="రేటింగ్ (Rating)">
-                    <button type="button" data-action="set-rating" data-value="1" aria-label="1 / 5 రేటింగ్">☆</button>
-                    <button type="button" data-action="set-rating" data-value="2" aria-label="2 / 5 రేటింగ్">☆</button>
-                    <button type="button" data-action="set-rating" data-value="3" aria-label="3 / 5 రేటింగ్">☆</button>
-                    <button type="button" data-action="set-rating" data-value="4" aria-label="4 / 5 రేటింగ్">☆</button>
-                    <button type="button" data-action="set-rating" data-value="5" aria-label="5 / 5 రేటింగ్">☆</button>
-                </div>
-                
-                <p class="feedback-prompt">మీకు ఎలా అనిపించింది? (ఐచ్ఛికం)</p>
-                <div class="feedback-chips">
-                    <button type="button" class="chip" data-action="set-feedback-chip" data-value="మంచి సమాచారం">మంచి సమాచారం</button>
-                    <button type="button" class="chip" data-action="set-feedback-chip" data-value="ఇంకా సులభంగా ఉండాలి">ఇంకా సులభంగా ఉండాలి</button>
-                    <button type="button" class="chip" data-action="set-feedback-chip" data-value="సమాచారం పూర్తిగా లేదు">సమాచారం పూర్తిగా లేదు</button>
-                </div>
-
-                <label for="feedbackComment" class="feedback-prompt">వివరణ (ఐచ్ఛికం)</label>
-                <textarea id="feedbackComment" rows="3" placeholder="మీ వ్యాఖ్య రాయండి..."></textarea>
-            </div>
-            <div class="feedback-footer">
-                <button type="button" class="btn secondary-btn" data-action="close-feedback">రద్దు (Cancel)</button>
-                <button type="button" class="btn primary-btn" data-action="submit-feedback">పంపండి (Submit)</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tier 3A: AI Chat Overlay -->
-    <div id="chatOverlay" class="chat-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="chatTitle" aria-hidden="true">
-        <div class="chat-container">
-            <div class="chat-header">
-                <h2 id="chatTitle" tabindex="-1">🤖 పథకాల గురించి అడగండి</h2>
-                <button type="button" class="chat-close-btn" aria-label="మూసివేయండి (Close)" data-action="close-chat">✕</button>
-            </div>
-            <div id="chatMessages" class="chat-messages" aria-live="polite">
-                <div class="chat-msg bot">
-                    <p>మీకు ఏ సహాయం కావాలో తెలుగులో అడగండి. మీ ప్రశ్నకు సరిపోయే ప్రభుత్వ ఆరోగ్య పథకాలను కనుగొంటాను.</p>
-                </div>
-            </div>
-            <div class="chat-suggestions">
-                <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question="నాకు ఆసుపత్రిలో ఉచిత చికిత్స కావాలి">🏥 ఆసుపత్రి చికిత్స</button>
-                <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question="గర్భిణీ స్త్రీలకు ఏ పథకాలు ఉన్నాయి?">🤰 గర్భిణీలకు పథకాలు</button>
-                <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question="పిల్లల ఆరోగ్యం కోసం ఏ పథకాలు ఉన్నాయి?">👶 పిల్లల ఆరోగ్యం</button>
-                <button type="button" class="chip chat-suggestion" data-action="chat-suggestion" data-question="ఉచిత మందులు ఎక్కడ దొరుకుతాయి?">💊 మందులు కావాలి</button>
-            </div>
-            <div class="chat-input-area">
-                <textarea id="chatInput" rows="2" placeholder="మీ ప్రశ్న రాయండి..." maxlength="500"></textarea>
-                <button type="button" class="btn primary-btn chat-send-btn" data-action="send-chat" aria-label="పంపండి (Send)">పంపండి →</button>
-            </div>
-        </div>
-    </div>
-    <!-- Tier 4: Map Overlay -->
-    <div id="mapOverlay" class="map-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="mapTitle" aria-hidden="true">
-        <div class="map-header">
-            <h2 id="mapTitle" tabindex="-1">🏥 దగ్గరలోని ఆరోగ్య కేంద్రాలు (Nearby Facilities)</h2>
-            <button type="button" class="map-close-btn" aria-label="మూసివేయండి (Close)" data-action="close-map">✕</button>
-        </div>
-        <div class="map-filters-ui" id="mapFiltersUiFull" style="padding: 10px; background: white; border-bottom: 1px solid #ccc; max-height: 40vh; overflow-y: auto;">
-            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
-                <button type="button" class="secondary-btn" id="btnLocationFull" style="flex:1;">📍 నా స్థానం (My Location)</button>
-                <button type="button" class="secondary-btn" id="btnModeFull" style="flex:1;">🗺️ మొత్తం AP (View All AP)</button>
-            </div>
-            <div style="margin-bottom: 8px;">
-                <input type="text" id="searchInputFull" class="map-select" placeholder="🔍 వెతకండి (Search name, village...)" style="width:100%; box-sizing: border-box;">
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                <div style="flex: 1 1 45%;">
-                    <label for="typeSelectFull" style="font-size: 0.85rem;">రకం (Type):</label>
-                    <select id="typeSelectFull" class="map-select" style="width:100%;"><option value="all">అన్నీ (All)</option><option value="PHC">PHC</option><option value="CHC">CHC</option><option value="Hospital">Hospital</option><option value="none">కేవలం మ్యాప్ (Map Only)</option></select>
-                </div>
-                <div style="flex: 1 1 45%;">
-                    <label for="districtSelectFull" style="font-size: 0.85rem;">జిల్లా (District):</label>
-                    <select id="districtSelectFull" class="map-select" style="width:100%;"><option value="">-- ఎంచుకోండి --</option></select>
-                </div>
-                <div style="flex: 1 1 45%;">
-                    <label for="mandalSelectFull" style="font-size: 0.85rem;">మండలం (Mandal):</label>
-                    <select id="mandalSelectFull" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
-                </div>
-                <div style="flex: 1 1 45%;">
-                    <label for="villageSelectFull" style="font-size: 0.85rem;">గ్రామం (Village):</label>
-                    <select id="villageSelectFull" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
-                </div>
-            </div>
-            <div id="searchResultsFull" style="margin-top: 8px; font-weight: bold; color: var(--primary);"></div>
-        </div>
-        <div id="fullScreenMap" class="map-container"></div>
-    </div>
-
-    <!-- Map Scripts -->
-    <script src="{{ url_for('static', filename='leaflet/leaflet.js') }}"></script>
 </body>
 </html>

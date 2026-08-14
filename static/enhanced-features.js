@@ -109,20 +109,26 @@ function buildEligibilityChecker(scheme) {
     const questions = scheme.eligibility_questions || [];
     if (!questions.length) return '';
 
-    let html = '<div class="eligibility-checker"><strong>🎯 అర్హత పరీక్ష</strong>';
+    const isEn = window.getLang && window.getLang() === 'en';
+    const quizTitle = window.t ? window.t('quizTitle') : (isEn ? '🎯 Eligibility Check' : '🎯 అర్హత పరీక్ష');
+    const btnYesLabel = window.t ? window.t('btnYes') : (isEn ? 'Yes' : 'అవును');
+    const btnNoLabel = window.t ? window.t('btnNo') : (isEn ? 'No' : 'కాదు');
+
+    let html = `<div class="eligibility-checker"><strong>${quizTitle}</strong>`;
     questions.forEach((q, idx) => {
         // Namespaced keys with fallback compatibility for existing users
         const saved = localStorage.getItem(`eligibility_${window.currentSchemeName}_q${idx}`) ||
                       localStorage.getItem(`eligibility_q${idx}`) || '';
         const yesClass = saved === 'yes' ? 'yes' : '';
         const noClass = saved === 'no' ? 'no' : '';
+        const qText = isEn ? (q.question_en || q.question_te || q.question || '') : (q.question_te || q.question_en || q.question || '');
 
         html += `
             <div class="question-item">
-                <p>${window.escapeHtml(q.question_te || q.question || '')}</p>
+                <p>${window.escapeHtml(qText)}</p>
                 <div class="yes-no-buttons">
-                    <button class="yes-no-btn ${yesClass}" type="button" data-idx="${idx}" data-answer="yes">✓ అవును</button>
-                    <button class="yes-no-btn ${noClass}" type="button" data-idx="${idx}" data-answer="no">✗ కాదు</button>
+                    <button class="yes-no-btn ${yesClass}" type="button" data-idx="${idx}" data-answer="yes">✓ ${btnYesLabel}</button>
+                    <button class="yes-no-btn ${noClass}" type="button" data-idx="${idx}" data-answer="no">✗ ${btnNoLabel}</button>
                 </div>
             </div>
         `;
@@ -160,10 +166,15 @@ function buildDocumentChecklist(scheme) {
     const docs = scheme.required_documents || [];
     if (!docs.length) return '';
 
-    let html = '<div class="document-checklist"><strong>📋 డాక్యుమెంట్ చెక్‌లిస్ట్</strong>';
+    const isEn = window.getLang && window.getLang() === 'en';
+    const checklistTitle = window.t ? window.t('docChecklistTitle') : (isEn ? '📋 Document Checklist' : '📋 డాక్యుమెంట్ చెక్‌లిస్ట్');
+    const optLabel = window.t ? ` ${window.t('docOptional')}` : (isEn ? ' (Optional)' : ' (ఐచ్ఛికం)');
+    const mandLabel = window.t ? ` ${window.t('docMandatory')}` : (isEn ? ' (Mandatory)' : ' (తప్పనిసరి)');
+
+    let html = `<div class="document-checklist"><strong>${checklistTitle}</strong>`;
     docs.forEach((doc, idx) => {
-        const optional = doc.optional ? ' (ఐచ్ఛికం)' : ' (తప్పనిసరి)';
-        const docName = doc.name_te || doc.name || '';
+        const optional = doc.optional ? optLabel : mandLabel;
+        const docName = isEn ? (doc.name || doc.name_te || '') : (doc.name_te || doc.name || '');
         const schemeName = window.currentSchemeName || '';
         const saved = localStorage.getItem(`doc_check_${schemeName}_${idx}`) === 'true';
         const checkedAttr = saved ? 'checked' : '';
@@ -345,26 +356,41 @@ function printSchemeQRCard(schemeName, slug, schemeData) {
 // ==================== Trust & Transparency ====================
 
 function buildTrustInfo(scheme) {
-    const lastUpdated = scheme.last_updated || 'తెలియదు';
-    const confirmationSource = scheme.eligibility_confirmation || 'Government office';
+    const isEn = window.getLang && window.getLang() === 'en';
+    const lastUpdated = scheme.last_updated || (isEn ? 'Not specified' : 'తెలియదు');
+    const confirmationSource = scheme.eligibility_confirmation || (isEn ? 'Government office / Empanelled hospital' : 'ప్రభుత్వ కార్యాలయం / ఆసుపత్రి');
     const officialWebsite = scheme.official_website || '#';
+
+    const title = isEn ? '🔒 Trust & Transparency' : '🔒 విశ్వాస సమాచారం';
+    const updatedLabel = isEn ? '📅 Last Updated:' : '📅 చివరిగా నవీకరించిన:';
+    const verifyLabel = isEn ? '✔️ Verifying Authority:' : '✔️ సరిచేస్తారు:';
+    const siteLabel = isEn ? '🌐 Official Portal:' : '🌐 అధికారిక సంచిక:';
+    const visitText = isEn ? 'Visit Website' : 'సందర్శించండి';
 
     return `
         <div class="trust-info">
-            <strong>🔒 విశ్వాస సమాచారం</strong><br>
-            📅 చివరిగా నవీకరించిన: ${window.escapeHtml(lastUpdated)}<br>
-            ✔️ సరిచేస్తారు: ${window.escapeHtml(confirmationSource)}<br>
-            🌐 అధికారిక సంచిక: <a class="source-link" href="${window.escapeHtml(officialWebsite)}" target="_blank" rel="noopener noreferrer">సందర్శించండి</a>
+            <strong>${title}</strong><br>
+            ${updatedLabel} ${window.escapeHtml(lastUpdated)}<br>
+            ${verifyLabel} ${window.escapeHtml(confirmationSource)}<br>
+            ${siteLabel} <a class="source-link" href="${window.escapeHtml(officialWebsite)}" target="_blank" rel="noopener noreferrer">${visitText}</a>
         </div>
     `;
 }
 
 function buildPrivacyWarning() {
+    const isEn = window.getLang && window.getLang() === 'en';
+    if (isEn) {
+        return `
+            <div class="privacy-warning">
+                ⚠️ <strong>Privacy Notice:</strong><br>
+                Do not upload Aadhaar numbers, private prescriptions, or personal medical records to this application.
+            </div>
+        `;
+    }
     return `
         <div class="privacy-warning">
             ⚠️ <strong>గోప్యతా హెచ్చరిక:</strong><br>
-            ఆధార్, ప్రెస్క్రిప్షన్లు లేదా వ్యక్తిగత ఆరోగ్య ఫైలులను ఈ ఆ్యప్‌కు అప్‌లోడ్ చేయవద్దు.
-            మీరు విశ్వసించే పరికరమైన తర్వాత మాత్రమే అప్‌లోడ్ చేయండి.
+            ఆధార్, ప్రెస్క్రిప్షన్లు లేదా వ్యక్తిగత ఆరోగ్య ఫైలులను ఈ యాప్‌కు అప్‌లోడ్ చేయవద్దు.
         </div>
     `;
 }
@@ -376,8 +402,28 @@ function buildPrivacyWarning() {
  */
 function generateShareText(schemeName) {
     const scheme = window.schemesCatalog?.[schemeName] || {};
+    const isEn = window.getLang && window.getLang() === 'en';
 
-    // Scheme Name
+    if (isEn) {
+        let text = `Scheme: ${schemeName}\n\n`;
+        const elig = scheme.simplified?.eligibility || 'Check official guidelines';
+        text += `Eligibility:\n${elig}\n\n`;
+        const ben = scheme.simplified?.benefits || 'Check official guidelines';
+        text += `Benefits:\n${ben}\n\n`;
+        text += `Documents:\n`;
+        if (scheme.required_documents && scheme.required_documents.length > 0) {
+            text += scheme.required_documents.map(doc => doc.name || doc.name_te).join(', ');
+        } else {
+            text += scheme.simplified?.documents || 'Not specified';
+        }
+        text += `\n\nContact / Help:\n${scheme.contact_office || 'Government hospital / secretariat'}`;
+        if (scheme.official_website) {
+            text += `\n\nOfficial Website:\n${scheme.official_website}`;
+        }
+        return text;
+    }
+
+    // Telugu default
     const teluguName = scheme.telugu_name;
     let text = '';
     if (teluguName && teluguName !== schemeName) {
@@ -403,7 +449,7 @@ function generateShareText(schemeName) {
 
     // Contact
     text += `\n\nసంప్రదించండి:\n`;
-    const contact = scheme.telugu?.contact_office || scheme.eligibility_confirmation || scheme.contact_office || 'Government office';
+    const contact = scheme.telugu?.contact_office || scheme.eligibility_confirmation || scheme.contact_office || 'ప్రభుత్వ కార్యాలయం';
     text += contact;
 
     // URL
@@ -495,6 +541,20 @@ function openChat(trigger) {
     const overlay = document.getElementById('chatOverlay');
     if (!overlay) return;
 
+    const isEn = window.getLang && window.getLang() === 'en';
+    const input = document.getElementById('chatInput');
+    if (input) {
+        input.placeholder = window.t ? window.t('chatPlaceholder') : (isEn ? 'Type your question in English or Telugu...' : 'మీ ప్రశ్నను ఇక్కడ రాయండి...');
+    }
+
+    const suggContainer = document.getElementById('chatSuggestionsContainer');
+    if (suggContainer) {
+        suggContainer.querySelectorAll('.chat-suggestion').forEach(btn => {
+            const q = isEn ? (btn.dataset.questionEn || btn.dataset.questionTe) : (btn.dataset.questionTe || btn.dataset.questionEn);
+            if (q) btn.dataset.question = q;
+        });
+    }
+
     previousFocusChat = trigger || document.activeElement;
     overlay.classList.remove('hidden');
     overlay.setAttribute('aria-hidden', 'false');
@@ -517,13 +577,16 @@ async function sendChatQuestion(question) {
     const trimmedQuestion = (question || input?.value || '').trim();
     if (!trimmedQuestion) return;
 
+    const currentLang = window.getLang ? window.getLang() : 'te';
+    const isEn = currentLang === 'en';
+
     appendChatMessage(trimmedQuestion, 'user');
     if (input) input.value = '';
 
     const messages = document.getElementById('chatMessages');
     const loading = document.createElement('div');
     loading.className = 'chat-msg bot loading';
-    loading.textContent = 'సమాధానం వెతుకుతున్నాం...';
+    loading.textContent = window.t ? window.t('chatThinking') : (isEn ? 'Thinking...' : 'ఆలోచిస్తున్నాం...');
     messages?.appendChild(loading);
 
     try {
@@ -533,13 +596,13 @@ async function sendChatQuestion(question) {
                 'Content-Type': 'application/json',
                 ...getCsrfHeader()
             },
-            body: JSON.stringify({ question: trimmedQuestion })
+            body: JSON.stringify({ question: trimmedQuestion, lang: currentLang })
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Chat request failed');
         appendChatMessage(data.answer, 'bot');
     } catch (error) {
-        appendChatMessage('క్షమించండి. ప్రస్తుతం సమాధానం ఇవ్వలేకపోతున్నాం. దయచేసి మళ్లీ ప్రయత్నించండి.', 'bot');
+        appendChatMessage(window.t ? window.t('chatError') : (isEn ? 'Sorry, an error occurred while fetching the response.' : 'క్షమించండి, సమాధానం తీసుకురావడంలో లోపం ఏర్పడింది.'), 'bot');
         console.error('Chat request failed:', error);
     } finally {
         loading.remove();
@@ -1049,42 +1112,50 @@ const SmartGovUX = (function() {
     // --- Symptom Finder Logic (Tier 2A) ---
     const symptomMappings = {
         hospital: {
-            title: 'ఆసుపత్రి / అత్యవసర చికిత్స',
+            title_te: 'ఆసుపత్రి / అత్యవసర చికిత్స',
+            title_en: 'Hospital / Emergency Treatment',
             categories: ['Hospital treatment', 'Emergency ambulance'],
             keywords: []
         },
         pregnancy: {
-            title: 'గర్భం / ప్రసవం',
+            title_te: 'గర్భం / ప్రసవం',
+            title_en: 'Pregnancy / Maternity Care',
             categories: ['Pregnancy and newborn', 'Pregnancy cash support'],
             keywords: ['గర్భిణి', 'pregnancy', 'maternal']
         },
         child: {
-            title: 'పిల్లల ఆరోగ్యం',
+            title_te: 'పిల్లల ఆరోగ్యం',
+            title_en: 'Child Health / Immunization',
             categories: ['Child health', 'Vaccination'],
             keywords: ['పిల్లలు', 'child', 'pediatric', 'neonatal']
         },
         medicines: {
-            title: 'మందులు / పరీక్షలు',
+            title_te: 'మందులు / పరీక్షలు',
+            title_en: 'Medicines / Diagnostics',
             categories: ['PHC and village care', 'Affordable Medicines', 'Primary Care Clinics'],
             keywords: []
         },
         eye_hearing: {
-            title: 'కన్ను మరియు వినికిడి',
+            title_te: 'కన్ను మరియు వినికిడి',
+            title_en: 'Eye & Hearing Care',
             categories: ['Eye Care Services', 'Hearing Care Services'],
             keywords: []
         },
         nutrition_blood: {
-            title: 'పోషణ / రక్తం',
+            title_te: 'పోషణ / రక్తం',
+            title_en: 'Nutrition & Blood Bank',
             categories: ['Nutritional Services', 'Blood Bank Services'],
             keywords: []
         },
         chronic: {
-            title: 'దీర్ఘకాలిక వ్యాధులు',
+            title_te: 'దీర్ఘకాలిక వ్యాధులు',
+            title_en: 'Chronic Disease Care',
             categories: ['TB support', 'TB Elimination Services', 'HIV & AIDS Services', 'Kidney dialysis', 'Leprosy Services', 'Malaria & Dengue Services', 'Rabies Prevention'],
             keywords: []
         },
         phone_digital: {
-            title: 'ఫోన్ ద్వారా వైద్య సేవలు',
+            title_te: 'ఫోన్ ద్వారా వైద్య సేవలు',
+            title_en: 'Telehealth & Digital Services',
             categories: ['Doctor by phone', 'Digital Health Services'],
             keywords: []
         }
@@ -1096,7 +1167,7 @@ const SmartGovUX = (function() {
         document.getElementById('symptomCategoryView').style.display = 'block';
         document.querySelector('.toolbar').style.display = 'none';
         const banner = document.getElementById('symptomEntryBanner');
-        if(banner) banner.style.display = 'none';
+        if (banner) banner.style.display = 'none';
     }
 
     function closeSymptomFinder() {
@@ -1105,7 +1176,7 @@ const SmartGovUX = (function() {
         document.getElementById('homeViewContainer').style.display = 'block';
         document.querySelector('.toolbar').style.display = '';
         const banner = document.getElementById('symptomEntryBanner');
-        if(banner) banner.style.display = '';
+        if (banner) banner.style.display = '';
     }
 
     function showSymptomCategories() {
@@ -1113,13 +1184,20 @@ const SmartGovUX = (function() {
         document.getElementById('symptomCategoryView').style.display = 'block';
     }
 
+    let activeSymptomCategory = null;
+
     function renderSymptomResults(categoryId) {
-        const mapping = symptomMappings[categoryId];
+        if (categoryId) activeSymptomCategory = categoryId;
+        const targetCategory = categoryId || activeSymptomCategory;
+        if (!targetCategory) return;
+
+        const mapping = symptomMappings[targetCategory];
         if (!mapping) return;
 
+        const isEn = window.getLang && window.getLang() === 'en';
         document.getElementById('symptomCategoryView').style.display = 'none';
         document.getElementById('symptomResultsView').style.display = 'block';
-        document.getElementById('symptomResultTitle').textContent = mapping.title;
+        document.getElementById('symptomResultTitle').textContent = isEn ? mapping.title_en : mapping.title_te;
 
         const catalog = window.schemesCatalog || {};
         const matchedSchemes = [];
@@ -1160,13 +1238,14 @@ const SmartGovUX = (function() {
         } else {
             emptyState.style.display = 'none';
             grid.style.display = 'grid';
-            countHeader.textContent = `${matchedSchemes.length} పథకాలు`;
+            countHeader.textContent = isEn ? `${matchedSchemes.length} Schemes Found` : `${matchedSchemes.length} పథకాలు`;
 
             grid.innerHTML = matchedSchemes.map(item => {
                 const s = item.data;
                 const name = window.escapeHtml(item.id);
-                const teluguName = window.escapeHtml(s.telugu_name || item.id);
-                const desc = window.escapeHtml((s.telugu && s.telugu.eligibility) ? s.telugu.eligibility : (s.simplified && s.simplified.eligibility) ? s.simplified.eligibility : '');
+                const primaryTitle = window.escapeHtml(isEn ? item.id : (s.telugu_name || item.id));
+                const subTitle = window.escapeHtml(isEn ? (s.telugu_name || '') : item.id);
+                const desc = window.escapeHtml(isEn ? (s.english_description || s.simplified?.eligibility || '') : (s.telugu_description || s.telugu?.eligibility || ''));
 
                 const iconMap = {
                     hospital: '🏥', ambulance: '🚑', 'mobile-clinic': '🩺', shield: '🛡',
@@ -1174,13 +1253,14 @@ const SmartGovUX = (function() {
                     vaccine: '💉', child: '🧒', kidney: '🧬', nutrition: '🥣'
                 };
                 const icon = iconMap[s.icon] || '🏥';
+                const favTitle = isEn ? 'Favorite' : 'ఇష్టమైనది';
 
                 return `
                     <button type="button" class="scheme-card" data-action="open-scheme" data-scheme="${name}">
-                        <div class="favorite-btn ${isFavorite(item.id) ? 'active' : ''}" data-scheme="${name}" title="Mark as favorite" aria-label="Favorite">⭐</div>
+                        <div class="favorite-btn ${isFavorite(item.id) ? 'active' : ''}" data-scheme="${name}" title="${favTitle}" aria-label="Favorite">⭐</div>
                         <div class="card-icon">${icon}</div>
-                        <h2>${teluguName}</h2>
-                        <p>${desc.substring(0, 80)}...</p>
+                        <h2>${primaryTitle}</h2>
+                        <p>${subTitle}</p>
                     </button>
                 `;
             }).join('');
@@ -1205,7 +1285,7 @@ const SmartGovUX = (function() {
 
         // Ensure focus moves to the dialog
         setTimeout(() => {
-            document.getElementById('guidedTitle').focus();
+            document.getElementById('guidedTitle')?.focus();
         }, 50);
     }
 
@@ -1219,6 +1299,8 @@ const SmartGovUX = (function() {
     function renderGuidedStep(step) {
         if (!currentGuidedSchemeName) return;
         const scheme = window.schemesCatalog[currentGuidedSchemeName] || {};
+        const currentLang = window.getLang ? window.getLang() : 'te';
+        const isEn = currentLang === 'en';
 
         const titleEl = document.getElementById('guidedTitle');
         const progressEl = document.getElementById('guidedProgressText');
@@ -1229,115 +1311,158 @@ const SmartGovUX = (function() {
 
         // Render Favorite Button
         const schemeNameSafe = window.escapeHtml(currentGuidedSchemeName);
-        favContainer.innerHTML = `<button type="button" class="favorite-btn ${isFavorite(currentGuidedSchemeName) ? 'active' : ''}" data-scheme="${schemeNameSafe}" title="Mark as favorite" aria-label="Favorite">⭐</button>`;
+        const favTitle = isEn ? 'Favorite' : 'ఇష్టమైనది';
+        favContainer.innerHTML = `<button type="button" class="favorite-btn ${isFavorite(currentGuidedSchemeName) ? 'active' : ''}" data-scheme="${schemeNameSafe}" title="${favTitle}" aria-label="Favorite">⭐</button>`;
 
-        titleEl.textContent = scheme.telugu_name || currentGuidedSchemeName;
-        progressEl.textContent = `దశ ${step} / 6`;
+        titleEl.textContent = isEn ? currentGuidedSchemeName : (scheme.telugu_name || currentGuidedSchemeName);
+        progressEl.textContent = window.t ? window.t('guidedStep', { step: step }) : (isEn ? `Step ${step} of 6` : `దశ ${step} / 6`);
 
         let stepHtml = '';
 
         if (step === 1) {
-            let desc = 'వివరాలు అందుబాటులో లేవు.';
-            if (scheme.original_complex_text) desc = scheme.original_complex_text;
+            let desc = isEn ? 'Details not available.' : 'వివరాలు అందుబాటులో లేవు.';
+            if (isEn) {
+                desc = scheme.english_description || scheme.simplified?.description || scheme.simplified?.benefits || scheme.original_complex_text || 'Details not available.';
+            } else {
+                desc = scheme.telugu_description || scheme.telugu?.description || scheme.telugu?.benefits || 'వివరాలు అందుబాటులో లేవు.';
+            }
+
+            const stepTitle = window.t ? window.t('guidedTitle1') : (isEn ? 'ℹ️ About This Scheme' : 'ℹ️ ఈ పథకం గురించి');
 
             stepHtml = `
-                <h3 class="guided-step-title">ℹ️ ఈ పథకం గురించి</h3>
+                <h3 class="guided-step-title">${window.escapeHtml(stepTitle)}</h3>
                 <div class="guided-step-content">
-                    <p style="font-size: 1.2rem;">${window.escapeHtml(desc)}</p>
+                    <p style="font-size: 1.15rem; line-height: 1.6;">${window.escapeHtml(desc)}</p>
                 </div>
             `;
         } else if (step === 2) {
-            let elig = 'అర్హత వివరాలు అందుబాటులో లేవు.';
-            if (scheme.telugu && scheme.telugu.eligibility) elig = scheme.telugu.eligibility;
-            else if (scheme.simplified && scheme.simplified.eligibility) elig = scheme.simplified.eligibility;
+            let elig = isEn ? 'Eligibility details not available.' : 'అర్హత వివరాలు అందుబాటులో లేవు.';
+            if (isEn) {
+                if (scheme.simplified && scheme.simplified.eligibility) elig = scheme.simplified.eligibility;
+                else if (scheme.telugu && scheme.telugu.eligibility) elig = scheme.telugu.eligibility;
+            } else {
+                if (scheme.telugu && scheme.telugu.eligibility) elig = scheme.telugu.eligibility;
+                else if (scheme.simplified && scheme.simplified.eligibility) elig = scheme.simplified.eligibility;
+            }
+
+            const stepTitle = window.t ? window.t('guidedTitle2') : (isEn ? '👤 Who is Eligible?' : '👤 ఎవరు పొందవచ్చు?');
 
             stepHtml = `
-                <h3 class="guided-step-title">👤 ఎవరు పొందవచ్చు?</h3>
+                <h3 class="guided-step-title">${window.escapeHtml(stepTitle)}</h3>
                 <div class="guided-step-content">
-                    <p>${window.escapeHtml(elig)}</p>
+                    <p style="font-size: 1.1rem; line-height: 1.6;">${window.escapeHtml(elig)}</p>
                 </div>
             `;
         } else if (step === 3) {
-            let ben = 'ప్రయోజనాల వివరాలు ప్రస్తుతం అందుబాటులో లేవు.';
-            if (scheme.telugu && scheme.telugu.benefits) ben = scheme.telugu.benefits;
-            else if (scheme.simplified && scheme.simplified.benefits) ben = scheme.simplified.benefits;
+            let ben = isEn ? 'Benefits details not available.' : 'ప్రయోజనాల వివరాలు ప్రస్తుతం అందుబాటులో లేవు.';
+            if (isEn) {
+                if (scheme.simplified && scheme.simplified.benefits) ben = scheme.simplified.benefits;
+                else if (scheme.telugu && scheme.telugu.benefits) ben = scheme.telugu.benefits;
+            } else {
+                if (scheme.telugu && scheme.telugu.benefits) ben = scheme.telugu.benefits;
+                else if (scheme.simplified && scheme.simplified.benefits) ben = scheme.simplified.benefits;
+            }
+
+            const stepTitle = window.t ? window.t('guidedTitle3') : (isEn ? '🎁 Key Benefits' : '🎁 ఏమి లభిస్తుంది?');
 
             stepHtml = `
-                <h3 class="guided-step-title">🎁 ఏమి లభిస్తుంది?</h3>
+                <h3 class="guided-step-title">${window.escapeHtml(stepTitle)}</h3>
                 <div class="guided-step-content">
-                    <p>${window.escapeHtml(ben)}</p>
+                    <p style="font-size: 1.1rem; line-height: 1.6;">${window.escapeHtml(ben)}</p>
                 </div>
             `;
         } else if (step === 4) {
-            let docsHtml = '<p>పత్రాల వివరాలు అందుబాటులో లేవు.</p>';
+            let docsHtml = isEn ? '<p>Documents details not available.</p>' : '<p>పత్రాల వివరాలు అందుబాటులో లేవు.</p>';
             if (scheme.required_documents && scheme.required_documents.length > 0) {
-                docsHtml = `<ul>` + scheme.required_documents.map(d => `<li>✓ ${window.escapeHtml(d.name_te || d.name)}</li>`).join('') + `</ul>`;
+                docsHtml = `<ul>` + scheme.required_documents.map(d => {
+                    const docName = isEn ? (d.name || d.name_te) : (d.name_te || d.name);
+                    return `<li>✓ ${window.escapeHtml(docName)}</li>`;
+                }).join('') + `</ul>`;
+            } else if (isEn && scheme.simplified && scheme.simplified.documents) {
+                docsHtml = `<p>${window.escapeHtml(scheme.simplified.documents)}</p>`;
             } else if (scheme.telugu && scheme.telugu.documents) {
                 docsHtml = `<p>${window.escapeHtml(scheme.telugu.documents)}</p>`;
             }
 
+            const stepTitle = window.t ? window.t('guidedTitle4') : (isEn ? '📄 Documents Required' : '📄 ఏమి తీసుకెళ్లాలి?');
+
             stepHtml = `
-                <h3 class="guided-step-title">📄 ఏమి తీసుకెళ్లాలి?</h3>
+                <h3 class="guided-step-title">${window.escapeHtml(stepTitle)}</h3>
                 <div class="guided-step-content">
                     ${docsHtml}
                 </div>
             `;
         } else if (step === 5) {
-            let stepsStr = 'దరఖాస్తు విధానం అందుబాటులో లేదు. అధికారులను సంప్రదించండి.';
-            if (scheme.telugu && scheme.telugu.steps) stepsStr = scheme.telugu.steps;
-            else if (scheme.simplified && scheme.simplified.steps) stepsStr = scheme.simplified.steps;
+            let stepsStr = isEn ? 'Application process not available. Please contact official authorities.' : 'దరఖాస్తు విధానం అందుబాటులో లేదు. అధికారులను సంప్రదించండి.';
+            if (isEn) {
+                if (scheme.simplified && scheme.simplified.steps) stepsStr = scheme.simplified.steps;
+                else if (scheme.telugu && scheme.telugu.steps) stepsStr = scheme.telugu.steps;
+            } else {
+                if (scheme.telugu && scheme.telugu.steps) stepsStr = scheme.telugu.steps;
+                else if (scheme.simplified && scheme.simplified.steps) stepsStr = scheme.simplified.steps;
+            }
+
+            const stepTitle = window.t ? window.t('guidedTitle5') : (isEn ? '📝 How to Apply' : '📝 ఎలా దరఖాస్తు చేయాలి?');
 
             stepHtml = `
-                <h3 class="guided-step-title">📝 ఎలా దరఖాస్తు చేయాలి?</h3>
+                <h3 class="guided-step-title">${window.escapeHtml(stepTitle)}</h3>
                 <div class="guided-step-content">
-                    <p>${window.escapeHtml(stepsStr)}</p>
+                    <p style="font-size: 1.1rem; line-height: 1.6;">${window.escapeHtml(stepsStr)}</p>
                 </div>
             `;
         } else if (step === 6) {
-            let contactInfo = 'వివరాలు అందుబాటులో లేవు.';
+            let contactInfo = isEn ? 'Details not available.' : 'వివరాలు అందుబాటులో లేవు.';
             if (scheme.contact_office) contactInfo = scheme.contact_office;
             else if (scheme.eligibility_confirmation) contactInfo = scheme.eligibility_confirmation;
 
             let websiteHtml = '';
             if (scheme.official_website) {
-                websiteHtml = `<p style="margin-top:1rem;"><a href="${window.escapeHtml(scheme.official_website)}" target="_blank" rel="noopener noreferrer">🌐 అధికారిక వెబ్‌సైట్ (Official Website)</a></p>`;
+                const siteLabel = isEn ? '🌐 Official Website' : '🌐 అధికారిక వెబ్‌సైట్ (Official Website)';
+                websiteHtml = `<p style="margin-top:1rem;"><a href="${window.escapeHtml(scheme.official_website)}" target="_blank" rel="noopener noreferrer">${siteLabel}</a></p>`;
             }
 
             let localHelp = '';
             if (scheme.local_help_locations && Object.values(scheme.local_help_locations).length > 0) {
-                localHelp = `<p style="margin-top:1rem;"><strong>స్థానిక సహాయం (Local Help):</strong><br>` + Object.values(scheme.local_help_locations).map(l => window.escapeHtml(l)).join('<br>') + `</p>`;
+                const helpTitle = isEn ? 'Local Help:' : 'స్థానిక సహాయం (Local Help):';
+                localHelp = `<p style="margin-top:1rem;"><strong>${helpTitle}</strong><br>` + Object.values(scheme.local_help_locations).map(l => window.escapeHtml(l)).join('<br>') + `</p>`;
             }
 
             let mapHtml = `
                 <div class="inline-map-container" id="inlineMapContainer" style="margin-top: 1.5rem;">
                     <div class="map-toolbar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <h4 style="margin:0;">📍 దగ్గరలోని ఆరోగ్య కేంద్రాలు</h4>
-                        <button class="action-btn" type="button" data-action="expand-map" style="padding: 4px 12px; min-height:36px; font-size:0.9rem;">విస్తరించు (Expand)</button>
+                        <h4 style="margin:0;">📍 ${isEn ? 'Nearby Healthcare Facilities' : 'దగ్గరలోని ఆరోగ్య కేంద్రాలు'}</h4>
+                        <button class="action-btn" type="button" data-action="expand-map" style="padding: 4px 12px; min-height:36px; font-size:0.9rem;">${isEn ? 'Expand Map' : 'విస్తరించు (Expand)'}</button>
                     </div>
                     <div class="map-filters-ui" id="mapFiltersUi" style="padding: 10px; background: var(--surface-1); border-radius: 8px; margin-bottom: 8px;">
                         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
-                            <button type="button" class="secondary-btn" id="btnLocation" style="flex:1; font-size: 0.85rem; min-height: 36px; padding: 4px;">📍 నా స్థానం (My Location)</button>
-                            <button type="button" class="secondary-btn" id="btnMode" style="flex:1; font-size: 0.85rem; min-height: 36px; padding: 4px;">🗺️ మొత్తం AP (View All AP)</button>
+                            <button type="button" class="secondary-btn" id="btnLocation" style="flex:1; font-size: 0.85rem; min-height: 36px; padding: 4px;">📍 ${isEn ? 'My Location' : 'నా స్థానం'}</button>
+                            <button type="button" class="secondary-btn" id="btnMode" style="flex:1; font-size: 0.85rem; min-height: 36px; padding: 4px;">🗺️ ${isEn ? 'View All AP' : 'మొత్తం AP'}</button>
                         </div>
                         <div style="margin-bottom: 8px;">
-                            <input type="text" id="searchInput" class="map-select" placeholder="🔍 వెతకండి (Search name, village...)" style="width:100%; box-sizing: border-box;">
+                            <input type="text" id="searchInput" class="map-select" placeholder="${isEn ? '🔍 Search name, village...' : '🔍 వెతకండి...'}" style="width:100%; box-sizing: border-box;">
                         </div>
                         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                             <div style="flex: 1 1 45%;">
-                                <label for="typeSelect" style="font-size: 0.85rem;">రకం (Type):</label>
-                                <select id="typeSelect" class="map-select" style="width:100%;"><option value="all">అన్నీ (All)</option><option value="PHC">PHC</option><option value="CHC">CHC</option><option value="Hospital">Hospital</option><option value="none">కేవలం మ్యాప్ (Map Only)</option></select>
+                                <label for="typeSelect" style="font-size: 0.85rem;">${isEn ? 'Type:' : 'రకం:'}</label>
+                                <select id="typeSelect" class="map-select" style="width:100%;">
+                                    <option value="all">${isEn ? 'All' : 'అన్నీ'}</option>
+                                    <option value="PHC">PHC</option>
+                                    <option value="CHC">CHC</option>
+                                    <option value="Hospital">Hospital</option>
+                                    <option value="none">${isEn ? 'Map Only' : 'కేవలం మ్యాప్'}</option>
+                                </select>
                             </div>
                             <div style="flex: 1 1 45%;">
-                                <label for="districtSelect" style="font-size: 0.85rem;">జిల్లా (District):</label>
-                                <select id="districtSelect" class="map-select" style="width:100%;"><option value="">-- ఎంచుకోండి --</option></select>
+                                <label for="districtSelect" style="font-size: 0.85rem;">${isEn ? 'District:' : 'జిల్లా:'}</label>
+                                <select id="districtSelect" class="map-select" style="width:100%;"><option value="">-- ${isEn ? 'Select' : 'ఎంచుకోండి'} --</option></select>
                             </div>
                             <div style="flex: 1 1 45%;">
-                                <label for="mandalSelect" style="font-size: 0.85rem;">మండలం (Mandal):</label>
-                                <select id="mandalSelect" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
+                                <label for="mandalSelect" style="font-size: 0.85rem;">${isEn ? 'Mandal:' : 'మండలం:'}</label>
+                                <select id="mandalSelect" class="map-select" style="width:100%;" disabled><option value="">-- ${isEn ? 'Select' : 'ఎంచుకోండి'} --</option></select>
                             </div>
                             <div style="flex: 1 1 45%;">
-                                <label for="villageSelect" style="font-size: 0.85rem;">గ్రామం (Village):</label>
-                                <select id="villageSelect" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
+                                <label for="villageSelect" style="font-size: 0.85rem;">${isEn ? 'Village:' : 'గ్రామం:'}</label>
+                                <select id="villageSelect" class="map-select" style="width:100%;" disabled><option value="">-- ${isEn ? 'Select' : 'ఎంచుకోండి'} --</option></select>
                             </div>
                         </div>
                         <div id="searchResults" style="margin-top: 8px; font-weight: bold; color: var(--primary);"></div>
@@ -1346,16 +1471,20 @@ const SmartGovUX = (function() {
                 </div>
             `;
 
+            const stepTitle = window.t ? window.t('guidedTitle6') : (isEn ? '📞 Where to Get Help' : '📞 ఎవరిని సంప్రదించాలి?');
+            const officeLabel = isEn ? 'Office / Authority:' : 'కార్యాలయం / అధికారి:';
+            const waShareText = isEn ? '📱 Share via WhatsApp' : '📱 WhatsApp ద్వారా షేర్ చేయండి';
+
             stepHtml = `
-                <h3 class="guided-step-title">📞 ఎవరిని సంప్రదించాలి?</h3>
+                <h3 class="guided-step-title">${window.escapeHtml(stepTitle)}</h3>
                 <div class="guided-step-content">
-                    <p><strong>కార్యాలయం / అధికారి:</strong> ${window.escapeHtml(contactInfo)}</p>
+                    <p><strong>${officeLabel}</strong> ${window.escapeHtml(contactInfo)}</p>
                     ${localHelp}
                     ${websiteHtml}
                     ${mapHtml}
                     <div style="margin-top:2rem;">
                         <button class="action-btn whatsapp share-whatsapp-btn" type="button" data-scheme="${schemeNameSafe}" style="width:100%; font-size:1.1rem; min-height:48px;">
-                            📱 WhatsApp ద్వారా షేర్ చేయండి
+                            ${waShareText}
                         </button>
                     </div>
                 </div>
@@ -1370,16 +1499,17 @@ const SmartGovUX = (function() {
             prevBtn.style.visibility = 'visible';
         }
 
+        prevBtn.textContent = window.t ? window.t('guidedPrev') : (isEn ? '← Back' : '← వెనుకకు');
+
         if (step === 6) {
-            nextBtn.textContent = 'ముగించు';
+            nextBtn.textContent = window.t ? window.t('guidedFinish') : (isEn ? 'Finish' : 'ముగించు');
             nextBtn.dataset.action = 'guided-close';
             
-            // Initialize map after it is added to DOM
             setTimeout(() => {
                 if (window.initInlineMap) window.initInlineMap();
             }, 50);
         } else {
-            nextBtn.textContent = 'తర్వాత →';
+            nextBtn.textContent = window.t ? window.t('guidedNext') : (isEn ? 'Next →' : 'తర్వాత →');
             nextBtn.dataset.action = 'guided-next';
         }
     }
@@ -2166,6 +2296,17 @@ const SmartGovUX = (function() {
             }
         }
     };
+
+    // Listen for language change events to re-render active interactive views
+    window.addEventListener('languagechange', () => {
+        renderFavoritesAndRecent();
+        if (currentGuidedSchemeName) {
+            renderGuidedStep(currentGuidedStep);
+        }
+        if (activeSymptomCategory) {
+            renderSymptomResults(activeSymptomCategory);
+        }
+    });
 
     return window.SmartGovUX;
 })();

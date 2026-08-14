@@ -434,13 +434,30 @@ def version() -> Any:
     })
 
 
-def catalog_chat_fallback(matched_schemes: list[Dict[str, Any]]) -> str:
+def catalog_chat_fallback(matched_schemes: list[Dict[str, Any]], lang: str = "te") -> str:
     """Return a useful answer when the optional Gemini service is unavailable."""
     if not matched_schemes:
+        if lang == "en":
+            return (
+                "Sorry, SmartGovAI currently provides information about government "
+                "health schemes in Andhra Pradesh. Please ask about health schemes, "
+                "hospital treatment, medicines, pregnancy, or child health."
+            )
         return (
             "క్షమించండి. SmartGovAI ప్రస్తుతం ఆరోగ్య సంబంధిత ప్రభుత్వ పథకాల "
             "గురించి సమాచారాన్ని అందిస్తుంది. ఆరోగ్య పథకాలు, ఆసుపత్రి చికిత్స, "
             "మందులు, గర్భం లేదా పిల్లల ఆరోగ్యం గురించి అడగండి."
+        )
+
+    if lang == "en":
+        suggestions = "\n".join(
+            f"• {scheme['scheme_name']} ({scheme.get('telugu_name', '')})"
+            for scheme in matched_schemes
+        )
+        return (
+            "Here are the relevant health schemes matching your question:\n"
+            f"{suggestions}\n\n"
+            "Please verify final eligibility at the official government office or hospital."
         )
 
     suggestions = "\n".join(
@@ -469,11 +486,14 @@ def chat() -> Any:
     if len(question) > 500:
         return api_error("Question must be 500 characters or fewer.", 400, error_code="QUESTION_TOO_LONG")
 
-    matched_schemes = retrieve_relevant_schemes(question, schemes)
-    answer = generate_chat_response(question, matched_schemes)
+    raw_lang = data.get("lang", "te")
+    lang = "en" if str(raw_lang).lower() == "en" else "te"
+
+    matched_schemes = retrieve_relevant_schemes(question, schemes, lang=lang)
+    answer = generate_chat_response(question, matched_schemes, lang=lang)
     used_ai = answer is not None
     if answer is None:
-        answer = catalog_chat_fallback(matched_schemes)
+        answer = catalog_chat_fallback(matched_schemes, lang=lang)
 
     return api_response({
         "answer": answer,
