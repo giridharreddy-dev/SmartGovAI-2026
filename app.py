@@ -141,7 +141,11 @@ if not secret_key:
         raise RuntimeError("SECRET_KEY is not set. Please add it to your .env file.")
 app.secret_key = secret_key
 
-database.init_db()
+try:
+    database.init_db()
+except Exception:
+    logger.warning("Database initialization failed (disk may be read-only). "
+                   "Running in read-only mode — feedback and analytics will be unavailable.")
 os.makedirs(AUDIO_DIR, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -601,7 +605,11 @@ def simplify() -> Any:
             )
 
         scheme_name = os.path.splitext(safe_filename)[0]
-        request_id = database.log_request(scheme_name, "pdf")
+        try:
+            request_id = database.log_request(scheme_name, "pdf")
+        except sqlite3.Error:
+            logger.warning("Could not log request to database (disk may be read-only).")
+            request_id = None
 
         try:
             ai_result = simplify_document(complex_text, scheme_name)
@@ -642,7 +650,11 @@ def simplify() -> Any:
     if not scheme_data:
         return api_error("Scheme not found", 404, error_code="SCHEME_NOT_FOUND")
 
-    request_id = database.log_request(scheme_name, "catalog")
+    try:
+        request_id = database.log_request(scheme_name, "catalog")
+    except sqlite3.Error:
+        logger.warning("Could not log request to database (disk may be read-only).")
+        request_id = None
     return api_response(static_scheme_response(scheme_name, scheme_data, request_id))
 
 
@@ -659,6 +671,9 @@ def admin_login() -> Any:
         if token == admin_token:
             session["admin_authenticated"] = True
             next_url = request.args.get("next") or url_for("analytics")
+            # Prevent open redirect — only allow local paths
+            if not next_url.startswith("/") or next_url.startswith("//"):
+                next_url = url_for("analytics")
             return redirect(next_url)
         else:
             flash("Invalid authentication token.", "error")
@@ -704,8 +719,11 @@ def feedback() -> Any:
         return api_error("Rating must be a number", 400, error_code="INVALID_RATING")
     if rating < 1 or rating > 5:
         return api_error("Rating must be between 1 and 5", 400, error_code="INVALID_RATING_RANGE")
+    comment = str(data.get("comment", ""))
+    if len(comment) > 1000:
+        return api_error("Comment must be 1000 characters or fewer.", 400, error_code="COMMENT_TOO_LONG")
     try:
-        database.save_feedback(data["request_id"], rating, data.get("comment", ""))
+        database.save_feedback(data["request_id"], rating, comment)
         logger.info(
             "Feedback submitted: request_id=%s rating=%s",
             data["request_id"],
@@ -797,7 +815,10 @@ def whatsapp_share() -> Any:
 📞 సంప్రదించండి: {scheme.get('eligibility_confirmation', 'Government office')}
 
 🔗 మరిన్ని: {safe_url(scheme.get('official_website', ''))}"""
-    database.log_whatsapp_share(scheme_name)
+    try:
+        database.log_whatsapp_share(scheme_name)
+    except sqlite3.Error:
+        logger.warning("Could not log WhatsApp share to database.")
     return api_response({
         "scheme_name": scheme_name,
         "whatsapp_text": message,
@@ -823,6 +844,12 @@ def enhanced_feedback() -> Any:
             return api_error("Rating must be 1-5", 400, error_code="INVALID_RATING_RANGE")
     except (TypeError, ValueError):
         return api_error("Invalid rating", 400, error_code="INVALID_RATING")
+    village = str(data.get("village", "N/A"))
+    problem = str(data.get("problem", "N/A"))
+    if len(village) > 500:
+        return api_error("Village must be 500 characters or fewer.", 400, error_code="VILLAGE_TOO_LONG")
+    if len(problem) > 500:
+        return api_error("Problem must be 500 characters or fewer.", 400, error_code="PROBLEM_TOO_LONG")
 
     try:
         database.save_feedback(
@@ -830,8 +857,8 @@ def enhanced_feedback() -> Any:
             rating,
             f"Clear: {data.get('was_clear', 'N/A')} | "
             f"Got benefit: {data.get('got_benefit', 'N/A')} | "
-            f"Village: {data.get('village', 'N/A')} | "
-            f"Problem: {data.get('problem', 'N/A')}"
+            f"Village: {village} | "
+            f"Problem: {problem}"
         )
         logger.info(
             "Enhanced feedback submitted: request_id=%s rating=%s",
@@ -856,12 +883,18 @@ def staff_report() -> Any:
     if scheme_name not in schemes:
         return api_error("Scheme not found", 404, error_code="SCHEME_NOT_FOUND")
     feedback_type = data.get("feedback_type")
+    village = str(data.get("village", ""))
+    feedback_text = str(data.get("feedback_text", ""))
+    if len(village) > 200:
+        return api_error("Village name must be 200 characters or fewer.", 400, error_code="VILLAGE_TOO_LONG")
+    if len(feedback_text) > 2000:
+        return api_error("Feedback text must be 2000 characters or fewer.", 400, error_code="FEEDBACK_TEXT_TOO_LONG")
 
     try:
         database.save_staff_feedback(
             scheme_name,
-            data.get("village", ""),
-            data.get("feedback_text", ""),
+            village,
+            feedback_text,
             feedback_type
         )
         logger.info(

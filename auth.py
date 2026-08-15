@@ -1,6 +1,7 @@
 """Authentication helpers for admin-protected endpoints."""
 
 import os
+import secrets
 from functools import wraps
 from typing import Any
 
@@ -44,7 +45,7 @@ def require_admin_token(f):
         auth_header = request.headers.get("Authorization", "")
         if auth_header.startswith("Bearer "):
             token = auth_header[len("Bearer "):]
-            if token == admin_token:
+            if secrets.compare_digest(token, admin_token):
                 return f(*args, **kwargs)
             else:
                 logger.warning(
