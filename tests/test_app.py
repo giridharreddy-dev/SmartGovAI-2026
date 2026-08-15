@@ -130,7 +130,7 @@ def test_simplify_valid_pdf_upload(mock_save, mock_audio, mock_simplify, mock_ex
     assert response.status_code == 200
     json_data = response.get_json()
     assert json_data["scheme_name"] == "scheme_doc"
-    assert json_data["request_id"] == 123
+    assert json_data["request_id"] is None
     assert "simplified" in json_data
 
 

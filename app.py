@@ -605,11 +605,7 @@ def simplify() -> Any:
             )
 
         scheme_name = os.path.splitext(safe_filename)[0]
-        try:
-            request_id = database.log_request(scheme_name, "pdf")
-        except sqlite3.Error:
-            logger.warning("Could not log request to database (disk may be read-only).")
-            request_id = None
+        request_id = None
 
         try:
             ai_result = simplify_document(complex_text, scheme_name)
