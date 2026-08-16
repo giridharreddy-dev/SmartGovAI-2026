@@ -604,10 +604,32 @@
         });
     }
 
+    async function safeFetch(url, options) {
+        const response = await fetch(url, options);
+        let data;
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            data = {
+                status: 'error',
+                error: response.ok
+                    ? 'Unexpected response format'
+                    : (window.t ? window.t('serverError') : 'సర్వర్ లోపం. దయచేసి మళ్ళీ ప్రయత్నించండి.'),
+                error_code: 'NON_JSON_RESPONSE'
+            };
+        }
+        if (!response.ok && !data.error) {
+            data.error = window.t ? window.t('serverError') : 'సర్వర్ లోపం. దయచేసి మళ్ళీ ప్రయత్నించండి.';
+        }
+        return data;
+    }
+
     window.fetchScheme = async function fetchScheme(schemeName) {
         showLoading();
         try {
-            const response = await fetch("{{ url_for('simplify') }}", {
+            const data = await safeFetch("{{ url_for('simplify') }}", {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -615,7 +637,6 @@
                 },
                 body: JSON.stringify({ scheme_name: schemeName })
             });
-            const data = await response.json();
             displayResult(data);
         } catch (error) {
             const offlineData = window.SmartGovEnhanced?.loadOfflineData();
@@ -643,7 +664,7 @@
         const status = document.getElementById('feedbackStatus');
         status.textContent = window.t ? window.t('feedbackSaving') : 'సేవ్ చేస్తున్నాం...';
         try {
-            const response = await fetch("{{ url_for('feedback') }}", {
+            const data = await safeFetch("{{ url_for('feedback') }}", {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -651,7 +672,6 @@
                 },
                 body: JSON.stringify({ request_id: currentRequestId, rating: Number(rating) })
             });
-            const data = await response.json();
             status.textContent = data.status === 'success' ? (window.t ? window.t('feedbackSuccess') : 'ధన్యవాదాలు. మీ స్పందన సేవ్ అయింది.') : (window.t ? window.t('feedbackError') : `లోపం: ${data.error}`);
         } catch (error) {
             status.textContent = window.t ? window.t('networkError', { error: error.message }) : `లోపం: ${error.message}`;
@@ -801,14 +821,13 @@
         formData.append('document', file);
         formData.append('consent', 'true');
         try {
-            const response = await fetch("{{ url_for('simplify') }}", { 
+            const data = await safeFetch("{{ url_for('simplify') }}", { 
                 method: 'POST', 
                 headers: {
                     'X-CSRFToken': csrfToken
                 },
                 body: formData 
             });
-            const data = await response.json();
             displayResult(data);
         } catch (error) {
             showError(window.t ? window.t('networkError', { error: error.message }) : `PDF లోపం: ${error.message}`);

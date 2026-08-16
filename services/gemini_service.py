@@ -3,22 +3,26 @@
 import hashlib
 import json
 import os
+import random
 import threading
+import time
 from collections import OrderedDict
 from functools import lru_cache
 from typing import Any, Dict
 
-from config import MODEL_NAME
+from config import GEMINI_MAX_RETRIES, GEMINI_RETRY_BASE_DELAY, GEMINI_RETRY_MAX_DELAY, MODEL_NAME
 from logger_config import logger
 
 try:
     from google import genai
     from google.genai import types
     from google.genai import Client
+    from google.genai import errors as genai_errors
 except ImportError:
     genai = None
     types = None
     Client = Any
+    genai_errors = None
 
 _GEMINI_CACHE_SIZE = 64
 _gemini_response_cache: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
@@ -98,6 +102,47 @@ Return strictly this JSON object:
         raise ValueError("Gemini returned an unexpected shape")
     return result
 
+def _is_retryable_gemini_error(exc: Exception) -> bool:
+    """Return True if the Gemini error is transient and worth retrying."""
+    if genai_errors is None:
+        return False
+    if isinstance(exc, genai_errors.ServerError):
+        return True  # All 5xx are transient
+    if isinstance(exc, genai_errors.ClientError):
+        return getattr(exc, 'code', 0) == 429  # Rate limit only
+    return False
+
+def _call_gemini_with_retry(client: Client, complex_text: str, scheme_name: str) -> Dict[str, Any]:
+    """Call Gemini with bounded exponential backoff retry for transient errors."""
+    last_exc = None
+    for attempt in range(1, GEMINI_MAX_RETRIES + 1):
+        try:
+            return _call_gemini(client, complex_text, scheme_name)
+        except Exception as exc:
+            last_exc = exc
+            if not _is_retryable_gemini_error(exc):
+                raise  # Permanent error — don't retry
+            if attempt == GEMINI_MAX_RETRIES:
+                logger.error(
+                    "Gemini retries exhausted after %d attempts: scheme='%s' error_code=%s",
+                    GEMINI_MAX_RETRIES, scheme_name, getattr(exc, 'code', 'unknown')
+                )
+                raise  # All retries exhausted
+            delay = min(
+                GEMINI_RETRY_BASE_DELAY * (2 ** (attempt - 1)),
+                GEMINI_RETRY_MAX_DELAY
+            )
+            jitter = delay * 0.25 * (2 * random.random() - 1)
+            sleep_time = max(0.1, delay + jitter)
+            logger.warning(
+                "Gemini transient error (attempt %d/%d, retrying in %.1fs): scheme='%s' error_code=%s",
+                attempt, GEMINI_MAX_RETRIES, sleep_time, scheme_name,
+                getattr(exc, 'code', 'unknown')
+            )
+            time.sleep(sleep_time)
+    raise last_exc  # Unreachable safety net
+
+
 
 def simplify_document(complex_text: str, scheme_name: str) -> Dict[str, Any]:
     """Call Gemini API to simplify a scheme document."""
@@ -132,7 +177,7 @@ def simplify_document(complex_text: str, scheme_name: str) -> Dict[str, Any]:
 
     logger.info("Gemini request started: scheme='%s'", scheme_name)
     try:
-        result = _call_gemini(client, complex_text, scheme_name)
+        result = _call_gemini_with_retry(client, complex_text, scheme_name)
         with _gemini_lock:
             _gemini_response_cache[cache_key] = result
             _prune_gemini_cache()

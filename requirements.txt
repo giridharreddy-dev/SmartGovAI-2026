@@ -8,6 +8,8 @@ Flask-Limiter>=3.5,<4
 redis>=5.0,<6
 gunicorn>=22.0,<23; sys_platform != "win32"
 qrcode[pil]>=7.4,<8
+pytesseract>=0.3,<1
+pdf2image>=1.16,<2
 
 # Dev / test
 pytest>=8.0,<9

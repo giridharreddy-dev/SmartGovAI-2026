@@ -14,8 +14,12 @@ ALLOWED_MIME_TYPES = {"application/pdf"}
 MAX_UPLOAD_SIZE = 5 * 1024 * 1024
 MAX_PDF_PAGES = int(os.getenv("MAX_PDF_PAGES", "50"))
 
-MODEL_NAME = "gemini-3.5-flash"
+MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "gemini-3.5-flash")
 
+# Gemini retry configuration
+GEMINI_MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", "3"))
+GEMINI_RETRY_BASE_DELAY = float(os.getenv("GEMINI_RETRY_BASE_DELAY", "2.0"))
+GEMINI_RETRY_MAX_DELAY = float(os.getenv("GEMINI_RETRY_MAX_DELAY", "10.0"))
 OCR_LANGUAGES = "tel+eng"
 VOICE_LANGUAGE = "te"
 

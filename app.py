@@ -38,6 +38,11 @@ from services.gemini_service import is_gemini_available, simplify_document
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
 from utils import allowed_file, safe_url, validate_pdf_content
 
+try:
+    from google.genai import errors as genai_errors
+except ImportError:
+    genai_errors = None
+
 app = Flask(__name__)
 
 # Configure CSRF protection
@@ -620,6 +625,63 @@ def simplify() -> Any:
                 502,
                 error_code="AI_SIMPLIFICATION_FAILED"
             )
+        except Exception as e:
+            # Classify Gemini SDK errors into user-friendly JSON responses
+            error_code_val = getattr(e, 'code', None)
+
+            if genai_errors is not None and isinstance(e, genai_errors.ServerError):
+                logger.error(
+                    "Gemini server error after retries: scheme='%s' status=%s",
+                    scheme_name, error_code_val
+                )
+                return api_error(
+                    "AI service is temporarily busy. Please try again shortly.",
+                    503,
+                    error_code="AI_SERVICE_UNAVAILABLE"
+                )
+
+            if genai_errors is not None and isinstance(e, genai_errors.ClientError):
+                if error_code_val == 429:
+                    logger.warning(
+                        "Gemini rate limited after retries: scheme='%s'", scheme_name
+                    )
+                    return api_error(
+                        "AI service is rate limited. Please wait and try again.",
+                        503,
+                        error_code="AI_RATE_LIMITED"
+                    )
+                if error_code_val in (401, 403):
+                    logger.error(
+                        "Gemini auth/config error: scheme='%s' status=%s",
+                        scheme_name, error_code_val
+                    )
+                    return api_error(
+                        "AI service configuration error. Please contact support.",
+                        502,
+                        error_code="AI_CONFIGURATION_ERROR"
+                    )
+                # Other client errors (400, etc.)
+                logger.error(
+                    "Gemini client error: scheme='%s' status=%s",
+                    scheme_name, error_code_val
+                )
+                return api_error(
+                    "AI could not simplify the document at this time.",
+                    502,
+                    error_code="AI_SIMPLIFICATION_FAILED"
+                )
+
+            # Truly unexpected error
+            logger.exception(
+                "Unexpected error during Gemini simplification: scheme='%s'",
+                scheme_name
+            )
+            return api_error(
+                "An unexpected error occurred during document simplification.",
+                500,
+                error_code="INTERNAL_SERVER_ERROR"
+            )
+
 
         audio_rel_path = generate_telugu_audio(ai_result["telugu"], scheme_name)
         voice_url = url_for("static", filename=audio_rel_path) if audio_rel_path else None

@@ -45,3 +45,14 @@ def test_chat_controls_have_client_handlers():
 
     for action in ("open-chat", "close-chat", "chat-suggestion", "send-chat"):
         assert f"action === '{action}'" in script
+
+def test_frontend_does_not_call_response_json_directly():
+    template = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
+    
+    # response.json() should only appear exactly once, safely guarded inside safeFetch
+    occurrences = template.count("response.json()")
+    assert occurrences == 1, f"Expected exactly one safe response.json() call, found {occurrences}"
+    
+    # Verify safeFetch is actually used by the main fetch paths
+    assert "safeFetch(\"{{ url_for('simplify') }}\"" in template
+    assert "safeFetch(\"{{ url_for('feedback') }}\"" in template
