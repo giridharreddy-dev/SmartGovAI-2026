@@ -49,16 +49,38 @@ def generate_telugu_audio(
         logger.info("Reusing generated audio: filename='%s' scheme='%s'", filename, scheme_name)
         return rel_path
 
-    try:
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        tts = gTTS(text=voice_text(telugu_data, scheme_name), lang=VOICE_LANGUAGE, slow=False)
-        tts.save(filename)
-        rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
-        logger.info("Generated audio: filename='%s' scheme='%s'", filename, scheme_name)
-        return rel_path
-    except Exception:
-        logger.exception("Audio generation failed for scheme '%s'.", scheme_name)
+    import threading
+
+    def _generate():
+        # Use thread ident to prevent concurrent temp file corruption
+        tmp_filename = f"{filename}.{threading.get_ident()}.tmp"
+        try:
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            tts = gTTS(text=voice_text(telugu_data, scheme_name), lang=VOICE_LANGUAGE, slow=False)
+            tts.save(tmp_filename)
+            os.replace(tmp_filename, filename)
+            logger.info("Generated audio: filename='%s' scheme='%s'", filename, scheme_name)
+        except Exception:
+            logger.exception("Audio generation failed for scheme '%s'.", scheme_name)
+            if os.path.exists(tmp_filename):
+                try:
+                    os.remove(tmp_filename)
+                except OSError:
+                    pass
+
+    t = threading.Thread(target=_generate, daemon=True)
+    t.start()
+    t.join(timeout=3.0)
+
+    if t.is_alive():
+        logger.warning("Audio generation for scheme '%s' exceeded timeout, returning None to frontend.", scheme_name)
         return None
+
+    if os.path.isfile(filename) and os.path.getsize(filename) > 0:
+        rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
+        return rel_path
+
+    return None
 
 
 def voice_text(telugu_data: Dict[str, str], scheme_name: str) -> str:

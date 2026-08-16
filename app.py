@@ -1056,7 +1056,7 @@ def offline_cache() -> Any:
                 # url_for("static") expects a path relative to static/.
                 "voice_url": url_for(
                     "static", filename=data["audio_file"].removeprefix("static/")
-                ) if data.get("audio_file") else None,
+                ) if data.get("audio_file") and os.path.exists(os.path.join(app.root_path, data["audio_file"])) else None,
             }
             for name, data in schemes.items()
         },

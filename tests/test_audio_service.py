@@ -10,8 +10,9 @@ def test_voice_text(sample_telugu_data):
     assert "Eligible citizens" in result
 
 
+@patch("services.audio_service.os.replace")
 @patch("services.audio_service.gTTS")
-def test_generate_audio(mock_gtts, sample_telugu_data):
+def test_generate_audio(mock_gtts, mock_replace, sample_telugu_data):
     from services.audio_service import generate_telugu_audio
 
     mock_instance = mock_gtts.return_value
@@ -19,6 +20,7 @@ def test_generate_audio(mock_gtts, sample_telugu_data):
     generate_telugu_audio(sample_telugu_data, "Scheme")
 
     mock_instance.save.assert_called_once()
+    mock_replace.assert_called_once()
 
 
 def test_invalid_audio_path():
@@ -54,6 +56,24 @@ def test_audio_generation_failure(
 
     assert result is None
 
+@patch("services.audio_service.gTTS")
+def test_generate_audio_timeout(mock_gtts, sample_telugu_data):
+    from services.audio_service import generate_telugu_audio
+    import time
+
+    def slow_save(*args, **kwargs):
+        time.sleep(4.0) # sleep longer than the 3.0 timeout
+
+    mock_gtts.return_value.save.side_effect = slow_save
+
+    # Measure execution time
+    start = time.time()
+    result = generate_telugu_audio(sample_telugu_data, "Scheme")
+    duration = time.time() - start
+
+    # It should return None because it exceeded timeout, but it shouldn't block for 4.0 seconds
+    assert result is None
+    assert duration < 4.0
 
 @patch("services.audio_service.os.remove")
 @patch("services.audio_service.os.stat")

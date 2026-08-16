@@ -141,7 +141,7 @@ def test_rate_limit_429_is_retried(mock_sleep, mock_get_client, mock_call):
         {"simplified": {}, "telugu": {}}
     ]
 
-    result = simplify_document("abc", "scheme")
+    result = simplify_document("abc_429", "scheme_429")
     assert "simplified" in result
     assert mock_call.call_count == 2
     assert mock_sleep.call_count == 1
