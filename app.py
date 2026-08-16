@@ -214,7 +214,7 @@ def load_schemes() -> Dict[str, Any]:
                     if not isinstance(data, dict):
                         logger.error("Skipping '%s': Expected a JSON dictionary of schemes, but got %s", filename, type(data).__name__)
                         continue
-                        
+
                     for scheme_name, scheme_data in data.items():
                         if validate_scheme(scheme_name, scheme_data):
                             merged_schemes[scheme_name] = scheme_data
@@ -345,6 +345,7 @@ def static_scheme_response(scheme_name: str, scheme_data: Dict[str, Any], reques
         "simplified": scheme_data["simplified"],
         "telugu": scheme_data["telugu"],
         "voice_url": voice_url,
+        "is_ai_generated": False,
     }
 
 
@@ -697,6 +698,7 @@ def simplify() -> Any:
             "telugu": ai_result["telugu"],
             "voice_url": voice_url,
             "privacy_notice": "PDF text was processed by Google Gemini AI for simplification.",
+            "is_ai_generated": True,
         })
 
     data = request.get_json(silent=True) or {}
@@ -817,18 +819,51 @@ def eligibility_check() -> Any:
         })
     score = 0
     total_weight = 0
+    matched_criteria = []
+    unmatched_criteria = []
+    unknown_criteria = []
+
     for idx, question in enumerate(questions):
         weight = {"critical": 3, "high": 2, "medium": 1}.get(question.get("weight", "medium"), 1)
         total_weight += weight
-        if answers.get(str(idx)) == "yes":
+
+        q_text_te = question.get("question_te", "")
+        q_text_en = question.get("question_en", "")
+
+        ans = answers.get(str(idx))
+        if ans == "yes":
             score += weight
+            matched_criteria.append({"text_te": q_text_te, "text_en": q_text_en})
+        elif ans == "no":
+            unmatched_criteria.append({"text_te": q_text_te, "text_en": q_text_en})
+        else:
+            unknown_criteria.append({"text_te": q_text_te, "text_en": q_text_en})
+
     eligibility_percentage = int((score / total_weight * 100)) if total_weight > 0 else 0
+
+    if len(unknown_criteria) == len(questions):
+        status = "insufficient_information"
+        likely_eligible = False
+    elif eligibility_percentage == 100 and len(unknown_criteria) == 0:
+        status = "eligible"
+        likely_eligible = True
+    elif eligibility_percentage >= 60:
+        status = "likely_eligible"
+        likely_eligible = True
+    else:
+        status = "not_eligible"
+        likely_eligible = False
+
     return api_response({
         "scheme_name": scheme_name,
         "eligibility_percentage": eligibility_percentage,
-        "likely_eligible": eligibility_percentage >= 60,
-        "message_te": "అర్హత సంభవనీయమైనది" if eligibility_percentage >= 60 else "మరిన్ని వివరాలు చెక్ చేయండి",
-        "message_en": "Likely eligible" if eligibility_percentage >= 60 else "Check details further",
+        "likely_eligible": likely_eligible,
+        "status": status,
+        "matched_criteria": matched_criteria,
+        "unmatched_criteria": unmatched_criteria,
+        "unknown_criteria": unknown_criteria,
+        "message_te": "అర్హత సంభవనీయమైనది" if likely_eligible else "మరిన్ని వివరాలు చెక్ చేయండి",
+        "message_en": "Likely eligible" if likely_eligible else "Check details further",
         "next_step_te": f"అధికారిక {scheme.get('eligibility_confirmation', 'ఆఫీస్')} కు సందర్శించండి",
         "next_step_en": f"Visit official {scheme.get('eligibility_confirmation', 'office')}"
     })
@@ -1016,24 +1051,24 @@ def api_facilities() -> Any:
 
     from utils import calculate_distance
     nearby_facilities = []
-    
+
     for facility in facilities_data:
         fac_lat = facility.get("lat")
         fac_lng = facility.get("lng")
         if fac_lat is None or fac_lng is None:
             continue
-            
+
         distance = calculate_distance(user_lat, user_lng, fac_lat, fac_lng)
         if radius is not None and distance > radius:
             continue
-            
+
         fac_copy = facility.copy()
         fac_copy["distance_km"] = round(distance, 2)
         nearby_facilities.append(fac_copy)
-            
+
     # Sort nearest first
     nearby_facilities.sort(key=lambda x: x["distance_km"])
-    
+
     return api_response({
         "data": nearby_facilities,
         "count": len(nearby_facilities)

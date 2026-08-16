@@ -99,7 +99,7 @@
                     <h2 data-i18n="favoritesTitle">⭐ ఇష్టమైన పథకాలు (Favorites)</h2>
                     <div id="favoritesList" class="recently-viewed-list"></div>
                 </div>
-                
+
                 <div id="recentlyViewedSection" class="recently-viewed-section" style="display: none;">
                     <h2 data-i18n="recentlyViewedTitle">🕒 ఇటీవల చూసినవి (Recently Viewed)</h2>
                     <div id="recentlyViewedList" class="recently-viewed-list"></div>
@@ -151,14 +151,14 @@
                     <button class="back-btn primary-btn" data-action="show-symptom-categories" data-i18n="symptomNavCategories">← సమస్యలు</button>
                     <button class="back-btn secondary-btn" data-action="close-symptom-finder" data-i18n="symptomNavAll">అన్ని పథకాలు</button>
                 </div>
-                
+
                 <div class="symptom-results-header" style="margin-top: 15px; margin-bottom: 20px;">
                     <h3 style="margin: 0; color: var(--ink); font-size: 1.1rem;"><span data-i18n="symptomTitle">మీ ఎంపిక:</span> <span id="symptomResultTitle" style="color: var(--primary);"></span></h3>
                     <div id="symptomResultCount" class="result-count" style="margin-top: 8px; font-weight: bold; font-size: 1.2rem;"></div>
                 </div>
-                
+
                 <div id="symptomSchemeGrid" class="scheme-grid" aria-live="polite"></div>
-                
+
                 <div id="symptomNoResults" class="empty-state" style="display: none;">
                     <div>
                         <strong style="display: block; font-size: 1.2rem; margin-bottom: 10px;" data-i18n="emptyResultsTitle">ఈ సమస్యకు ప్రస్తుతం పథకాలు కనుగొనలేకపోయాము.</strong>
@@ -210,7 +210,7 @@
     </div>
 
     <p class="footer-note" data-i18n="quizDisclaimer">అధికారిక ఆసుపత్రి, PHC, ASHA/ANM లేదా గ్రామ సచివాలయం వద్ద చివరి అర్హతను తప్పక ధృవీకరించండి.</p>
-    
+
     <div style="background: #f3f0e9; border-top: 2px solid var(--border); padding: 16px; margin-top: 20px; text-align: center;">
         <button type="button" id="footerReportBtn" class="secondary-btn" style="width:100%; min-height: 52px; margin-bottom: 10px;" data-i18n="reportIssueBtn">⚠️ సమస్య నివేదించండి</button>
         <div id="offlineIndicator" style="display:none; color: var(--red); font-weight: 800; margin-top: 8px;">
@@ -251,7 +251,7 @@
         </div>
         <div class="feedback-body">
             <div id="feedbackStatus" class="feedback-status" aria-live="polite"></div>
-            
+
             <p class="feedback-prompt" data-i18n="feedbackRating">ఈ పథకం గురించి సమాచారం ఉపయోగకరంగా ఉందా?</p>
             <div class="star-rating" role="group" aria-label="Rating">
                 <button type="button" data-action="set-rating" data-value="1" aria-label="1 / 5">☆</button>
@@ -260,7 +260,7 @@
                 <button type="button" data-action="set-rating" data-value="4" aria-label="4 / 5">☆</button>
                 <button type="button" data-action="set-rating" data-value="5" aria-label="5 / 5">☆</button>
             </div>
-            
+
             <p class="feedback-prompt" data-i18n="feedbackComment">మీకు ఎలా అనిపించింది? (ఐచ్ఛికం)</p>
             <div class="feedback-chips">
                 <button type="button" class="chip" data-action="set-feedback-chip" data-value="మంచి సమాచారం">మంచి సమాచారం</button>
@@ -410,7 +410,7 @@
         const query = rawQuery.toLowerCase();
         const currentLang = window.getLang ? window.getLang() : 'te';
         const isEn = currentLang === 'en';
-        
+
         if (!force && query === lastQuery && activeFilter === lastFilter && currentLang === lastLang) {
             return;
         }
@@ -514,7 +514,7 @@
                 <audio controls src="${window.escapeHtml(data.voice_url)}"></audio>
                 <button type="button" class="speak-text-btn" data-text="${window.escapeHtml(data.scheme_name)}" style="width:100%;margin-top:8px;padding:8px;">${speakSlow}</button>
             </div>`
-            : (isEn 
+            : (isEn
                 ? `<div class="audio-wrap">
                     <strong>${audioTitle}</strong>
                     <button type="button" class="speak-text-btn primary-btn" data-text="${window.escapeHtml(data.scheme_name)}" style="width:100%;margin-top:8px;padding:8px;">${window.t ? window.t('speakPageBtn') : '🔊 Read Aloud'}</button>
@@ -529,11 +529,14 @@
             ? `<a class="source-link" href="${window.escapeHtml(data.source_url)}" target="_blank" rel="noopener noreferrer">🌐 ${window.escapeHtml(data.source_name || officialSource)}</a>`
             : `<span>📄 ${window.escapeHtml(data.source_name || uploadedSource)}</span>`;
 
+        const aiBadge = data.is_ai_generated ? `<span class="ai-badge" style="background:#e8f0fe; color:#1a73e8; padding:2px 8px; border-radius:12px; font-size:0.8rem; margin-left:8px; display:inline-block; vertical-align:middle;" title="This information is generated by AI from the uploaded document">✨ AI-Generated</span>` : '';
+        const aiDisclaimer = data.is_ai_generated ? `<div class="privacy-warning" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba; margin-top:10px;">⚠️ ఈ సమాచారం AI ద్వారా పత్రం నుండి తీసుకోబడింది. ఇది అధికారిక ప్రభుత్వ ప్రకటన కాదు. (AI-generated explanation, not an official government statement)</div>` : '';
+
         const eligibilityChecker = SmartGovEnhanced.buildEligibilityChecker(scheme);
         const documentChecklist = SmartGovEnhanced.buildDocumentChecklist(scheme);
         const trustInfo = SmartGovEnhanced.buildTrustInfo(scheme);
         const privacyWarning = SmartGovEnhanced.buildPrivacyWarning();
-        
+
         if (window.SmartGovUX) {
             window.SmartGovUX.addRecent(data.scheme_name);
         }
@@ -550,13 +553,14 @@
 
         document.getElementById('resultArea').innerHTML = `
             <div class="result-head">
-                <h2>${window.escapeHtml(mainTitle)}</h2>
+                <h2 style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">${window.escapeHtml(mainTitle)} ${aiBadge}</h2>
                 ${subTitle ? `<p style="font-size:0.95rem;color:var(--muted);">${window.escapeHtml(subTitle)}</p>` : ''}
                 <p>${window.escapeHtml(levelLabel)} • ${window.escapeHtml(categoryLabel)}</p>
             </div>
             <div class="result-inner">
                 ${trustInfo}
                 ${privacyWarning}
+                ${aiDisclaimer}
                 <div class="info-list">
                     ${resultCard(eligTitle, eligContent)}
                     ${resultCard(benTitle, benContent)}
@@ -631,7 +635,7 @@
         try {
             const data = await safeFetch("{{ url_for('simplify') }}", {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrfToken
                 },
@@ -666,7 +670,7 @@
         try {
             const data = await safeFetch("{{ url_for('feedback') }}", {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrfToken
                 },
@@ -694,6 +698,55 @@
             html += `<option value="${window.escapeHtml(scheme)}" ${selected}>${window.escapeHtml(label)}</option>`;
         });
         select.innerHTML = html;
+    }
+
+    async function handleUpload() {
+        const file = document.getElementById('pdfUpload').files[0];
+        if (!file) {
+            showError(window.t ? window.t('selectPdfError') : 'దయచేసి PDF ఫైల్ ఎంచుకోండి.');
+            return;
+        }
+
+        const consentCheckbox = document.getElementById('pdfConsent');
+        if (!consentCheckbox || !consentCheckbox.checked) {
+            showError(window.t ? window.t('pdfConsent') : 'దయచేసి PDF అప్‌లోడ్ చేయడానికి ముందు గోప్యతా అంగీకారం చెక్‌బాక్స్ ను టిక్ చేయండి.');
+            return;
+        }
+
+        showLoading(window.t ? window.t('loadingPdf') : 'PDF సరళీకరిస్తున్నాం...');
+        const resultArea = document.getElementById('resultArea');
+        const stages = [
+            window.t ? window.t('pdfProgressRead') : "పత్రం చదువుతున్నాం... (Reading document...)",
+            window.t ? window.t('pdfProgressExtract') : "ముఖ్యమైన వివరాలు వెతుకుతున్నాం... (Extracting details...)",
+            window.t ? window.t('pdfProgressTranslate') : "తెలుగులోకి మారుస్తున్నాం... (Translating to Telugu...)",
+            window.t ? window.t('pdfProgressAudio') : "ఆడియో తయారుచేస్తున్నాం... (Preparing audio...)"
+        ];
+        let stageIndex = 0;
+        const progressInterval = setInterval(() => {
+            const loader = resultArea.querySelector('.loading');
+            if (loader && stageIndex < stages.length) {
+                loader.textContent = stages[stageIndex];
+                stageIndex++;
+            }
+        }, 2000);
+
+        const formData = new FormData();
+        formData.append('document', file);
+        formData.append('consent', 'true');
+        try {
+            const data = await safeFetch("{{ url_for('simplify') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            });
+            clearInterval(progressInterval);
+            displayResult(data);
+        } catch (error) {
+            clearInterval(progressInterval);
+            showError(window.t ? window.t('networkError', { error: error.message }) : `PDF లోపం: ${error.message}`);
+        }
     }
 
     function bestVoiceMatch(spokenText) {
@@ -803,36 +856,7 @@
         await fetchScheme(schemeName);
     }
 
-    async function handleUpload() {
-        const file = document.getElementById('pdfUpload').files[0];
-        if (!file) {
-            showError(window.t ? window.t('selectPdfError') : 'దయచేసి PDF ఫైల్ ఎంచుకోండి.');
-            return;
-        }
 
-        const consentCheckbox = document.getElementById('pdfConsent');
-        if (!consentCheckbox || !consentCheckbox.checked) {
-            showError(window.t ? window.t('pdfConsent') : 'దయచేసి PDF అప్‌లోడ్ చేయడానికి ముందు గోప్యతా అంగీకారం చెక్‌బాక్స్ ను టిక్ చేయండి.');
-            return;
-        }
-
-        showLoading(window.t ? window.t('loadingPdf') : 'PDF సరళీకరిస్తున్నాం...');
-        const formData = new FormData();
-        formData.append('document', file);
-        formData.append('consent', 'true');
-        try {
-            const data = await safeFetch("{{ url_for('simplify') }}", { 
-                method: 'POST', 
-                headers: {
-                    'X-CSRFToken': csrfToken
-                },
-                body: formData 
-            });
-            displayResult(data);
-        } catch (error) {
-            showError(window.t ? window.t('networkError', { error: error.message }) : `PDF లోపం: ${error.message}`);
-        }
-    }
 
     function setupInstallPrompt() {
         const installBtn = document.getElementById('installBtn');
@@ -860,13 +884,13 @@
     }
 
     document.getElementById('searchInput').addEventListener('input', debounce(renderSchemeCards, 250));
-    
+
     document.getElementById('clearSearchBtn').addEventListener('click', () => {
         document.getElementById('searchInput').value = '';
         renderSchemeCards();
         document.getElementById('voiceStatus').textContent = window.t ? window.t('voiceStatusDefault') : 'పథకం వెతకండి లేదా మైక్ నొక్కండి';
     });
-    
+
     document.querySelectorAll('.filter-btn').forEach(button => {
         button.addEventListener('click', () => {
             activeFilter = button.dataset.filter;
@@ -897,7 +921,7 @@
             window.SmartGovUX.renderFavoritesAndRecent();
         }
     });
-    
+
     document.getElementById('dropdownBtn').addEventListener('click', handleDropdown);
     document.getElementById('uploadBtn').addEventListener('click', handleUpload);
     document.getElementById('schemeSelect').addEventListener('change', handleDropdown);
