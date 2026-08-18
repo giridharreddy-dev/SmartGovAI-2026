@@ -74,7 +74,7 @@ def generate_telugu_audio(
 
     t = threading.Thread(target=_generate, daemon=True)
     t.start()
-    t.join(timeout=3.0)
+    t.join(timeout=15.0)
 
     if t.is_alive():
         logger.warning("Audio generation for scheme '%s' exceeded timeout, returning None to frontend.", scheme_name)

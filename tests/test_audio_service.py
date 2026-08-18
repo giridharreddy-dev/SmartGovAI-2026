@@ -61,7 +61,7 @@ def test_generate_audio_timeout(mock_run, sample_telugu_data):
     import time
 
     def slow_save(*args, **kwargs):
-        time.sleep(4.0) # sleep longer than the 3.0 timeout
+        time.sleep(16.0) # sleep longer than the 15.0 timeout
 
     mock_run.side_effect = slow_save
 
@@ -70,9 +70,9 @@ def test_generate_audio_timeout(mock_run, sample_telugu_data):
     result = generate_telugu_audio(sample_telugu_data, "Scheme")
     duration = time.time() - start
 
-    # It should return None because it exceeded timeout, but it shouldn't block for 4.0 seconds
+    # It should return None because it exceeded timeout, but it shouldn't block for 16.0 seconds
     assert result is None
-    assert duration < 4.0
+    assert duration < 16.0
 
 @patch("services.audio_service.os.remove")
 @patch("services.audio_service.os.stat")
