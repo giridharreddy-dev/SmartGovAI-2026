@@ -2,11 +2,10 @@
 
 import json
 import os
+import subprocess
 import time
 
-from config import AUDIO_DIR, BASE_DIR, SCHEMES_DIR, VOICE_LANGUAGE
-from gtts import gTTS
-from gtts.tts import gTTSError
+from config import AUDIO_DIR, BASE_DIR, SCHEMES_DIR
 from services.audio_service import voice_text
 
 MAX_RETRIES = 4
@@ -54,10 +53,15 @@ def generate_audio_for_scheme(name, data):
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             os.makedirs(os.path.dirname(audio_path_abs), exist_ok=True)
-            gTTS(text=text_to_speak, lang=VOICE_LANGUAGE, slow=False).save(audio_path_abs)
+            subprocess.run(
+                ["edge-tts", "--voice", "te-IN-ShrutiNeural", "--text", text_to_speak, "--write-media", audio_path_abs],
+                capture_output=True,
+                text=True,
+                check=True
+            )
             print(f"Generated: {audio_path_rel}")
             return
-        except (gTTSError, Exception) as exc:
+        except (subprocess.CalledProcessError, Exception) as exc:
             last_err = exc
             wait = RETRY_BACKOFF_SECONDS * attempt
             print(f"Failed {name} attempt {attempt}/{MAX_RETRIES}: {exc}")

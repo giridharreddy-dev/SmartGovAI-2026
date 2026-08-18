@@ -11,15 +11,13 @@ def test_voice_text(sample_telugu_data):
 
 
 @patch("services.audio_service.os.replace")
-@patch("services.audio_service.gTTS")
-def test_generate_audio(mock_gtts, mock_replace, sample_telugu_data):
+@patch("services.audio_service.subprocess.run")
+def test_generate_audio(mock_run, mock_replace, sample_telugu_data):
     from services.audio_service import generate_telugu_audio
-
-    mock_instance = mock_gtts.return_value
 
     generate_telugu_audio(sample_telugu_data, "Scheme")
 
-    mock_instance.save.assert_called_once()
+    mock_run.assert_called_once()
     mock_replace.assert_called_once()
 
 
@@ -41,12 +39,13 @@ def test_existing_audio(
     assert result == "audio/test.mp3"
 
 
-@patch("services.audio_service.gTTS")
+@patch("services.audio_service.subprocess.run")
 def test_audio_generation_failure(
-    mock_gtts,
+    mock_run,
     sample_telugu_data,
 ):
-    mock_gtts.side_effect = RuntimeError()
+    import subprocess
+    mock_run.side_effect = subprocess.CalledProcessError(1, "edge-tts", stderr="error")
     from services.audio_service import generate_telugu_audio
 
     result = generate_telugu_audio(
@@ -56,15 +55,15 @@ def test_audio_generation_failure(
 
     assert result is None
 
-@patch("services.audio_service.gTTS")
-def test_generate_audio_timeout(mock_gtts, sample_telugu_data):
+@patch("services.audio_service.subprocess.run")
+def test_generate_audio_timeout(mock_run, sample_telugu_data):
     from services.audio_service import generate_telugu_audio
     import time
 
     def slow_save(*args, **kwargs):
         time.sleep(4.0) # sleep longer than the 3.0 timeout
 
-    mock_gtts.return_value.save.side_effect = slow_save
+    mock_run.side_effect = slow_save
 
     # Measure execution time
     start = time.time()

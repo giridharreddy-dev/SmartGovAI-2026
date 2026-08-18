@@ -193,7 +193,7 @@ def test_missing_nested_field(mock_get_client):
     mock_client.models.generate_content.return_value = response
     mock_get_client.return_value = mock_client
     with pytest.raises(ValueError, match="missing required nested key"):
-        simplify_document("abc", "scheme")
+        simplify_document("abc_missing", "scheme_missing")
 
 
 @patch("services.gemini_service.get_client")
@@ -219,7 +219,7 @@ def test_wrong_type_nested_field(mock_get_client):
     mock_client.models.generate_content.return_value = response
     mock_get_client.return_value = mock_client
     with pytest.raises(TypeError, match="must be a string"):
-        simplify_document("abc", "scheme")
+        simplify_document("abc_wrong_type", "scheme_wrong_type")
 
 
 @patch("services.gemini_service.get_client")

@@ -2,12 +2,11 @@
 
 import hashlib
 import os
+import subprocess
 import time
 from typing import Dict, Optional
 
-from gtts import gTTS
-
-from config import AUDIO_DIR, BASE_DIR, VOICE_LANGUAGE
+from config import AUDIO_DIR, BASE_DIR
 from logger_config import logger
 
 
@@ -56,12 +55,17 @@ def generate_telugu_audio(
         tmp_filename = f"{filename}.{threading.get_ident()}.tmp"
         try:
             os.makedirs(os.path.dirname(filename), exist_ok=True)
-            tts = gTTS(text=voice_text(telugu_data, scheme_name), lang=VOICE_LANGUAGE, slow=False)
-            tts.save(tmp_filename)
+            text_to_speak = voice_text(telugu_data, scheme_name)
+            result = subprocess.run(
+                ["edge-tts", "--voice", "te-IN-ShrutiNeural", "--text", text_to_speak, "--write-media", tmp_filename],
+                capture_output=True,
+                text=True,
+                check=True
+            )
             os.replace(tmp_filename, filename)
             logger.info("Generated audio: filename='%s' scheme='%s'", filename, scheme_name)
-        except Exception:
-            logger.exception("Audio generation failed for scheme '%s'.", scheme_name)
+        except subprocess.CalledProcessError as e:
+            logger.exception("Audio generation failed for scheme '%s'. Error: %s", scheme_name, e.stderr)
             if os.path.exists(tmp_filename):
                 try:
                     os.remove(tmp_filename)
