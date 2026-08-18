@@ -83,6 +83,9 @@ def main():
             print(f"Giving up on {name}: {exc}")
 
     print(f"Done. Success: {ok}, Failed: {failed}")
+    if failed > 0:
+        import sys
+        sys.exit(1)
 
 
 if __name__ == "__main__":
