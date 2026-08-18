@@ -13,7 +13,7 @@ The application relies on static JSON files to define welfare schemes.
 - **Gaps:** Specific retrieval dates, the exact individuals who verified the data, and versioning hashes of the original government PDFs are generally not documented in the repository.
 
 ### 2. Healthcare Facilities (`data/facilities.json`)
-The application loads over 400 healthcare facilities for the geospatial locator.
+The application loads over 1,480 healthcare facilities for the geospatial locator.
 
 **Current Provenance State:**
 - The file contains coordinates (lat/lng), names, and types of facilities.

@@ -22,7 +22,7 @@ This document provides a detailed technical breakdown of the features within the
 ### 2. Local Service Geographic Locator
 **Objective**: To provide geographical directives identifying physical service delivery nodes.
 **Implementation**:
-- Loads 400+ healthcare facilities from `data/facilities.json`.
+- Loads 1,480+ healthcare facilities from `data/facilities.json`.
 - Implemented `/api/facilities` endpoint to return structured JSON payloads mapping locational data and calculating Haversine distances.
 - Uses Leaflet.js on the client side to render maps.
 

@@ -8,7 +8,7 @@ The versioning format complies with the "Keep a Changelog" standard and adheres 
 
 ### Added
 - **AI Chat Assistant**: Grounded RAG (Retrieval-Augmented Generation) chat endpoint (`/chat`) using Gemini 3.5 Flash with Telugu alias expansion, token scoring, and strict anti-hallucination guardrails. Catalog-only fallback when Gemini is unavailable.
-- **Healthcare Facilities GIS Locator**: API endpoint (`/api/facilities`) serving 400+ AP healthcare facilities with GPS-based Haversine distance sorting. Interactive Leaflet.js map with facility type filtering.
+- **Healthcare Facilities GIS Locator**: API endpoint (`/api/facilities`) serving 1,480+ AP healthcare facilities with GPS-based Haversine distance sorting. Interactive Leaflet.js map with facility type filtering.
 - **Scheme Deep Links**: Human-readable URL slugs (`/scheme/<slug>`) with deterministic SHA-256 hashing for stable URLs.
 - **QR Code Generation**: On-the-fly PNG generation endpoint (`/qr/<slug>.png`) using `qrcode[pil]` for field distribution flyers.
 - **Impact Analytics Dashboard**: Admin-protected dashboard (`/analytics`) with aggregate usage metrics. Dual authentication via Bearer token header or session cookie (`/admin/login`, `/admin/logout`).

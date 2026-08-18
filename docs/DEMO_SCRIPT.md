@@ -24,7 +24,7 @@
 
 ## 6. Scheme Details
 *Action:* Click on "Dr. YSR Aarogyasri" (or similar scheme).
-*Speaker:* "Inside, we see the benefits and requirements. Notice the 'Trust Badge' showing the last verified date and the official website."
+*Speaker:* "Inside, we see the benefits and requirements. Notice the provenance details showing the last verified date and the official website."
 
 ## 7. Eligibility
 *Action:* Scroll to the Eligibility Check section.
@@ -56,7 +56,7 @@
 
 ## 13. Healthcare Facilities
 *Action:* Re-enable internet. Navigate to the local facilities map.
-*Speaker:* "We also integrated a Leaflet map. It loads over 400 local AP healthcare facilities and calculates the nearest one to the user's GPS."
+*Speaker:* "We also integrated a Leaflet map. It loads over 1,480 local AP healthcare facilities and calculates the nearest one to the user's GPS."
 
 ## 14. Sharing/QR
 *Action:* Click the WhatsApp share button and show the QR code.

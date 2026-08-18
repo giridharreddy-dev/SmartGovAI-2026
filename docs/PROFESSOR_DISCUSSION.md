@@ -50,7 +50,7 @@ We cannot guarantee zero hallucinations. However, we mitigate the risk via the s
 The UI includes explicit disclaimers that SmartGovAI is an informational tool and not a government authority. Users are instructed to verify final eligibility with official offices.
 
 **10. How is government information verified?**
-Currently, data is manually compiled into JSON files. We have implemented "Trust Badges" (last updated dates, official URLs) to display provenance, but it remains a manual curation process.
+Currently, data is manually compiled into JSON files. We have implemented basic provenance checks (last updated dates, official URLs) to display data origins, but it remains a manual curation process.
 
 **11. How fresh is the data?**
 The data is static and tied to the repository's last update. Keeping it fresh requires manual pull requests or a future CMS integration.
