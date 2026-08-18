@@ -6,6 +6,11 @@ The versioning format complies with the "Keep a Changelog" standard and adheres 
 
 ## [1.0.0] - 2026-08-14
 
+### Documentation (August 2026 Audit)
+- **Comprehensive Audit**: Executed a 19-phase documentation audit ensuring strict parity between source code and documentation.
+- **Academic Restructuring**: Formalized `README.md`, `PROJECT_PROPOSAL.md`, and `IMPACT_EVALUATION.md` to clearly delineate implemented features from proposed studies.
+- **Data Provenance Strategy**: Defined a 10-point provenance evaluation schema in `DATA_PROVENANCE.md` to track government data origin.
+
 ### Added
 - **AI Chat Assistant**: Grounded RAG (Retrieval-Augmented Generation) chat endpoint (`/chat`) using Gemini 3.5 Flash with Telugu alias expansion, token scoring, and strict anti-hallucination guardrails. Catalog-only fallback when Gemini is unavailable.
 - **Healthcare Facilities GIS Locator**: API endpoint (`/api/facilities`) serving 1,480+ AP healthcare facilities with GPS-based Haversine distance sorting. Interactive Leaflet.js map with facility type filtering.

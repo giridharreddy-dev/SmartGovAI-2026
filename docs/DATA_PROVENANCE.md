@@ -2,28 +2,19 @@
 
 This document reviews the state of data provenance within the SmartGovAI repository's static datasets (`data/`).
 
-## Audit Findings
+## Audit Findings Checklist
 
-### 1. Scheme Definitions (`data/national_and_ap_schemes.json`, `data/extra_schemes.json`, `data/health.json`)
-The application relies on static JSON files to define welfare schemes. 
+1. **Exact scheme datasets**: `data/national_and_ap_schemes.json`, `data/extra_schemes.json`, `data/health.json`
+2. **Exact facility dataset**: `data/facilities.json` (1,485 records)
+3. **Existing provenance fields**: `source_url`, `source_name`, and `last_updated` are defined in the schema.
+4. **Missing provenance fields**: Specific cryptographic hashes, individual verifier IDs, and explicit retrieval timestamps.
+5. **Whether source URLs exist**: Yes, most scheme records contain a `source_url`. Facility records do not.
+6. **Whether retrieval dates exist**: No, only generic `last_updated` dates are currently stored.
+7. **Whether verification identities exist**: No, it is not recorded *who* manually entered or verified the data.
+8. **Whether dataset versioning exists**: No formal dataset versioning exists outside of standard Git commits.
+9. **Risks of stale government information**: Significant risk. Without live API integration, static JSON data will eventually drift from actual policy, potentially misleading users.
+10. **Recommended future provenance schema**:
 
-**Current Provenance State:**
-- The schema (`scheme_schema.json`) includes fields such as `source_url`, `source_name`, and `last_updated`.
-- Many schemes contain descriptions of official government targets (e.g., "100% household access" for NIDDCP or "50% to 90% cheaper" for PMBJP). These represent official government objectives extracted from source material, **not** the measured impact of the SmartGovAI application.
-- **Gaps:** Specific retrieval dates, the exact individuals who verified the data, and versioning hashes of the original government PDFs are generally not documented in the repository.
-
-### 2. Healthcare Facilities (`data/facilities.json`)
-The application loads over 1,480 healthcare facilities for the geospatial locator.
-
-**Current Provenance State:**
-- The file contains coordinates (lat/lng), names, and types of facilities.
-- **Gaps:** The original source organization (e.g., Ministry of Health and Family Welfare API, OpenStreetMap, or manual compilation) and the specific URL from which this data was obtained are **not documented in the repository**. We cannot objectively guarantee the freshness or completeness of this facility list.
-
-## Recommended Provenance Schema (Future Work)
-
-To ensure academic rigor and public trust, future iterations of this project should enforce a strict provenance wrapper around all data entries. 
-
-**Proposed standard for JSON records:**
 ```json
 {
   "provenance": {

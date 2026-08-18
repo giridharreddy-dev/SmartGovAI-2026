@@ -18,6 +18,11 @@ Bridging the digital divide requires more than simple translation; it requires a
 3. Ensure zero-trust privacy for personal eligibility checks.
 4. Experiment with generative AI to simplify complex PDF policy documents.
 
+## Research Questions
+1. Does an offline-first architecture significantly improve access for rural users with intermittent connectivity compared to standard web portals?
+2. How does a Telugu-first interface with pre-cached audio affect comprehension of complex welfare eligibility logic?
+3. To what extent can RAG (Retrieval-Augmented Generation) grounded in local datasets accurately answer citizen queries without hallucination?
+
 ## Target Users
 - Rural citizens in Andhra Pradesh.
 - Individuals with limited literacy.

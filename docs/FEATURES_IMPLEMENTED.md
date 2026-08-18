@@ -12,6 +12,20 @@ This document provides a detailed technical breakdown of the features within the
 
 ## Implemented Features
 
+### Feature Classification Summary
+
+| Feature | Status | Evidence |
+|---------|--------|----------|
+| Offline PWA | Implemented | `static/service-worker.js` |
+| Scheme catalog | Implemented | `data/national_and_ap_schemes.json`, `data/health.json`, `data/extra_schemes.json` |
+| Eligibility evaluator | Implemented | `static/enhanced-features.js`, `templates/index.html` |
+| Audio | Implemented | `scripts/generate_audio.py`, `static/audio/*.mp3` |
+| Gemini Chat | Implemented | `services/chat_service.py` |
+| PDF simplification | Implemented | `services/gemini_service.py`, `services/pdf_service.py` |
+| Facility locator | Implemented | `app.py` (`/api/facilities`), `data/facilities.json` |
+| Dynamic government data sync | Not implemented | No implementation found |
+| Field validation | Not implemented | No study data found |
+
 ### 1. Trust & Accuracy Validations
 **Objective**: To establish visible assurance regarding the currency of provided scheme data.
 **Implementation**:
