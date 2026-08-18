@@ -511,15 +511,17 @@
         const audioHtml = data.voice_url && !isEn
             ? `<div class="audio-wrap">
                 <strong>${audioTitle}</strong>
-                <audio controls src="${window.escapeHtml(data.voice_url)}"></audio>
-                <button type="button" class="speak-text-btn" data-text="${window.escapeHtml(data.scheme_name)}" style="width:100%;margin-top:8px;padding:8px;">${speakSlow}</button>
+                <audio controls src="${window.escapeHtml(data.voice_url)}" style="width: 100%;"></audio>
             </div>`
             : (isEn
                 ? `<div class="audio-wrap">
                     <strong>${audioTitle}</strong>
-                    <button type="button" class="speak-text-btn primary-btn" data-text="${window.escapeHtml(data.scheme_name)}" style="width:100%;margin-top:8px;padding:8px;">${window.t ? window.t('speakPageBtn') : '🔊 Read Aloud'}</button>
+                    <button type="button" class="speak-page-btn primary-btn" style="width:100%;margin-top:8px;padding:8px;">${window.t ? window.t('speakPageBtn') : '🔊 Read Aloud (Browser Voice)'}</button>
                 </div>`
-                : `<div class="audio-wrap"><strong>${audioNotAvail}</strong></div>`);
+                : `<div class="audio-wrap">
+                    <strong>${audioNotAvail}</strong>
+                    <button type="button" class="speak-page-btn primary-btn" style="width:100%;margin-top:8px;padding:8px;background:var(--secondary);color:#000;">⚠️ ${window.t ? window.t('speakPageBtn') : '🔊 ఈ పేజీ చదవండి (Browser Fallback)'}</button>
+                   </div>`);
 
         const sourceLabel = window.t ? window.t('sourceLabel') : 'మూలం:';
         const officialSource = window.t ? window.t('officialSource') : 'అధికారిక మూలం';
@@ -572,7 +574,6 @@
                 <div class="result-actions">
                     ${audioHtml}
                     <div style="font-size:0.9rem;">📚 ${sourceLabel} ${sourceHtml}</div>
-                    <button type="button" class="speak-page-btn primary-btn" style="width:100%;margin:10px 0;">${window.t ? window.t('speakPageBtn') : '🔊 ఈ పేజీ చదవండి'}</button>
                     <button type="button" class="primary-btn guided-mode-btn" style="width:100%;margin-bottom:10px;background:var(--saffron);color:#fff;" data-action="start-guided-mode">${window.t ? window.t('startGuidedModeBtn') : '👉 సులభంగా ఒక్కొక్కటిగా చూడండి'}</button>
                     <button type="button" class="share-result-btn secondary-btn" style="width:100%;margin-bottom:10px;" data-scheme="${window.escapeHtml(data.scheme_name)}">${window.t ? window.t('shareResultBtn') : '📤 ఫలితాన్ని షేర్ చేయండి'}</button>
                     <div class="action-buttons">

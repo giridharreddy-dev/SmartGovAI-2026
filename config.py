@@ -7,7 +7,7 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 SCHEMES_DIR = os.path.join(BASE_DIR, "data")
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
-AUDIO_DIR = os.path.join(BASE_DIR, "static", "audio")
+AUDIO_DIR = os.path.join(BASE_DIR, "static", "audio", "dynamic")
 
 ALLOWED_EXTENSIONS = {"pdf"}
 ALLOWED_MIME_TYPES = {"application/pdf"}
