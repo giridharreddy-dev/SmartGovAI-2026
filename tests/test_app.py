@@ -204,11 +204,12 @@ def test_qr_code_generation(client):
 
 from google.genai import errors as genai_errors
 
+@patch("app.is_gemini_available", return_value=True)
 @patch("werkzeug.datastructures.FileStorage.save", return_value=None)
 @patch("app.validate_pdf_content", return_value=(True, ""))
 @patch("app.extract_text_with_ocr_fallback", return_value="text")
 @patch("app.simplify_document")
-def test_simplify_pdf_gemini_server_error_returns_json_503(mock_simplify, mock_extract, mock_validate, mock_save, client):
+def test_simplify_pdf_gemini_server_error_returns_json_503(mock_simplify, mock_extract, mock_validate, mock_save, mock_gemini, client):
     mock_simplify.side_effect = genai_errors.ServerError(code=503, response_json={}, response=None)
     data = {"scheme_name": "test"}
     file = (io.BytesIO(b"%PDF-1.4\nTest"), "test.pdf")
@@ -217,11 +218,12 @@ def test_simplify_pdf_gemini_server_error_returns_json_503(mock_simplify, mock_e
     assert res.is_json
     assert res.get_json()["error_code"] == "AI_SERVICE_UNAVAILABLE"
 
+@patch("app.is_gemini_available", return_value=True)
 @patch("werkzeug.datastructures.FileStorage.save", return_value=None)
 @patch("app.validate_pdf_content", return_value=(True, ""))
 @patch("app.extract_text_with_ocr_fallback", return_value="text")
 @patch("app.simplify_document")
-def test_simplify_pdf_gemini_client_error_429_returns_json_503(mock_simplify, mock_extract, mock_validate, mock_save, client):
+def test_simplify_pdf_gemini_client_error_429_returns_json_503(mock_simplify, mock_extract, mock_validate, mock_save, mock_gemini, client):
     mock_simplify.side_effect = genai_errors.ClientError(code=429, response_json={}, response=None)
     file = (io.BytesIO(b"%PDF-1.4\nTest"), "test.pdf")
     res = client.post("/simplify", data={"document": file, "scheme_name": "test", "consent": "true"}, content_type="multipart/form-data")
@@ -229,11 +231,12 @@ def test_simplify_pdf_gemini_client_error_429_returns_json_503(mock_simplify, mo
     assert res.is_json
     assert res.get_json()["error_code"] == "AI_RATE_LIMITED"
 
+@patch("app.is_gemini_available", return_value=True)
 @patch("werkzeug.datastructures.FileStorage.save", return_value=None)
 @patch("app.validate_pdf_content", return_value=(True, ""))
 @patch("app.extract_text_with_ocr_fallback", return_value="text")
 @patch("app.simplify_document")
-def test_simplify_pdf_gemini_client_error_401_returns_json_502(mock_simplify, mock_extract, mock_validate, mock_save, client):
+def test_simplify_pdf_gemini_client_error_401_returns_json_502(mock_simplify, mock_extract, mock_validate, mock_save, mock_gemini, client):
     mock_simplify.side_effect = genai_errors.ClientError(code=401, response_json={}, response=None)
     file = (io.BytesIO(b"%PDF-1.4\nTest"), "test.pdf")
     res = client.post("/simplify", data={"document": file, "scheme_name": "test", "consent": "true"}, content_type="multipart/form-data")
@@ -241,11 +244,12 @@ def test_simplify_pdf_gemini_client_error_401_returns_json_502(mock_simplify, mo
     assert res.is_json
     assert res.get_json()["error_code"] == "AI_CONFIGURATION_ERROR"
 
+@patch("app.is_gemini_available", return_value=True)
 @patch("werkzeug.datastructures.FileStorage.save", return_value=None)
 @patch("app.validate_pdf_content", return_value=(True, ""))
 @patch("app.extract_text_with_ocr_fallback", return_value="text")
 @patch("app.simplify_document")
-def test_simplify_pdf_gemini_client_error_400_returns_json_502(mock_simplify, mock_extract, mock_validate, mock_save, client):
+def test_simplify_pdf_gemini_client_error_400_returns_json_502(mock_simplify, mock_extract, mock_validate, mock_save, mock_gemini, client):
     mock_simplify.side_effect = genai_errors.ClientError(code=400, response_json={}, response=None)
     file = (io.BytesIO(b"%PDF-1.4\nTest"), "test.pdf")
     res = client.post("/simplify", data={"document": file, "scheme_name": "test", "consent": "true"}, content_type="multipart/form-data")
@@ -253,11 +257,12 @@ def test_simplify_pdf_gemini_client_error_400_returns_json_502(mock_simplify, mo
     assert res.is_json
     assert res.get_json()["error_code"] == "AI_SIMPLIFICATION_FAILED"
 
+@patch("app.is_gemini_available", return_value=True)
 @patch("werkzeug.datastructures.FileStorage.save", return_value=None)
 @patch("app.validate_pdf_content", return_value=(True, ""))
 @patch("app.extract_text_with_ocr_fallback", return_value="text")
 @patch("app.simplify_document")
-def test_simplify_pdf_unexpected_error_returns_json_500(mock_simplify, mock_extract, mock_validate, mock_save, client):
+def test_simplify_pdf_unexpected_error_returns_json_500(mock_simplify, mock_extract, mock_validate, mock_save, mock_gemini, client):
     mock_simplify.side_effect = TypeError("Unexpected")
     file = (io.BytesIO(b"%PDF-1.4\nTest"), "test.pdf")
     res = client.post("/simplify", data={"document": file, "scheme_name": "test", "consent": "true"}, content_type="multipart/form-data")
