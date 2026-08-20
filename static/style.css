@@ -248,7 +248,7 @@ h1 {
 }
 
 .secondary-btn {
-    background: #fff;
+    background: var(--surface);
     color: var(--green-dark);
     border: 1px solid var(--border);
     padding: 0 16px;
@@ -319,7 +319,7 @@ h1 {
     border: 2px solid var(--border);
     border-radius: 8px;
     padding: 0 14px;
-    background: #fff;
+    background: var(--surface);
     color: var(--ink);
     outline: none;
 }
@@ -585,7 +585,7 @@ h1 {
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 12px;
-    background: #fff;
+    background: var(--surface);
 }
 
 .info-card h3 {
@@ -688,7 +688,7 @@ audio {
     border: 2px solid var(--border);
     border-radius: 8px;
     padding: 8px 10px;
-    background: #fff;
+    background: var(--surface);
 }
 
 .footer-note {
@@ -719,7 +719,7 @@ audio {
 .question-item {
     margin: 12px 0;
     padding: 10px;
-    background: #fff;
+    background: var(--surface);
     border-radius: 6px;
     border-left: 4px solid var(--green);
 }
@@ -739,7 +739,7 @@ audio {
 .yes-no-btn {
     padding: 8px 12px;
     border: 2px solid var(--border);
-    background: #fff;
+    background: var(--surface);
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
@@ -752,7 +752,7 @@ audio {
 
 .yes-no-btn.no {
     border-color: var(--red);
-    background: #fff;
+    background: var(--surface);
 }
 
 .document-checklist {
@@ -801,7 +801,7 @@ audio {
 .action-btn {
     padding: 10px;
     border: 2px solid var(--border);
-    background: #fff;
+    background: var(--surface);
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
@@ -876,7 +876,7 @@ audio {
 }
 
 .location-item {
-    background: #fff;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 6px;
     padding: 10px;
@@ -1825,3 +1825,10 @@ audio {
     align-items: center;
     justify-content: center;
 }
+
+ b o d y . d a r k - m o d e   . f i l t e r - b t n . a c t i v e , 
+ b o d y . d a r k - m o d e   . r e s u l t - h e a d   { 
+         c o l o r :   v a r ( - - b g ) ; 
+ } 
+  
+ 
