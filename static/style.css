@@ -1872,3 +1872,7 @@ audio {
 }
 img, video, iframe { max-width: 100%; height: auto; }
 body { overflow-wrap: break-word; word-wrap: break-word; }
+.search-input { min-width: 0 !important; }
+.search-row { grid-template-columns: minmax(0, 1fr) 48px 48px !important; }
+.card-top { padding-right: 56px !important; }
+#guidedModeOverlay, .chat-overlay, .map-overlay, .feedback-overlay { bottom: 0; height: 100dvh; }
