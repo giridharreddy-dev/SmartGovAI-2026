@@ -4,9 +4,16 @@ All notable technical modifications to the SmartGovAI repository are documented 
 
 The versioning format complies with the "Keep a Changelog" standard and adheres to Semantic Versioning principles where applicable.
 
-## [1.0.0] - 2026-08-14
+## [1.0.1] - 2026-08-20
 
-### Documentation (August 2026 Audit)
+### Documentation (August 2026 Final Audit)
+- **Comprehensive Audit**: Executed a final documentation pass ensuring strict parity between source code and documentation.
+- **Audio Service**: Replaced all references to Google Text-to-Speech (gTTS) with Microsoft Edge TTS (`edge-tts`). Clarified that audio is cached and generated dynamically on cache miss.
+- **Test Coverage**: Clarified that test coverage applies to backend services and utils rather than full end-to-end coverage.
+- **Architecture**: Softened absolute UI and "stable baseline" claims to accurately reflect the prototype stage.
+- **Dependencies**: Promoted `edge-tts` to a primary dependency in `requirements.txt` to support dynamic runtime generation.
+
+## [1.0.0] - 2026-08-14
 - **Comprehensive Audit**: Executed a 19-phase documentation audit ensuring strict parity between source code and documentation.
 - **Academic Restructuring**: Formalized `README.md`, `PROJECT_PROPOSAL.md`, and `IMPACT_EVALUATION.md` to clearly delineate implemented features from proposed studies.
 - **Data Provenance Strategy**: Defined a 10-point provenance evaluation schema in `DATA_PROVENANCE.md` to track government data origin.
