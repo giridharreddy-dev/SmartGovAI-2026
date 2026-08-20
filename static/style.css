@@ -122,7 +122,7 @@ a {
     background: none;
     border: none;
     border-right: 1px solid var(--border);
-    min-height: 44px;
+    min-height: 48px;
     padding: 0 14px;
     display: flex;
     align-items: center;
@@ -164,8 +164,8 @@ a {
     background: none;
     border: none;
     border-right: 1px solid var(--border);
-    min-width: 44px;
-    min-height: 44px;
+    min-width: 48px;
+    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -403,8 +403,8 @@ h1 {
     background: var(--surface-soft);
     border: 1px solid var(--border);
     border-radius: 50%;
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     display: grid;
     place-items: center;
     cursor: pointer;
@@ -436,8 +436,8 @@ h1 {
 }
 
 .card-icon {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 8px;
     background: var(--surface-soft);
     display: grid;
@@ -459,7 +459,18 @@ h1 {
     background: var(--saffron);
 }
 
-.scheme-card h2 {
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    .yes-no-buttons {
+        grid-template-columns: 1fr;
+    }
+    .feedback-row {
+        grid-template-columns: 1fr;
+    }
+
+    .scheme-card h2 {
     margin: 0;
     color: var(--green-dark);
     font-size: 1.08rem;
@@ -763,7 +774,7 @@ audio {
     margin: 10px 0;
 }
 
-.checklist-item {
+.checklist-item { min-height: 48px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -774,8 +785,8 @@ audio {
 }
 
 .checklist-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     cursor: pointer;
 }
 
@@ -903,9 +914,10 @@ audio {
 }
 
 @media (max-width: 560px) {
-    body {
-        font-size: 16px;
-    }
+    body.font-small { --app-font-size: 14px; }
+    body.font-default { --app-font-size: 16px; }
+    body.font-large { --app-font-size: 18px; }
+    body.font-extra-large { --app-font-size: 20px; }
 
     .app-shell {
         padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
@@ -921,12 +933,23 @@ audio {
     }
 
     .scheme-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
     }
 
     .scheme-card {
         min-height: 214px;
         padding: 12px;
+    }
+
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    .yes-no-buttons {
+        grid-template-columns: 1fr;
+    }
+    .feedback-row {
+        grid-template-columns: 1fr;
     }
 
     .scheme-card h2 {
@@ -1357,8 +1380,8 @@ audio {
     font-size: 1.5rem;
     color: var(--ink);
     cursor: pointer;
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 48px;
+    min-width: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1388,8 +1411,8 @@ audio {
     color: var(--border);
     cursor: pointer;
     padding: 5px;
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 48px;
+    min-width: 48px;
     transition: color 0.2s;
 }
 
@@ -1412,7 +1435,7 @@ audio {
     cursor: pointer;
     color: var(--ink);
     font-size: 0.95rem;
-    min-height: 44px;
+    min-height: 48px;
 }
 
 .feedback-chips .chip.selected {
@@ -1540,8 +1563,8 @@ audio {
     color: #fff;
     font-size: 1.5rem;
     cursor: pointer;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: 48px;
+    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1610,7 +1633,7 @@ audio {
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    min-height: 44px;
+    min-height: 48px;
     transition: background 0.15s, color 0.15s;
 }
 .chat-scheme-btn:hover,
@@ -1636,7 +1659,7 @@ audio {
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    min-height: 44px;
+    min-height: 48px;
     transition: background 0.15s;
 }
 .chat-fallback-btn:hover,
@@ -1659,7 +1682,7 @@ audio {
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    min-height: 44px;
+    min-height: 48px;
 }
 
 /* Chat Suggestions */
@@ -1671,7 +1694,7 @@ audio {
     border-top: 1px solid var(--border);
 }
 .chat-suggestion {
-    min-height: 44px;
+    min-height: 48px;
     font-size: 0.95rem;
 }
 
@@ -1700,14 +1723,24 @@ audio {
 }
 
 @media (max-width: 600px) {
+    .chat-overlay {
+        padding: 0;
+    }
     .chat-container {
-        max-height: 100vh;
+        max-height: 100dvh;
+        height: 100dvh;
         border-radius: 0;
-        height: 100%;
+        width: 100%;
     }
     .chat-entry-banner {
         flex-direction: column;
         text-align: center;
+    }
+    .map-overlay {
+        padding: 0;
+    }
+    .map-header {
+        padding: max(16px, env(safe-area-inset-top)) 16px 16px;
     }
 }
 
@@ -1830,5 +1863,12 @@ audio {
  b o d y . d a r k - m o d e   . r e s u l t - h e a d   { 
          c o l o r :   v a r ( - - b g ) ; 
  } 
-  
  
+ 
+ 
+@media (max-width: 600px) {
+    .feedback-overlay { padding: 0 !important; }
+    .feedback-modal { max-height: 100dvh !important; height: 100dvh !important; border-radius: 0 !important; width: 100% !important; }
+}
+img, video, iframe { max-width: 100%; height: auto; }
+body { overflow-wrap: break-word; word-wrap: break-word; }
