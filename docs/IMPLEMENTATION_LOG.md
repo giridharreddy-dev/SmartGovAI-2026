@@ -200,7 +200,7 @@ function speakPageAloud() {
 |--------|-------|
 | **Total Code Insertions** | >2000 lines |
 | **Total Code Modifications** | ~500 lines |
-| **Test Coverage Ratio** | All new components verified |
+| **Test Coverage Ratio** | All new components verified <br> *(Audit Note 2026-08-20: True measured coverage within test scope is ~78%)* |
 | **Accessibility Standard** | WCAG 2.1 AA Compliance target |
 | **Offline Latency** | <500ms initial response |
 
@@ -216,8 +216,8 @@ git clone <repo_url>
 cd SmartGovAI-2026
 
 # 2. Virtual environment provisioning
-python -m venv myenv
-source myenv/bin/activate  # Alternately: myenv\Scripts\activate on Windows
+python -m venv .venv
+source .venv/bin/activate  # Alternately: .venv\Scripts\activate on Windows
 pip install -r requirements.txt
 
 # 3. Audio generation initialization
@@ -264,8 +264,8 @@ gunicorn app:app -w 4 -b 0.0.0.0:5000
 | `/` | `GET` | Serves the root HTML application file. |
 | `/offline.html` | `GET` | Serves the disconnected state template. |
 | `/simplify` | `POST` | Processes PDFs or static schemes for localized extraction. |
-| `/eligibility-check` | `POST` | Computes Boolean-weighted eligibility logic. |
-| `/document-checklist` | `GET` | Retrieves localized document requirement vectors. |
+| `/eligibility-check` | `POST` | Computes Boolean-weighted eligibility logic. *(Audit Note 2026-08-20: Backend endpoint implemented and tested, but currently disconnected from frontend UI.)* |
+| `/document-checklist` | `GET` | Retrieves localized document requirement vectors. *(Audit Note 2026-08-20: Dead code/deprecated, not called by frontend.)* |
 | `/whatsapp-share` | `POST` | Formats URL encoding for WhatsApp intents. |
 | `/enhanced-feedback` | `POST` | Commits user survey metrics. |
 | `/staff-report` | `POST` | Commits discrepancy logs. |

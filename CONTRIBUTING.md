@@ -4,7 +4,7 @@ The development team welcomes contributions to the SmartGovAI repository. We inv
 
 ## Project Mission
 
-SmartGovAI is an open-source academic prototype designed to mitigate the digital divide by helping citizens with limited digital literacy discover and understand government health and welfare schemes. We prioritize offline resilience, Telugu-first localization, and zero-trust privacy.
+SmartGovAI is an open-source academic prototype designed to mitigate the digital divide by helping citizens with limited digital literacy discover and understand government health and welfare schemes. We prioritize offline resilience, Telugu-first localization, and client-side privacy.
 
 ## Development Setup
 

@@ -42,7 +42,7 @@ An interactive map module utilizes Haversine distance calculations to pinpoint t
 Field workers could use the tool as an offline reference manual when visiting remote households, utilizing the WhatsApp sharing feature to send eligibility checklists directly to the citizen's family.
 
 ## Privacy Considerations
-To maintain zero-trust principles, all personal eligibility evaluations occur within the browser's `localStorage`. No Personally Identifiable Information (PII) is transmitted to the server.
+To maintain client-side privacy principles, all personal eligibility evaluations occur within the browser's `localStorage`. No Personally Identifiable Information (PII) is transmitted to the server.
 
 ## Responsible AI
 While the Gemini API provides advanced PDF simplification and interactive RAG chat, it is constrained by a strict system prompt. The system provides clear warnings that AI outputs are not official government determinations.

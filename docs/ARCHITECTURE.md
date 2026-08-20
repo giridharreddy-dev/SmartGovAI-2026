@@ -499,7 +499,7 @@ Return strictly this JSON object:
 ```
 
 ### Safety & Generative Guardrails:
-1. **JSON Enforcement:** Utilizes `response_mime_type="application/json"` to guarantee structured parsable outputs.
+1. **JSON Enforcement:** Utilizes `response_mime_type="application/json"` to ensure structured parsable outputs.
 2. **Temperature Constraints:** Set rigidly to `0.2` to constrain model variance and minimize hallucination vectors.
 3. **Network Thresholds:** The absence of GEMINI_API_KEY triggers graceful degradation where AI-dependent features are disabled while preserving catalog functionality.
 4. **Resilient Failure:** The absence of `GEMINI_API_KEY` triggers a graceful degradation where document ingestion is disabled while preserving catalog functionality.
@@ -532,7 +532,7 @@ Return strictly this JSON object:
 Based on the internal engineering audit (`docs/ENGINEERING_AUDIT.md`), the following represents the architectural evaluation of the current codebase:
 
 ### Technical Strengths:
-* **Robust Test Coverage:** The implementation maintains an 86% test coverage ratio validated through automated mock integration.
+* **Robust Test Coverage:** The implementation maintains an 86% test coverage ratio validated through automated mock integration. *(Audit Note 2026-08-20: Coverage is scoped to services/ and utils.py only; true measured coverage on full run is ~78%.)*
 * **Algorithmic Caching:** Significant reduction in external API reliance via deterministic cache hashing, improving median response times.
 * **Security Hygiene:** Comprehensive application of CSRF middleware, debounced interface bindings, secure event delegation, and rigorous binary signature validations.
 
@@ -580,7 +580,7 @@ Based on the internal engineering audit (`docs/ENGINEERING_AUDIT.md`), the follo
 **Technical Characteristics:**
 - **Touch Target Thresholds:** A strict minimum dimension of 48px height applied to all interactive vectors (aligning with 12mm physical human-computer interaction guidelines).
 - **Spatial Padding:** Enforced padding algorithms (14px-18px) to prevent misclicks.
-- **State Independence:** Complete elimination of `:hover`-dependent state disclosures to guarantee accessibility on touch-only devices.
+- **State Independence:** Complete elimination of `:hover`-dependent state disclosures to ensure accessibility on touch-only devices.
 - **Typographical Scaling:** Base document font scaling set between 16px and 18px.
 
 ---

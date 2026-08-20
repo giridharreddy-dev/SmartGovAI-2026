@@ -4,7 +4,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/giridharreddy-dev/SmartGovAI-2026)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/giridharreddy-dev/SmartGovAI-2026)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![Coverage](https://img.shields.io/badge/coverage-81%25-green.svg)](https://github.com/giridharreddy-dev/SmartGovAI-2026)
+[![Coverage](https://img.shields.io/badge/coverage-78%25-green.svg)](https://github.com/giridharreddy-dev/SmartGovAI-2026)
 
 ## Overview
 
@@ -101,7 +101,7 @@ SmartGovAI uses a decoupled client-server architecture:
 
 The project is thoroughly tested using `pytest`.
 - **Current Result:** 78/78 tests pass.
-- **Coverage:** 81% test coverage across backend services and routing.
+- **Coverage:** ~78% scoped test coverage across backend services.
 
 ## Installation / Running
 

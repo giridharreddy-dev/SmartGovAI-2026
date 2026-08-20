@@ -56,7 +56,7 @@ Currently, data is manually compiled into JSON files. We have implemented basic 
 The data is static and tied to the repository's last update. Keeping it fresh requires manual pull requests or a future CMS integration.
 
 **12. How is user privacy protected?**
-We adopted a "zero-trust client" architecture. When a user answers eligibility questions, the logic evaluates in the browser (`enhanced-features.js`) and state is stored in `localStorage`. No PII is sent to our Flask backend.
+We adopted a "client-side privacy" architecture. When a user answers eligibility questions, the logic evaluates in the browser (`enhanced-features.js`) and state is stored in `localStorage`. No PII is sent to our Flask backend.
 
 **13. What happens without internet?**
 The Service Worker intercepts network requests and serves the app shell, the JSON catalog, and the audio files from the cache. The Gemini chat and PDF upload features are disabled gracefully.

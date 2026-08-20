@@ -71,6 +71,9 @@
 1. పేజీ చివరిలో "సచివాలయం / ఆరోగ్య సిబ్బంది సాధనాలు" చూడండి
 2. ఆ తర్వాత నొక్కండి (▼ లో క్లిక్ చేయండి)
 
+> [!WARNING]
+> **Audit Note (2026-08-20):** The "Staff / ASHA Tools" panel is currently an un-gated `<details>` element visible to all visitors. It is not an access-controlled or authenticated feature in the current implementation.
+
 **Direct Scheme Query**:
 1. డ్రాప్‌డౌన్ నుండి పథకం ఎంచుకోండి
 2. "వివరాలు చూపించు" నొక్కండి
@@ -153,6 +156,9 @@
 4. Filter buttons ద్వారా facility type ఎంచుకోండి
 5. Radius slider ద్వారా దూరం పరిధి మార్చండి
 6. ప్రతి marker నొక్కి సంపూర్ణ సమాచారం చూడండి
+
+> [!WARNING]
+> **Audit Note (2026-08-20):** The facility map functionality relies on a `loadFacilities()` function that is currently undefined in the frontend JavaScript, causing a runtime error. This feature is disconnected from the working backend endpoint and does not display map markers.
 
 ---
 

@@ -15,7 +15,7 @@ Bridging the digital divide requires more than simple translation; it requires a
 ## Objectives
 1. Build a robust offline-first catalog of welfare schemes.
 2. Prioritize Telugu language localization and auditory support.
-3. Ensure zero-trust privacy for personal eligibility checks.
+3. Ensure client-side privacy for personal eligibility checks.
 4. Experiment with generative AI to simplify complex PDF policy documents.
 
 ## Research Questions
