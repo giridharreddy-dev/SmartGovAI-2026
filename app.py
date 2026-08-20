@@ -379,9 +379,13 @@ def internal_error(error) -> Any:
 def handle_unexpected_exception(error) -> Any:
     """Report unexpected errors without changing Flask HTTP error responses."""
     # Flask-Limiter and Werkzeug raise HTTPException instances (for example,
-    # 429 Too Many Requests).  Returning a generic 500 here would hide the
+    # 429 Too Many Requests). Returning a generic 500 here would hide the
     # original status code from clients and defeat rate-limit handling.
     if isinstance(error, HTTPException):
+        # Return JSON for API endpoints or requests expecting JSON
+        if request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html or request.path.startswith(("/simplify", "/chat", "/feedback", "/api", "/healthz", "/readyz", "/eligibility-check", "/document-checklist")):
+            error_code = "RATE_LIMITED" if error.code == 429 else f"HTTP_{error.code}"
+            return api_error(str(error.description), error.code, error_code=error_code)
         return error
 
     logger.exception("Unhandled exception: %s", error)

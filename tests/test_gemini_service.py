@@ -2,8 +2,14 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 from services.gemini_service import simplify_document
+from services import gemini_service
 
-
+@pytest.fixture(autouse=True)
+def clear_gemini_caches():
+    """Ensure tests run independently by clearing global caches."""
+    gemini_service._gemini_response_cache.clear()
+    gemini_service._gemini_pending.clear()
+    yield
 @patch("services.gemini_service.get_client")
 def test_valid_json(mock_get_client):
     response = MagicMock()

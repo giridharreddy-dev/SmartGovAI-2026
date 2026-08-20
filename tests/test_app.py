@@ -29,10 +29,12 @@ def test_404_html_response(client):
     assert b"<html" in response.data.lower()
 
 
-def test_http_exception_status_is_preserved():
+def test_http_exception_status_is_preserved(app):
     """Framework errors, such as rate limiting, must not become HTTP 500."""
     error = TooManyRequests()
-    assert handle_unexpected_exception(error) is error
+    with app.test_request_context("/some-html-endpoint", headers={"Accept": "text/html"}):
+        from app import handle_unexpected_exception
+        assert handle_unexpected_exception(error) is error
 
 
 def test_offline_cache_uses_static_relative_audio_urls(client):
