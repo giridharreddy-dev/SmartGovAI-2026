@@ -7,7 +7,7 @@ When modifying this codebase, agents **must preserve** the following invariants:
 
 - **Offline-First Architecture**: The application must function without an internet connection. Do not introduce dependencies on external CDNs or APIs for critical rendering paths. Ensure Service Worker (`static/service-worker.js`) rules are updated if static assets change.
 - **Telugu-First Accessibility**: The primary language of the application is Telugu. UI elements must default to Telugu, and any new features must include bilingual support (Telugu and English).
-- **Zero-Trust Client Data**: No Personally Identifiable Information (PII) is sent to the server. All eligibility evaluations, form completions, and document checklists must remain within the browser's `localStorage`.
+- **Client-Side Eligibility Data**: Eligibility evaluations, form completions, and document checklists must remain within the browser's `localStorage` and must not be sent to the server. (A tested server-side `/eligibility-check` endpoint exists but is intentionally not called by the frontend — don't wire it up without updating this note and the README's Security & Privacy section.)
 - **Synchronous Fallbacks**: If AI services (e.g., Gemini API) or Text-to-Speech generation fail, the application must gracefully degrade to basic catalog search and local browser Text-to-Speech without crashing.
 
 ## 2. Refactoring Boundaries

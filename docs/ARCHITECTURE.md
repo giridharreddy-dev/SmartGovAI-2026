@@ -25,7 +25,7 @@
 * **Accessible UI (Touch-Friendly):** All interactive elements exceed the 48px (12mm) physical touch target guidelines established by accessibility standards (ranging from 52px to 56px) and incorporate generous padding to accommodate imprecision during touch interactions.
 * **Comprehensive Voice Assistance:** The application integrates a dual-layer audio system. It serves pre-generated high-fidelity MP3s generated via Google Text-to-Speech (gTTS) locally, supplemented by a dynamic client-side `Web Speech API` Telugu text-to-speech fallback, facilitating auditory consumption over reading.
 * **Offline-First Resilience:** Engineered to function in geographies with unstable internet connectivity. Static assets and scheme data are persistently cached utilizing Service Workers and the browser's `localStorage` API.
-* **Zero-Trust Client Data Storage:** No personally identifiable information (PII), such as Aadhaar credentials, phone numbers, or health cards, is transmitted to or stored on the server. All operational checklists, eligibility assessments, and form inputs are contained strictly within the client's local execution environment via `localStorage`.
+* **Client-Held Checklist & Eligibility State:** The document checklist and eligibility quiz shown in the current UI save answers only to the browser's `localStorage`; the frontend does not send them to the server. The app does not ask for Aadhaar numbers, phone numbers, or health cards. *(Audit note: a separate, tested server-side endpoint, `/eligibility-check`, exists and would receive eligibility answers over HTTP if the frontend ever called it — it currently doesn't. "Zero-trust" isn't a precise description of a system with such an endpoint available, even unused.)*
 
 ---
 

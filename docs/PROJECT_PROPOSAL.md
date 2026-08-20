@@ -63,7 +63,7 @@ Implemented via pre-generated MP3 audio caching, allowing text-to-speech functio
 The Service Worker intercepts network requests and serves the application shell, localized JSON data, and MP3 files from the browser cache.
 
 ## Security/Privacy
-- **Zero-Trust Client**: Eligibility answers are never transmitted to the server.
+- **Client-Side Privacy**: Eligibility answers are not transmitted to the server by the current frontend.
 - **CSRF/CSP**: Robust security headers mitigate cross-site scripting and request forgery.
 
 ## Community Benefits

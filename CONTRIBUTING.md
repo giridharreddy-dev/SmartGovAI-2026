@@ -54,7 +54,7 @@ When adding or modifying government schemes in `data/`, you must adhere to stric
 
 ## AI Safety & Privacy Rules
 
-- **Zero-Trust**: Do not introduce code that sends PII to the server.
+- **Client-Side Privacy**: Do not introduce code that sends PII to the server.
 - **Hallucination Mitigation**: Any prompts added to Gemini services must be strictly grounded.
 - **Offline Fallbacks**: Do not break the offline capabilities. Ensure fallbacks are implemented if AI services fail.
 
