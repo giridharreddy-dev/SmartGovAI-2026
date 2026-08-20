@@ -899,72 +899,7 @@ audio {
     margin-bottom: 4px;
 }
 
-@media (max-width: 860px) {
-    .main-grid {
-        grid-template-columns: 1fr;
-    }
 
-    .result-panel {
-        position: static;
-    }
-
-    .emergency-strip {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 560px) {
-    body.font-small { --app-font-size: 14px; }
-    body.font-default { --app-font-size: 16px; }
-    body.font-large { --app-font-size: 18px; }
-    body.font-extra-large { --app-font-size: 20px; }
-
-    .app-shell {
-        padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
-    }
-
-    .app-header {
-        align-items: flex-start;
-    }
-
-    .install-btn {
-        min-width: 52px;
-        padding: 0 10px;
-    }
-
-    .scheme-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .scheme-card {
-        min-height: 214px;
-        padding: 12px;
-    }
-
-    
-    .action-buttons {
-        grid-template-columns: 1fr;
-    }
-    .yes-no-buttons {
-        grid-template-columns: 1fr;
-    }
-    .feedback-row {
-        grid-template-columns: 1fr;
-    }
-
-    .scheme-card h2 {
-        font-size: 1rem;
-    }
-
-    .scheme-card p {
-        font-size: 0.8rem;
-    }
-
-    .card-icon {
-        width: 40px;
-        height: 40px;
-    }
-}
 
 /* =========================================================================
    Symptom Finder Styles (Tier 2A)
@@ -1083,27 +1018,6 @@ audio {
     margin-bottom: 8px;
 }
 
-@media (max-width: 480px) {
-    .symptom-entry-banner {
-        flex-direction: column;
-        text-align: center;
-        gap: 16px;
-    }
-    .symptom-entry-content {
-        flex-direction: column;
-    }
-    .symptom-start-btn {
-        width: 100%;
-    }
-    .symptom-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .category-card {
-        padding: 12px 8px;
-        min-height: 90px;
-        font-size: 0.9rem;
-    }
-}
 
 /* ============================
    GUIDED MODE (TIER 2B)
@@ -1211,20 +1125,6 @@ audio {
     font-size: 1.1rem;
 }
 
-@media (max-width: 414px) {
-    .guided-content-wrapper {
-        padding: 0.75rem;
-    }
-    .guided-header h2 {
-        font-size: 1.1rem;
-    }
-    .guided-step-title {
-        font-size: 1.2rem;
-    }
-    .guided-nav-btn {
-        font-size: 1rem;
-    }
-}
 
 /* =========================================================
    TIER 2C: IMPACT DASHBOARD
@@ -1722,27 +1622,6 @@ audio {
     font-size: 1rem;
 }
 
-@media (max-width: 600px) {
-    .chat-overlay {
-        padding: 0;
-    }
-    .chat-container {
-        max-height: 100dvh;
-        height: 100dvh;
-        border-radius: 0;
-        width: 100%;
-    }
-    .chat-entry-banner {
-        flex-direction: column;
-        text-align: center;
-    }
-    .map-overlay {
-        padding: 0;
-    }
-    .map-header {
-        padding: max(16px, env(safe-area-inset-top)) 16px 16px;
-    }
-}
 
 /* ==========================================================================
    Tier 4: Interactive Nearest-PHC Map
@@ -1866,13 +1745,176 @@ audio {
  
  
  
-@media (max-width: 600px) {
-    .feedback-overlay { padding: 0 !important; }
-    .feedback-modal { max-height: 100dvh !important; height: 100dvh !important; border-radius: 0 !important; width: 100% !important; }
-}
 img, video, iframe { max-width: 100%; height: auto; }
 body { overflow-wrap: break-word; word-wrap: break-word; }
-.search-input { min-width: 0 !important; }
-.search-row { grid-template-columns: minmax(0, 1fr) 48px 48px !important; }
-.card-top { padding-right: 56px !important; }
-#guidedModeOverlay, .chat-overlay, .map-overlay, .feedback-overlay { bottom: 0; height: 100dvh; }
+
+/* =========================================================
+   CONSOLIDATED MOBILE STYLES & LAYOUT FIXES
+   ========================================================= */
+
+/* Prevent Grid & Flex Blowout */
+.main-grid > * {
+    min-width: 0;
+}
+
+@media (max-width: 860px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+    .result-panel {
+        position: static;
+        margin-top: 20px;
+    }
+    .emergency-strip {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Safe Area & Full Width */
+    .app-shell {
+        width: 100%;
+        padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    }
+    
+    /* Typography Hierarchy */
+    body.font-small { --app-font-size: 15px; }
+    body.font-default { --app-font-size: 17px; }
+    body.font-large { --app-font-size: 19px; }
+    body.font-extra-large { --app-font-size: 21px; }
+
+    /* Header & Controls */
+    .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .header-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    /* Search Bar */
+    .search-row {
+        grid-template-columns: minmax(0, 1fr) 48px 48px;
+    }
+    .search-input {
+        min-width: 0;
+        font-size: 1rem;
+    }
+
+    /* Emergency Buttons */
+    .call-tile {
+        padding: 12px 4px;
+        min-height: 70px;
+        min-width: 0;
+    }
+    .call-tile span {
+        font-size: 0.85rem;
+        text-align: center;
+        line-height: 1.2;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
+    }
+    .call-tile strong {
+        font-size: 1.25rem;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    /* Scheme Cards */
+    .scheme-grid {
+        grid-template-columns: 1fr;
+    }
+    .scheme-card {
+        min-height: auto;
+        padding: 16px;
+    }
+    .scheme-card h2 {
+        font-size: 1.15rem;
+        padding-right: 56px; /* Space for favorite button */
+    }
+    .scheme-card p {
+        font-size: 0.95rem;
+        margin-top: 6px;
+    }
+    .scheme-card .category {
+        font-size: 0.9rem;
+        margin-top: 12px;
+    }
+    .card-top {
+        align-items: flex-start;
+    }
+    .favorite-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(255, 255, 255, 0.8);
+    }
+    
+    /* Symptom Finder */
+    .symptom-entry-banner {
+        flex-direction: column;
+        text-align: left;
+    }
+    .symptom-start-btn {
+        width: 100%;
+    }
+    .symptom-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Modals & Overlays */
+    .chat-overlay, .map-overlay, .feedback-overlay, #guidedModeOverlay {
+        padding: 0;
+        bottom: 0;
+        height: 100dvh;
+    }
+    .chat-container, .map-modal, .feedback-modal, .guided-content-wrapper {
+        width: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+    }
+    .chat-entry-banner {
+        flex-direction: column;
+        text-align: left;
+    }
+    .chat-entry-banner button {
+        width: 100%;
+    }
+    
+    /* Action Buttons in details */
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    .yes-no-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Prevent image blowout */
+    img, video, iframe {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* Action Groups */
+.action-group {
+    margin-bottom: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+.action-group:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+.action-group-title {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
