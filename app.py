@@ -422,15 +422,31 @@ def build_health_status() -> Dict[str, Any]:
 
 
 @app.route("/healthz")
+@limiter.exempt
 def healthz() -> Any:
-    """Return a JSON health status for the service."""
-    return api_response(build_health_status())
+    """Return a lightweight JSON liveness status for the service."""
+    return api_response({
+        "service": API_NAME,
+        "status": "ok",
+        "current_time": datetime.now(UTC).isoformat(),
+        "uptime_seconds": int((datetime.now(UTC) - STARTUP_TIME).total_seconds()),
+    })
 
 
 @app.route("/health")
+@limiter.exempt
 def health() -> Any:
     """Alias for the health endpoint."""
-    return api_response(build_health_status())
+    return healthz()
+
+
+@app.route("/readyz")
+@limiter.exempt
+def readyz() -> Any:
+    """Return a JSON readiness status for the service, checking dependencies."""
+    status_data = build_health_status()
+    status_code = 200 if status_data["status"] == "ok" else 503
+    return api_response(status_data, status_code)
 
 
 @app.route("/version")

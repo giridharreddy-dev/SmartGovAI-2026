@@ -155,7 +155,7 @@ def test_healthz_endpoint(client):
     assert response.status_code == 200
     data = response.get_json()
     assert data["status"] == "ok"
-    assert "schemes" in data
+    assert "schemes" not in data
 
 
 def test_health_alias(client):
@@ -163,6 +163,28 @@ def test_health_alias(client):
     response = client.get("/health")
     assert response.status_code == 200
     assert response.get_json()["status"] == "ok"
+
+
+def test_readyz_endpoint(client):
+    """Test /readyz returns status and deeper diagnostic information."""
+    response = client.get("/readyz")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["status"] == "ok"
+    assert "schemes" in data
+
+
+def test_healthz_rate_limit_exemption(client):
+    """Test that /healthz is not rate limited."""
+    from app import app
+    app.config["RATELIMIT_ENABLED"] = True
+    try:
+        # Default limit is 50 per hour. 55 requests would trigger 429 if not exempt.
+        for _ in range(55):
+            res = client.get("/healthz")
+            assert res.status_code == 200
+    finally:
+        app.config["RATELIMIT_ENABLED"] = False
 
 
 def test_version_endpoint(client):
