@@ -40,7 +40,7 @@ The application is built with the following target audiences in mind (note: real
 | RAG AI Chat | **IMPLEMENTED** | Gemini API answers questions grounded in scheme catalog (requires internet). |
 | PDF Simplification | **IMPLEMENTED** | Parses uploaded PDFs (with OCR fallback) and simplifies text via Gemini (requires internet). |
 | Healthcare Facility Locator | **IMPLEMENTED** | Local `facilities.json` with Leaflet.js map and Haversine distance logic. |
-| Deterministic Audio (TTS) | **IMPLEMENTED** | Pre-generated audio MP3s cached to avoid runtime TTS failures. |
+| Deterministic Audio (TTS) | **IMPLEMENTED** | Cached Telugu TTS audio with deterministic filenames; existing assets are reused and missing assets can be generated on demand. |
 | Document Checklist | **IMPLEMENTED** | Local evaluation logic renders checklist based on user inputs. |
 | Analytics Dashboard | **PROTOTYPE** | `/analytics` route with SQLite backend, functional but requires scaling for production. |
 | Security Features | **IMPLEMENTED** | CSRF protection, CSP nonces, strict headers, and Flask-Limiter. |
@@ -101,7 +101,7 @@ SmartGovAI uses a decoupled client-server architecture:
 
 The project is thoroughly tested using `pytest`.
 - **Current Result:** 78/78 tests pass.
-- **Coverage:** ~78% scoped test coverage across backend services.
+- **Coverage:** ~78% test coverage across the configured services and utils coverage scope.
 
 ## Installation / Running
 

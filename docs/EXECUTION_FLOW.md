@@ -123,7 +123,7 @@ sequenceDiagram
 3. **Auditory Synthesis Verification**:
    * The controller parses the scheme's localized (Telugu) description.
    * A sanitized, deterministic filename is computed for the TTS audio file.
-   * If the file is absent from the `static/audio/` directory, the controller invokes `generate_audio_file()` from `services/audio_service.py`, which communicates with Google TTS servers to render and locally persist the MP3 asset.
+   * If the file is absent from the `static/audio/` directory, the controller invokes `generate_audio_file()` from `services/audio_service.py`, which communicates with Microsoft Edge TTS servers to render and locally persist the MP3 asset.
 4. **Audit Logging Execution**:
    * The controller invokes `log_request()` within `database.py` to insert transactional metadata into the SQLite database.
 5. **View Update Resolution**:

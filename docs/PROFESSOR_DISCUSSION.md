@@ -29,7 +29,7 @@ Current government websites are heavily centralized, often English-first, and re
 Generic LLMs hallucinate government policies easily. They also require an active internet connection, constant typing, and do not provide an accessible user interface tailored for rural users with limited digital literacy.
 
 **3. Why Gemini?**
-We utilized the Google Gemini API (specifically `gemini-3.5-flash`) due to its strong multi-lingual support, fast inference speed, and cost-effectiveness for processing uploaded PDFs.
+We utilized the Google Gemini API (model configured through `GEMINI_MODEL_NAME`, currently defaulting to `gemini-3.5-flash`) due to its strong multi-lingual support, fast inference speed, and cost-effectiveness for processing uploaded PDFs.
 
 **4. Why Telugu?**
 The project targets rural Andhra Pradesh where Telugu is the primary—and often only—spoken language. Retrofitting translation onto an English UI often fails; building Telugu-first ensures semantic and structural compatibility.

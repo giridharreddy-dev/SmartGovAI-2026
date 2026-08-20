@@ -65,7 +65,7 @@ This document provides a detailed technical breakdown of the features within the
 ### 6. Auditory Accessibility Capabilities
 **Objective**: To mitigate literacy prerequisites via programmatic auditory synthesis.
 **Implementation**:
-- Leveraged `gTTS` with the `te-IN` locale to pre-generate audio files via `scripts/generate_audio.py`.
+- Leveraged `edge-tts` with the `te-IN-ShrutiNeural` voice to cache audio files via `scripts/generate_audio.py`.
 - Instantiated DOM triggers on informational subsets to play the cached MP3 files.
 
 ### 7. Privacy & Security Framework

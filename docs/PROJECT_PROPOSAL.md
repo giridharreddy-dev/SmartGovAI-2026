@@ -39,7 +39,7 @@ The repository contains a fully implemented functional prototype featuring:
 - **Offline PWA Cache**: Fully operational scheme browsing without a network.
 - **Eligibility Evaluator**: Localized, boolean-based checklists.
 - **RAG AI Chat**: A Gemini-powered assistant grounded in local data.
-- **Audio Pre-caching**: `gTTS` generated MP3s for all schemes.
+- **Audio Caching**: `edge-tts` generated MP3s for all schemes.
 
 ## System Architecture
 - **Client**: HTML5, CSS3, Vanilla JS, Service Worker.
@@ -50,7 +50,7 @@ The repository contains a fully implemented functional prototype featuring:
 ## Technology Stack
 - Python, Flask, Pytest
 - JavaScript, HTML, CSS
-- Google Gemini API, gTTS, PDFPlumber, Tesseract OCR
+- Google Gemini API, edge-tts, PDFPlumber, Tesseract OCR
 
 ## AI Components
 - **PDF Simplification**: Extracts text using PDFPlumber/OCR, sends to Gemini for summarization into plain Telugu.

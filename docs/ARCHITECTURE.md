@@ -22,8 +22,8 @@
 
 ### Key Design Considerations for Low-Literacy & Rural Audiences:
 * **Telugu-First Interface:** The default user interface, audio assistance, and search mechanisms prioritize Telugu (the regional language), mitigating literacy barriers.
-* **Accessible UI (Touch-Friendly):** All interactive elements exceed the 48px (12mm) physical touch target guidelines established by accessibility standards (ranging from 52px to 56px) and incorporate generous padding to accommodate imprecision during touch interactions.
-* **Comprehensive Voice Assistance:** The application integrates a dual-layer audio system. It serves pre-generated high-fidelity MP3s generated via Google Text-to-Speech (gTTS) locally, supplemented by a dynamic client-side `Web Speech API` Telugu text-to-speech fallback, facilitating auditory consumption over reading.
+* **Accessible UI (Touch-Friendly):** The UI is designed with touch-friendly targets, aiming for the 48px (12mm) physical touch target guidelines established by accessibility standards, and incorporates padding to accommodate imprecision during touch interactions.
+* **Comprehensive Voice Assistance:** The application integrates a dual-layer audio system. It serves high-fidelity MP3s generated via Microsoft Edge TTS (edge-tts) locally, supplemented by a dynamic client-side `Web Speech API` Telugu text-to-speech fallback, facilitating auditory consumption over reading.
 * **Offline-First Resilience:** Engineered to function in geographies with unstable internet connectivity. Static assets and scheme data are persistently cached utilizing Service Workers and the browser's `localStorage` API.
 * **Client-Held Checklist & Eligibility State:** The document checklist and eligibility quiz shown in the current UI save answers only to the browser's `localStorage`; the frontend does not send them to the server. The app does not ask for Aadhaar numbers, phone numbers, or health cards. *(Audit note: a separate, tested server-side endpoint, `/eligibility-check`, exists and would receive eligibility answers over HTTP if the frontend ever called it — it currently doesn't. "Zero-trust" isn't a precise description of a system with such an endpoint available, even unused.)*
 
@@ -47,7 +47,7 @@ flowchart TD
         API[app.py API Endpoints]
         DB[(SQLite: feedback.db)]
         PDF[pdf_service.py: pdfplumber + OCR]
-        AUDIO[audio_service.py: gTTS Caching]
+        AUDIO[audio_service.py: Edge TTS Caching]
         GEMINI[gemini_service.py: Google GenAI Client]
         REDIS[Redis Rate Limit Store]
     end
@@ -79,7 +79,7 @@ flowchart TD
 
 ### Key Architectural Concepts:
 1. **Offline PWA Proxy:** The Service Worker intercepts all outgoing GET requests. In the event of network unavailability, it resolves the request immediately by serving assets from the local Cache Storage.
-2. **Deterministic Audio Caching:** Pre-rendered audio files are persisted in `static/audio/`. The system queries required files utilizing a SHA-256 hash derived from the targeted Telugu spoken content. External runtime gTTS API calls are executed strictly upon cache misses, conserving bandwidth and minimizing API latency.
+2. **Deterministic Audio Caching:** Pre-rendered audio files are persisted in `static/audio/`. The system queries required files utilizing a SHA-256 hash derived from the targeted Telugu spoken content. External runtime edge-tts API calls are executed strictly upon cache misses, conserving bandwidth and minimizing API latency.
 3. **Concurrent Request De-duplication:** During concurrent document simplification requests within the AI client layer (`gemini_service.py`), duplicate external requests are intercepted and blocked using thread-level locks and wait events, optimizing API throughput and protecting quota thresholds.
 4. **Resilient Rate Limiting:** `Flask-Limiter` is architected to utilize Redis in production environments (via the `REDIS_URL` variable), featuring an automatic and graceful degradation to local memory storage should the Redis instance become unreachable.
 
@@ -112,7 +112,7 @@ SmartGovAI-2026/
 │   └── ENGINEERING_AUDIT.md      # Developer assessment and technical debt audit
 ├── services/
 │   ├── __init__.py
-│   ├── audio_service.py          # gTTS wrapper, hash generator, and caching service
+│   ├── audio_service.py          # edge-tts wrapper, hash generator, and caching service
 │   ├── chat_service.py           # RAG-based AI chat capabilities
 │   ├── gemini_service.py         # Google Gemini Client and request de-duplication cache
 │   ├── pdf_service.py            # PDF text parser (pdfplumber) and Tesseract OCR controller
@@ -261,7 +261,7 @@ classDiagram
 1. **Environment Setup & Activation:**
    The administrator provisions a virtual environment and installs documented dependencies located within `requirements.txt`.
 2. **Audio Pre-generation (Caching):**
-   The administrator invokes `scripts.generate_audio`. The script parses `data/*.json`, validates entries against the expected schema, and triggers `gTTS` to compile and persist static MP3 artifacts to `static/audio/`.
+   The administrator invokes `scripts.generate_audio`. The script parses `data/*.json`, validates entries against the expected schema, and triggers `edge-tts` to compile and persist static MP3 artifacts to `static/audio/`.
 3. **Web Server Initialization:**
    The Flask application `app.py` is executed. The initialization sequence invokes `database.init_db()`, instantiates directory paths, loads and sanitizes the JSON metadata catalogs into a unified dictionary structure, verifies external API availability, and binds the WSGI server to the configured network port.
 
@@ -345,7 +345,7 @@ flowchart LR
     Upload[User PDF Upload] -->|POST /simplify| Flask
     Flask -->|API Query| Gemini[Gemini API]
     Gemini -->|JSON Response| Flask
-    Flask -->|gTTS rendering| AudioDir[(static/audio/)]
+    Flask -->|edge-tts rendering| AudioDir[(static/audio/)]
     Flask -->|HTTP JSON Response| JSClient
 
     JSClient -->|POST /feedback| Flask
@@ -515,7 +515,7 @@ Return strictly this JSON object:
 | **pdfplumber** | Parser | Extracts structured character representations from standard PDF binaries. |
 | **pdf2image** | Converter | Transforms embedded PDF pages into rasterized image arrays for OCR preprocessing. |
 | **pytesseract** | OCR Engine | Analyzes image pixel data to extract Unicode characters (`tel+eng`). |
-| **gTTS** | Audio Client | Interacts with Google TTS servers to generate MP3 streams. |
+| **edge-tts** | Audio Client | Interacts with Microsoft Edge TTS servers to generate MP3 streams. |
 | **python-dotenv** | Environment | Ingests and parses `.env` configurations. |
 | **Flask-WTF** | Security | Enforces strict CSRF token validation on mutable endpoints. |
 | **Flask-Limiter** | Security | Implements sliding-window request throttling backed by Redis or Memory. |
