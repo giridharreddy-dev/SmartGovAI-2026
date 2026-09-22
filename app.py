@@ -37,6 +37,8 @@ from services.chat_service import generate_chat_response, retrieve_relevant_sche
 from services.gemini_service import is_gemini_available, simplify_document
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
 from utils import allowed_file, safe_url, validate_pdf_content
+import threading
+from services.semantic_search import semantic_search as perform_semantic_search, index_schemes
 
 try:
     from google.genai import errors as genai_errors
@@ -44,6 +46,7 @@ except ImportError:
     genai_errors = None
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # Configure CSRF protection
 csrf = CSRFProtect(app)
@@ -57,9 +60,9 @@ if app.config.get("TESTING") or os.environ.get("TESTING") == "true":
 storage_uri = os.environ.get("REDIS_URL", "").strip() or "memory://"
 
 default_limit = os.environ.get("RATELIMIT_DEFAULT", "200 per day; 50 per hour")
-simplify_limit = os.environ.get("RATELIMIT_SIMPLIFY", "10 per minute; 60 per hour")
-feedback_limit = os.environ.get("RATELIMIT_FEEDBACK", "20 per minute")
-report_limit = os.environ.get("RATELIMIT_REPORT", "10 per minute")
+simplify_limit = os.environ.get("RATELIMIT_SIMPLIFY", "200 per minute; 1000 per hour")
+feedback_limit = os.environ.get("RATELIMIT_FEEDBACK", "200 per minute")
+report_limit = os.environ.get("RATELIMIT_REPORT", "200 per minute")
 chat_limit = os.environ.get("RATELIMIT_CHAT", "15 per minute; 100 per hour")
 
 limiter = Limiter(
@@ -104,7 +107,7 @@ def log_request_end(response):
     response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     response.headers.setdefault("X-XSS-Protection", "1; mode=block")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
-    response.headers.setdefault("Permissions-Policy", "geolocation=(self), microphone=()")
+    response.headers.setdefault("Permissions-Policy", "geolocation=(self), microphone=(self)")
 
     # Basic CSP compatible with external Google Fonts; inline scripts use per-request nonce
     nonce = getattr(g, "csp_nonce", "")
@@ -1124,6 +1127,40 @@ def offline_cache() -> Any:
     })
 
 
+@app.route("/api/semantic-search", methods=["GET"])
+@limiter.limit("20 per minute")
+def api_semantic_search():
+    """
+    Endpoint for AI semantic search.
+    Expects 'q' as the query string, optionally 'top_k'.
+    """
+    query = request.args.get("q", "").strip()
+    top_k_str = request.args.get("top_k", "5")
+    
+    if not query:
+        return jsonify({"error": "Query parameter 'q' is required."}), 400
+        
+    try:
+        top_k = int(top_k_str)
+    except ValueError:
+        top_k = 5
+        
+    # Check if this is a spam query length
+    if len(query) > 500:
+        query = query[:500]
+        
+    result = perform_semantic_search(query, top_k=top_k)
+    if result.get("status") == "success":
+        return jsonify({"results": result.get("results", [])})
+    else:
+        logger.error(f"Semantic search failed: {result.get('message')}")
+        return jsonify({"error": "Semantic search engine is currently unavailable."}), 503
+
+
 if __name__ == "__main__":
     logger.info("Starting SmartGovAI server...")
+    
+    # Start semantic indexing in the background
+    threading.Thread(target=index_schemes, daemon=True).start()
+    
     app.run(debug=DEBUG_MODE, host=SERVER_HOST, port=SERVER_PORT)

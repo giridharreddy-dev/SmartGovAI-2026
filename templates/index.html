@@ -68,7 +68,7 @@
     </section>
 
     <!-- Symptom Finder Entry Banner -->
-    <div id="symptomEntryBanner" class="symptom-entry-banner" role="button" tabindex="0">
+    <div id="symptomEntryBanner" class="symptom-entry-banner" role="button" tabindex="0" style="display: none;">
         <div class="symptom-entry-content">
             <span class="symptom-icon">🩺</span>
             <div>
@@ -80,7 +80,7 @@
     </div>
 
     <!-- AI Chat Entry Banner -->
-    <div id="chatEntryBanner" class="chat-entry-banner" role="button" tabindex="0">
+    <div id="chatEntryBanner" class="chat-entry-banner" role="button" tabindex="0" style="display: none;">
         <div class="chat-entry-content">
             <span class="chat-icon">🤖</span>
             <div>
@@ -90,6 +90,14 @@
         </div>
         <button class="primary-btn" data-action="open-chat" data-i18n="chatBtn">AI సహాయం</button>
     </div>
+    <div id="modalBackdrop" class="modal-backdrop" data-action="close-modal"></div>
+    <aside id="resultArea" class="result-panel" aria-live="polite">
+        <div class="empty-state">
+            <span class="empty-icon" aria-hidden="true">👈</span>
+            <h2 data-i18n="emptyStateTitle">పథకాన్ని ఎంచుకోండి</h2>
+            <p data-i18n="emptyStateDesc">పూర్తి వివరాలు చూడటానికి ఎడమవైపు ఉన్న జాబితా నుండి ఒక పథకాన్ని ఎంచుకోండి.</p>
+        </div>
+    </aside>
 
     <div class="main-grid">
         <section id="leftColumnMain">
@@ -236,8 +244,11 @@
             <!-- Dynamic Content -->
         </div>
         <div class="guided-footer">
-            <button type="button" id="guidedPrevBtn" class="guided-nav-btn secondary-btn" data-action="guided-prev">← వెనుకకు</button>
-            <button type="button" id="guidedNextBtn" class="guided-nav-btn primary-btn" data-action="guided-next">తర్వాత →</button>
+            <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 10px;">
+                <button type="button" id="guidedPrevBtn" class="guided-nav-btn secondary-btn" data-action="guided-prev" style="flex:1;">← వెనుకకు</button>
+                <button type="button" id="guidedNextBtn" class="guided-nav-btn primary-btn" data-action="guided-next" style="flex:1;">తర్వాత →</button>
+            </div>
+            <button type="button" class="guided-nav-btn secondary-btn" data-action="guided-close" style="width: 100%; background: var(--surface-1); color: var(--ink);">✕ Close</button>
         </div>
     </div>
 </div>
@@ -309,41 +320,47 @@
         <h2 id="mapTitle" tabindex="-1" data-i18n="mapHeader">🏥 దగ్గరలోని ఆరోగ్య కేంద్రాలు</h2>
         <button type="button" class="map-close-btn" aria-label="Close" data-action="close-map">✕</button>
     </div>
-    <div class="map-filters-ui" id="mapFiltersUiFull" style="padding: 10px; background: white; border-bottom: 1px solid #ccc; max-height: 40vh; overflow-y: auto;">
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
-            <button type="button" class="secondary-btn" id="btnLocationFull" style="flex:1;" data-i18n="mapLocationBtn">📍 నా స్థానం</button>
-            <button type="button" class="secondary-btn" id="btnModeFull" style="flex:1;" data-i18n="mapViewAllBtn">🗺️ మొత్తం AP</button>
+    <div style="position: relative; flex: 1; display: flex; flex-direction: column;">
+        <!-- The Map -->
+        <div id="fullScreenMap" class="map-container" style="flex: 1; width: 100%; z-index: 1;"></div>
+        
+        <!-- Floating Glassmorphism Filters -->
+        <div class="map-filters-ui" id="mapFiltersUiFull" style="position: absolute; top: 12px; left: 12px; right: 12px; max-width: 360px; z-index: 10000; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); padding: 16px; max-height: calc(100vh - 100px); overflow-y: auto;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+                <button type="button" class="primary-btn" id="btnLocationFull" style="flex:1; border-radius: 8px;" data-i18n="mapLocationBtn">📍 నా స్థానం</button>
+                <button type="button" class="secondary-btn" id="btnModeFull" style="flex:1; border-radius: 8px;" data-i18n="mapViewAllBtn">🗺️ మొత్తం AP</button>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <input type="text" id="searchInputFull" class="map-select" placeholder="🔍 వెతకండి..." data-i18n-placeholder="mapSearchPlaceholder" style="width:100%; box-sizing: border-box; border-radius: 8px; border: 1px solid #ddd; padding: 10px;">
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                <div style="flex: 1 1 45%;">
+                    <label for="typeSelectFull" style="font-size: 0.85rem; font-weight: 600; color: var(--ink);" data-i18n="mapType">రకం:</label>
+                    <select id="typeSelectFull" class="map-select" style="width:100%; border-radius: 8px;">
+                        <option value="all" data-i18n="mapTypeAll">అన్నీ</option>
+                        <option value="PHC" data-i18n="mapTypePhc">PHC</option>
+                        <option value="CHC" data-i18n="mapTypeChc">CHC</option>
+                        <option value="Hospital" data-i18n="mapTypeHospital">Hospital</option>
+                    </select>
+                </div>
+                <div style="flex: 1 1 45%;">
+                    <label for="districtSelectFull" style="font-size: 0.85rem; font-weight: 600; color: var(--ink);" data-i18n="mapDistrict">జిల్లా:</label>
+                    <select id="districtSelectFull" class="map-select" style="width:100%; border-radius: 8px;"><option value="">-- ఎంచుకోండి --</option></select>
+                </div>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <div style="flex: 1 1 45%;">
+                    <label for="mandalSelectFull" style="font-size: 0.85rem; font-weight: 600; color: var(--ink);" data-i18n="mapMandal">మండలం:</label>
+                    <select id="mandalSelectFull" class="map-select" style="width:100%; border-radius: 8px;" disabled><option value="">-- ఎంచుకోండి --</option></select>
+                </div>
+                <div style="flex: 1 1 45%;">
+                    <label for="villageSelectFull" style="font-size: 0.85rem; font-weight: 600; color: var(--ink);" data-i18n="mapVillage">గ్రామం:</label>
+                    <select id="villageSelectFull" class="map-select" style="width:100%; border-radius: 8px;" disabled><option value="">-- ఎంచుకోండి --</option></select>
+                </div>
+            </div>
+            <div id="searchResultsFull" style="margin-top: 12px; font-weight: bold; color: var(--primary); text-align: center;"></div>
         </div>
-        <div style="margin-bottom: 8px;">
-            <input type="text" id="searchInputFull" class="map-select" placeholder="🔍 వెతకండి..." style="width:100%; box-sizing: border-box;">
-        </div>
-        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <div style="flex: 1 1 45%;">
-                <label for="typeSelectFull" style="font-size: 0.85rem;" data-i18n="mapType">రకం:</label>
-                <select id="typeSelectFull" class="map-select" style="width:100%;">
-                    <option value="all">అన్నీ</option>
-                    <option value="PHC">PHC</option>
-                    <option value="CHC">CHC</option>
-                    <option value="Hospital">Hospital</option>
-                    <option value="none">కేవలం మ్యాప్</option>
-                </select>
-            </div>
-            <div style="flex: 1 1 45%;">
-                <label for="districtSelectFull" style="font-size: 0.85rem;" data-i18n="mapDistrict">జిల్లా:</label>
-                <select id="districtSelectFull" class="map-select" style="width:100%;"><option value="">-- ఎంచుకోండి --</option></select>
-            </div>
-            <div style="flex: 1 1 45%;">
-                <label for="mandalSelectFull" style="font-size: 0.85rem;" data-i18n="mapMandal">మండలం:</label>
-                <select id="mandalSelectFull" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
-            </div>
-            <div style="flex: 1 1 45%;">
-                <label for="villageSelectFull" style="font-size: 0.85rem;" data-i18n="mapVillage">గ్రామం:</label>
-                <select id="villageSelectFull" class="map-select" style="width:100%;" disabled><option value="">-- ఎంచుకోండి --</option></select>
-            </div>
-        </div>
-        <div id="searchResultsFull" style="margin-top: 8px; font-weight: bold; color: var(--primary);"></div>
     </div>
-    <div id="fullScreenMap" class="map-container"></div>
 </div>
 
 <!-- Scripts Loading -->
@@ -377,35 +394,11 @@
     let currentSchemeData = null;
     let deferredInstallPrompt = null;
 
-    // Pre-compute lowercase search haystacks once on load to optimize performance
-    const searchHaystacks = {};
-    for (const name of schemeNames) {
-        searchHaystacks[name] = haystackFor(name, schemesCatalog[name]);
-    }
-
-    function haystackFor(name, data) {
-        return [
-            name,
-            data.telugu_name || '',
-            data.category || '',
-            data.level || '',
-            data.english_description || '',
-            data.telugu_description || '',
-            ...(data.keywords || [])
-        ].join(' ').toLowerCase();
-    }
-
-    function matchesFilter(data) {
-        if (activeFilter === 'all') return true;
-        if (activeFilter === 'ap') return data.level === 'Andhra Pradesh';
-        return data.level === 'National';
-    }
-
     let lastQuery = '';
     let lastFilter = null;
     let lastLang = null;
 
-    function renderSchemeCards(force = false) {
+    async function renderSchemeCards(force = false) {
         const rawQuery = document.getElementById('searchInput').value.trim();
         const query = rawQuery.toLowerCase();
         const currentLang = window.getLang ? window.getLang() : 'te';
@@ -420,12 +413,46 @@
 
         const grid = document.getElementById('schemeGrid');
         if (!grid) return;
+        
+        if (!window.SmartGovSearch) return; // Wait until loaded
 
-        const matches = schemeNames.filter(name => {
-            const data = schemesCatalog[name];
-            const haystack = searchHaystacks[name];
-            return matchesFilter(data) && (!query || haystack.includes(query));
-        });
+        const matches = window.SmartGovSearch.searchSchemes({
+            query: query,
+            filter: activeFilter
+        }, schemesCatalog);
+
+        if (!matches.length && query.length > 2) {
+            const aiLoadingMsg = isEn ? '✨ AI Semantic Search...' : '✨ AI శోధన జరుగుతోంది...';
+            grid.innerHTML = `<div class="loading" style="grid-column: 1/-1; text-align: center;">${aiLoadingMsg}</div>`;
+            try {
+                const res = await fetch(`/api/semantic-search?q=${encodeURIComponent(query)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.results && data.results.length > 0) {
+                        // Filter out schemes that don't exist in our catalog (or mismatch due to category filters)
+                        const matchedNames = data.results.map(r => r.scheme_name).filter(name => {
+                            if (!schemesCatalog[name]) return false;
+                            if (activeFilter && activeFilter !== 'all') {
+                                return schemesCatalog[name].level === activeFilter;
+                            }
+                            return true;
+                        });
+                        
+                        if (matchedNames.length > 0) {
+                            const aiHeaderMsg = isEn ? '✨ AI Suggested Matches' : '✨ AI సూచించిన పథకాలు';
+                            grid.innerHTML = `<div style="grid-column: 1 / -1; font-size: 0.95rem; color: var(--green); margin-bottom: 10px; font-weight: bold;">${aiHeaderMsg}</div>` + matchedNames.map(name => {
+                                const s = schemesCatalog[name] || {};
+                                const isFavorite = window.SmartGovUX ? window.SmartGovUX.isFavorite(name) : false;
+                                return window.SmartGovSearch.renderSchemeCardHTML(name, s, isEn, isFavorite);
+                            }).join('');
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Semantic search failed", e);
+            }
+        }
 
         if (!matches.length) {
             const emptyTitle = window.t ? window.t('emptyResultsTitle') : 'ఫలితాలు లేవు';
@@ -436,54 +463,57 @@
 
         grid.innerHTML = matches.map(name => {
             const data = schemesCatalog[name] || {};
-            const levelClass = data.level === 'Andhra Pradesh' ? 'ap' : '';
-            const levelLabel = window.SmartGovI18n ? window.SmartGovI18n.translateLevel(data.level) : (data.level === 'Andhra Pradesh' ? 'AP' : 'National');
-            const categoryLabel = window.SmartGovI18n ? window.SmartGovI18n.translateCategory(data.category) : (data.category || '');
             const isFavorite = window.SmartGovUX ? window.SmartGovUX.isFavorite(name) : false;
-            const primaryTitle = isEn ? name : (data.telugu_name || name);
-            const secondaryTitle = isEn ? categoryLabel : name;
-            const favTitle = window.t ? window.t('favoriteBtnTitle') : 'Favorite';
-
-            return `
-                <button class="scheme-card" type="button" data-action="open-scheme" data-scheme="${window.escapeHtml(name)}">
-                    <div class="favorite-btn ${isFavorite ? 'active' : ''}" data-scheme="${window.escapeHtml(name)}" title="${favTitle}" aria-label="Toggle favorite" tabindex="0">
-                        ${isFavorite ? '★' : '☆'}
-                    </div>
-                    <span class="card-top">
-                        <span class="card-icon" aria-hidden="true">${iconMap[data.icon] || '➕'}</span>
-                        <span class="level-badge ${levelClass}">${levelLabel}</span>
-                    </span>
-                    <h2>${window.escapeHtml(primaryTitle)}</h2>
-                    <p>${window.escapeHtml(secondaryTitle)}</p>
-                    <span class="category">${window.escapeHtml(categoryLabel)}</span>
-                </button>
-            `;
+            return window.SmartGovSearch.renderSchemeCardHTML(name, data, isEn, isFavorite);
         }).join('');
     }
 
     function showLoading(message) {
         const loadingMsg = message || (window.t ? window.t('loadingDetails') : 'వివరాలు తెస్తున్నాం...');
-        document.getElementById('resultArea').innerHTML = `<div class="loading">${window.escapeHtml(loadingMsg)}</div>`;
+        const resultArea = document.getElementById('resultArea');
+        resultArea.innerHTML = `<div class="loading">${window.escapeHtml(loadingMsg)}</div>`;
+        resultArea.classList.add('active');
+        document.getElementById('modalBackdrop').classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
 
     function showError(message) {
-        document.getElementById('resultArea').innerHTML = `
+        const resultArea = document.getElementById('resultArea');
+        resultArea.innerHTML = `
+            <div class="result-head" style="position:relative;">
+                <button class="close-modal-btn" data-action="close-modal" style="position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.1); border:none; color:white; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:1.2rem; display:flex; align-items:center; justify-content:center;">✕</button>
+                <h2>⚠️ Error</h2>
+            </div>
             <div class="result-inner">
-                <p class="error">${window.escapeHtml(message)}</p>
+                <p class="error" style="color:var(--error);">${window.escapeHtml(message)}</p>
             </div>
         `;
+        resultArea.classList.add('active');
+        document.getElementById('modalBackdrop').classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
 
+
+
     function resultCard(title, text) {
+        if (!text || text.trim() === '' || text.includes('No description provided') || text.includes('దయచేసి అధికారిక')) return '';
+        
         return `
-            <article class="info-card">
-                <h3>${window.escapeHtml(title)}</h3>
-                <p>${window.escapeHtml(text)}</p>
-            </article>
+            <details class="info-card" open style="margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: #fafafa; cursor: pointer;">
+                <summary style="font-weight: 700; color: var(--green-dark); font-size: 1.05rem;">
+                    ${window.escapeHtml(title)}
+                </summary>
+                <div style="margin-top: 8px; color: var(--ink); font-size: 0.95rem; line-height: 1.5;">
+                    ${window.escapeHtml(text)}
+                </div>
+            </details>
         `;
     }
 
     function displayResult(data) {
+        document.getElementById('resultArea').classList.add('active');
+        document.getElementById('modalBackdrop').classList.add('active');
+        document.body.style.overflow = 'hidden';
         if (data.error) {
             showError(data.error);
             return;
@@ -554,7 +584,8 @@
         const stepTitle = window.t ? window.t('stepsTitle') : 'దరఖాస్తు విధానం';
 
         document.getElementById('resultArea').innerHTML = `
-            <div class="result-head">
+            <div class="result-head" style="position:relative; padding-right:50px;">
+                <button class="close-modal-btn" data-action="close-modal" style="position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.2); border:none; color:white; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:1.2rem; display:flex; align-items:center; justify-content:center; transition:background 0.2s;">✕</button>
                 <h2 style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">${window.escapeHtml(mainTitle)} ${aiBadge}</h2>
                 ${subTitle ? `<p style="font-size:0.95rem;color:var(--muted);">${window.escapeHtml(subTitle)}</p>` : ''}
                 <p>${window.escapeHtml(levelLabel)} • ${window.escapeHtml(categoryLabel)}</p>
@@ -590,16 +621,18 @@
                             <button class="feedback-btn good open-feedback-btn" type="button">${window.t ? window.t('feedbackGood') : '👍 ఇష్టమైనది'}</button>
                             <button class="feedback-btn" type="button" data-rating="2">${window.t ? window.t('feedbackImprove') : '👎 మెరుగుపర్చండి'}</button>
                         </div>
-                        <div id="feedbackStatus" class="feedback-status"></div>
+                        <div id="resultFeedbackStatus" class="feedback-status"></div>
                     </div>
+                    
+                    <button type="button" class="primary-btn close-modal-btn" data-action="close-modal" style="width:100%; margin-top:20px; padding:12px; background:var(--ink); color:white; font-size:1.05rem; border-radius:8px;">
+                        ${window.t ? window.t('closeBtn') : 'Close Details ✕'}
+                    </button>
                 </div>
             </div>
         `;
 
-        document.querySelectorAll('.feedback-btn[data-rating]').forEach(button => {
-            button.addEventListener('click', () => sendFeedback(button.dataset.rating));
-        });
-
+        // We removed the inline event listeners for feedback-btn[data-rating] here.
+        // It is now handled in static/enhanced-features.js using event delegation.
         restoreEligibilityAnswers();
         restoreDocumentChecks();
 
@@ -666,7 +699,7 @@
 
     async function sendFeedback(rating) {
         if (!currentRequestId) return;
-        const status = document.getElementById('feedbackStatus');
+        const status = document.getElementById('resultFeedbackStatus');
         status.textContent = window.t ? window.t('feedbackSaving') : 'సేవ్ చేస్తున్నాం...';
         try {
             const data = await safeFetch("{{ url_for('feedback') }}", {
@@ -812,17 +845,25 @@
             return;
         }
 
-        voiceBtn.addEventListener('click', () => {
+        voiceBtn.addEventListener('click', async () => {
             status.textContent = window.t ? window.t('voiceListening') : 'వింటున్నాం... మాట్లాడండి';
             voiceBtn.disabled = true;
             try {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    await navigator.mediaDevices.getUserMedia({ audio: true });
+                }
                 if (recognition) {
                     recognition.lang = window.getLang && window.getLang() === 'en' ? 'en-IN' : 'te-IN';
                 }
                 recognition.start();
-            } catch (_error) {
+            } catch (error) {
                 voiceBtn.disabled = false;
-                status.textContent = window.t ? window.t('voiceStartError') : 'మైక్ ప్రారంభం కాలేదు. మళ్లీ ప్రయత్నించండి.';
+                let errCode = 'unknown';
+                if (error.name === 'NotAllowedError' || error.name === 'SecurityError') {
+                    errCode = 'not-allowed';
+                }
+                const localizedMsg = window.SmartGovI18n ? window.SmartGovI18n.getLocalizedMicError(errCode) : (window.getLang && window.getLang() === 'en' ? `Microphone error: ${errCode}` : `మైక్ లోపం: ${errCode}`);
+                status.textContent = localizedMsg;
             }
         });
 
