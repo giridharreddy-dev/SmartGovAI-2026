@@ -224,13 +224,11 @@ def test_template_staff_tools_and_voice_elements(client):
 
 def test_scheme_cards_subtitle_has_no_telugu_leakage():
     """Verify that in English mode, scheme cards use English category and not Telugu subtitles."""
-    template_path = Path(__file__).resolve().parent.parent / "templates" / "index.html"
-    template = template_path.read_text(encoding="utf-8")
+    js_content = (Path(__file__).resolve().parent.parent / "static" / "enhanced-features.js").read_text(encoding="utf-8")
 
     # The card rendering logic must set secondaryTitle to categoryLabel when isEn is true
-    assert "const secondaryTitle = isEn ? categoryLabel : name;" in template
-    assert "const mainTitle = isEn ? (data.scheme_name || '') : (scheme.telugu_name || data.scheme_name || '');" in template
-    assert "const subTitle = isEn ? (categoryLabel || '') : (data.scheme_name || '');" in template
+    assert "const secondaryTitle = isEn ? categoryLabel : name;" in js_content
+    assert "const primaryTitle = isEn ? name : (data.telugu_name || name);" in js_content
 
 
 def test_microphone_not_allowed_error_mapping():

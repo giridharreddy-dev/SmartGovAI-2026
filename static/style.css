@@ -62,6 +62,7 @@ html {
 body {
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
     background: var(--bg);
     color: var(--ink);
     font-family: "Noto Sans Telugu", "Nirmala UI", "Segoe UI", Arial, sans-serif;
@@ -369,15 +370,16 @@ h1 {
 
 .main-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+    grid-template-columns: 1fr;
     gap: 14px;
     align-items: start;
 }
 
+
 .scheme-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 10px;
+    grid-template-columns: 1fr;
+    gap: 16px;
 }
 
 .scheme-card {
@@ -387,28 +389,26 @@ h1 {
     text-align: left;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 16px;
+    padding: 24px;
     text-decoration: none;
     color: var(--ink);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease, border-color 0.2s;
     height: 100%;
 }
 
 .favorite-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
+    position: relative;
     background: var(--surface-soft);
     border: 1px solid var(--border);
     border-radius: 50%;
-    width: 48px;
-    height: 48px;
+    width: 32px;
+    height: 32px;
     display: grid;
     place-items: center;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1rem;
     color: var(--muted);
     z-index: 2;
     transition: color 0.2s, transform 0.2s;
@@ -426,6 +426,8 @@ h1 {
 .scheme-card:hover {
     outline: 3px solid rgba(23, 107, 91, 0.22);
     border-color: var(--green);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(23, 107, 91, 0.12);
 }
 
 .card-top {
@@ -436,13 +438,13 @@ h1 {
 }
 
 .card-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
     background: var(--surface-soft);
     display: grid;
     place-items: center;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
 }
 
 .level-badge {
@@ -471,17 +473,21 @@ h1 {
     }
 
     .scheme-card h2 {
-    margin: 0;
+    margin: 0 0 8px 0;
     color: var(--green-dark);
-    font-size: 1.08rem;
-    line-height: 1.25;
+    font-size: 1.15rem;
+    line-height: 1.35;
     letter-spacing: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
 }
 
 .scheme-card p {
-    margin: 0;
+    margin: 0 0 12px 0;
     color: var(--muted);
-    font-size: 0.86rem;
+    font-size: 0.92rem;
+    line-height: 1.4;
 }
 
 .scheme-card .category {
@@ -499,10 +505,35 @@ h1 {
     box-shadow: var(--shadow);
 }
 
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+}
+
+.modal-backdrop.active {
+    display: block;
+}
+
 .result-panel {
-    position: sticky;
-    top: 12px;
-    overflow: hidden;
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92%;
+    max-width: 600px;
+    height: 90vh;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.result-panel.active {
+    display: block;
 }
 
 .result-inner {
@@ -1112,6 +1143,7 @@ audio {
 
 .guided-footer {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     gap: 1rem;
     margin-top: 1rem;
@@ -1602,7 +1634,7 @@ audio {
 .chat-input-area {
     display: flex;
     gap: 8px;
-    padding: 12px 16px;
+    padding: 12px 16px max(12px, env(safe-area-inset-bottom)) 16px;
     border-top: 1px solid var(--border);
     background: var(--bg);
 }
@@ -1716,6 +1748,8 @@ audio {
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
 }
 
 .map-close-btn:hover {
@@ -1757,17 +1791,25 @@ body { overflow-wrap: break-word; word-wrap: break-word; }
     min-width: 0;
 }
 
-@media (max-width: 860px) {
-    .main-grid {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 1023px) {
     .result-panel {
-        position: static;
-        margin-top: 20px;
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        max-width: 100%;
+        border-radius: 0;
     }
     .emergency-strip {
         grid-template-columns: repeat(3, 1fr);
         gap: 8px;
+    }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+    .chat-container, .map-modal, .feedback-modal, .guided-content-wrapper {
+        max-height: 100vh;
+        max-height: 100dvh;
+        overflow-y: auto;
     }
 }
 
@@ -1827,14 +1869,15 @@ body { overflow-wrap: break-word; word-wrap: break-word; }
     /* Scheme Cards */
     .scheme-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
     .scheme-card {
         min-height: auto;
-        padding: 16px;
+        padding: 20px;
     }
     .scheme-card h2 {
-        font-size: 1.15rem;
-        padding-right: 56px; /* Space for favorite button */
+        font-size: 1.20rem;
+        padding-right: 48px; /* Space for favorite button */
     }
     .scheme-card p {
         font-size: 0.95rem;
@@ -1848,9 +1891,7 @@ body { overflow-wrap: break-word; word-wrap: break-word; }
         align-items: flex-start;
     }
     .favorite-btn {
-        position: absolute;
-        top: 12px;
-        right: 12px;
+        position: relative;
         background: rgba(255, 255, 255, 0.8);
     }
     

@@ -11,7 +11,7 @@
  */
 
 // ==================== HTML Utilities ====================
-window.escapeHtml = function(value) {
+window.escapeHtml = function (value) {
     const map = {
         '&': '&amp;',
         '<': '&lt;',
@@ -19,8 +19,133 @@ window.escapeHtml = function(value) {
         '"': '&quot;',
         "'": '&#39;'
     };
-    return String(value || '').replace(/[&<>"']/g, char => map[char]);
+    if (typeof value !== 'string') return '';
+    return value.replace(/[&<>"']/g, m => map[m]);
 };
+
+window.SmartGovSearch = (function () {
+    const iconMap = {
+        hospital: '🏥',
+        ambulance: '🚑',
+        'mobile-clinic': '🩺',
+        shield: '🛡',
+        clinic: '➕',
+        'phone-doctor': '📱',
+        'mother-child': '🤱',
+        pregnancy: '🤰',
+        vaccine: '💉',
+        child: '🧒',
+        kidney: '🧬',
+        nutrition: '🥣'
+    };
+
+    let searchHaystacks = {};
+    let initialized = false;
+
+    function initHaystacks(schemesCatalog) {
+        if (initialized) return;
+        for (const [name, data] of Object.entries(schemesCatalog)) {
+            searchHaystacks[name] = [
+                name,
+                data.telugu_name || '',
+                data.category || '',
+                data.level || '',
+                data.english_description || '',
+                data.telugu_description || '',
+                ...(data.keywords || [])
+            ].join(' ').toLowerCase();
+        }
+        initialized = true;
+    }
+
+    function searchSchemes({ query, filter, category, keywords }, schemesCatalog) {
+        if (!schemesCatalog) return [];
+        initHaystacks(schemesCatalog);
+
+        const q = (query || '').trim().toLowerCase();
+
+        return Object.keys(schemesCatalog).filter(name => {
+            const data = schemesCatalog[name];
+
+            // Apply level filter
+            if (filter && filter !== 'all') {
+                const levelMatch = (filter === 'ap') ? (data.level === 'Andhra Pradesh') : (data.level === 'National');
+                if (!levelMatch) return false;
+            }
+
+            // Apply category mapping (symptom finder)
+            if (category || keywords) {
+                let catMatched = false;
+                if (category) {
+                    if (Array.isArray(category) && category.includes(data.category)) {
+                        catMatched = true;
+                    } else if (data.category === category) {
+                        catMatched = true;
+                    }
+                }
+                if (!catMatched && keywords && keywords.length > 0) {
+                    const schemeKeywords = (data.keywords || []).map(k => k.toLowerCase());
+                    catMatched = keywords.some(kw => schemeKeywords.includes(kw.toLowerCase()));
+                }
+                if (!catMatched) return false;
+            }
+
+            // Apply text query
+            if (q) {
+                const haystack = searchHaystacks[name];
+                if (!haystack.includes(q)) return false;
+            }
+
+            return true;
+        });
+    }
+
+    function renderSchemeCardHTML(name, data, isEn, isFavorite) {
+        const levelClass = data.level === 'Andhra Pradesh' ? 'ap' : '';
+        const levelLabel = window.SmartGovI18n ? window.SmartGovI18n.translateLevel(data.level) : (data.level === 'Andhra Pradesh' ? 'AP' : 'National');
+        const categoryLabel = window.SmartGovI18n ? window.SmartGovI18n.translateCategory(data.category) : (data.category || '');
+        const primaryTitle = isEn ? name : (data.telugu_name || name);
+        const secondaryTitle = isEn ? categoryLabel : name;
+        const favTitle = window.t ? window.t('favoriteBtnTitle') : 'Favorite';
+        const icon = iconMap[data.icon] || '➕';
+        const desc = data.description || '';
+
+        return `
+            <div class="scheme-card" data-scheme="${window.escapeHtml(name)}">
+                <div style="cursor: pointer;" data-action="toggle-desc">
+                    <span class="card-top" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="display: flex; align-items: center; gap: 8px;">
+                            <span class="card-icon" aria-hidden="true">${icon}</span>
+                            <span class="level-badge ${levelClass}">${levelLabel}</span>
+                        </span>
+                        <div class="favorite-btn ${isFavorite ? 'active' : ''}" data-scheme="${window.escapeHtml(name)}" title="${favTitle}" aria-label="Toggle favorite" tabindex="0">
+                            ${isFavorite ? '★' : '☆'}
+                        </div>
+                    </span>
+                    <h2>${window.escapeHtml(primaryTitle)}</h2>
+                    <p>${window.escapeHtml(secondaryTitle)}</p>
+                    <span class="category">${window.escapeHtml(categoryLabel)}</span>
+                </div>
+                
+                <div class="scheme-desc-panel" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; position: relative;">
+                    <button type="button" class="close-desc-btn" data-action="toggle-desc" style="position: absolute; top: 12px; right: 0px; background: rgba(0,0,0,0.05); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--muted);">✕</button>
+                    <div style="padding-top: 16px; margin-top: 12px; border-top: 1px solid var(--border); padding-right: 32px;">
+                        <p style="font-size: 0.95rem; color: var(--ink); margin-bottom: 16px; line-height: 1.5;">${window.escapeHtml(desc)}</p>
+                        <button type="button" class="primary-btn" data-action="open-scheme" data-scheme="${window.escapeHtml(name)}" style="width: 100%; padding: 10px; border-radius: 8px;">
+                            ${window.t ? window.t('startGuidedModeBtn') : 'View Full Details'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    return {
+        iconMap,
+        searchSchemes,
+        renderSchemeCardHTML
+    };
+})();
 
 // CSRF Header Helper
 function getCsrfHeader() {
@@ -118,7 +243,7 @@ function buildEligibilityChecker(scheme) {
     questions.forEach((q, idx) => {
         // Namespaced keys with fallback compatibility for existing users
         const saved = localStorage.getItem(`eligibility_${window.currentSchemeName}_q${idx}`) ||
-                      localStorage.getItem(`eligibility_q${idx}`) || '';
+            localStorage.getItem(`eligibility_q${idx}`) || '';
         const yesClass = saved === 'yes' ? 'yes' : '';
         const noClass = saved === 'no' ? 'no' : '';
         const qText = isEn ? (q.question_en || q.question_te || q.question || '') : (q.question_te || q.question_en || q.question || '');
@@ -384,7 +509,7 @@ function buildTrustInfo(scheme) {
     const isEn = window.getLang && window.getLang() === 'en';
     const lastUpdated = scheme.last_updated || (isEn ? 'Not specified' : 'తెలియదు');
     const confirmationSource = scheme.eligibility_confirmation || (isEn ? 'Government office / Empanelled hospital' : 'ప్రభుత్వ కార్యాలయం / ఆసుపత్రి');
-    const officialWebsite = scheme.official_website || '#';
+    const officialWebsite = scheme.official_website || scheme.source_url || '#';
 
     const title = isEn ? '🔒 Trust & Transparency' : '🔒 విశ్వాస సమాచారం';
     const updatedLabel = isEn ? '📅 Last Updated:' : '📅 చివరిగా నవీకరించిన:';
@@ -397,7 +522,8 @@ function buildTrustInfo(scheme) {
             <strong>${title}</strong><br>
             ${updatedLabel} ${window.escapeHtml(lastUpdated)}<br>
             ${verifyLabel} ${window.escapeHtml(confirmationSource)}<br>
-            ${siteLabel} <a class="source-link" href="${window.escapeHtml(officialWebsite)}" target="_blank" rel="noopener noreferrer">${visitText}</a>
+            
+            ${siteLabel} <a class="source-link" href="${window.escapeHtml(officialWebsite)}" target="" rel="noopener noreferrer">${visitText}</a>
         </div>
     `;
 }
@@ -507,9 +633,9 @@ async function shareOnWhatsApp(schemeName) {
                 ...getCsrfHeader()
             },
             body: JSON.stringify({ scheme_name: schemeName })
-        }).catch(() => {});
+        }).catch(() => { });
 
-        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+        window.open(`https://wa.me/?text=${encodedMessage}`);
     } catch (error) {
         console.error('WhatsApp share error:', error);
         alert(isEn ? `Error: ${error.message}` : `లోపం: ${error.message}`);
@@ -911,6 +1037,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Inline Feedback
+            const inlineFeedbackBtn = target.closest('.feedback-btn[data-rating]');
+            if (inlineFeedbackBtn) {
+                if (typeof window.sendFeedback === 'function') {
+                    window.sendFeedback(inlineFeedbackBtn.dataset.rating);
+                }
+                return;
+            }
+
             // Yes/No Eligibility Buttons
             const yesNoBtn = target.closest('.yes-no-btn');
             if (yesNoBtn) {
@@ -957,7 +1092,7 @@ window.SmartGovEnhanced = {
 
 // ==================== UX Enhancements (Tier 1) ====================
 
-const SmartGovUX = (function() {
+const SmartGovUX = (function () {
     // Keys
     const KEYS = {
         FONT_SIZE: 'app_font_size',
@@ -972,14 +1107,14 @@ const SmartGovUX = (function() {
             try {
                 const val = localStorage.getItem(key);
                 return val ? JSON.parse(val) : def;
-            } catch(e) {
+            } catch (e) {
                 return def;
             }
         },
         set: (key, val) => {
             try {
                 localStorage.setItem(key, JSON.stringify(val));
-            } catch(e) {}
+            } catch (e) { }
         }
     };
 
@@ -1234,37 +1369,20 @@ const SmartGovUX = (function() {
         document.getElementById('symptomResultTitle').textContent = isEn ? mapping.title_en : mapping.title_te;
 
         const catalog = window.schemesCatalog || {};
-        const matchedSchemes = [];
 
-        for (const [schemeId, data] of Object.entries(catalog)) {
-            let matched = false;
-
-            // Priority 1: Exact scheme category match
-            if (mapping.categories.includes(data.category)) {
-                matched = true;
-            }
-
-            // Priority 2: Keyword match
-            if (!matched && mapping.keywords.length > 0) {
-                const schemeKeywords = (data.keywords || []).map(k => k.toLowerCase());
-                for (const kw of mapping.keywords) {
-                    if (schemeKeywords.includes(kw.toLowerCase())) {
-                        matched = true;
-                        break;
-                    }
-                }
-            }
-
-            if (matched) {
-                matchedSchemes.push({ id: schemeId, data });
-            }
+        let matchedNames = [];
+        if (window.SmartGovSearch) {
+            matchedNames = window.SmartGovSearch.searchSchemes({
+                category: mapping.categories,
+                keywords: mapping.keywords
+            }, catalog);
         }
 
         const grid = document.getElementById('symptomSchemeGrid');
         const emptyState = document.getElementById('symptomNoResults');
         const countHeader = document.getElementById('symptomResultCount');
 
-        if (matchedSchemes.length === 0) {
+        if (matchedNames.length === 0) {
             grid.innerHTML = '';
             grid.style.display = 'none';
             emptyState.style.display = 'block';
@@ -1272,31 +1390,11 @@ const SmartGovUX = (function() {
         } else {
             emptyState.style.display = 'none';
             grid.style.display = 'grid';
-            countHeader.textContent = isEn ? `${matchedSchemes.length} Schemes Found` : `${matchedSchemes.length} పథకాలు`;
+            countHeader.textContent = isEn ? `${matchedNames.length} Schemes Found` : `${matchedNames.length} పథకాలు`;
 
-            grid.innerHTML = matchedSchemes.map(item => {
-                const s = item.data;
-                const name = window.escapeHtml(item.id);
-                const primaryTitle = window.escapeHtml(isEn ? item.id : (s.telugu_name || item.id));
-                const subTitle = window.escapeHtml(isEn ? (window.translateCategory ? window.translateCategory(s.category) : (s.category || '')) : item.id);
-                const desc = window.escapeHtml(isEn ? (s.english_description || s.simplified?.eligibility || '') : (s.telugu_description || s.telugu?.eligibility || ''));
-
-                const iconMap = {
-                    hospital: '🏥', ambulance: '🚑', 'mobile-clinic': '🩺', shield: '🛡',
-                    clinic: '➕', 'phone-doctor': '📱', 'mother-child': '🤱', pregnancy: '🤰',
-                    vaccine: '💉', child: '🧒', kidney: '🧬', nutrition: '🥣'
-                };
-                const icon = iconMap[s.icon] || '🏥';
-                const favTitle = isEn ? 'Favorite' : 'ఇష్టమైనది';
-
-                return `
-                    <button type="button" class="scheme-card" data-action="open-scheme" data-scheme="${name}">
-                        <div class="favorite-btn ${isFavorite(item.id) ? 'active' : ''}" data-scheme="${name}" title="${favTitle}" aria-label="Favorite">⭐</div>
-                        <div class="card-icon">${icon}</div>
-                        <h2>${primaryTitle}</h2>
-                        <p>${subTitle}</p>
-                    </button>
-                `;
+            grid.innerHTML = matchedNames.map(name => {
+                const s = catalog[name];
+                return window.SmartGovSearch.renderSchemeCardHTML(name, s, isEn, isFavorite(name));
             }).join('');
         }
     }
@@ -1449,7 +1547,7 @@ const SmartGovUX = (function() {
             let websiteHtml = '';
             if (scheme.official_website) {
                 const siteLabel = isEn ? '🌐 Official Website' : '🌐 అధికారిక వెబ్‌సైట్';
-                websiteHtml = `<p style="margin-top:1rem;"><a href="${window.escapeHtml(scheme.official_website)}" target="_blank" rel="noopener noreferrer">${siteLabel}</a></p>`;
+                websiteHtml = `<p style="margin-top:1rem;"><a href="${window.escapeHtml(scheme.official_website)}">${siteLabel}</a></p>`;
             }
 
             let localHelp = '';
@@ -1459,46 +1557,10 @@ const SmartGovUX = (function() {
             }
 
             let mapHtml = `
-                <div class="inline-map-container" id="inlineMapContainer" style="margin-top: 1.5rem;">
-                    <div class="map-toolbar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <h4 style="margin:0;">📍 ${isEn ? 'Nearby Healthcare Facilities' : 'దగ్గరలోని ఆరోగ్య కేంద్రాలు'}</h4>
-                        <button class="action-btn" type="button" data-action="expand-map" style="padding: 4px 12px; min-height:36px; font-size:0.9rem;">${isEn ? 'Expand Map' : 'విస్తరించు'}</button>
-                    </div>
-                    <div class="map-filters-ui" id="mapFiltersUi" style="padding: 10px; background: var(--surface-1); border-radius: 8px; margin-bottom: 8px;">
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
-                            <button type="button" class="secondary-btn" id="btnLocation" style="flex:1; font-size: 0.85rem; min-height: 36px; padding: 4px;">📍 ${isEn ? 'My Location' : 'నా స్థానం'}</button>
-                            <button type="button" class="secondary-btn" id="btnMode" style="flex:1; font-size: 0.85rem; min-height: 36px; padding: 4px;">🗺️ ${isEn ? 'View All AP' : 'మొత్తం AP'}</button>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <input type="text" id="searchInput" class="map-select" placeholder="${isEn ? '🔍 Search name, village...' : '🔍 వెతకండి...'}" style="width:100%; box-sizing: border-box;">
-                        </div>
-                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                            <div style="flex: 1 1 45%;">
-                                <label for="typeSelect" style="font-size: 0.85rem;">${isEn ? 'Type:' : 'రకం:'}</label>
-                                <select id="typeSelect" class="map-select" style="width:100%;">
-                                    <option value="all">${isEn ? 'All' : 'అన్నీ'}</option>
-                                    <option value="PHC">PHC</option>
-                                    <option value="CHC">CHC</option>
-                                    <option value="Hospital">Hospital</option>
-                                    <option value="none">${isEn ? 'Map Only' : 'కేవలం మ్యాప్'}</option>
-                                </select>
-                            </div>
-                            <div style="flex: 1 1 45%;">
-                                <label for="districtSelect" style="font-size: 0.85rem;">${isEn ? 'District:' : 'జిల్లా:'}</label>
-                                <select id="districtSelect" class="map-select" style="width:100%;"><option value="">-- ${isEn ? 'Select' : 'ఎంచుకోండి'} --</option></select>
-                            </div>
-                            <div style="flex: 1 1 45%;">
-                                <label for="mandalSelect" style="font-size: 0.85rem;">${isEn ? 'Mandal:' : 'మండలం:'}</label>
-                                <select id="mandalSelect" class="map-select" style="width:100%;" disabled><option value="">-- ${isEn ? 'Select' : 'ఎంచుకోండి'} --</option></select>
-                            </div>
-                            <div style="flex: 1 1 45%;">
-                                <label for="villageSelect" style="font-size: 0.85rem;">${isEn ? 'Village:' : 'గ్రామం:'}</label>
-                                <select id="villageSelect" class="map-select" style="width:100%;" disabled><option value="">-- ${isEn ? 'Select' : 'ఎంచుకోండి'} --</option></select>
-                            </div>
-                        </div>
-                        <div id="searchResults" style="margin-top: 8px; font-weight: bold; color: var(--primary);"></div>
-                    </div>
-                    <div id="inlineMap" class="map-container" style="height: 250px; border-radius: 8px; z-index:1; background: #e0e0e0; border: 1px solid #ccc;"></div>
+                <div style="margin-top: 1.5rem;">
+                    <button class="primary-btn" type="button" data-action="expand-map" style="width:100%; padding: 14px; border-radius: 8px; font-size: 1.05rem; background: var(--green-dark); color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        📍 ${isEn ? 'Find Nearby Hospitals & Clinics' : 'దగ్గరలోని ఆసుపత్రులు & క్లినిక్‌లను కనుగొనండి'}
+                    </button>
                 </div>
             `;
 
@@ -1535,7 +1597,7 @@ const SmartGovUX = (function() {
         if (step === 6) {
             nextBtn.textContent = window.t ? window.t('guidedFinish') : (isEn ? 'Finish' : 'ముగించు');
             nextBtn.dataset.action = 'guided-close';
-            
+
             setTimeout(() => {
                 if (window.initInlineMap) window.initInlineMap();
             }, 50);
@@ -1571,8 +1633,17 @@ const SmartGovUX = (function() {
         initTheme();
         renderFavoritesAndRecent();
 
-        // Event delegations for new UI elements
-        document.body.addEventListener('click', e => {
+        // Event delegations
+        document.addEventListener('click', (e) => {
+            // Close scheme descriptions if clicking completely outside any scheme card
+            if (!e.target.closest('.scheme-card')) {
+                document.querySelectorAll('.scheme-desc-panel').forEach(panel => {
+                    if (panel.style.maxHeight && panel.style.maxHeight !== '0px') {
+                        panel.style.maxHeight = '0px';
+                    }
+                });
+            }
+
             const favBtn = e.target.closest('.favorite-btn');
             if (favBtn) {
                 e.stopPropagation();
@@ -1615,6 +1686,16 @@ const SmartGovUX = (function() {
             const actionTarget = e.target.closest('[data-action]');
             if (actionTarget) {
                 const action = actionTarget.dataset.action;
+                
+                if (action === 'close-modal') {
+                    const resultArea = document.getElementById('resultArea');
+                    const backdrop = document.getElementById('modalBackdrop');
+                    if (resultArea) resultArea.classList.remove('active');
+                    if (backdrop) backdrop.classList.remove('active');
+                    document.body.style.overflow = '';
+                    return;
+                }
+                
                 if (action === 'start-guided-mode') {
                     startGuidedMode();
                     return;
@@ -1637,6 +1718,16 @@ const SmartGovUX = (function() {
                 }
                 if (action === 'close-symptom-finder') {
                     closeSymptomFinder();
+                    return;
+                }
+                if (action === 'toggle-desc') {
+                    const card = actionTarget.closest('.scheme-card');
+                    const panel = card.querySelector('.scheme-desc-panel');
+                    if (panel.style.maxHeight && panel.style.maxHeight !== '0px') {
+                        panel.style.maxHeight = '0px';
+                    } else {
+                        panel.style.maxHeight = panel.scrollHeight + "px";
+                    }
                     return;
                 }
                 if (action === 'open-scheme') {
@@ -1679,7 +1770,9 @@ const SmartGovUX = (function() {
                     return;
                 }
                 if (action === 'chat-suggestion') {
-                    sendChatQuestion(actionTarget.dataset.question);
+                    const currentLang = window.getLang ? window.getLang() : 'te';
+                    const q = currentLang === 'en' ? actionTarget.dataset.questionEn : actionTarget.dataset.questionTe;
+                    sendChatQuestion(q || actionTarget.dataset.question);
                     return;
                 }
                 if (action === 'send-chat') {
@@ -1718,41 +1811,41 @@ const SmartGovUX = (function() {
         });
     });
 
-        // Expose functions globally so HTML inline handlers and app.js can call them
-        window.SmartGovUX = {
-            addRecent,
-            isFavorite,
-            openSymptomFinder,
-            closeSymptomFinder,
-            showSymptomCategories,
-            startGuidedMode,
-            exitGuidedMode,
-            renderFavoritesAndRecent,
-            toggleFavorite
-        };
+    // Expose functions globally so HTML inline handlers and app.js can call them
+    window.SmartGovUX = {
+        addRecent,
+        isFavorite,
+        openSymptomFinder,
+        closeSymptomFinder,
+        showSymptomCategories,
+        startGuidedMode,
+        exitGuidedMode,
+        renderFavoritesAndRecent,
+        toggleFavorite
+    };
 
-        // Map Module State
-        let mapFacilities = [];
-        let inlineMapObj = null;
-        let fullMapObj = null;
-        let inlineUserMarker = null;
-        let fullUserMarker = null;
-        let userLat = null;
-        let userLng = null;
-        let inlineFacilityMarkers = [];
-        let fullFacilityMarkers = [];
-        const mapState = {
-            mode: 'ANANTHAPURAMU',
-            district: 'Ananthapuramu',
-            mandal: '',
-            village: '',
-            type: 'all',
-            search: ''
-        };
+    // Map Module State
+    let mapFacilities = [];
+    let inlineMapObj = null;
+    let fullMapObj = null;
+    let inlineUserMarker = null;
+    let fullUserMarker = null;
+    let userLat = null;
+    let userLng = null;
+    let inlineFacilityMarkers = [];
+    let fullFacilityMarkers = [];
+    const mapState = {
+        mode: 'ANANTHAPURAMU',
+        district: 'Ananthapuramu',
+        mandal: '',
+        village: '',
+        type: 'all',
+        search: ''
+    };
 
-        function populateDropdowns() {
+    function populateDropdowns() {
         if (!mapFacilities || !mapFacilities.length) return;
-        
+
         let availableFacilities = mapFacilities;
         if (mapState.mode === 'ANANTHAPURAMU') {
             availableFacilities = availableFacilities.filter(f => f.district === 'Ananthapuramu');
@@ -1770,8 +1863,30 @@ const SmartGovUX = (function() {
             const el = document.getElementById(id);
             if (el) el.innerHTML = distHtml;
         });
+        
+        ['mandalSelect', 'mandalSelectFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && (!el.options.length || el.options[0].value === "")) {
+                if (el.options.length === 0) {
+                    el.innerHTML = `<option value="">${window.escapeHtml(mandalPlaceholder)}</option>`;
+                } else {
+                    el.options[0].textContent = mandalPlaceholder;
+                }
+            }
+        });
 
-        const mandals = mapState.district 
+        ['villageSelect', 'villageSelectFull'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && (!el.options.length || el.options[0].value === "")) {
+                if (el.options.length === 0) {
+                    el.innerHTML = `<option value="">${window.escapeHtml(villagePlaceholder)}</option>`;
+                } else {
+                    el.options[0].textContent = villagePlaceholder;
+                }
+            }
+        });
+
+        const mandals = mapState.district
             ? [...new Set(availableFacilities.filter(f => f.district === mapState.district).map(f => f.mandal).filter(Boolean))].sort()
             : [];
         let mandalHtml = `<option value="">${window.escapeHtml(mandalPlaceholder)}</option>`;
@@ -1855,38 +1970,38 @@ const SmartGovUX = (function() {
         if (listenersAttached) return;
         listenersAttached = true;
 
-        const handleTypeChange = (e) => { 
-            mapState.type = e.target.value; 
-            syncUiFromState(); 
-            applyFiltersAndRender(); 
+        const handleTypeChange = (e) => {
+            mapState.type = e.target.value;
+            syncUiFromState();
+            applyFiltersAndRender();
         };
-        const handleDistChange = (e) => { 
-            mapState.district = e.target.value; 
-            mapState.mandal = ''; 
-            mapState.village = ''; 
-            populateDropdowns(); 
-            syncUiFromState(); 
-            applyFiltersAndRender(); 
+        const handleDistChange = (e) => {
+            mapState.district = e.target.value;
+            mapState.mandal = '';
+            mapState.village = '';
+            populateDropdowns();
+            syncUiFromState();
+            applyFiltersAndRender();
         };
         const handleMandalChange = (e) => {
-            mapState.mandal = e.target.value; 
-            mapState.village = ''; 
-            populateDropdowns(); 
-            syncUiFromState(); 
-            applyFiltersAndRender(); 
+            mapState.mandal = e.target.value;
+            mapState.village = '';
+            populateDropdowns();
+            syncUiFromState();
+            applyFiltersAndRender();
         };
-        const handleVillageChange = (e) => { 
-            mapState.village = e.target.value; 
-            syncUiFromState(); 
-            applyFiltersAndRender(); 
+        const handleVillageChange = (e) => {
+            mapState.village = e.target.value;
+            syncUiFromState();
+            applyFiltersAndRender();
         };
-        
+
         const handleSearch = (e) => {
             mapState.search = e.target.value.toLowerCase().trim();
-            syncUiFromState(); 
-            applyFiltersAndRender(); 
+            syncUiFromState();
+            applyFiltersAndRender();
         };
-        
+
         const handleModeToggle = () => {
             if (mapState.mode === 'ANANTHAPURAMU') {
                 mapState.mode = 'AP';
@@ -1916,29 +2031,29 @@ const SmartGovUX = (function() {
                 const locationBtnText = window.t ? window.t('mapLocationBtn') : (isEn ? '📍 My Location' : '📍 నా స్థానం');
                 const yourLocText = window.t ? window.t('mapYourLocationPopup') : (isEn ? 'Your Location' : 'మీ స్థానం');
 
-                btns.forEach(b => { if(b) b.innerHTML = findingText; });
-                
+                btns.forEach(b => { if (b) b.innerHTML = findingText; });
+
                 navigator.geolocation.getCurrentPosition(
                     async (pos) => {
                         userLat = pos.coords.latitude;
                         userLng = pos.coords.longitude;
                         await loadFacilities(true);
-                        btns.forEach(b => { if(b) b.innerHTML = locationBtnText; });
-                        
+                        btns.forEach(b => { if (b) b.innerHTML = locationBtnText; });
+
                         if (inlineMapObj) {
                             if (inlineUserMarker) inlineMapObj.removeLayer(inlineUserMarker);
-                            inlineUserMarker = L.circleMarker([userLat, userLng], {radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8})
-                                                .addTo(inlineMapObj).bindPopup(`<b>${yourLocText}</b>`);
+                            inlineUserMarker = L.circleMarker([userLat, userLng], { radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8 })
+                                .addTo(inlineMapObj).bindPopup(`<b>${yourLocText}</b>`);
                         }
-                        
+
                         if (fullMapObj) {
                             if (fullUserMarker) fullMapObj.removeLayer(fullUserMarker);
-                            fullUserMarker = L.circleMarker([userLat, userLng], {radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8})
-                                              .addTo(fullMapObj).bindPopup(`<b>${yourLocText}</b>`);
+                            fullUserMarker = L.circleMarker([userLat, userLng], { radius: 8, fillColor: '#228be6', color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8 })
+                                .addTo(fullMapObj).bindPopup(`<b>${yourLocText}</b>`);
                         }
-                        
+
                         applyFiltersAndRender();
-                        
+
                         if (inlineMapObj) {
                             inlineMapObj.setView([userLat, userLng], 15);
                         }
@@ -1952,11 +2067,11 @@ const SmartGovUX = (function() {
                         if (err.code === 1) errorMsg = window.t ? window.t('mapErrDenied') : (isEn ? '❌ Location permission denied' : '❌ అనుమతి నిరాకరించబడింది');
                         else if (err.code === 2) errorMsg = window.t ? window.t('mapErrUnavailable') : (isEn ? '❌ Location unavailable' : '❌ స్థానం అందుబాటులో లేదు');
                         else if (err.code === 3) errorMsg = window.t ? window.t('mapErrTimeout') : (isEn ? '❌ Location request timed out' : '❌ సమయం ముగిసింది');
-                        
-                        btns.forEach(b => { if(b) b.innerHTML = errorMsg; });
-                        setTimeout(() => { btns.forEach(b => { if(b) b.innerHTML = locationBtnText; }); }, 3000);
+
+                        btns.forEach(b => { if (b) b.innerHTML = errorMsg; });
+                        setTimeout(() => { btns.forEach(b => { if (b) b.innerHTML = locationBtnText; }); }, 3000);
                     },
-                    { enableHighAccuracy: true, timeout: 15000 }
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
                 );
             }
         };
@@ -2014,13 +2129,13 @@ const SmartGovUX = (function() {
 
     function applyFiltersAndRender() {
         if (!mapFacilities || !mapFacilities.length) return;
-        
+
         let filtered = mapFacilities;
-        
+
         if (mapState.mode === 'ANANTHAPURAMU') {
             filtered = filtered.filter(f => f.district === 'Ananthapuramu');
         }
-        
+
         if (mapState.type !== 'all') {
             if (mapState.type === 'Hospital') {
                 filtered = filtered.filter(f =>
@@ -2036,16 +2151,16 @@ const SmartGovUX = (function() {
         }
         if (mapState.mandal) filtered = filtered.filter(f => f.mandal === mapState.mandal);
         if (mapState.village) filtered = filtered.filter(f => f.village === mapState.village);
-        
+
         if (mapState.search) {
             filtered = filtered.filter(f => {
                 return (f.name && f.name.toLowerCase().includes(mapState.search)) ||
-                       (f.village && f.village.toLowerCase().includes(mapState.search)) ||
-                       (f.mandal && f.mandal.toLowerCase().includes(mapState.search)) ||
-                       (f.district && f.district.toLowerCase().includes(mapState.search));
+                    (f.village && f.village.toLowerCase().includes(mapState.search)) ||
+                    (f.mandal && f.mandal.toLowerCase().includes(mapState.search)) ||
+                    (f.district && f.district.toLowerCase().includes(mapState.search));
             });
         }
-        
+
         const isEn = window.getLang && window.getLang() === 'en';
         const resultText = window.t ? window.t('mapFoundCount', { count: filtered.length }) : (isEn ? `Found: ${filtered.length}` : `కనుగొనబడినవి: ${filtered.length}`);
         ['searchResults', 'searchResultsFull'].forEach(id => {
@@ -2080,7 +2195,7 @@ const SmartGovUX = (function() {
         let emoji = '🏥';
         if (type === 'PHC') emoji = '🩺';
         if (type === 'CHC') emoji = '🚑';
-        
+
         return L.divIcon({
             html: `<div style="font-size:24px; text-shadow: 0 0 2px white; text-align:center;">${emoji}</div>`,
             className: 'custom-div-icon',
@@ -2093,50 +2208,50 @@ const SmartGovUX = (function() {
     function renderFacilitiesOnMap(map, facilities, markersArray) {
         markersArray.forEach(m => map.removeLayer(m));
         markersArray.length = 0;
-        
+
         let renderedCount = 0;
         let singleMarkerToOpen = null;
         const isEn = window.getLang && window.getLang() === 'en';
         const contactLabel = window.t ? window.t('mapContact') : (isEn ? 'Contact:' : 'సంప్రదించండి:');
         const distLabel = window.t ? window.t('mapDist') : (isEn ? 'Distance:' : 'దూరం:');
         const kmUnit = window.t ? window.t('mapKm') : (isEn ? 'km' : 'కి.మీ');
-        
+
         facilities.forEach(fac => {
             if (!hasValidCoordinates(fac)) return;
-            
+
             const marker = L.marker([Number(fac.lat), Number(fac.lng)], {
                 icon: getMarkerIcon(fac.type)
             }).addTo(map);
-            
+
             renderedCount++;
             singleMarkerToOpen = marker;
-            
+
             const safeName = window.escapeHtml(fac.name || '');
             const safeType = window.escapeHtml(fac.type || '');
             const safeVillage = window.escapeHtml(fac.village || '');
             const safeMandal = window.escapeHtml(fac.mandal || '');
             const safeDistrict = window.escapeHtml(fac.district || '');
             const safeContact = window.escapeHtml(fac.contact || '');
-            
+
             let popupContent = '';
             if (safeName) popupContent += `<b>${safeName}</b><br>`;
             if (safeType) popupContent += `<i>${safeType}</i><br>`;
-            
+
             let locParts = [];
             if (safeVillage) locParts.push(safeVillage);
             if (safeMandal) locParts.push(`${safeMandal} (${isEn ? 'Mandal' : 'మండలం'})`);
             if (safeDistrict) locParts.push(safeDistrict);
-            
+
             if (locParts.length > 0) popupContent += locParts.join(', ') + '<br>';
             if (safeContact) popupContent += `<b>${contactLabel}</b> ${safeContact}<br>`;
             if (fac.distance_km !== undefined && fac.distance_km !== null) {
                 popupContent += `<b>${distLabel}</b> ${fac.distance_km} ${kmUnit}<br>`;
             }
-            
+
             marker.bindPopup(popupContent);
             markersArray.push(marker);
         });
-        
+
         if (renderedCount === 1 && singleMarkerToOpen) {
             setTimeout(() => {
                 singleMarkerToOpen.openPopup();
@@ -2144,27 +2259,27 @@ const SmartGovUX = (function() {
         }
     }
 
-    window.initInlineMap = async function() {
+    window.initInlineMap = async function () {
         const container = document.getElementById('inlineMap');
         const containerWrap = document.getElementById('inlineMapContainer');
         if (!container || !containerWrap || !window.L) return;
-        
+
         containerWrap.style.display = 'block';
         setupEventListenersOnce();
-        
+
         if (inlineMapObj) {
             inlineMapObj.remove();
             inlineMapObj = null;
             inlineMarkers = [];
             inlineUserMarker = null;
         }
-        
+
         inlineMapObj = L.map('inlineMap');
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
             maxZoom: 18
         }).addTo(inlineMapObj);
-        
+
         if (userLat !== null && userLng !== null) {
             const isEn = window.getLang && window.getLang() === 'en';
             const yourLocText = window.t ? window.t('mapYourLocationPopup') : (isEn ? 'Your Location' : 'మీ స్థానం');
@@ -2179,22 +2294,22 @@ const SmartGovUX = (function() {
         applyFiltersAndRender();
     };
 
-    window.expandMap = async function() {
+    window.expandMap = async function () {
         const overlay = document.getElementById('mapOverlay');
         const mapDiv = document.getElementById('fullScreenMap');
         if (!overlay || !mapDiv || !window.L) return;
-        
+
         overlay.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
         setupEventListenersOnce();
-        
+
         if (!fullMapObj) {
             fullMapObj = L.map('fullScreenMap');
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors',
                 maxZoom: 18
             }).addTo(fullMapObj);
-            
+
             if (userLat !== null && userLng !== null) {
                 const isEn = window.getLang && window.getLang() === 'en';
                 const yourLocText = window.t ? window.t('mapYourLocationPopup') : (isEn ? 'Your Location' : 'మీ స్థానం');
@@ -2203,23 +2318,27 @@ const SmartGovUX = (function() {
                 }).addTo(fullMapObj).bindPopup(`<b>${yourLocText}</b>`);
             }
         }
-        
+
         if (inlineMapObj) {
             fullMapObj.setView(inlineMapObj.getCenter(), inlineMapObj.getZoom());
+        } else if (userLat !== null && userLng !== null) {
+            fullMapObj.setView([userLat, userLng], 10);
+        } else {
+            fullMapObj.setView([16.5062, 80.6480], 7); // Default to AP center
         }
-        
+
         setTimeout(() => fullMapObj.invalidateSize(), 300);
 
         await loadFacilities();
         applyFiltersAndRender();
     };
 
-    window.closeMapOverlay = function() {
+    window.closeMapOverlay = function () {
         const overlay = document.getElementById('mapOverlay');
         if (overlay) {
             overlay.classList.add('hidden');
             document.body.style.overflow = '';
-            
+
             if (fullMapObj && inlineMapObj) {
                 inlineMapObj.setView(fullMapObj.getCenter(), fullMapObj.getZoom());
             }
@@ -2238,6 +2357,39 @@ const SmartGovUX = (function() {
         populateDropdowns();
         syncUiFromState();
         applyFiltersAndRender();
+
+        // Force translate type options and search placeholder via JS to bypass HTML cache
+        const isEn = localStorage.getItem('lang') === 'en';
+        const typeAll = window.t ? window.t('mapTypeAll') : (isEn ? 'All Types' : 'అన్నీ');
+        const typePhc = window.t ? window.t('mapTypePhc') : 'PHC';
+        const typeChc = window.t ? window.t('mapTypeChc') : 'CHC';
+        const typeHosp = window.t ? window.t('mapTypeHospital') : (isEn ? 'Hospital' : 'ఆసుపత్రి');
+        
+        ['typeSelectFull', 'typeSelect'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.options.length >= 4) {
+                if(el.options[0].value === 'all') el.options[0].textContent = typeAll;
+                if(el.options[1].value === 'PHC') el.options[1].textContent = typePhc;
+                if(el.options[2].value === 'CHC') el.options[2].textContent = typeChc;
+                if(el.options[3].value === 'Hospital') el.options[3].textContent = typeHosp;
+            }
+        });
+
+        const searchPlaceholder = window.t ? window.t('mapSearchPlaceholder') : (isEn ? '🔍 Search name, village...' : '🔍 వెతకండి...');
+        ['searchInputFull', 'searchInput'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.placeholder = searchPlaceholder;
+        });
+    });
+
+    // Handle orientation and window resize for maps (Bug #3)
+    let mapResizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(mapResizeTimer);
+        mapResizeTimer = setTimeout(() => {
+            if (inlineMapObj) inlineMapObj.invalidateSize();
+            if (fullMapObj) fullMapObj.invalidateSize();
+        }, 300);
     });
 
     return window.SmartGovUX;

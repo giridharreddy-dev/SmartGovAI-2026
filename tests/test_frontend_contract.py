@@ -36,7 +36,7 @@ def test_scheme_lookup_uses_cached_data_when_offline():
 def test_mobile_result_panel_follows_scheme_list():
     stylesheet = (ROOT / "static" / "style.css").read_text(encoding="utf-8")
 
-    mobile_rules = stylesheet.split("@media (max-width: 860px)", 1)[1].split("@media (max-width: 560px)", 1)[0]
+    mobile_rules = stylesheet.split("@media (max-width: 1023px)", 1)[1].split("@media", 1)[0]
     assert "order: -1" not in mobile_rules
 
 
@@ -56,3 +56,18 @@ def test_frontend_does_not_call_response_json_directly():
     # Verify safeFetch is actually used by the main fetch paths
     assert "safeFetch(\"{{ url_for('simplify') }}\"" in template
     assert "safeFetch(\"{{ url_for('feedback') }}\"" in template
+
+
+def test_chat_suggestions_have_localized_attributes():
+    template = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
+    assert 'data-question-te="' in template
+    assert 'data-question-en="' in template
+
+def test_result_feedback_status_id_is_unique():
+    template = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
+    assert 'id="resultFeedbackStatus"' in template
+    assert 'id="feedbackStatus"' in template
+    
+    # Ensure they are distinct
+    assert template.count('id="feedbackStatus"') == 1
+    assert template.count('id="resultFeedbackStatus"') == 1
