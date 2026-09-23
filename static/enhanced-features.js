@@ -156,7 +156,7 @@ function getCsrfHeader() {
 // ==================== Voice/Speech Features ====================
 
 /**
- * Speak page aloud using Web Speech API with Telugu language support
+ * Speak page aloud using Web Speech API with language support based on current UI language.
  * Falls back to browser TTS if Web Speech not available
  */
 function speakPageAloud() {
@@ -169,7 +169,10 @@ function speakPageAloud() {
         // Cancel any ongoing speech
         speechSynthesis.cancel();
 
-        // Collect all Telugu text from the page
+        // Check if we are in English mode
+        const isEn = window.getLang && window.getLang() === 'en';
+
+        // Collect all text from the page
         const schemeTitle = document.querySelector('.result-head h2')?.textContent || window.currentSchemeName;
         const infoCards = Array.from(document.querySelectorAll('.info-card')).map(card => {
             const title = card.querySelector('h3')?.textContent || '';
@@ -180,13 +183,25 @@ function speakPageAloud() {
         const fullText = `${schemeTitle}. ${infoCards}`;
 
         const utterance = new SpeechSynthesisUtterance(fullText);
-        utterance.lang = 'te-IN';
+        
+        // Select appropriate locale based on UI language
+        utterance.lang = isEn ? 'en-IN' : 'te-IN';
         utterance.rate = 0.8; // Slower for rural users
         utterance.pitch = 1.0;
         utterance.volume = 1.0;
 
+        // Best-effort attempt to select an explicitly matching voice
+        const voices = speechSynthesis.getVoices();
+        if (voices.length > 0) {
+            const langPrefix = isEn ? 'en' : 'te';
+            const matchingVoice = voices.find(v => v.lang.startsWith(langPrefix));
+            if (matchingVoice) {
+                utterance.voice = matchingVoice;
+            }
+        }
+
         utterance.onstart = () => {
-            console.log('🔊 పేజీ చదువుతున్నాం...');
+            console.log(isEn ? '🔊 Reading page...' : '🔊 పేజీ చదువుతున్నాం...');
         };
 
         utterance.onerror = (event) => {
@@ -221,9 +236,21 @@ function showBrowserTTSFallback(title, text) {
 function speakText(text) {
     if ('speechSynthesis' in window) {
         speechSynthesis.cancel();
+        
+        const isEn = window.getLang && window.getLang() === 'en';
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'te-IN';
+        utterance.lang = isEn ? 'en-IN' : 'te-IN';
         utterance.rate = 0.8;
+        
+        const voices = speechSynthesis.getVoices();
+        if (voices.length > 0) {
+            const langPrefix = isEn ? 'en' : 'te';
+            const matchingVoice = voices.find(v => v.lang.startsWith(langPrefix));
+            if (matchingVoice) {
+                utterance.voice = matchingVoice;
+            }
+        }
+        
         speechSynthesis.speak(utterance);
     }
 }

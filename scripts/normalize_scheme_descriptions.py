@@ -5,6 +5,9 @@ This is intentionally data-driven: it processes every catalog JSON file rather
 than relying on the retired 36-scheme hand-maintained list. Existing non-empty
 values always win; missing values are filled from the matching localized
 sections or, for known records, an explicit curated description.
+
+Generic placeholder phrases (e.g. "Please see the official website") are
+treated as empty so that curated or benefits-based fallbacks can replace them.
 """
 
 import json
@@ -13,6 +16,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 EXCLUDED = {"facilities.json", "scheme_schema.json"}
+
+# Phrases that look like a description but carry no scheme-specific information.
+# Matching is case-insensitive with leading/trailing whitespace and periods stripped.
+_PLACEHOLDER_PHRASES = frozenset(s.casefold() for s in (
+    "దయచేసి అధికారిక వెబ్\u200cసైట్ చూడండి",
+    "దయచేసి అధికారిక వెబ్సైట్ చూడండి",
+    "Please see the official website",
+    "Please refer to the official website",
+    "Please visit the official website",
+    "Visit the official website to apply or learn more",
+))
 
 KNOWN_DESCRIPTIONS = {
     "Pradhan Mantri Bhartiya Janaushadhi Pariyojana (PMBJP)": {
@@ -36,6 +50,22 @@ def text(value):
     return value.strip() if isinstance(value, str) else ""
 
 
+def _is_placeholder(value):
+    """Return True if *value* is empty or matches a known generic placeholder."""
+    stripped = text(value)
+    if not stripped:
+        return True
+    return stripped.rstrip(".").casefold() in _PLACEHOLDER_PHRASES
+
+
+def _usable(value):
+    """Return the stripped value only when it is non-empty AND not a placeholder."""
+    stripped = text(value)
+    if _is_placeholder(stripped):
+        return ""
+    return stripped
+
+
 def normalize(name, scheme):
     if not isinstance(scheme, dict):
         return
@@ -46,20 +76,29 @@ def normalize(name, scheme):
         return
 
     known = KNOWN_DESCRIPTIONS.get(name, {})
-    te = text(scheme.get("telugu_description")) or text(telugu.get("description"))
-    en = text(scheme.get("english_description")) or text(simplified.get("description"))
 
-    # Benefits are the best existing localized fallback for legacy records.
+    # --- Resolve Telugu description ---
+    # Priority: existing specific description → curated → benefits → (leave placeholder)
+    te = _usable(scheme.get("telugu_description")) or _usable(telugu.get("description"))
     if not te:
-        te = text(telugu.get("benefits"))
-    if not en:
-        en = text(simplified.get("benefits"))
-    if not en:
-        en = text(scheme.get("original_complex_text"))
+        te = _usable(known.get("telugu_description"))
+    if not te:
+        te = _usable(telugu.get("benefits"))
+    # If still empty, accept even the placeholder so the field is non-null
+    if not te:
+        te = text(scheme.get("telugu_description")) or text(telugu.get("description")) or text(telugu.get("benefits"))
 
-    # Use curated text only where the current record has no usable description.
-    te = te or text(known.get("telugu_description"))
-    en = en or text(known.get("english_description"))
+    # --- Resolve English description ---
+    # Priority: existing specific description → curated → benefits → original text
+    en = _usable(scheme.get("english_description")) or _usable(simplified.get("description"))
+    if not en:
+        en = _usable(known.get("english_description"))
+    if not en:
+        en = _usable(simplified.get("benefits"))
+    if not en:
+        en = _usable(scheme.get("original_complex_text"))
+    if not en:
+        en = text(scheme.get("english_description")) or text(simplified.get("description")) or text(simplified.get("benefits"))
 
     if te:
         scheme["telugu_description"] = te

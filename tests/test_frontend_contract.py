@@ -71,3 +71,8 @@ def test_result_feedback_status_id_is_unique():
     # Ensure they are distinct
     assert template.count('id="feedbackStatus"') == 1
     assert template.count('id="resultFeedbackStatus"') == 1
+def test_speech_synthesis_language_selection():
+    script = (ROOT / "static" / "enhanced-features.js").read_text(encoding="utf-8")
+    assert "utterance.lang = isEn ? 'en-IN' : 'te-IN';" in script
+    assert "utterance.voice = matchingVoice;" in script
+

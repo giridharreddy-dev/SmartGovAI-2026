@@ -14,6 +14,20 @@ def client():
         yield client
 
 
+_PLACEHOLDER_PHRASES = frozenset(s.casefold() for s in (
+    "దయచేసి అధికారిక వెబ్\u200cసైట్ చూడండి",
+    "దయచేసి అధికారిక వెబ్సైట్ చూడండి",
+    "Please see the official website",
+    "Please refer to the official website",
+    "Please visit the official website",
+    "Visit the official website to apply or learn more",
+))
+
+def is_placeholder(value):
+    if not value or not isinstance(value, str):
+        return True
+    return value.strip().rstrip(".").casefold() in _PLACEHOLDER_PHRASES
+
 def test_all_schemes_have_complete_bilingual_descriptions():
     """Verify every loaded scheme has non-empty bilingual descriptions."""
     schemes = load_schemes()
@@ -23,11 +37,13 @@ def test_all_schemes_have_complete_bilingual_descriptions():
         telugu_desc = data.get("telugu_description") or data.get("telugu", {}).get("description")
         assert telugu_desc, f"Scheme {name} missing telugu_description"
         assert len(telugu_desc.strip()) > 30, f"Scheme {name} telugu_description is too short: {telugu_desc}"
+        assert not is_placeholder(telugu_desc), f"Scheme {name} has a placeholder telugu_description: {telugu_desc}"
 
         # English description
         english_desc = data.get("english_description") or data.get("simplified", {}).get("description")
         assert english_desc, f"Scheme {name} missing english_description"
         assert len(english_desc.strip()) > 30, f"Scheme {name} english_description is too short: {english_desc}"
+        assert not is_placeholder(english_desc), f"Scheme {name} has a placeholder english_description: {english_desc}"
 
         # Level and Category
         assert data.get("level") in ("Andhra Pradesh", "National"), f"Scheme {name} invalid level: {data.get('level')}"
