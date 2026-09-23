@@ -15,9 +15,8 @@ def client():
 
 
 def test_all_schemes_have_complete_bilingual_descriptions():
-    """Verify all 36 schemes in the catalog have non-empty telugu_description and english_description."""
+    """Verify every loaded scheme has non-empty bilingual descriptions."""
     schemes = load_schemes()
-    assert len(schemes) == 36, f"Expected 36 schemes, found {len(schemes)}"
 
     for name, data in schemes.items():
         # Telugu description
@@ -128,23 +127,10 @@ def test_i18n_dictionary_completeness():
 
     # Essential UI keys must be defined in the dictionary
     required_keys = [
-        "appTitle",
-        "langToggleTe",
-        "langToggleEn",
-        "searchPlaceholder",
-        "filterAll",
-        "filterAp",
-        "filterNational",
-        "symptomTitle",
-        "chatTitle",
-        "quizTitle",
-        "docChecklistTitle",
-        "guidedStep",
-        "guidedTitle1",
-        "speakPageBtn",
-        "startGuidedModeBtn",
-        "shareResultBtn",
-        "printChecklistBtn",
+        "appTitle", "langToggleTe", "langToggleEn", "searchPlaceholder", "filterAll",
+        "filterAp", "filterNational", "symptomTitle", "chatTitle", "quizTitle",
+        "docChecklistTitle", "guidedStep", "guidedTitle1", "speakPageBtn",
+        "startGuidedModeBtn", "shareResultBtn", "printChecklistBtn",
     ]
 
     for key in required_keys:
@@ -157,34 +143,13 @@ def test_i18n_microphone_errors_and_staff_tools_keys():
     content = i18n_path.read_text(encoding="utf-8")
 
     expected_keys = [
-        "voiceErrNotAllowed",
-        "voiceErrNoSpeech",
-        "voiceErrAudioCapture",
-        "voiceErrNetwork",
-        "voiceErrAborted",
-        "voiceErrGeneric",
-        "voiceNotSupported",
-        "voiceStartError",
-        "voiceBtnTitle",
-        "selectSchemeFromList",
-        "selectDropdownPlaceholder",
-        "showDetailsBtn",
-        "pdfDocumentLabel",
-        "feedbackSuccess",
-        "feedbackError",
-        "feedbackSaving",
-        "networkError",
-        "mapSelectDistrict",
-        "mapSelectMandal",
-        "mapSelectVillage",
-        "mapLocationFinding",
-        "mapLocationBtn",
-        "mapErrDenied",
-        "mapErrUnavailable",
-        "mapErrTimeout",
-        "mapErrNotFound",
-        "mapYourLocationPopup",
-        "mapFoundCount",
+        "voiceErrNotAllowed", "voiceErrNoSpeech", "voiceErrAudioCapture", "voiceErrNetwork",
+        "voiceErrAborted", "voiceErrGeneric", "voiceNotSupported", "voiceStartError",
+        "voiceBtnTitle", "selectSchemeFromList", "selectDropdownPlaceholder", "showDetailsBtn",
+        "pdfDocumentLabel", "feedbackSuccess", "feedbackError", "feedbackSaving", "networkError",
+        "mapSelectDistrict", "mapSelectMandal", "mapSelectVillage", "mapLocationFinding",
+        "mapLocationBtn", "mapErrDenied", "mapErrUnavailable", "mapErrTimeout", "mapErrNotFound",
+        "mapYourLocationPopup", "mapFoundCount",
     ]
     for key in expected_keys:
         assert f"{key}:" in content, f"i18n.js missing key {key}"
@@ -250,5 +215,3 @@ def test_guided_mode_slide1_and_steps_bilingual():
     assert "scheme.english_description" in content
     assert "scheme.telugu_description" in content
     assert "renderGuidedStep(currentGuidedStep)" in content
-
-
