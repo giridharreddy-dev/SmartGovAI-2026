@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Normalize bilingual scheme descriptions in every catalog JSON file.
+"""Normalize bilingual descriptions across the current scheme catalog.
 
-The catalog has outgrown the original hand-maintained 36-scheme enrichment
-list. This pass preserves existing descriptions and fills only missing fields
-from the scheme's existing localized sections.
+This is intentionally data-driven: it processes every catalog JSON file rather
+than relying on the retired 36-scheme hand-maintained list. Existing non-empty
+values always win; missing values are filled from the matching localized
+sections or, for known records, an explicit curated description.
 """
 
 import json
@@ -13,8 +14,6 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 EXCLUDED = {"facilities.json", "scheme_schema.json"}
 
-# PMBJP was the first record found without either resolved description.
-# Keep this explicit translation rather than manufacturing Telugu from English.
 KNOWN_DESCRIPTIONS = {
     "Pradhan Mantri Bhartiya Janaushadhi Pariyojana (PMBJP)": {
         "telugu_description": (
@@ -33,83 +32,98 @@ KNOWN_DESCRIPTIONS = {
 }
 
 
-def _text(value):
+def text(value):
     return value.strip() if isinstance(value, str) else ""
 
 
 def normalize(name, scheme):
+    if not isinstance(scheme, dict):
+        return
+
     telugu = scheme.setdefault("telugu", {})
     simplified = scheme.setdefault("simplified", {})
+    if not isinstance(telugu, dict) or not isinstance(simplified, dict):
+        return
 
     known = KNOWN_DESCRIPTIONS.get(name, {})
-    telugu_description = (
-        _text(scheme.get("telugu_description"))
-        or _text(telugu.get("description"))
-        or _text(known.get("telugu_description"))
-    )
-    english_description = (
-        _text(scheme.get("english_description"))
-        or _text(simplified.get("description"))
-        or _text(known.get("english_description"))
-    )
+    te = text(scheme.get("telugu_description")) or text(telugu.get("description"))
+    en = text(scheme.get("english_description")) or text(simplified.get("description"))
 
-    # For future scraper records, derive English from the source description.
-    if not english_description:
-        english_description = _text(scheme.get("original_complex_text"))
+    # Benefits are the best existing localized fallback for legacy records.
+    if not te:
+        te = text(telugu.get("benefits"))
+    if not en:
+        en = text(simplified.get("benefits"))
+    if not en:
+        en = text(scheme.get("original_complex_text"))
 
-    # For records that already have Telugu content but lack the aggregate field,
-    # combine the existing localized sections without overwriting valid content.
-    if not telugu_description:
-        parts = [
-            _text(telugu.get("eligibility")),
-            _text(telugu.get("benefits")),
-            _text(telugu.get("steps")),
-        ]
-        telugu_description = " ".join(part for part in parts if part)
+    # Use curated text only where the current record has no usable description.
+    te = te or text(known.get("telugu_description"))
+    en = en or text(known.get("english_description"))
 
-    if english_description:
-        scheme["english_description"] = english_description
-        simplified.setdefault("description", english_description)
-    if telugu_description:
-        scheme["telugu_description"] = telugu_description
-        telugu.setdefault("description", telugu_description)
+    if te:
+        scheme["telugu_description"] = te
+        telugu["description"] = te
+    if en:
+        scheme["english_description"] = en
+        simplified["description"] = en
+
+
+def inspect(data):
+    incomplete = []
+    for name, scheme in data.items():
+        if not isinstance(scheme, dict):
+            incomplete.append(name)
+            continue
+        telugu = scheme.get("telugu") if isinstance(scheme.get("telugu"), dict) else {}
+        simplified = scheme.get("simplified") if isinstance(scheme.get("simplified"), dict) else {}
+        te = text(scheme.get("telugu_description")) or text(telugu.get("description"))
+        en = text(scheme.get("english_description")) or text(simplified.get("description"))
+        if not te or not en:
+            incomplete.append(name)
+    return incomplete
 
 
 def main():
-    changed = []
     incomplete_before = []
-    for path in sorted(DATA_DIR.glob("*.json")):
-        if path.name in EXCLUDED:
-            continue
+    updated = set()
+    files = sorted(path for path in DATA_DIR.glob("*.json") if path.name not in EXCLUDED)
+
+    for path in files:
         with path.open(encoding="utf-8") as file:
             data = json.load(file)
         if not isinstance(data, dict):
             continue
 
+        incomplete_before.extend(inspect(data))
         for name, scheme in data.items():
-            if not isinstance(scheme, dict):
-                continue
-            telugu = _text(scheme.get("telugu_description")) or _text(
-                scheme.get("telugu", {}).get("description")
-            )
-            english = _text(scheme.get("english_description")) or _text(
-                scheme.get("simplified", {}).get("description")
-            )
-            if not telugu or not english:
-                incomplete_before.append(name)
             before = json.dumps(scheme, ensure_ascii=False, sort_keys=True)
             normalize(name, scheme)
             if before != json.dumps(scheme, ensure_ascii=False, sort_keys=True):
-                changed.append(name)
+                updated.add(name)
 
         with path.open("w", encoding="utf-8") as file:
             json.dump(data, file, ensure_ascii=False, indent=2)
             file.write("\n")
 
-    print("Incomplete records before normalization:")
+    remaining = []
+    # Re-read after writing so the generator itself verifies its output.
+    for path in files:
+        with path.open(encoding="utf-8") as file:
+            data = json.load(file)
+        if isinstance(data, dict):
+            remaining.extend(inspect(data))
+
+    print(f"Incomplete records before normalization: {len(set(incomplete_before))}")
     for name in sorted(set(incomplete_before)):
         print(f"- {name}")
-    print(f"Updated {len(set(changed))} scheme records.")
+    print(f"Updated records: {len(updated)}")
+    if remaining:
+        print("Records still incomplete:")
+        for name in sorted(set(remaining)):
+            print(f"- {name}")
+        raise SystemExit(1)
+    print("All scheme records have bilingual descriptions.")
 
 
 if __name__ == "__main__":
