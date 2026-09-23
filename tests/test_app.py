@@ -293,3 +293,14 @@ def test_simplify_pdf_unexpected_error_returns_json_500(mock_simplify, mock_extr
     assert res.status_code == 500
     assert res.is_json
     assert res.get_json()["error_code"] == "INTERNAL_SERVER_ERROR"
+
+def test_api_tts_missing_text(client):
+    response = client.post('/api/tts', json={})
+    assert response.status_code == 400
+    assert 'No text provided' in response.get_json()['error']
+
+def test_api_tts_success(client, mocker):
+    mocker.patch('app.generate_text_audio', return_value='audio/tts_te_fakehash.mp3')
+    response = client.post('/api/tts', json={'text': 'Test', 'lang': 'te'})
+    assert response.status_code == 200
+    assert 'static/audio/tts_te_fakehash.mp3' in response.get_json()['audio_url']

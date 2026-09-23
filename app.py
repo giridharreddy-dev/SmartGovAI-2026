@@ -32,7 +32,7 @@ from config import (
     UPLOAD_DIR,
 )
 from logger_config import logger
-from services.audio_service import generate_telugu_audio
+from services.audio_service import generate_telugu_audio, generate_text_audio
 from services.chat_service import generate_chat_response, retrieve_relevant_schemes
 from services.gemini_service import is_gemini_available, simplify_document
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
@@ -1164,3 +1164,24 @@ if __name__ == "__main__":
     threading.Thread(target=index_schemes, daemon=True).start()
     
     app.run(debug=DEBUG_MODE, host=SERVER_HOST, port=SERVER_PORT)
+
+@app.route("/api/tts", methods=["POST"])
+def api_tts():
+    """Generate audio for arbitrary text."""
+    data = request.get_json()
+    if not data or not data.get("text"):
+        return jsonify({"error": "No text provided"}), 400
+    
+    text = data.get("text").strip()
+    lang = data.get("lang", "te")
+    
+    try:
+        audio_rel_path = generate_text_audio(text, lang)
+        if not audio_rel_path:
+            return jsonify({"error": "Audio generation timed out or failed"}), 500
+            
+        voice_url = url_for("static", filename=audio_rel_path)
+        return jsonify({"audio_url": voice_url}), 200
+    except Exception as e:
+        logger.exception("Exception in /api/tts")
+        return jsonify({"error": str(e)}), 500

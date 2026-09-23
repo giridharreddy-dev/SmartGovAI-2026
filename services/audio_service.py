@@ -32,6 +32,56 @@ def _audio_filename(telugu_data: Dict[str, str], scheme_name: str, static_path: 
     return os.path.join(AUDIO_DIR, f"{scheme_safe}-{safe_name}.mp3")
 
 
+def generate_text_audio(text: str, lang: str = "te") -> Optional[str]:
+    """Generate audio for arbitrary text, returning the relative static path."""
+    if not text:
+        return None
+        
+    safe_name = hashlib.sha256(f"{lang}_{text}".encode("utf-8")).hexdigest()
+    filename = os.path.join(AUDIO_DIR, f"tts_{lang}_{safe_name}.mp3")
+    
+    if os.path.isfile(filename) and os.path.getsize(filename) > 0:
+        rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
+        return rel_path
+
+    import threading
+
+    def _generate():
+        tmp_filename = f"{filename}.{threading.get_ident()}.tmp"
+        try:
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            voice = "en-IN-NeerjaNeural" if lang.startswith("en") else "te-IN-ShrutiNeural"
+            result = subprocess.run(
+                ["edge-tts", "--voice", voice, "--text", text, "--write-media", tmp_filename],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            os.replace(tmp_filename, filename)
+            logger.info("Generated generic audio: filename='%s'", filename)
+        except subprocess.CalledProcessError as e:
+            logger.exception("Audio generation failed for text (lang=%s). Error: %s", lang, e.stderr)
+            if os.path.exists(tmp_filename):
+                try:
+                    os.remove(tmp_filename)
+                except OSError:
+                    pass
+
+    t = threading.Thread(target=_generate, daemon=True)
+    t.start()
+    t.join(timeout=15.0)
+
+    if t.is_alive():
+        logger.warning("Generic audio generation exceeded timeout, returning None.")
+        return None
+
+    if os.path.isfile(filename) and os.path.getsize(filename) > 0:
+        rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
+        return rel_path
+
+    return None
+
+
 def generate_telugu_audio(
     telugu_data: Dict[str, str],
     scheme_name: str,
@@ -42,6 +92,10 @@ def generate_telugu_audio(
     if existing_rel:
         return existing_rel
 
+    text_to_speak = voice_text(telugu_data, scheme_name)
+    
+    # We can just delegate to our new generic generator, but to preserve existing filenames
+    # and caching, we keep the original filename logic for backward compatibility.
     filename = _audio_filename(telugu_data, scheme_name, static_path)
     if os.path.isfile(filename) and os.path.getsize(filename) > 0:
         rel_path = os.path.relpath(filename, os.path.join(BASE_DIR, "static")).replace("\\", "/")
@@ -55,7 +109,6 @@ def generate_telugu_audio(
         tmp_filename = f"{filename}.{threading.get_ident()}.tmp"
         try:
             os.makedirs(os.path.dirname(filename), exist_ok=True)
-            text_to_speak = voice_text(telugu_data, scheme_name)
             result = subprocess.run(
                 ["edge-tts", "--voice", "te-IN-ShrutiNeural", "--text", text_to_speak, "--write-media", tmp_filename],
                 capture_output=True,
