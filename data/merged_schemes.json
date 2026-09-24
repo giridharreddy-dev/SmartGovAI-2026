@@ -2693,7 +2693,7 @@
   },
   "Miscarriage Benefit": {
     "category": "Health & Wellness",
-    "level": "National",
+    "level": "Meghalaya",
     "icon": "hospital",
     "original_complex_text": "The \"Miscarriage Benefit'' scheme by the BOCW Welfare Board, Labour Department,West Bengal, is a welfare scheme that provides financial benefits for miscarriage up to two times in a lifetime to the eligible female beneficiaries or the wives of male beneficiaries.",
     "required_documents": [
@@ -2907,7 +2907,7 @@
   },
   "Medical Expenses for Treatment of Major Ailments of a Beneficiary": {
     "category": "Health & Wellness",
-    "level": "National",
+    "level": "Manipur",
     "icon": "hospital",
     "original_complex_text": "The Manipur Building and Other Construction Workers' Welfare Board provides financial support for the treatment of serious illnesses such as Tuberculosis, Cancer, Heart Disease, Kidney Disease, and more, for building workers and their family members.",
     "required_documents": [
@@ -3190,7 +3190,7 @@
   },
   "Maternity Benefit for Women Beneficiaries": {
     "category": "Health & Wellness",
-    "level": "National",
+    "level": "Manipur",
     "icon": "hospital",
     "original_complex_text": "The \"Maternity Benefit for Women Beneficiaries\" scheme under the Nagaland Building and Other Construction Workers' Welfare Board provides financial assistance to pregnant women registered as beneficiaries and wives of registered beneficiaries. The assistance can be availed up to two times.",
     "required_documents": [
@@ -3435,7 +3435,7 @@
   },
   "Assistance For Delivery / Miscarriage Of Pregnancy / Termination Of Pregnancy To Female Differently Abled Person": {
     "category": "Health & Wellness",
-    "level": "National",
+    "level": "Tamil Nadu",
     "icon": "hospital",
     "original_complex_text": "The Government of Tamil Nadu introduced \"Assistance for Delivery/Miscarriage of Pregnancy/Termination of Pregnancy to Female Differently Abled Person.",
     "required_documents": [
@@ -4739,7 +4739,7 @@
   },
   "Pension Scheme for Cancer Patients": {
     "category": "Health & Wellness",
-    "level": "National",
+    "level": "Tripura",
     "icon": "hospital",
     "original_complex_text": "The scheme “Pension Scheme for Cancer Patients\" was launched by the Directorate of Social Welfare and Social Education, Government of Tripura. The scheme aims to provide a monthly pension of ₹2,000/- to the person suffering from cancer.",
     "required_documents": [
@@ -4987,7 +4987,7 @@
   },
   "Maternity Benefit": {
     "category": "Health & Wellness",
-    "level": "National",
+    "level": "West Bengal",
     "icon": "hospital",
     "original_complex_text": "The \"Maternity Benefit'' scheme by the BOCW Welfare Board, Labour Department,West Bengal, is a welfare scheme that provides maternity benefits up to two times in a lifetime to the eligible female beneficiaries or the wives of male beneficiaries.",
     "required_documents": [
