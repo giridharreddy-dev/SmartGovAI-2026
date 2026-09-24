@@ -164,6 +164,7 @@ window.SmartGovAudioController = (function() {
     let audioQueue = [];
     let isPlaying = false;
     let isPaused = false;
+    let audioSessionId = 0;
     
     function updateUIState() {
         const btnPlay = document.getElementById('btnAudioPlay');
@@ -195,7 +196,8 @@ window.SmartGovAudioController = (function() {
         }
     }
     
-    async function playNextInQueue() {
+    async function playNextInQueue(sessionId) {
+        if (sessionId !== audioSessionId) return;
         if (audioQueue.length === 0) {
             stop();
             return;
@@ -203,7 +205,7 @@ window.SmartGovAudioController = (function() {
         
         const text = audioQueue.shift();
         if (!text || !text.trim()) {
-            playNextInQueue();
+            playNextInQueue(sessionId);
             return;
         }
         
@@ -215,11 +217,17 @@ window.SmartGovAudioController = (function() {
         const lang = isEn ? 'en' : 'te';
         
         try {
+            const csrfHeaders = typeof getCsrfHeader === 'function' ? getCsrfHeader() : {};
             const response = await fetch('/api/tts', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...csrfHeaders
+                },
                 body: JSON.stringify({ text: text, lang: lang })
             });
+            
+            if (sessionId !== audioSessionId) return;
             
             if (!response.ok) {
                 console.error("TTS API error:", response.statusText);
@@ -229,21 +237,31 @@ window.SmartGovAudioController = (function() {
             }
             
             const data = await response.json();
+            if (sessionId !== audioSessionId) return;
+            
             if (data.audio_url) {
-                currentAudio = new Audio(data.audio_url);
+                if (!currentAudio) currentAudio = new Audio();
+                currentAudio.src = data.audio_url;
                 currentAudio.onended = () => {
-                    playNextInQueue();
+                    playNextInQueue(sessionId);
                 };
                 currentAudio.onerror = () => {
                     showBrowserTTSFallback();
                     stop();
                 };
-                currentAudio.play();
+                try {
+                    await currentAudio.play();
+                } catch (playErr) {
+                    console.error("Audio playback rejected:", playErr);
+                    showBrowserTTSFallback();
+                    stop();
+                }
             } else {
                 showBrowserTTSFallback();
                 stop();
             }
         } catch (err) {
+            if (sessionId !== audioSessionId) return;
             console.error("Error fetching TTS:", err);
             showBrowserTTSFallback();
             stop();
@@ -252,9 +270,15 @@ window.SmartGovAudioController = (function() {
 
     function playQueue(sections) {
         stop();
-        
         audioQueue = sections;
-        playNextInQueue();
+        audioSessionId++;
+        
+        // Initialize an Audio object immediately to satisfy browser autoplay policies
+        if (!currentAudio) {
+            currentAudio = new Audio();
+        }
+        
+        playNextInQueue(audioSessionId);
     }
 
     function playText(text) {
@@ -272,17 +296,25 @@ window.SmartGovAudioController = (function() {
 
     function resume() {
         if (currentAudio && isPaused) {
-            currentAudio.play();
-            isPlaying = true;
-            isPaused = false;
-            updateUIState();
+            try {
+                currentAudio.play();
+                isPlaying = true;
+                isPaused = false;
+                updateUIState();
+            } catch (err) {
+                console.error("Audio resume rejected:", err);
+            }
         }
     }
 
     function stop() {
+        audioSessionId++; // Invalidate pending async operations
         if (currentAudio) {
             currentAudio.pause();
             currentAudio.currentTime = 0;
+            currentAudio.removeAttribute('src'); // Detach resource
+            currentAudio.onended = null;
+            currentAudio.onerror = null;
             currentAudio = null;
         }
         audioQueue = [];

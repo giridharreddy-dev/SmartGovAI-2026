@@ -195,14 +195,14 @@
                         <label for="pdfUpload" data-i18n="pdfDocumentLabel">PDF పత్రం</label>
                         <input type="file" id="pdfUpload" accept="application/pdf">
                     </div>
-                    <button id="uploadBtn" class="secondary-btn" type="button" data-i18n="pdfSimplifyBtn">PDF ను సరళీకరించు</button>
                     <div class="privacy-warning" style="margin: 12px 0 0; font-size: 0.85rem;" data-i18n="privacyWarning">
                         🔒 గోప్యతా నోటీసు: ఆధార్ కార్డు నంబర్లు లేదా వ్యక్తిగత వైద్య పత్రాలను ఇక్కడ అప్‌లోడ్ చేయవద్దు.
                     </div>
-                    <label class="consent-label" style="display:flex;align-items:flex-start;gap:8px;margin:12px 0 0;font-size:0.85rem;cursor:pointer;">
+                    <label class="consent-label" style="display:flex;align-items:flex-start;gap:8px;margin:12px 0 12px;font-size:0.85rem;cursor:pointer;">
                         <input type="checkbox" id="pdfConsent" style="margin-top:3px;">
                         <span data-i18n="pdfConsent">నేను వ్యక్తిగత డేటాను అప్‌లోడ్ చేయడం లేదని ధృవీకరిస్తున్నాను (I consent to document processing without PII)</span>
                     </label>
+                    <button id="uploadBtn" class="secondary-btn" type="button" data-i18n="pdfSimplifyBtn" disabled style="opacity: 0.5; cursor: not-allowed; transition: all 0.2s;">PDF ను సరళీకరించు</button>
                 </div>
             </details>
         </section>
@@ -746,22 +746,60 @@
             return;
         }
 
-        showLoading(window.t ? window.t('loadingPdf') : 'PDF సరళీకరిస్తున్నాం...');
         const resultArea = document.getElementById('resultArea');
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        
+        const titleText = window.t ? window.t('pdfProcTitle') : "Understanding your document";
+        const descText = window.t ? window.t('pdfProcDesc') : "SmartGov AI is simplifying the information for you.";
+        
+        resultArea.innerHTML = `
+            <div class="pdf-processing-modal" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 40px 20px; background: white; border-radius: 12px; height: 100%; min-height: 350px;">
+                <div class="doc-icon" style="font-size: 3rem; margin-bottom: 20px; animation: pulse 2s infinite;">📄 ✨</div>
+                <h3 style="margin-bottom: 10px; color: var(--green-dark);">${window.escapeHtml(titleText)}</h3>
+                <p style="margin-bottom: 25px; color: var(--gray);">${window.escapeHtml(descText)}</p>
+                <div class="loading-stage" id="pdfLoadingStage" style="font-weight: 600; color: var(--primary); margin-bottom: 15px; min-height: 24px;"></div>
+                <div class="progress-dots" style="display: flex; gap: 6px;">
+                    <span style="width:10px; height:10px; background:var(--primary); border-radius:50%; display:inline-block; animation: bounce 1.4s infinite ease-in-out both;"></span>
+                    <span style="width:10px; height:10px; background:var(--primary); border-radius:50%; display:inline-block; animation: bounce 1.4s infinite ease-in-out both; animation-delay: 0.16s;"></span>
+                    <span style="width:10px; height:10px; background:var(--primary); border-radius:50%; display:inline-block; animation: bounce 1.4s infinite ease-in-out both; animation-delay: 0.32s;"></span>
+                </div>
+            </div>
+            <style>
+                @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+                @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+            </style>
+        `;
+        resultArea.classList.add('active');
+        if (modalBackdrop) modalBackdrop.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
         const stages = [
-            window.t ? window.t('pdfProgressRead') : "పత్రం చదువుతున్నాం... (Reading document...)",
-            window.t ? window.t('pdfProgressExtract') : "ముఖ్యమైన వివరాలు వెతుకుతున్నాం... (Extracting details...)",
-            window.t ? window.t('pdfProgressTranslate') : "తెలుగులోకి మారుస్తున్నాం... (Translating to Telugu...)",
-            window.t ? window.t('pdfProgressAudio') : "ఆడియో తయారుచేస్తున్నాం... (Preparing audio...)"
+            window.t ? window.t('pdfProcRead') : "Reading your document...",
+            window.t ? window.t('pdfProcExtract') : "Extracting key details...",
+            window.t ? window.t('pdfProcTranslate') : "Simplifying the language...",
+            window.t ? window.t('pdfProcAudio') : "Preparing your result..."
         ];
+        
         let stageIndex = 0;
+        const stageEl = resultArea.querySelector('#pdfLoadingStage');
+        if (stageEl && stages.length > 0) {
+            stageEl.textContent = stages[0];
+            stageIndex++;
+        }
+        
         const progressInterval = setInterval(() => {
-            const loader = resultArea.querySelector('.loading');
-            if (loader && stageIndex < stages.length) {
-                loader.textContent = stages[stageIndex];
-                stageIndex++;
+            if (stageEl && stageIndex < stages.length) {
+                stageEl.style.opacity = 0;
+                setTimeout(() => {
+                    if (stageEl) {
+                        stageEl.textContent = stages[stageIndex];
+                        stageEl.style.transition = "opacity 0.3s";
+                        stageEl.style.opacity = 1;
+                        stageIndex++;
+                    }
+                }, 300);
             }
-        }, 2000);
+        }, 3500);
 
         const formData = new FormData();
         formData.append('document', file);
@@ -781,113 +819,6 @@
             showError(window.t ? window.t('networkError', { error: error.message }) : `PDF లోపం: ${error.message}`);
         }
     }
-
-    function bestVoiceMatch(spokenText) {
-        const spoken = spokenText.toLowerCase().trim();
-        if (!spoken) return null;
-
-        let bestName = null;
-        let bestScore = 0;
-        for (const name of schemeNames) {
-            const data = schemesCatalog[name];
-            const words = [
-                name,
-                data.telugu_name,
-                data.category,
-                ...(data.keywords || [])
-            ].map(value => String(value).toLowerCase());
-
-            let score = 0;
-            for (const word of words) {
-                if (!word) continue;
-                if (spoken.includes(word) || word.includes(spoken)) score += 3;
-                const pieces = word.split(/\s+/).filter(Boolean);
-                for (const piece of pieces) {
-                    if (piece.length > 2 && spoken.includes(piece)) score += 1;
-                }
-            }
-
-            if (score > bestScore) {
-                bestScore = score;
-                bestName = name;
-            }
-        }
-        return bestScore > 0 ? bestName : null;
-    }
-
-    let recognition = null;
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = window.getLang && window.getLang() === 'en' ? 'en-IN' : 'te-IN';
-        recognition.continuous = false;
-        recognition.interimResults = false;
-    }
-
-    function setupVoice() {
-        const voiceBtn = document.getElementById('voiceBtn');
-        const status = document.getElementById('voiceStatus');
-        if (!voiceBtn || !status) return;
-
-        function updateVoiceTooltips() {
-            const titleText = window.t ? window.t('voiceBtnTitle') : 'వాయిస్ ద్వారా వెతకండి';
-            const ariaText = window.t ? window.t('voiceBtnAria') : 'వాయిస్ ద్వారా వెతకండి';
-            voiceBtn.setAttribute('title', titleText);
-            voiceBtn.setAttribute('aria-label', ariaText);
-        }
-        updateVoiceTooltips();
-
-        if (!recognition) {
-            voiceBtn.addEventListener('click', () => {
-                status.textContent = window.t ? window.t('voiceNotSupported') : (window.getLang && window.getLang() === 'en' ? 'Voice recognition not supported.' : 'ఈ బ్రౌజర్ మైక్ గుర్తింపుకు మద్దతు ఇవ్వదు.');
-            });
-            return;
-        }
-
-        voiceBtn.addEventListener('click', async () => {
-            status.textContent = window.t ? window.t('voiceListening') : 'వింటున్నాం... మాట్లాడండి';
-            voiceBtn.disabled = true;
-            try {
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                    await navigator.mediaDevices.getUserMedia({ audio: true });
-                }
-                if (recognition) {
-                    recognition.lang = window.getLang && window.getLang() === 'en' ? 'en-IN' : 'te-IN';
-                }
-                recognition.start();
-            } catch (error) {
-                voiceBtn.disabled = false;
-                let errCode = 'unknown';
-                if (error.name === 'NotAllowedError' || error.name === 'SecurityError') {
-                    errCode = 'not-allowed';
-                }
-                const localizedMsg = window.SmartGovI18n ? window.SmartGovI18n.getLocalizedMicError(errCode) : (window.getLang && window.getLang() === 'en' ? `Microphone error: ${errCode}` : `మైక్ లోపం: ${errCode}`);
-                status.textContent = localizedMsg;
-            }
-        });
-
-        recognition.onresult = event => {
-            const spoken = event.results[0][0].transcript;
-            const match = bestVoiceMatch(spoken);
-            if (match) {
-                status.textContent = `${spoken} -> ${match}`;
-                fetchScheme(match);
-            } else {
-                status.textContent = `${spoken}`;
-            }
-        };
-
-        recognition.onerror = event => {
-            const errCode = event.error || 'unknown';
-            const localizedMsg = window.SmartGovI18n ? window.SmartGovI18n.getLocalizedMicError(errCode) : (window.getLang && window.getLang() === 'en' ? `Microphone error: ${errCode}` : `మైక్ లోపం: ${errCode}`);
-            status.textContent = localizedMsg;
-        };
-
-        recognition.onend = () => {
-            voiceBtn.disabled = false;
-        };
-    }
-
     async function handleDropdown() {
         const schemeName = document.getElementById('schemeSelect').value;
         if (!schemeName) {
@@ -963,9 +894,32 @@
         }
     });
 
-    document.getElementById('dropdownBtn').addEventListener('click', handleDropdown);
+        document.getElementById('dropdownBtn').addEventListener('click', handleDropdown);
     document.getElementById('uploadBtn').addEventListener('click', handleUpload);
     document.getElementById('schemeSelect').addEventListener('change', handleDropdown);
+
+    const pdfUpload = document.getElementById('pdfUpload');
+    const pdfConsent = document.getElementById('pdfConsent');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    function checkPdfConsent() {
+        if (pdfUpload.files.length > 0 && pdfConsent.checked) {
+            uploadBtn.disabled = false;
+            uploadBtn.style.opacity = '1';
+            uploadBtn.style.cursor = 'pointer';
+        } else {
+            uploadBtn.disabled = true;
+            uploadBtn.style.opacity = '0.5';
+            uploadBtn.style.cursor = 'not-allowed';
+        }
+    }
+
+    if(pdfUpload && pdfConsent) {
+        pdfUpload.addEventListener('change', checkPdfConsent);
+        pdfConsent.addEventListener('change', checkPdfConsent);
+        // initial state
+        checkPdfConsent();
+    }
 
     document.getElementById('footerReportBtn').addEventListener('click', () => {
         SmartGovEnhanced.openReportForm();
