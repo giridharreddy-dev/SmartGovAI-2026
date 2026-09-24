@@ -565,7 +565,11 @@
         if (level === 'Andhra Pradesh') {
             return l === 'te' ? 'ఆంధ్రప్రదేశ్' : 'AP';
         }
-        return l === 'te' ? 'జాతీయ' : 'National';
+        if (level === 'National') {
+            return l === 'te' ? 'జాతీయ' : 'National';
+        }
+        // State generic mapping (can be expanded for Telugu if needed)
+        return level;
     }
 
     function findSchemeInCatalog(schemeOrName) {

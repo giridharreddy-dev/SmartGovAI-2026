@@ -46,7 +46,7 @@ def test_all_schemes_have_complete_bilingual_descriptions():
         assert not is_placeholder(english_desc), f"Scheme {name} has a placeholder english_description: {english_desc}"
 
         # Level and Category
-        assert data.get("level") in ("Andhra Pradesh", "National"), f"Scheme {name} invalid level: {data.get('level')}"
+        assert isinstance(data.get("level"), str) and len(data.get("level")) > 0, f"Scheme {name} invalid level: {data.get('level')}"
         assert data.get("category"), f"Scheme {name} missing category"
 
 
