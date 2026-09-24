@@ -159,92 +159,183 @@ function getCsrfHeader() {
  * Speak page aloud using Web Speech API with language support based on current UI language.
  * Falls back to browser TTS if Web Speech not available
  */
-let currentGlobalAudio = null;
-
-async function playAudioFromAPI(text, isEn) {
-    if (currentGlobalAudio) {
-        currentGlobalAudio.pause();
-        currentGlobalAudio.currentTime = 0;
-        currentGlobalAudio = null;
-    }
+window.SmartGovAudioController = (function() {
+    let currentAudio = null;
+    let audioQueue = [];
+    let isPlaying = false;
+    let isPaused = false;
     
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-    }
-    
-    const lang = isEn ? 'en' : 'te';
-    console.log(isEn ? '🔊 Requesting audio...' : '🔊 ఆడియో అభ్యర్థిస్తున్నాం...');
-    
-    try {
-        const response = await fetch('/api/tts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: text, lang: lang })
-        });
+    function updateUIState() {
+        const btnPlay = document.getElementById('btnAudioPlay');
+        const btnPause = document.getElementById('btnAudioPause');
+        const btnResume = document.getElementById('btnAudioResume');
+        const btnStop = document.getElementById('btnAudioStop');
+        const statusEl = document.getElementById('audioStatus');
         
-        if (!response.ok) {
-            console.error("TTS API error:", response.statusText);
-            showBrowserTTSFallback();
+        if (!btnPlay || !btnPause || !btnResume || !btnStop) return;
+        
+        if (!isPlaying && !isPaused && audioQueue.length === 0) {
+            btnPlay.style.display = 'inline-block';
+            btnPause.style.display = 'none';
+            btnResume.style.display = 'none';
+            btnStop.style.display = 'none';
+            if (statusEl) statusEl.textContent = '';
+        } else if (isPlaying) {
+            btnPlay.style.display = 'none';
+            btnPause.style.display = 'inline-block';
+            btnResume.style.display = 'none';
+            btnStop.style.display = 'inline-block';
+            if (statusEl) statusEl.textContent = '🔊 ' + (window.getLang && window.getLang() === 'en' ? 'Reading...' : 'చదువుతున్నాం...');
+        } else if (isPaused) {
+            btnPlay.style.display = 'none';
+            btnPause.style.display = 'none';
+            btnResume.style.display = 'inline-block';
+            btnStop.style.display = 'inline-block';
+            if (statusEl) statusEl.textContent = '⏸ ' + (window.getLang && window.getLang() === 'en' ? 'Paused' : 'పాజ్ చేయబడింది');
+        }
+    }
+    
+    async function playNextInQueue() {
+        if (audioQueue.length === 0) {
+            stop();
             return;
         }
         
-        const data = await response.json();
-        if (data.audio_url) {
-            currentGlobalAudio = new Audio(data.audio_url);
-            currentGlobalAudio.onended = () => {
-                console.log('✅ చదవడం పూర్తయింది');
-            };
-            currentGlobalAudio.onerror = () => {
-                showBrowserTTSFallback();
-            };
-            currentGlobalAudio.play();
-        } else {
-            showBrowserTTSFallback();
+        const text = audioQueue.shift();
+        if (!text || !text.trim()) {
+            playNextInQueue();
+            return;
         }
-    } catch (err) {
-        console.error("Error fetching TTS:", err);
-        showBrowserTTSFallback();
+        
+        isPlaying = true;
+        isPaused = false;
+        updateUIState();
+        
+        const isEn = window.getLang && window.getLang() === 'en';
+        const lang = isEn ? 'en' : 'te';
+        
+        try {
+            const response = await fetch('/api/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text, lang: lang })
+            });
+            
+            if (!response.ok) {
+                console.error("TTS API error:", response.statusText);
+                showBrowserTTSFallback();
+                stop();
+                return;
+            }
+            
+            const data = await response.json();
+            if (data.audio_url) {
+                currentAudio = new Audio(data.audio_url);
+                currentAudio.onended = () => {
+                    playNextInQueue();
+                };
+                currentAudio.onerror = () => {
+                    showBrowserTTSFallback();
+                    stop();
+                };
+                currentAudio.play();
+            } else {
+                showBrowserTTSFallback();
+                stop();
+            }
+        } catch (err) {
+            console.error("Error fetching TTS:", err);
+            showBrowserTTSFallback();
+            stop();
+        }
     }
-}
 
-function speakPageAloud() {
-    if (!window.currentSchemeName) {
-        alert(window.t ? window.t('selectSchemeError') : 'దయచేసి ముందుగా పథకం ఎంచుకోండి.');
-        return;
+    function playQueue(sections) {
+        stop();
+        
+        audioQueue = sections;
+        playNextInQueue();
     }
 
-    const isEn = window.getLang && window.getLang() === 'en';
-
-    const schemeTitle = document.querySelector('.result-head h2')?.textContent || window.currentSchemeName;
-    const infoCards = Array.from(document.querySelectorAll('.info-card')).map(card => {
-        const title = card.querySelector('h3')?.textContent || '';
-        const text = card.querySelector('p')?.textContent || '';
-        return `${title}. ${text}`;
-    }).join('. ');
-
-    const fullText = `${schemeTitle}. ${infoCards}`;
-    playAudioFromAPI(fullText, isEn);
-}
-
-/**
- * Show fallback UI if API TTS fails
- */
-function showBrowserTTSFallback() {
-    const feedbackStatus = document.getElementById('feedbackStatus');
-    if (feedbackStatus) {
-        feedbackStatus.textContent = '⚠️ ఆడియో సమర్థన లేదు (Audio unavailable).';
-        feedbackStatus.style.color = 'var(--red)';
+    function playText(text) {
+        playQueue([text]);
     }
-}
 
-/**
- * Unified function for speaking any specific text block
- */
+    function pause() {
+        if (currentAudio && isPlaying) {
+            currentAudio.pause();
+            isPlaying = false;
+            isPaused = true;
+            updateUIState();
+        }
+    }
+
+    function resume() {
+        if (currentAudio && isPaused) {
+            currentAudio.play();
+            isPlaying = true;
+            isPaused = false;
+            updateUIState();
+        }
+    }
+
+    function stop() {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio = null;
+        }
+        audioQueue = [];
+        isPlaying = false;
+        isPaused = false;
+        updateUIState();
+    }
+
+    function playPage() {
+        if (!window.currentSchemeName) {
+            alert(window.t ? window.t('selectSchemeError') : 'దయచేసి ముందుగా పథకం ఎంచుకోండి.');
+            return;
+        }
+
+        const schemeTitle = document.querySelector('.result-head h2')?.textContent || window.currentSchemeName;
+        const infoCards = Array.from(document.querySelectorAll('.info-card')).map(card => {
+            const title = card.querySelector('h3')?.textContent || '';
+            const text = card.querySelector('p')?.textContent || '';
+            return `${title}. ${text}`;
+        });
+        
+        const sections = [schemeTitle, ...infoCards];
+        playQueue(sections);
+    }
+    
+    function showBrowserTTSFallback() {
+        const statusEl = document.getElementById('audioStatus');
+        if (statusEl) {
+            statusEl.textContent = '⚠️ ఆడియో సమర్థన లేదు (Audio unavailable).';
+            statusEl.style.color = 'var(--red)';
+        }
+    }
+
+    return {
+        playQueue,
+        playText,
+        playPage,
+        pause,
+        resume,
+        stop
+    };
+})();
+
+// Legacy compatibility for any stray calls
 function speakText(text) {
     if (!text) return;
-    const isEn = window.getLang && window.getLang() === 'en';
-    playAudioFromAPI(text, isEn);
+    window.SmartGovAudioController.playText(text);
 }
+function speakPageAloud() {
+    window.SmartGovAudioController.playPage();
+}
+
+
 
 
 
@@ -993,18 +1084,29 @@ document.addEventListener('DOMContentLoaded', () => {
         resultArea.addEventListener('click', event => {
             const target = event.target;
 
+            // Unified Audio Controls
+            if (target.closest('#btnAudioPlay')) {
+                window.SmartGovAudioController.playPage();
+                return;
+            }
+            if (target.closest('#btnAudioPause')) {
+                window.SmartGovAudioController.pause();
+                return;
+            }
+            if (target.closest('#btnAudioResume')) {
+                window.SmartGovAudioController.resume();
+                return;
+            }
+            if (target.closest('#btnAudioStop')) {
+                window.SmartGovAudioController.stop();
+                return;
+            }
+
             // Speak custom text (slowly)
             const speakTextBtn = target.closest('.speak-text-btn');
             if (speakTextBtn) {
                 const text = speakTextBtn.dataset.text;
                 speakText(text);
-                return;
-            }
-
-            // Speak page aloud
-            const speakPageBtn = target.closest('.speak-page-btn');
-            if (speakPageBtn) {
-                speakPageAloud();
                 return;
             }
 
@@ -2366,7 +2468,10 @@ const SmartGovUX = (function () {
     };
 
     // Listen for language change events to re-render active interactive views
-    window.addEventListener('languagechange', () => {
+        window.addEventListener('languagechange', () => {
+        if (window.SmartGovAudioController) {
+            window.SmartGovAudioController.stop();
+        }
         renderFavoritesAndRecent();
         if (currentGuidedSchemeName) {
             renderGuidedStep(currentGuidedStep);

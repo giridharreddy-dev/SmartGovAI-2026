@@ -534,24 +534,23 @@
         const mainTitle = isEn ? (data.scheme_name || '') : (scheme.telugu_name || data.scheme_name || '');
         const subTitle = isEn ? (categoryLabel || '') : (data.scheme_name || '');
 
-        const audioTitle = window.t ? window.t('audioTitle') : '🎙️ ఆడియో గైడ్';
-        const speakSlow = window.t ? window.t('speakSlowBtn') : '🔊 మెల్లగా చదవండి';
-        const audioNotAvail = window.t ? window.t('audioNotAvailable') : 'ఆడియో అందుబాటులో లేదు';
+        const audioTitle = window.t ? window.t('audioTitle') : (isEn ? '🎙️ Audio Guide' : '🎙️ ఆడియో గైడ్');
+        const listenBtnLabel = window.t ? window.t('speakPageBtn') : (isEn ? '🔊 Listen' : '🔊 వినండి (Listen)');
+        const pauseBtnLabel = isEn ? '⏸ Pause' : '⏸ పాజ్ చేయండి';
+        const resumeBtnLabel = isEn ? '▶ Resume' : '▶ మళ్ళీ ప్రారంభించండి';
+        const stopBtnLabel = isEn ? '⏹ Stop' : '⏹ ఆపండి';
 
-        const audioHtml = data.voice_url && !isEn
-            ? `<div class="audio-wrap">
-                <strong>${audioTitle}</strong>
-                <audio controls src="${window.escapeHtml(data.voice_url)}" style="width: 100%;" onerror="this.parentElement.innerHTML = '<button type=\\'button\\' class=\\'speak-page-btn primary-btn\\' style=\\'width:100%;margin-top:8px;padding:8px;\\'>🔊 Read Aloud (Browser Voice)</button>';"></audio>
-            </div>`
-            : (isEn
-                ? `<div class="audio-wrap">
-                    <strong>${audioTitle}</strong>
-                    <button type="button" class="speak-page-btn primary-btn" style="width:100%;margin-top:8px;padding:8px;">${window.t ? window.t('speakPageBtn') : '🔊 Read Aloud (Browser Voice)'}</button>
-                </div>`
-                : `<div class="audio-wrap">
-                    <strong>${audioNotAvail}</strong>
-                    <button type="button" class="speak-page-btn primary-btn" style="width:100%;margin-top:8px;padding:8px;background:var(--secondary);color:#000;">⚠️ ${window.t ? window.t('speakPageBtn') : '🔊 ఈ పేజీ చదవండి (Browser Fallback)'}</button>
-                   </div>`);
+        const audioHtml = `<div class="audio-wrap unified-audio-controls">
+            <strong>${audioTitle}</strong>
+            <div id="audioControls" style="display: flex; gap: 8px; margin-top: 8px;">
+                <button type="button" id="btnAudioPlay" class="primary-btn audio-control-btn" style="flex:1; padding: 12px; font-size: 16px;">${listenBtnLabel}</button>
+                <button type="button" id="btnAudioPause" class="secondary-btn audio-control-btn" style="flex:1; padding: 12px; font-size: 16px; display: none; background:#e0e0e0; color:#333;">${pauseBtnLabel}</button>
+                <button type="button" id="btnAudioResume" class="primary-btn audio-control-btn" style="flex:1; padding: 12px; font-size: 16px; display: none;">${resumeBtnLabel}</button>
+                <button type="button" id="btnAudioStop" class="danger-btn audio-control-btn" style="flex:1; padding: 12px; font-size: 16px; display: none; background:var(--red); color:#fff; border:none; border-radius:4px;">${stopBtnLabel}</button>
+            </div>
+            <div id="audioStatus" style="margin-top: 8px; font-size: 0.9rem; color: var(--gray);"></div>
+        </div>`;
+
 
         const sourceLabel = window.t ? window.t('sourceLabel') : 'మూలం:';
         const officialSource = window.t ? window.t('officialSource') : 'అధికారిక మూలం';
