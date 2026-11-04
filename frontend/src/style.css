@@ -151,6 +151,7 @@ html:has(.mobile-menu[open]) { overflow: hidden; }
 .filter-row select { flex: 0 1 215px; max-width: 100%; padding: 8px 30px 8px 12px; font-size: .86rem; font-weight: 740; }
 .count { font-size: .78rem; font-weight: 810; color: var(--muted); margin: 13px 0 11px; }
 .catalog-results { display: flex; align-items: center; flex-wrap: wrap; column-gap: 14px; }
+.meaning-action { margin-top: 10px; }
 .cards, .comparison-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
 .scheme-card { min-width: 0; display: flex; flex-direction: column; gap: 13px; padding: 18px; background: var(--paper); border: 1px solid var(--line); border-radius: 13px; transition: transform .23s ease, box-shadow .23s ease, border-color .23s ease; }
 .scheme-card:hover, .scheme-card:focus-within { transform: translateY(-3px); border-color: #819dc3; box-shadow: 0 12px 27px #14346b12; }

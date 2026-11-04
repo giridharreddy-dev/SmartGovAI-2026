@@ -350,8 +350,9 @@ function App() {
                 : <span className="muted">{t('mySchemeOffline')}</span>}
             </aside>
             {status ? loadNotice : <>
+              <p className="muted" id="directory-search-guide">{t('meaningGuide')}</p>
               <div className="filter-row">
-                <label className="search-box"><Search size={20} /><input type="search" maxLength={500} aria-label={t('search')} placeholder={t('placeholder')} value={query} onChange={event => { setQuery(event.target.value); resetMeaning() }} /></label>
+                <label className="search-box"><Search size={20} /><input type="search" maxLength={500} aria-label={t('search')} aria-describedby="directory-search-guide" placeholder={t('placeholder')} value={query} onChange={event => { setQuery(event.target.value); resetMeaning() }} /></label>
                 <select aria-label={t('sector')} value={sector} onChange={event => { setSector(event.target.value); resetMeaning() }}>
                   <option value="">{t('anySector')} ({schemes.length})</option>{sectors.map(item => <option value={item} key={item}>{t('sector.' + item)} ({sectorCounts.get(item)})</option>)}
                 </select>
@@ -359,10 +360,10 @@ function App() {
                   <option value="">{t('anyRegion')}</option>{regions.map(item => <option value={item} key={item}>{regionText(item, t)}</option>)}
                 </select>
               </div>
-              {query.trim() && <div className="catalog-results">
-                <button className="button subtle" disabled={!online || meaning.status === 'waiting'} onClick={lookUpMeaning}><Sparkles size={17} />{t('meaningSearch')}</button>
-                <p className="count" role="status">{t(meaning.status || 'meaningHint')}</p>
-              </div>}
+              <div className="catalog-results meaning-action">
+                <button className="button subtle" disabled={!query.trim() || !online || meaning.status === 'waiting'} onClick={lookUpMeaning}><Sparkles size={17} />{t('meaningSearch')}</button>
+                {query.trim() && <p className="count" role="status">{t(meaning.status || 'meaningHint')}</p>}
+              </div>
               <div className="catalog-results">
                 <p className="count" aria-live="polite">{t('resultCount').replace('{shown}', Math.min(limit, results.length)).replace('{matches}', results.length).replace('{total}', schemes.length)}</p>
                 {filtered && <button className="text-button" onClick={clearFilters}>{t('clearFilters')}</button>}

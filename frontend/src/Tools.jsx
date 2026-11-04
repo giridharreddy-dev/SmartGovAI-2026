@@ -74,7 +74,8 @@ export function Assistant({ schemes, lang, t, online, open }) {
     <PanelHeader tag={t('assistant')} title={t('assistantTitle')} desc={t('assistantDesc')} />
     <form className="tool-card" onSubmit={ask}>
       <label htmlFor="question">{t('question')}</label>
-      <textarea id="question" rows={4} maxLength={500} required placeholder={t('questionHint')} value={question} onChange={event => setQuestion(event.target.value)} />
+      <p className="muted" id="assistant-search-guide">{t('meaningGuide')}</p>
+      <textarea id="question" rows={4} maxLength={500} required aria-describedby="assistant-search-guide" placeholder={t('questionHint')} value={question} onChange={event => setQuestion(event.target.value)} />
       <p className="muted">{t('meaningHint')}</p>
       <p className="muted">{t('aiPrivacy')}</p>
       <div className="action-row">
