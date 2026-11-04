@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { ArrowLeft, ArrowUpRight, Check, CircleHelp, FileText, Printer, Volume2, VolumeX, X } from 'lucide-react'
 import { localized, officialUrl, sections, schemeTitle, sectionText } from './content.js'
+import { checklistForScheme } from './checklist.js'
 
 export function SchemeSource({ scheme, t }) {
   const url = officialUrl(scheme.source?.url)
@@ -20,6 +21,7 @@ export function DocumentSections({ scheme, lang, t }) {
 }
 
 function Printable({ scheme, lang, t, checks }) {
+  const documents = checklistForScheme(scheme)
   return <article className="print-sheet" aria-label={t('guide')}>
     <header className="print-mast"><img src="/studio/mark.svg" width="42" height="42" alt="" /><div><strong>SmartGovAI</strong><span>{t('guide')}</span></div></header>
     <div className="print-title">
@@ -27,11 +29,11 @@ function Printable({ scheme, lang, t, checks }) {
       <h2 lang={lang === 'te' && scheme.directoryEntry && !scheme.nameTe ? 'en' : undefined}>{schemeTitle(scheme, lang)}</h2>
     </div>
     <DocumentSections {...{ scheme, lang, t }} />
-    {!!scheme.documents?.length && <section className="print-checks">
+    {documents.length > 0 && <section className="print-checks">
       <h3>{t('checklist')}</h3>
-      <ul>{scheme.documents.map((doc, index) => <li key={index}>
-        <span className="print-box" aria-hidden="true">{checks[index] ? '✓' : ''}</span>
-        {localized(doc, lang)} {doc.optional && <small>({t('optional')})</small>}
+      <ul>{documents.map(doc => <li key={doc.key}>
+        <span className="print-box" aria-hidden="true">{checks[doc.key] ? '✓' : ''}</span>
+        {localized(doc, lang)} {doc.mandatory === false && <small>({t('optional')})</small>}
       </li>)}</ul>
     </section>}
     {scheme.source && <SchemeSource {...{ scheme, t }} />}
@@ -50,6 +52,7 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
   const [preview, setPreview] = useState(false)
   const [sound, setSound] = useState('idle')
   const titleId = useId()
+  const documents = checklistForScheme(scheme)
   const recording = scheme.recordings?.[lang] ||
     ((scheme.audioLanguage || 'te') === lang ? scheme.audio : null)
   useEffect(() => {
@@ -134,18 +137,18 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
           {sound === 'error' && <p role="status">{t('speechUnavailable')}</p>}
         </div>
         <DocumentSections {...{ scheme, lang, t }} />
+        {documents.length > 0 && <section className="detail-panel">
+          <h3><Check size={20} /> {t('checklist')}</h3>
+          <p>{t('checklistNote')}</p>
+          <progress value={documents.filter(doc => checks[doc.key]).length} max={documents.length} aria-label={t('checklist')} />
+          <div className="checklist">{documents.map(doc => <label key={doc.key}><input type="checkbox" checked={!!checks[doc.key]} onChange={event => setCheck(doc.key, event.target.checked)} />
+            {localized(doc, lang)} {doc.mandatory === false && <small>({t('optional')})</small>}
+          </label>)}</div>
+        </section>}
         {scheme.directoryEntry ? <>
           <p className="detail-panel">{t('officialDetails')}</p>
           <SchemeSource {...{ scheme, t }} />
         </> : !scheme.ai && <>
-          {!!scheme.documents.length && <section className="detail-panel">
-            <h3><Check size={20} /> {t('checklist')}</h3>
-            <p>{t('checklistNote')}</p>
-            <progress value={scheme.documents.filter((_, index) => checks[index]).length} max={scheme.documents.length} aria-label={t('checklist')} />
-            <div className="checklist">{scheme.documents.map((doc, index) => <label key={index}><input type="checkbox" checked={!!checks[index]} onChange={event => setCheck(index, event.target.checked)} />
-              {localized(doc, lang)} {doc.optional && <small>({t('optional')})</small>}
-            </label>)}</div>
-          </section>}
           <section className="detail-panel">
             <h3><CircleHelp size={20} /> {t('selfCheck')}</h3>
             <p>{t('selfCheckNote')}</p>

@@ -7,6 +7,7 @@ from flask import Blueprint, Response, abort, current_app, jsonify, request, sen
 from flask_wtf.csrf import generate_csrf
 
 from services.studio_narration import STUDIO_VOICES, studio_audio_asset
+from services.scheme_revisions import checklist, section_statuses
 from services.studio_search import SearchUnavailable, model_directory, search_corpus, semantic_ids
 from utils import safe_url
 
@@ -21,6 +22,7 @@ def _sections(value):
 
 
 def _scheme(name, scheme, root):
+    checklist_items, checklist_aliases = checklist(scheme)
     documents = [
         {"en": item, "te": "", "optional": False}
         if isinstance(item, str)
@@ -68,6 +70,10 @@ def _scheme(name, scheme, root):
         },
         "documents": documents,
         "operations": scheme.get("operations") if scheme.get("operations_reviewed") else None,
+        "section_statuses": section_statuses(scheme),
+        "checklist": checklist_items,
+        "checklist_aliases": checklist_aliases,
+        "operations_source": scheme.get("operations_source"),
         "questions": questions,
         "audio": audio_url,
         "audioLanguage": scheme.get("audio_language", "te"),

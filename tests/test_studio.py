@@ -126,6 +126,10 @@ def test_cross_sector_entries_keep_official_links_and_do_not_invent_eligibility(
     assert kisan["operations"]["application_process"]["official_url"] == "https://pmkisan.gov.in/RegistrationFormupdated.aspx"
     assert kisan["operations"]["eligibility"]["income_ceiling"] is None
     assert entries["welfare-ntr-bharosa"]["operations"] is None
+    assert kisan["section_statuses"]["required_documents"] == "verified"
+    assert entries["welfare-ntr-bharosa"]["section_statuses"]["required_documents"] == "verification_pending"
+    assert kisan["checklist"][0]["id"] == "aadhaar-number"
+    assert kisan["checklist_aliases"]["ops:Aadhaar number"] == "aadhaar-number"
 
 
 @patch("app.generate_chat_response", return_value=None)

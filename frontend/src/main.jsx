@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import Guide, { SchemeSource } from './Guide.jsx'
 import SchemeOperations from './SchemeOperations.jsx'
+import { reconcileChecklist } from './checklist.js'
 import { Assistant, Care, PanelHeader, PdfTools, searchByMeaning } from './Tools.jsx'
 import { localRead, localWrite, mergeSchemeMatches, schemeTitle, searchSchemes, sectionText, translator } from './content.js'
 import './style.css'
@@ -326,10 +327,18 @@ function App() {
     if (!comparison.includes(id) && comparison.length === 3) return setNotice('compareLimit')
     setComparison(comparison.includes(id) ? comparison.filter(item => item !== id) : [...comparison, id])
   }
+  function schemeChecks(scheme) {
+    return reconcileChecklist(checks[scheme.id], scheme.checklist_aliases)
+  }
+
+  function setSchemeCheck(scheme, key, value) {
+    setChecks({ ...checks, [scheme.id]: { ...schemeChecks(scheme), [key]: value } })
+  }
+
   function cards(items) {
     return <div className="cards">{items.map((scheme, index) => <SchemeCard key={scheme.id} {...{ scheme, index, lang, t, toggleSave, toggleCompare }}
       selected={comparison.includes(scheme.id)} pinned={saved.includes(scheme.id)} onOpen={open}
-      checks={checks[scheme.id] || {}} setCheck={(key, value) => setChecks({ ...checks, [scheme.id]: { ...checks[scheme.id], [key]: value } })} />)}</div>
+      checks={schemeChecks(scheme)} setCheck={(key, value) => setSchemeCheck(scheme, key, value)} />)}</div>
   }
   const loadNotice = <div className="empty" role="status"><p>{t(status)}</p>
     {status === 'loadError' && <button className="button subtle" onClick={() => { setStatus('loading'); retry(attempt + 1) }}>{t('retry')}</button>}</div>
@@ -399,8 +408,8 @@ function App() {
       {notice && <div className="toast" role="status">{t(notice)}<button className="icon-button" aria-label={t('close')} onClick={() => setNotice('')}><X size={18} /></button></div>}
     </div>
     {detail && <Guide key={detail.id} scheme={detail} {...{ lang, t }} onClose={() => open(null)}
-      checks={checks[detail.id] || {}} answers={answers[detail.id] || {}}
-      setCheck={(index, value) => setChecks({ ...checks, [detail.id]: { ...checks[detail.id], [index]: value } })}
+      checks={schemeChecks(detail)} answers={answers[detail.id] || {}}
+      setCheck={(key, value) => setSchemeCheck(detail, key, value)}
       setAnswer={(index, value) => setAnswers({ ...answers, [detail.id]: { ...answers[detail.id], [index]: value } })}
       clearAnswers={() => { const next = { ...answers }; delete next[detail.id]; setAnswers(next) }} />}
   </>

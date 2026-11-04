@@ -1,8 +1,12 @@
 """Strict four-block contract for reviewed scheme details and review drafts."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, StringConstraints, field_validator, model_validator
+
+SectionStatus = Literal["verified", "official_source_unspecified", "verification_pending"]
+Section = Literal["eligibility", "required_documents", "benefits", "application_process"]
+DocumentId = Annotated[str, StringConstraints(pattern=r"^[a-z0-9][a-z0-9_-]{0,79}$")]
 
 
 class Record(BaseModel):
@@ -31,6 +35,7 @@ class Eligibility(Record):
 
 
 class Document(Record):
+    id: DocumentId | None = None
     name: Text
     purpose: Text | None = None
     mandatory: bool | None = None

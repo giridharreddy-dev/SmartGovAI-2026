@@ -32,6 +32,7 @@
         },
         "required_documents": [
           {
+            "id": "aadhaar-number",
             "name": { "en": "Aadhaar number", "te": "ఆధార్ సంఖ్య" },
             "purpose": {
               "en": "Identity authentication for new online registration.",

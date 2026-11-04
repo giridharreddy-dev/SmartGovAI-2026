@@ -16,6 +16,7 @@ myenv/
 
 # Scratch files
 scratch/
+data/studio/operation_revisions.lock
 
 # Python cache
 __pycache__/

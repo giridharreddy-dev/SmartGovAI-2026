@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react'
-import { localized, officialUrl, sectionText } from './content.js'
+import { baselineSectionText, localized, officialUrl, sectionText } from './content.js'
+import { checklistForScheme } from './checklist.js'
 
 const eligibilityFields = ['target_group', 'age_range', 'income_ceiling', 'residence', 'caste_category', 'exclusions']
 const benefitsFields = ['coverage_type', 'subsidy_percentage', 'disbursement']
@@ -26,56 +27,63 @@ function Lines({ text, ordered = false }) {
   return text.length ? <Tag>{text.map((line, i) => <li key={i}>{line}</li>)}</Tag> : null
 }
 
+function BlockSummary({ label, status, t }) {
+  return <summary><span>{t(label)}</span>
+    <span className="operation-state" data-status={status}>{t('section.' + status)}</span>
+    <ChevronDown size={16} aria-hidden="true" />
+  </summary>
+}
+
 export default function SchemeOperations({ scheme, lang, t, checks, setCheck }) {
   const data = scheme.operations
   const eligibility = fieldRows(data?.eligibility, eligibilityFields, lang)
   const benefits = fieldRows(data?.benefits, benefitsFields, lang)
   const application = fieldRows(data?.application_process, applicationFields, lang)
-  const details = (items, fallback) => items?.length
+  const details = (items, fallback, hasTyped) => items?.length
     ? items.map(item => localized(item, lang)).filter(Boolean)
-    : (sectionText(scheme, fallback, lang) || '').split(/\n+/).map(line => line.trim()).filter(Boolean)
-  const criteria = details(data?.eligibility?.criteria, 'eligibility')
-  const payouts = details(data?.benefits?.details, 'benefits')
-  const steps = details(data?.application_process?.steps, 'steps')
+    : (hasTyped ? '' : baselineSectionText(scheme, fallback, lang) || '').split(/\n+/).map(line => line.trim()).filter(Boolean)
   const amount = localized(data?.benefits?.coverage_amount, lang)
   const cashless = data?.benefits?.cashless
   const portal = officialUrl(data?.application_process?.official_url)
   const source = officialUrl(scheme.source?.url)
-  const documents = data ? data.required_documents.map(doc => ({
-    key: 'ops:' + (doc.name.en || doc.name.te), name: localized(doc.name, lang),
-    purpose: localized(doc.purpose, lang), mandatory: doc.mandatory,
-  })) : (scheme.documents || []).map((doc, key) => ({
-    key, name: localized(doc, lang), mandatory: doc.optional ? false : null,
-  }))
+  const criteria = details(data?.eligibility?.criteria, 'eligibility', eligibility.length)
+  const payouts = details(data?.benefits?.details, 'benefits', amount || cashless != null || benefits.length)
+  const steps = details(data?.application_process?.steps, 'steps', portal || application.length)
+  const documents = checklistForScheme(scheme)
+  const status = key => scheme.section_statuses?.[key] || 'verification_pending'
+  const docsStatus = status('required_documents')
   const documentNote = sectionText(scheme, 'documents', lang)
   const missing = <p className="operation-missing">{t('operationsMissing')}{source && <> <a href={source} target="_blank" rel="noreferrer">{t('source')}</a></>}</p>
 
   return <div className="scheme-operations">
     <details name={scheme.id + '-operations'}>
-      <summary>{t('eligibility')}<ChevronDown size={16} aria-hidden="true" /></summary>
+      <BlockSummary label="eligibility" status={status('eligibility')} t={t} />
       <div className="operation-content">
         <Facts rows={eligibility} t={t} /><Lines text={criteria} />
         {!eligibility.length && !criteria.length && missing}
       </div>
     </details>
     <details name={scheme.id + '-operations'}>
-      <summary>{t('requiredDocuments')}<ChevronDown size={16} aria-hidden="true" /></summary>
+      <BlockSummary label="requiredDocuments" status={docsStatus} t={t} />
       <div className="operation-content">
         {documents.length > 0 && <ul className="operation-checks">
           {documents.map(doc => <li key={doc.key}><label>
             <input type="checkbox" checked={Boolean(checks[doc.key])} onChange={event => setCheck(doc.key, event.target.checked)} />
-            <span>{doc.name}{doc.mandatory != null && <small>{t(doc.mandatory ? 'required' : 'optional')}</small>}
-              {doc.purpose && <small>{doc.purpose}</small>}
+            <span>{localized(doc, lang)}{doc.mandatory != null && <small>{t(doc.mandatory ? 'required' : 'optional')}</small>}
+              {doc.purpose && <small>{localized(doc.purpose, lang)}</small>}
             </span>
           </label></li>)}
         </ul>}
         {documentNote && <p>{documentNote}</p>}
         {documents.length > 0 && <p>{t('checklistNote')}</p>}
-        {!documents.length && !documentNote && missing}
+        {(docsStatus !== 'verified' || !documents.length) && <p className="operation-missing">
+          {t(docsStatus === 'official_source_unspecified' ? 'documentsUnspecified' : 'documentsPending')}
+          {source && <> <a href={source} target="_blank" rel="noreferrer">{t('source')}</a></>}
+        </p>}
       </div>
     </details>
     <details name={scheme.id + '-operations'}>
-      <summary>{t('benefits')}<ChevronDown size={16} aria-hidden="true" /></summary>
+      <BlockSummary label="benefits" status={status('benefits')} t={t} />
       <div className="operation-content">
         {amount && <span className="pill operation-amount">{amount}</span>}
         {cashless != null && <p>{t(cashless ? 'cashlessAvailable' : 'cashlessUnavailable')}</p>}
@@ -84,7 +92,7 @@ export default function SchemeOperations({ scheme, lang, t, checks, setCheck }) 
       </div>
     </details>
     <details name={scheme.id + '-operations'}>
-      <summary>{t('steps')}<ChevronDown size={16} aria-hidden="true" /></summary>
+      <BlockSummary label="steps" status={status('application_process')} t={t} />
       <div className="operation-content">
         <Facts rows={application} t={t} /><Lines text={steps} ordered />
         {portal && <a href={portal} target="_blank" rel="noreferrer">{t('applicationPortal')}</a>}

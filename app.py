@@ -37,6 +37,7 @@ from services.chat_service import generate_chat_response, retrieve_relevant_sche
 from services.gemini_service import is_gemini_available, simplify_document
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
 from services.studio_catalog import load_studio_schemes
+from services.scheme_revisions import apply_revisions, read_revisions
 from studio import make_studio
 from utils import allowed_file, safe_url, validate_pdf_content
 import threading
@@ -401,7 +402,7 @@ def handle_unexpected_exception(error) -> Any:
     return api_error("An unexpected error occurred.", 500, error_code="UNHANDLED_EXCEPTION")
 
 
-studio_schemes = {**load_studio_schemes(app.root_path), **schemes}
+studio_schemes = apply_revisions({**load_studio_schemes(app.root_path), **schemes}, read_revisions(app.root_path))
 app.register_blueprint(make_studio(app.root_path, studio_schemes, facilities_data))
 
 

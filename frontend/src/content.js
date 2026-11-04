@@ -82,6 +82,11 @@ const copy = {
   requiredDocuments: ['Required documents', 'అవసరమైన పత్రాలు'],
   required: ['Required', 'తప్పనిసరి'],
   operationsMissing: ['Details unavailable. Confirm with the official provider.', 'వివరాలు అందుబాటులో లేవు. సంబంధిత అధికారిక సంస్థలో నిర్ధారించుకోండి.'],
+  'section.verified': ['Verified', 'ధ్రువీకరించబడింది'],
+  'section.official_source_unspecified': ['Official source omits details', 'అధికారిక మూలంలో వివరాలు లేవు'],
+  'section.verification_pending': ['Verification pending', 'ధ్రువీకరణ పెండింగ్‌లో ఉంది'],
+  documentsPending: ['Document requirements are currently being verified against official operational guidelines. Please check the official portal before applying.', 'అవసరమైన పత్రాల వివరాలు అధికారిక మార్గదర్శకాల ఆధారంగా ధృవీకరించబడుతున్నాయి. దరఖాస్తు చేయడానికి ముందు అధికారిక పోర్టల్‌ను తనిఖీ చేయండి.'],
+  documentsUnspecified: ['The official source does not specify the documents. Confirm the checklist before applying.', 'అధికారిక మూలంలో అవసరమైన పత్రాలను పేర్కొనలేదు. దరఖాస్తు చేయడానికి ముందు పత్రాల జాబితాను నిర్ధారించుకోండి.'],
   target_group: ['Who the scheme is for', 'పథకం ఎవరికి'],
   age_range: ['Age range', 'వయోపరిమితి'],
   income_ceiling: ['Income ceiling', 'ఆదాయ పరిమితి'],
@@ -172,7 +177,26 @@ export const translator = lang => key => copy[key]?.[lang === 'te' ? 1 : 0] || k
 export const localized = (value, lang) => value?.[lang] || value?.en || value?.te || ''
 export const sections = ['description', 'benefits', 'eligibility', 'documents', 'steps']
 export const schemeTitle = (scheme, lang) => lang === 'te' && scheme.nameTe ? scheme.nameTe : scheme.name
-export const sectionText = (scheme, key, lang) => scheme[lang]?.[key] || scheme.en?.[key] || scheme.te?.[key]
+export const baselineSectionText = (scheme, key, lang) => scheme[lang]?.[key] || scheme.en?.[key] || scheme.te?.[key]
+const operationFields = {
+  eligibility: ['eligibility', ['target_group', 'age_range', 'income_ceiling', 'residence', 'caste_category', 'criteria', 'exclusions']],
+  benefits: ['benefits', ['coverage_amount', 'coverage_type', 'subsidy_percentage', 'disbursement', 'details', 'cashless']],
+  steps: ['application_process', ['mode', 'nodal_agency', 'offline_office', 'steps', 'verification']],
+}
+export function sectionText(scheme, key, lang) {
+  if (key === 'documents' && scheme.operations?.required_documents?.length) return ''
+  if (operationFields[key] && scheme.operations) {
+    const [section, fields] = operationFields[key]
+    const block = scheme.operations[section]
+    const text = fields.flatMap(field => {
+      const value = block?.[field]
+      if (typeof value === 'boolean') return translator(lang)(value ? 'cashlessAvailable' : 'cashlessUnavailable')
+      return (Array.isArray(value) ? value : [value]).map(item => localized(item, lang)).filter(Boolean)
+    }).join('\n')
+    if (text) return text
+  }
+  return baselineSectionText(scheme, key, lang)
+}
 
 const normalize = value => String(value || '').normalize('NFKC').toLowerCase()
 const stop = new Set(['a', 'an', 'are', 'can', 'do', 'for', 'how', 'i', 'in', 'is', 'me', 'my', 'of', 'the', 'to', 'what', 'which', 'with', 'scheme', 'schemes', 'పథకం', 'పథకాలు', 'ఏవి'])
