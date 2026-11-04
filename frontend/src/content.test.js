@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { officialUrl, searchSchemes, sectionText } from './content.js'
+import { mergeSchemeMatches, officialUrl, searchSchemes, sectionText } from './content.js'
 
 const catalog = [
   { name: 'Poshan Abhiyaan', nameTe: 'పోషణ్ అభియాన్', region: 'National', keywords: ['nutrition'], en: { benefits: 'Supports child nutrition' } },
@@ -16,6 +16,17 @@ test('directory search keeps Telugu combining marks and finds benefits in both l
 test('assistant search ignores question filler and returns the strongest catalog match first', () => {
   assert.equal(searchSchemes(catalog, 'Which schemes are for child vaccination?', { partial: true })[0].name, 'Mission Indradhanush')
   assert.deepEqual(searchSchemes(catalog, 'What are the schemes?', { partial: true }), [])
+})
+
+test('a transposed title and a Telugu spelling variant still resolve to the scheme', () => {
+  for (const query of ['Psohan Abhiyaan', 'పోషన్']) {
+    assert.equal(searchSchemes(catalog, query)[0]?.name, 'Poshan Abhiyaan')
+  }
+})
+
+test('related IDs supplement local matches without duplication or bypassing the candidate list', () => {
+  const schemes = catalog.map((scheme, id) => ({ ...scheme, id }))
+  assert.deepEqual(mergeSchemeMatches(schemes, [schemes[0]], [0, 1, 1, 42]), schemes)
 })
 
 test('missing translations fall back to existing text, and unsafe link protocols or credentials are blocked', () => {

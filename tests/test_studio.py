@@ -5,6 +5,7 @@ from flask_wtf.csrf import CSRFProtect
 
 from app import app
 from services.studio_narration import studio_audio_asset
+from services.studio_search import SearchUnavailable
 from studio import make_studio
 
 
@@ -40,6 +41,30 @@ def test_catalog_only_advertises_available_recordings_by_language(tmp_path):
         assert set(urls) == ({"te"} if language == "te" else {"te", "en"})
         assert f"/{slug}.{language}.mp3?v=" in urls[language]
         assert client.get(urls[language], headers={"Range": "bytes=0-2"}).data == b"ID3"
+
+
+def test_meaning_search_uses_filtered_catalog_ids_and_handles_missing_model(tmp_path):
+    server = Flask(__name__)
+    server.config["SECRET_KEY"] = "search-test"
+    CSRFProtect(server)
+    schemes = {
+        "Rural skills": {"slug": "skills", "sector": "employment", "level": "National",
+                         "simplified": {"description": "Work training"}, "telugu": {"description": "వృత్తి శిక్షణ"}},
+        "Housing": {"slug": "housing", "sector": "housing", "simplified": {"description": "Housing aid"}},
+    }
+    server.register_blueprint(make_studio(tmp_path, schemes, []))
+    client = server.test_client()
+    query = {"query": "గ్రామీణ యువతకు పని నేర్పే పథకం", "sector": "employment"}
+    assert client.post("/studio/search", json=query).status_code == 400
+    headers = {"X-CSRFToken": client.get("/studio/session").get_json()["csrfToken"]}
+    assert client.post("/studio/search", json={"query": []}, headers=headers).status_code == 400
+    with patch("studio.semantic_ids", return_value=["skills"]) as rank:
+        response = client.post("/studio/search", json=query, headers=headers)
+    assert response.get_json() == {"ids": ["skills"]}
+    assert response.cache_control.no_store
+    assert rank.call_args.args[-1] == {"skills"}
+    with patch("studio.semantic_ids", side_effect=SearchUnavailable):
+        assert client.post("/studio/search", json=query, headers=headers).status_code == 503
 
 
 def test_studio_serves_only_supported_public_assets(tmp_path):

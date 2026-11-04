@@ -46,6 +46,7 @@ Thumbs.db
 Desktop.ini
 
 # Python build artifacts
+.studio-search/
 dist/
 build/
 *.egg-info/

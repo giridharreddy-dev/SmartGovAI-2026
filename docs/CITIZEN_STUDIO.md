@@ -24,7 +24,20 @@ Open `http://127.0.0.1:5000/`. The server starts with a local catalog when no Ge
 - The [official myScheme search](https://www.myscheme.gov.in/search) provides wider central and state coverage online. Its [terms](https://www.myscheme.gov.in/terms-of-use) require written authorization for scraping. The local catalog is a subset.
 - Bookmarks, comparisons, document checks and eligibility answers are stored in this browser. The self-check records answers and links to the scheme's source; it does not assign a score or submit an application. These records are separate from the classic portal's browser storage.
 - Once “Offline copy ready” appears, the Studio shell, local search, comparison, checklists, printable guides and facility directory can work offline. External sources, map links, fresh AI responses and audio that has not been cached need a connection.
-- Local assistant search sends no query to Flask. The explicit online action posts a question to Flask and may send it to Gemini. PDF uploads require consent, use Flask's PDF validation and optionally OCR, and send extracted text to Gemini when configured. The temporary PDF is removed after processing; PDF summary narration uses only the local browser voice. Do not submit private documents. For PDF guides, choose **Print / save PDF**, then **Save as PDF** in the browser dialog.
+- The directory and **Search locally** in the assistant use exact and typo-tolerant matching in the browser. **Search by meaning** explicitly submits the query to the SmartGovAI server for local model inference. The separate **Ask online assistant** action may send a question to Gemini. PDF uploads require consent, use Flask's PDF validation and optionally OCR, and send extracted text to Gemini when configured. The temporary PDF is removed after processing; PDF summary narration uses only the local browser voice. Do not submit private documents. For PDF guides, choose **Print / save PDF**, then **Save as PDF** in the browser dialog.
+
+## Enable search by meaning
+
+After the Windows setup above, install the optional CPU runtime and prepare the index from the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-search.txt
+.\.venv\Scripts\python.exe -m scripts.prepare_studio_search
+```
+
+Preparation downloads about 135 MB from a pinned revision of the [quantized multilingual E5 model on Hugging Face](https://huggingface.co/Xenova/multilingual-e5-small) and embeds the English and Telugu catalog text. Runtime queries are encoded on the Flask server and do not call Hugging Face or Gemini. The browser keeps its strongest text matches and adds related catalog entries ranked by the model. If the server or index is unavailable, local typo matching remains available.
+
+Rebuild the index when catalog search text changes. The index and model files default to `.studio-search/` and are excluded from Git. Set `STUDIO_SEARCH_MODEL_DIR` to use a different private directory. A deployment that enables meaning search must install the optional runtime and supply the prepared model and index to its Flask workers.
 
 ## Generate scheme narration
 

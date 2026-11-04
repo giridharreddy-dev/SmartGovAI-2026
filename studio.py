@@ -3,10 +3,11 @@
 import json
 from pathlib import Path
 
-from flask import Blueprint, Response, abort, jsonify, request, send_from_directory, url_for
+from flask import Blueprint, Response, abort, current_app, jsonify, request, send_from_directory, url_for
 from flask_wtf.csrf import generate_csrf
 
 from services.studio_narration import STUDIO_VOICES, studio_audio_asset
+from services.studio_search import SearchUnavailable, model_directory, search_corpus, semantic_ids
 from utils import safe_url
 
 
@@ -88,6 +89,7 @@ def make_studio(root, schemes, facilities):
     studio = Blueprint("studio", __name__, url_prefix="/studio")
     root = Path(root)
     dist = root / "frontend" / "dist"
+    passages, fingerprint = search_corpus(schemes)
 
     @studio.get("/")
     def index():
@@ -112,6 +114,33 @@ def make_studio(root, schemes, facilities):
     @studio.get("/catalog.json")
     def catalog():
         return _public_json({"schemes": [_scheme(name, item, root) for name, item in schemes.items()]})
+
+    @studio.post("/search")
+    def search():
+        data = request.get_json(silent=True)
+        query = data.get("query") if isinstance(data, dict) else None
+        if not isinstance(query, str) or not query.strip() or len(query) > 500:
+            return jsonify(error="A search query of up to 500 characters is required."), 400
+        region, sector = data.get("region", ""), data.get("sector", "")
+        if not all(isinstance(value, str) and len(value) <= 100 for value in (region, sector)):
+            return jsonify(error="Invalid search filters."), 400
+        allowed = {
+            item["slug"] for item in schemes.values()
+            if (not region or item.get("level") == region)
+            and (not sector or (item.get("sector") or "health") == sector)
+        }
+        try:
+            ids = semantic_ids(model_directory(root), passages, fingerprint, query.strip(), allowed)
+            response = jsonify(ids=ids)
+        except SearchUnavailable:
+            response = jsonify(error="Semantic search is currently unavailable.")
+            response.status_code = 503
+        except Exception:
+            current_app.logger.exception("Citizen Studio semantic search failed")
+            response = jsonify(error="Semantic search is currently unavailable.")
+            response.status_code = 503
+        response.cache_control.no_store = True
+        return response
 
     @studio.get("/facilities.json")
     def directory():

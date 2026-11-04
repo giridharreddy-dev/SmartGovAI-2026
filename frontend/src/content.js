@@ -105,6 +105,11 @@ const copy = {
   question: ['Your question', 'మీ ప్రశ్న'],
   questionHint: ['Which schemes offer scholarships?', 'ఉపకార వేతనాలు ఇచ్చే పథకాలు ఏవి?'],
   catalogSearch: ['Search locally', 'స్థానికంగా వెతకండి'],
+  meaningSearch: ['Search by meaning', 'అర్థం ఆధారంగా వెతకండి'],
+  meaningHint: ['Typo matching stays on this device. Search by meaning sends your text to SmartGovAI’s server for matching.', 'అక్షరదోషాలతో వెతకడం ఈ పరికరంలోనే జరుగుతుంది. అర్థం ఆధారంగా వెతికితే మీ పదాలు SmartGovAI సర్వర్‌కు వెళ్తాయి.'],
+  meaningUnavailable: ['Search by meaning is unavailable. Showing local matches.', 'అర్థం ఆధారంగా వెతకడం అందుబాటులో లేదు. స్థానిక ఫలితాలను చూపిస్తున్నాం.'],
+  meaningComplete: ['Showing local and related matches.', 'స్థానిక ఫలితాలు, సంబంధిత పథకాలను చూపిస్తున్నాం.'],
+  meaningNoMatches: ['No close matches by meaning. Try a more specific search.', 'అర్థం ఆధారంగా దగ్గరి ఫలితాలు లేవు. మరింత నిర్దిష్టంగా వెతకండి.'],
   ai: ['Ask online assistant', 'ఆన్‌లైన్ సహాయకుడిని అడగండి'],
   aiPrivacy: ['Online questions go to the server and may be sent to Google Gemini. Leave out personal information.', 'ఆన్‌లైన్ ప్రశ్నలు సర్వర్‌కు వెళ్తాయి; Google Geminiకి కూడా పంపవచ్చు. వ్యక్తిగత సమాచారం ఇవ్వకండి.'],
   aiResult: ['AI-assisted answer', 'AI సహాయంతో సమాధానం'],
@@ -151,16 +156,62 @@ export const sectionText = (scheme, key, lang) => scheme[lang]?.[key] || scheme.
 
 const normalize = value => String(value || '').normalize('NFKC').toLowerCase()
 const stop = new Set(['a', 'an', 'are', 'can', 'do', 'for', 'how', 'i', 'in', 'is', 'me', 'my', 'of', 'the', 'to', 'what', 'which', 'with', 'scheme', 'schemes', 'పథకం', 'పథకాలు', 'ఏవి'])
+const words = text => text.match(/[\p{L}\p{M}\p{N}]+/gu) || []
+const searchFields = new WeakMap()
+
+function fields(scheme) {
+  if (searchFields.has(scheme)) return searchFields.get(scheme)
+  const primary = normalize([scheme.name, scheme.nameTe, scheme.category, scheme.region, ...(scheme.keywords || [])].join(' '))
+  const details = normalize([scheme.en?.description, scheme.te?.description, scheme.en?.benefits, scheme.te?.benefits].join(' '))
+  const value = { primary, details, primaryWords: [...new Set(words(primary))], detailWords: [...new Set(words(details))] }
+  searchFields.set(scheme, value)
+  return value
+}
+
+function oneEditAway(token, candidate) {
+  if (Math.abs(token.length - candidate.length) > 1) return false
+  let first = 0
+  while (first < token.length && token[first] === candidate[first]) first++
+  if (token.length === candidate.length) {
+    if (token.slice(first + 1) === candidate.slice(first + 1)) return true
+    return token[first] === candidate[first + 1] && token[first + 1] === candidate[first]
+      && token.slice(first + 2) === candidate.slice(first + 2)
+  }
+  const [longer, shorter] = token.length > candidate.length ? [token, candidate] : [candidate, token]
+  return longer.slice(first + 1) === shorter.slice(first)
+}
+
 export function searchSchemes(schemes, query, { partial = false } = {}) {
-  const tokens = (normalize(query).match(/[\p{L}\p{M}\p{N}]+/gu) || []).filter(token => !stop.has(token))
+  const normalized = normalize(query).trim()
+  const tokens = [...new Set(words(normalized).filter(token => !stop.has(token)))].slice(0, 24)
   if (!tokens.length) return partial && query.trim() ? [] : schemes
   return schemes.map(scheme => {
-    const primary = normalize([scheme.name, scheme.nameTe, scheme.category, scheme.region, ...scheme.keywords].join(' '))
-    const details = normalize([scheme.en?.description, scheme.te?.description, scheme.en?.benefits, scheme.te?.benefits].join(' '))
-    const scores = tokens.map(token => primary.includes(token) ? 3 : details.includes(token) ? 1 : 0)
-    return { scheme, score: scores.reduce((total, score) => total + score, 0), all: scores.every(Boolean) }
+    const { primary, details, primaryWords, detailWords } = fields(scheme)
+    const scores = tokens.map(token => {
+      if (primaryWords.includes(token)) return 6
+      if (primary.includes(token)) return 4
+      if (details.includes(token)) return 3
+      if (token.length >= 4 && primaryWords.some(word => oneEditAway(token, word))) return 2
+      if (token.length >= 7 && detailWords.some(word => oneEditAway(token, word))) return 1
+      return 0
+    })
+    const titleMatch = normalized === normalize(scheme.name) || normalized === normalize(scheme.nameTe)
+    return { scheme, score: scores.reduce((total, score) => total + score, 0) + (titleMatch ? 30 : 0), all: scores.every(Boolean) }
   }).filter(match => partial ? match.score > 0 : match.all)
     .sort((a, b) => b.score - a.score).map(match => match.scheme)
+}
+
+export function mergeSchemeMatches(schemes, local, semanticIds) {
+  if (!semanticIds.length) return local
+  const first = local.slice(0, 3)
+  const found = new Set(first.map(scheme => scheme.id))
+  const byId = new Map(schemes.map(scheme => [scheme.id, scheme]))
+  for (const id of [...semanticIds, ...local.map(scheme => scheme.id)]) {
+    if (found.has(id) || !byId.has(id)) continue
+    found.add(id)
+    first.push(byId.get(id))
+  }
+  return first
 }
 
 export function officialUrl(value) {

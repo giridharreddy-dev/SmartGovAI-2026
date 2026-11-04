@@ -6,8 +6,8 @@ import {
   Plus, Scale, Search, ShieldPlus, Sparkles, Sprout, TrainFront, Trophy, Wallet, Wifi, WifiOff, X, Zap,
 } from 'lucide-react'
 import Guide, { SchemeSource } from './Guide.jsx'
-import { Assistant, Care, PanelHeader, PdfTools } from './Tools.jsx'
-import { localRead, localWrite, schemeTitle, searchSchemes, sectionText, translator } from './content.js'
+import { Assistant, Care, PanelHeader, PdfTools, searchByMeaning } from './Tools.jsx'
+import { localRead, localWrite, mergeSchemeMatches, schemeTitle, searchSchemes, sectionText, translator } from './content.js'
 import './style.css'
 
 const nav = [['explore', Compass], ['saved', Bookmark], ['compare', GitCompareArrows], ['assistant', Sparkles], ['pdf', FileText], ['care', MapPin]]
@@ -219,11 +219,14 @@ function App() {
   const [region, setRegion] = useState('')
   const [sector, setSector] = useState('')
   const [limit, setLimit] = useState(pageSize)
+  const [meaning, setMeaning] = useState({ status: '', ids: [] })
+  const meaningRequest = useRef(null)
   const [panel, setPanel] = useState(() => nav.some(([id]) => id === location.hash.slice(1)) ? location.hash.slice(1) : 'explore')
   const [detail, open] = useState(null)
   const main = useRef(null)
   const catalog = useRef(null)
   const t = translator(lang)
+  useEffect(() => () => meaningRequest.current?.abort(), [])
   useEffect(() => { document.documentElement.lang = lang === 'en' ? 'en' : 'te' }, [lang])
   useEffect(() => {
     const update = () => setOnline(navigator.onLine)
@@ -266,7 +269,7 @@ function App() {
     const candidates = schemes.filter(scheme => (!region || scheme.region === region) &&
       (!sector || (scheme.sector || 'health') === sector))
     const ranked = searchSchemes(candidates, query)
-    if (query.trim() || region || sector) return ranked
+    if (query.trim() || region || sector) return mergeSchemeMatches(candidates, ranked, meaning.ids)
     const rank = scheme => spotlight.includes(scheme.name) ? spotlight.indexOf(scheme.name) : spotlight.length + (scheme.region === 'Andhra Pradesh' ? 0 : scheme.region === 'National' ? 1 : 2)
     const ordered = [...ranked].sort((a, b) => rank(a) - rank(b))
     const featured = [], remaining = [], seen = new Set()
@@ -276,7 +279,7 @@ function App() {
       else { seen.add(category); featured.push(scheme) }
     }
     return [...featured, ...remaining]
-  }, [schemes, region, sector, query])
+  }, [schemes, region, sector, query, meaning.ids])
   const sectorCounts = new Map()
   for (const scheme of schemes) {
     const key = scheme.sector || 'health'
@@ -284,8 +287,29 @@ function App() {
   }
   const sectors = [...sectorCounts.keys()].sort((a, b) => t('sector.' + a).localeCompare(t('sector.' + b), lang))
   const filtered = Boolean(query.trim() || region || sector)
+  function resetMeaning() {
+    meaningRequest.current?.abort()
+    setMeaning({ status: '', ids: [] })
+    setLimit(pageSize)
+  }
+  async function lookUpMeaning() {
+    if (!query.trim() || !online || meaning.status === 'waiting') return
+    resetMeaning()
+    const controller = new AbortController()
+    meaningRequest.current = controller
+    const timeout = setTimeout(() => controller.abort('timeout'), 15_000)
+    setMeaning({ status: 'waiting', ids: [] })
+    try {
+      const ids = await searchByMeaning(query.trim(), { region, sector }, controller.signal)
+      if (!controller.signal.aborted) setMeaning({ status: ids.length ? 'meaningComplete' : 'meaningNoMatches', ids })
+    } catch {
+      if (!controller.signal.aborted || controller.signal.reason === 'timeout') {
+        setMeaning({ status: 'meaningUnavailable', ids: [] })
+      }
+    } finally { clearTimeout(timeout) }
+  }
   function clearFilters() {
-    setQuery(''); setRegion(''); setSector(''); setLimit(pageSize)
+    setQuery(''); setRegion(''); setSector(''); resetMeaning()
   }
   function toggleSave(id) {
     setNotice('')
@@ -327,14 +351,18 @@ function App() {
             </aside>
             {status ? loadNotice : <>
               <div className="filter-row">
-                <label className="search-box"><Search size={20} /><input type="search" aria-label={t('search')} placeholder={t('placeholder')} value={query} onChange={event => { setQuery(event.target.value); setLimit(pageSize) }} /></label>
-                <select aria-label={t('sector')} value={sector} onChange={event => { setSector(event.target.value); setLimit(pageSize) }}>
+                <label className="search-box"><Search size={20} /><input type="search" maxLength={500} aria-label={t('search')} placeholder={t('placeholder')} value={query} onChange={event => { setQuery(event.target.value); resetMeaning() }} /></label>
+                <select aria-label={t('sector')} value={sector} onChange={event => { setSector(event.target.value); resetMeaning() }}>
                   <option value="">{t('anySector')} ({schemes.length})</option>{sectors.map(item => <option value={item} key={item}>{t('sector.' + item)} ({sectorCounts.get(item)})</option>)}
                 </select>
-                <select aria-label={t('region')} value={region} onChange={event => { setRegion(event.target.value); setLimit(pageSize) }}>
+                <select aria-label={t('region')} value={region} onChange={event => { setRegion(event.target.value); resetMeaning() }}>
                   <option value="">{t('anyRegion')}</option>{regions.map(item => <option value={item} key={item}>{regionText(item, t)}</option>)}
                 </select>
               </div>
+              {query.trim() && <div className="catalog-results">
+                <button className="button subtle" disabled={!online || meaning.status === 'waiting'} onClick={lookUpMeaning}><Sparkles size={17} />{t('meaningSearch')}</button>
+                <p className="count" role="status">{t(meaning.status || 'meaningHint')}</p>
+              </div>}
               <div className="catalog-results">
                 <p className="count" aria-live="polite">{t('resultCount').replace('{shown}', Math.min(limit, results.length)).replace('{matches}', results.length).replace('{total}', schemes.length)}</p>
                 {filtered && <button className="text-button" onClick={clearFilters}>{t('clearFilters')}</button>}

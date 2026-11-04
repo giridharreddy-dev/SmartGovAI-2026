@@ -1,0 +1,4 @@
+# Optional CPU runtime for Citizen Studio semantic search.
+onnxruntime==1.31.1
+tokenizers==0.23.3
+numpy>=2.1,<3

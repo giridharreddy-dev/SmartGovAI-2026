@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, ArrowUpRight, FileText, LocateFixed, MapPin, Search, Sparkles } from 'lucide-react'
-import { schemeTitle, searchSchemes } from './content.js'
+import { mergeSchemeMatches, schemeTitle, searchSchemes } from './content.js'
 
 async function request(path, options = {}) {
   const response = await fetch(path, options)
@@ -12,6 +12,14 @@ async function request(path, options = {}) {
 async function protectedRequest(path, options, signal) {
   const { csrfToken } = await request('/studio/session', { cache: 'no-store', signal })
   return request(path, { ...options, method: 'POST', signal, headers: { ...options.headers, 'X-CSRFToken': csrfToken } })
+}
+
+export async function searchByMeaning(query, filters, signal) {
+  const { ids } = await protectedRequest('/studio/search', {
+    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, ...filters }),
+  }, signal)
+  if (!Array.isArray(ids)) throw new Error('Missing search results')
+  return ids
 }
 
 function useRequest() {
@@ -40,18 +48,26 @@ export function Assistant({ schemes, lang, t, online, open }) {
     const query = question.trim()
     if (!query || busy) return
     const local = searchSchemes(schemes, query, { partial: true }).slice(0, 5)
-    if (event.nativeEvent.submitter?.value !== 'online') return setResult({ matches: local })
+    const mode = event.nativeEvent.submitter?.value
+    if (mode !== 'online' && mode !== 'meaning') return setResult({ matches: local })
     const { controller, dispose } = start()
     setBusy(true)
     setResult(null)
     try {
+      if (mode === 'meaning') {
+        const ids = await searchByMeaning(query, {}, controller.signal)
+        const matches = ids.length ? mergeSchemeMatches(schemes, searchSchemes(schemes, query), [...ids, ...local.map(scheme => scheme.id)]) : local
+        return setResult({ matches: matches.slice(0, 5), notice: ids.length ? '' : 'meaningNoMatches' })
+      }
       const data = await protectedRequest('/chat', {
         headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: query, lang, catalog: 'studio' }),
       }, controller.signal)
       const names = new Set(data.matched_schemes?.map(item => item.scheme_name))
       setResult({ matches: schemes.filter(item => names.has(item.name)), answer: data.answer, ai: data.used_ai })
     } catch {
-      if (!controller.signal.aborted || controller.signal.reason === 'timeout') setResult({ matches: local, failed: true })
+      if (!controller.signal.aborted || controller.signal.reason === 'timeout') {
+        setResult({ matches: local, notice: mode === 'meaning' ? 'meaningUnavailable' : 'offlineAnswer' })
+      }
     } finally { dispose(); setBusy(false) }
   }
   return <section className="work-panel">
@@ -59,16 +75,18 @@ export function Assistant({ schemes, lang, t, online, open }) {
     <form className="tool-card" onSubmit={ask}>
       <label htmlFor="question">{t('question')}</label>
       <textarea id="question" rows={4} maxLength={500} required placeholder={t('questionHint')} value={question} onChange={event => setQuestion(event.target.value)} />
+      <p className="muted">{t('meaningHint')}</p>
       <p className="muted">{t('aiPrivacy')}</p>
       <div className="action-row">
         <button className="button primary" disabled={busy || !question.trim()}><Search size={18} />{t('catalogSearch')}</button>
+        <button className="button subtle" value="meaning" disabled={busy || !online || !question.trim()}><Search size={18} />{t('meaningSearch')}</button>
         <button className="button subtle" value="online" disabled={busy || !online || !question.trim()}><Sparkles size={18} />{t('ai')}</button>
       </div>
     </form>
     <div aria-live="polite" className="tool-result">{busy && <p>{t('waiting')}</p>}
       {result && <article className="tool-card">
         <h3>{t(result.ai ? 'aiResult' : 'catalogResult')}</h3>
-        {result.failed && <p>{t('offlineAnswer')}</p>}
+        {result.notice && <p>{t(result.notice)}</p>}
         {result.answer && <p className="answer-text">{result.answer}</p>}
         {result.matches.length ? <ul className="result-links">{result.matches.map(scheme => <li key={scheme.id}>
           <button className="text-button" onClick={() => open(scheme)}>{schemeTitle(scheme, lang)}<ArrowRight size={16} /></button>
