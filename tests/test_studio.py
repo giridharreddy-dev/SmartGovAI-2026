@@ -4,6 +4,7 @@ from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 
 from app import app
+from services.studio_narration import studio_audio_asset
 from studio import make_studio
 
 
@@ -18,6 +19,27 @@ def test_public_catalog_is_bilingual_cacheable_and_excludes_raw_content():
     assert all("original_complex_text" not in entry for entry in entries)
     assert all(not entry["source"]["url"] or entry["source"]["url"].startswith(("https://", "http://")) for entry in entries)
     assert client.get("/studio/catalog.json", headers={"If-None-Match": result.headers["ETag"]}).status_code == 304
+
+
+def test_catalog_only_advertises_available_recordings_by_language(tmp_path):
+    static = tmp_path / "static"
+    server = Flask(__name__, static_folder=str(static))
+    slug = "test-scheme"
+    server.register_blueprint(make_studio(tmp_path, {"Test Scheme": {"slug": slug}}, []))
+    client = server.test_client()
+
+    def recordings():
+        return client.get("/studio/catalog.json").get_json()["schemes"][0]["recordings"]
+
+    assert recordings() == {}
+    for language in ("te", "en"):
+        path = static / studio_audio_asset(slug, language)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"ID3" + bytes(1024))
+        urls = recordings()
+        assert set(urls) == ({"te"} if language == "te" else {"te", "en"})
+        assert f"/{slug}.{language}.mp3?v=" in urls[language]
+        assert client.get(urls[language], headers={"Range": "bytes=0-2"}).data == b"ID3"
 
 
 def test_studio_serves_only_supported_public_assets(tmp_path):

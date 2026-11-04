@@ -7,6 +7,7 @@ frontend/.playwright-cli/
 # Generated audio
 # static/audio/ is tracked
 static/audio/dynamic/
+static/audio/studio/bilingual/
 
 # Virtual environments
 .venv/

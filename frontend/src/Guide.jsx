@@ -44,18 +44,18 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
   const sheetTop = useRef(null)
   const audio = useRef(null)
   const mounted = useRef(true)
-  const playing = useRef(false)
+  const playing = useRef(null)
   const [preview, setPreview] = useState(false)
   const [sound, setSound] = useState('idle')
   const titleId = useId()
-  const audioLang = scheme.audioLanguage || 'te'
-  const playbackLang = scheme.audio && scheme.directoryEntry ? audioLang : lang
+  const recording = scheme.recordings?.[lang] ||
+    ((scheme.audioLanguage || 'te') === lang ? scheme.audio : null)
   useEffect(() => {
     mounted.current = true
     dialog.current.showModal()
     return () => {
       mounted.current = false
-      playing.current = false
+      playing.current = null
       audio.current?.pause()
       window.speechSynthesis?.cancel()
     }
@@ -64,33 +64,38 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
 
   function listen() {
     if (playing.current) {
-      playing.current = false
+      playing.current = null
       audio.current?.pause()
       window.speechSynthesis?.cancel()
       setSound('idle')
       return
     }
+    const attempt = {}
+    playing.current = attempt
+    const active = () => mounted.current && playing.current === attempt
     const done = state => {
-      if (!mounted.current || !playing.current) return
-      playing.current = false
+      if (!active()) return
+      playing.current = null
       setSound(state)
     }
     function speak() {
-      if (!mounted.current || !playing.current) return
+      if (!active()) return
       if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return done('error')
-      const voice = speechSynthesis.getVoices().find(voice => voice.lang.startsWith(playbackLang) && voice.localService)
+      const voice = speechSynthesis.getVoices().find(voice => voice.lang.startsWith(lang) && voice.localService)
       if (!voice) return done('error')
-      const msg = new SpeechSynthesisUtterance([schemeTitle(scheme, playbackLang), sectionText(scheme, 'description', playbackLang), sectionText(scheme, 'benefits', playbackLang)].filter(Boolean).join('. '))
-      msg.lang = playbackLang === 'te' ? 'te-IN' : 'en-IN'
+      const title = lang === 'te' ? scheme.nameTe : scheme.name
+      const content = scheme[lang]
+      const msg = new SpeechSynthesisUtterance([title, content?.description, content?.benefits].filter(Boolean).join('. '))
+      if (!msg.text) return done('error')
+      msg.lang = lang === 'te' ? 'te-IN' : 'en-IN'
       msg.voice = voice
       msg.onend = () => done('idle')
       msg.onerror = () => done('error')
       speechSynthesis.speak(msg)
     }
-    playing.current = true
     setSound('playing')
-    if (playbackLang === audioLang && scheme.audio) {
-      audio.current = new Audio(scheme.audio)
+    if (recording) {
+      audio.current = new Audio(recording)
       audio.current.addEventListener('ended', () => done('idle'), { once: true })
       audio.current.play().catch(speak)
     } else speak()
@@ -116,7 +121,7 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
           {scheme.ai && <p role="note">{t('pdfNotice')}</p>}
           <div className="action-row">
             <button className="button primary" onClick={() => setPreview(true)}><FileText size={17} /> {t('preview')}</button>
-            <button className="button subtle" onClick={listen}>{sound === 'playing' ? <VolumeX size={17} /> : <Volume2 size={17} />}{t(sound === 'playing' ? 'stop' : playbackLang !== lang ? 'listenEnglish' : 'listen')}</button>
+            <button className="button subtle" onClick={listen}>{sound === 'playing' ? <VolumeX size={17} /> : <Volume2 size={17} />}{t(sound === 'playing' ? 'stop' : 'listen')}</button>
           </div>
           {sound === 'error' && <p role="status">{t('speechUnavailable')}</p>}
         </div>

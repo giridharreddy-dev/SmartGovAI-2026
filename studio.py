@@ -6,6 +6,7 @@ from pathlib import Path
 from flask import Blueprint, Response, abort, jsonify, request, send_from_directory, url_for
 from flask_wtf.csrf import generate_csrf
 
+from services.studio_narration import STUDIO_VOICES, studio_audio_asset
 from utils import safe_url
 
 
@@ -38,6 +39,16 @@ def _scheme(name, scheme, root):
         candidate = (root / audio).resolve()
         if candidate.is_relative_to(audio_dir) and candidate.is_file():
             audio_url = url_for("static", filename=candidate.relative_to(root / "static").as_posix())
+    recordings = {}
+    for language in STUDIO_VOICES:
+        asset = studio_audio_asset(scheme["slug"], language)
+        file = root / "static" / asset
+        try:
+            info = file.stat()
+        except FileNotFoundError:
+            continue
+        if info.st_size >= 1024 and file.is_file():
+            recordings[language] = url_for("static", filename=asset.as_posix(), v=f"{info.st_mtime_ns:x}")
     return {
         "id": scheme["slug"],
         "name": name,
@@ -58,6 +69,7 @@ def _scheme(name, scheme, root):
         "questions": questions,
         "audio": audio_url,
         "audioLanguage": scheme.get("audio_language", "te"),
+        "recordings": recordings,
         "directoryEntry": bool(scheme.get("directory_entry")),
     }
 

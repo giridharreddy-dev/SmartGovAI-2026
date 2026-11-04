@@ -40,7 +40,5 @@ def load_studio_schemes(root):
             "official_website": row["url"],
             "source_reviewed": catalog["reviewed"],
             "directory_entry": True,
-            "audio_file": f"static/audio/studio/{slug}.mp3",
-            "audio_language": "en",
         }
     return schemes

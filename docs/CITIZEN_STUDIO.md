@@ -21,10 +21,23 @@ Open `http://127.0.0.1:5000/`. The server starts with a local catalog when no Ge
 
 - The health catalog and facility directory come from the original repository datasets. A source link or catalog date is not a guarantee that a scheme is current. Missing translations fall back to existing catalog text. No scheme eligibility or benefit is decided by this portal.
 - The expanded directory in `data/studio/welfare.json` includes brief, independently written English and Telugu summaries linked to government sources. The review date is when the source was checked. Keep IDs stable, verify replacements against the administering agency, and keep official titles as published. Directory entries point to the source for current eligibility, required documents, and application steps.
-- The [official myScheme search](https://www.myscheme.gov.in/search) provides wider central and state coverage online. Its [terms](https://www.myscheme.gov.in/terms-of-use) require written authorization for scraping. The local catalog is a subset. Narration can use installed browser voices. To build English recordings for the new entries when the configured speech service is available, run `python -m scripts.generate_audio --studio` from the repository root.
+- The [official myScheme search](https://www.myscheme.gov.in/search) provides wider central and state coverage online. Its [terms](https://www.myscheme.gov.in/terms-of-use) require written authorization for scraping. The local catalog is a subset.
 - Bookmarks, comparisons, document checks and eligibility answers are stored in this browser. The self-check records answers and links to the scheme's source; it does not assign a score or submit an application. These records are separate from the classic portal's browser storage.
-- Once “Offline copy ready” appears, the Studio shell, local search, comparison, checklists, printable guides and facility directory can work offline. External sources, map links, fresh AI responses and some audio need a connection. Narration uses a bundled recording when available, or a local installed speech voice.
+- Once “Offline copy ready” appears, the Studio shell, local search, comparison, checklists, printable guides and facility directory can work offline. External sources, map links, fresh AI responses and audio that has not been cached need a connection.
 - Local assistant search sends no query to Flask. The explicit online action posts a question to Flask and may send it to Gemini. PDF uploads require consent, use Flask's PDF validation and optionally OCR, and send extracted text to Gemini when configured. The temporary PDF is removed after processing; PDF summary narration uses only the local browser voice. Do not submit private documents. For PDF guides, choose **Print / save PDF**, then **Save as PDF** in the browser dialog.
+
+## Generate scheme narration
+
+The **Listen** button uses a generated MP3 in the selected language when it is available. Microsoft Shruti reads the Telugu summary and Microsoft Neerja reads the English summary. A recording played online can be replayed offline while it remains in the browser cache. If a recording is missing or fails to load, Studio tries an installed local voice in the same language.
+
+Run the generator from the repository root after installing the Python requirements:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.generate_audio --studio
+.\.venv\Scripts\python.exe -m scripts.generate_audio --studio --scheme welfare-pm-kisan --language te
+```
+
+The script writes to `static/audio/studio/bilingual/` and skips valid MP3s on subsequent runs. A narration ZIP containing that directory can also be extracted at the repository root. The recordings are excluded from Git. The default Edge provider is for local previews. Before publishing recordings, use a provider and account that allow the intended distribution. For an authorized Azure Speech resource, set `SPEECH_KEY` and `SPEECH_REGION` privately and pass `--provider azure --overwrite` to regenerate any local Edge clips with Azure.
 
 ## Deployment and verification
 

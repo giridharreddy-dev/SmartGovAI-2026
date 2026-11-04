@@ -77,7 +77,6 @@ const copy = {
   documents: ['Documents', 'పత్రాలు'],
   steps: ['How to apply', 'ఎలా దరఖాస్తు చేయాలి'],
   listen: ['Listen', 'వినండి'],
-  listenEnglish: ['Listen in English', 'ఆంగ్లంలో వినండి'],
   stop: ['Stop audio', 'ఆడియో ఆపండి'],
   speechUnavailable: ['Audio is unavailable in this browser.', 'ఈ బ్రౌజర్‌లో ఆడియో అందుబాటులో లేదు.'],
   checklist: ['Document checklist', 'పత్రాల తనిఖీ జాబితా'],
