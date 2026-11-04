@@ -60,6 +60,7 @@ def _scheme(name, scheme, root):
         "category": scheme.get("category") or "",
         "sector": scheme.get("sector") or "health",
         "keywords": scheme.get("keywords") or [],
+        "aliases": scheme.get("aliases") or [],
         "en": _sections(scheme.get("simplified")),
         "te": _sections(scheme.get("telugu")),
         "source": {

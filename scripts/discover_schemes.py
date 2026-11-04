@@ -98,6 +98,7 @@ def catalog_keys(schemes=None):
             scheme.get("telugu_name") or "",
             *re.findall(r"\(([A-Z0-9-]{4,})\)", name),
             *EXPLICIT_ALIASES.get(name, ()),
+            *(scheme.get("aliases") or []),
         ]
         candidates.append(slug)
         for candidate in candidates:

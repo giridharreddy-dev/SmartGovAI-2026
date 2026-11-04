@@ -205,7 +205,7 @@ const searchFields = new WeakMap()
 
 function fields(scheme) {
   if (searchFields.has(scheme)) return searchFields.get(scheme)
-  const primary = normalize([scheme.name, scheme.nameTe, scheme.category, scheme.region, ...(scheme.keywords || [])].join(' '))
+  const primary = normalize([scheme.name, scheme.nameTe, scheme.category, scheme.region, ...(scheme.keywords || []), ...(scheme.aliases || [])].join(' '))
   const details = normalize([scheme.en?.description, scheme.te?.description, scheme.en?.benefits, scheme.te?.benefits].join(' '))
   const value = { primary, details, primaryWords: [...new Set(words(primary))], detailWords: [...new Set(words(details))] }
   searchFields.set(scheme, value)
@@ -239,7 +239,7 @@ export function searchSchemes(schemes, query, { partial = false } = {}) {
       if (token.length >= 7 && detailWords.some(word => oneEditAway(token, word))) return 1
       return 0
     })
-    const titleMatch = normalized === normalize(scheme.name) || normalized === normalize(scheme.nameTe)
+    const titleMatch = [scheme.name, scheme.nameTe, ...(scheme.aliases || [])].some(title => normalized === normalize(title))
     return { scheme, score: scores.reduce((total, score) => total + score, 0) + (titleMatch ? 30 : 0), all: scores.every(Boolean) }
   }).filter(match => partial ? match.score > 0 : match.all)
     .sort((a, b) => b.score - a.score).map(match => match.scheme)

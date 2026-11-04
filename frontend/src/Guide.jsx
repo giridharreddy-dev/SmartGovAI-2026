@@ -33,7 +33,8 @@ function Printable({ scheme, lang, t, checks }) {
       <h3>{t('checklist')}</h3>
       <ul>{documents.map(doc => <li key={doc.key}>
         <span className="print-box" aria-hidden="true">{checks[doc.key] ? '✓' : ''}</span>
-        {localized(doc, lang)} {doc.mandatory === false && <small>({t('optional')})</small>}
+        {localized(doc, lang)} {doc.verification_status === 'verification_pending' && <small>({t('section.verification_pending')})</small>}
+        {doc.mandatory === false && <small>({t('optional')})</small>}
       </li>)}</ul>
     </section>}
     {scheme.source && <SchemeSource {...{ scheme, t }} />}
@@ -142,7 +143,8 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
           <p>{t('checklistNote')}</p>
           <progress value={documents.filter(doc => checks[doc.key]).length} max={documents.length} aria-label={t('checklist')} />
           <div className="checklist">{documents.map(doc => <label key={doc.key}><input type="checkbox" checked={!!checks[doc.key]} onChange={event => setCheck(doc.key, event.target.checked)} />
-            {localized(doc, lang)} {doc.mandatory === false && <small>({t('optional')})</small>}
+            {localized(doc, lang)} {doc.verification_status === 'verification_pending' && <small>({t('section.verification_pending')})</small>}
+            {doc.mandatory === false && <small>({t('optional')})</small>}
           </label>)}</div>
         </section>}
         {scheme.directoryEntry ? <>

@@ -69,7 +69,9 @@ export default function SchemeOperations({ scheme, lang, t, checks, setCheck }) 
         {documents.length > 0 && <ul className="operation-checks">
           {documents.map(doc => <li key={doc.key}><label>
             <input type="checkbox" checked={Boolean(checks[doc.key])} onChange={event => setCheck(doc.key, event.target.checked)} />
-            <span>{localized(doc, lang)}{doc.mandatory != null && <small>{t(doc.mandatory ? 'required' : 'optional')}</small>}
+            <span>{localized(doc, lang)}{doc.verification_status === 'verification_pending'
+                ? <small>{t('section.verification_pending')}</small>
+                : doc.mandatory != null && <small>{t(doc.mandatory ? 'required' : 'optional')}</small>}
               {doc.purpose && <small>{localized(doc.purpose, lang)}</small>}
             </span>
           </label></li>)}

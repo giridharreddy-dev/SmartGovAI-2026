@@ -34,3 +34,9 @@ test('missing translations fall back to existing text, and unsafe link protocols
   for (const url of ['javascript:alert(1)', 'data:text/html,unsafe', '//example.org', 'https://u:p@example.org']) assert.equal(officialUrl(url), '')
   assert.equal(officialUrl('https://example.org/health'), 'https://example.org/health')
 })
+
+test('an exact saved alias resolves to the canonical scheme first', () => {
+  const first = { name: 'National Health Programme', keywords: ['old plan'] }
+  const canonical = { name: 'Canonical Scheme', aliases: ['Old Plan'] }
+  assert.equal(searchSchemes([first, canonical], 'old plan')[0], canonical)
+})

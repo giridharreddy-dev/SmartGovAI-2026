@@ -101,6 +101,15 @@ def checklist(scheme):
     aliases = scheme.get("checklist_aliases")
     if aliases is None:
         aliases = previous_checklist_keys(legacy, structured)
+    provenance = scheme.get("document_provenance") or {}
+    conflicts = set(scheme.get("document_conflict_ids") or [])
+    for item_id, item in effective.items():
+        if item_id in provenance:
+            effective[item_id] = dict(item, sources=provenance[item_id])
+        if item_id in conflicts:
+            effective[item_id] = dict(effective[item_id], verification_status="verification_pending", mandatory=None)
+    for item in scheme.get("reconciled_documents") or []:
+        effective.setdefault(item["id"], item)
     return list(effective.values()), aliases
 
 
@@ -127,7 +136,9 @@ def section_statuses(scheme):
         default = "verified" if typed and scheme.get("operations_reviewed") else "verification_pending"
         status = statuses.get(block, default)
         if block == "required_documents":
-            if not documents and status == "verified":
+            if status == "verified" and (not documents or any(
+                item.get("verification_status") == "verification_pending" for item in documents
+            )):
                 status = "verification_pending"
             elif default == "verified" and status == "official_source_unspecified":
                 status = default
@@ -160,12 +171,14 @@ def apply_revisions(schemes, revisions):
         for block in ("eligibility", "benefits", "application_process"):
             operations[block] = {**operations.get(block, {}), **changes.get(block, {})}
         documents = {item["id"]: item for item in structured}
-        for item in changes.get("required_documents", []):
+        changed_documents = changes.get("required_documents", [])
+        for item in changed_documents:
             previous = documents.get(item["id"]) or next((doc for doc in legacy if doc["id"] == item["id"]), {})
             documents[item["id"]] = {**previous, **item}
         operations["required_documents"] = list(documents.values())
         validated = SchemeOperations.model_validate(operations).model_dump(mode="json")
         statuses = {**(current.get("section_status_overrides") or {}), **(revision.section_statuses or {})}
+        resolved_document_ids = {item["id"] for item in changed_documents}
         catalog[name] = {
             **current,
             "operations": validated,
@@ -173,5 +186,8 @@ def apply_revisions(schemes, revisions):
             "operations_source": str(revision.source_url),
             "section_status_overrides": statuses,
             "checklist_aliases": aliases,
+            "document_conflict_ids": [
+                item_id for item_id in current.get("document_conflict_ids") or [] if item_id not in resolved_document_ids
+            ],
         }
     return catalog

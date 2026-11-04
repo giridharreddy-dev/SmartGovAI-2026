@@ -4,15 +4,73 @@ import argparse
 import json
 import os
 import tempfile
-import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
+from scripts.scheme_identity import normalized_title, resolve_identity, urls, without_region
+from services.scheme_revisions import checklist, document_id
 from services.studio_catalog import CATALOG_PATH, load_directory_source
+from utils import generate_slug
 
 
-def normalized_title(value):
-    return "".join(char for char in unicodedata.normalize("NFKC", value).casefold() if char.isalnum())
+DOCUMENT_EQUIVALENTS = {
+    "motherchildprotectionmcpcard": "mcpcard",
+    "motherandchildprotectionmcpcard": "mcpcard",
+    "bankaccountpassbookaadhaarseeded": "aadhaarlinkedbankpassbook",
+    "doctorsprescription": "doctorprescription",
+    "mothersaadhaarcard": "aadhaarcardofmother",
+    "mothersaadhaarlinkedbankpassbook": "aadhaarlinkedbankpassbook",
+}
+
+
+def document_key(name):
+    key = normalized_title(name)
+    return DOCUMENT_EQUIVALENTS.get(key, key)
+
+
+def merge_documents(record, incoming):
+    baseline = {key: value for key, value in record.items()
+                if key not in {"reconciled_documents", "document_provenance", "document_conflict_ids"}}
+    current, _ = checklist(baseline)
+    baseline_optional = {
+        document_key(item["name"]): item["optional"] for item in record.get("required_documents") or []
+        if isinstance(item, dict) and isinstance(item.get("optional"), bool)
+    }
+    existing = {document_key(item["name"]["en"] or item["name"]["te"]): item for item in current}
+    provenance = {item["id"]: [{"source": "studio_master"}] for item in current}
+    candidates = {}
+    conflicts = {}
+    for title, source in incoming:
+        url = source.get("official_website") or source.get("source_url")
+        for value in source.get("required_documents") or []:
+            row = {"name": value} if isinstance(value, str) else value
+            key = document_key(row["name"])
+            claim = {"source": "v2_catalog", "scheme_title": title, "source_url": url,
+                     "document": row}
+            if prior := existing.get(key):
+                provenance[prior["id"]].append(claim)
+                mandatory = prior["mandatory"]
+                if mandatory is None and key in baseline_optional:
+                    mandatory = not baseline_optional[key]
+                if mandatory is not None and "optional" in row and mandatory == row["optional"]:
+                    conflict = conflicts.setdefault(prior["id"], {
+                        "id": prior["id"], "document": prior["name"], "reason": "required_vs_optional", "claims": [],
+                    })
+                    conflict["claims"].append(claim)
+                continue
+            candidate = candidates.setdefault(key, {
+                "id": row.get("id") or document_id(row["name"]),
+                "name": {"en": row["name"], "te": row.get("name_te") or None},
+                "verification_status": "verification_pending", "sources": [],
+            })
+            candidate["sources"].append(claim)
+    for row in candidates.values():
+        optionality = {claim["document"].get("optional") for claim in row["sources"]} - {None}
+        if len(optionality) > 1:
+            conflicts[row["id"]] = {
+                "id": row["id"], "document": row["name"], "reason": "required_vs_optional", "claims": row["sources"],
+            }
+    return provenance, list(candidates.values()), list(conflicts.values())
 
 
 def fill_missing(existing, incoming):
@@ -38,50 +96,59 @@ def reconcile_catalog(existing, directory, v2):
             # Preserve the legacy ID and the surface it is already available on.
             if "slug" not in existing[name]:
                 catalog[name].pop("slug", None)
-    titles = defaultdict(list)
-    for name in catalog:
-        titles[normalized_title(name)].append(name)
-
-    v2_title_counts = defaultdict(int)
-    for name in v2:
-        v2_title_counts[normalized_title(name)] += 1
-    report = {"matched": [], "pending_review": []}
+    url_owners = defaultdict(set)
+    for name, record in catalog.items():
+        for url in urls(record):
+            url_owners[url].add(name)
+    report = {"matched": [], "pending_review": [], "checklist_reconciliation": []}
+    groups = defaultdict(list)
     for title, record in v2.items():
-        key = normalized_title(title)
-        matches = titles.get(key, [])
-        ambiguous = len(matches) > 1 or v2_title_counts[key] > 1
-        matched = catalog[matches[0]] if len(matches) == 1 and not ambiguous else None
-        same_region = matched is not None and (
-            normalized_title(matched.get("level") or "") == normalized_title(record.get("level") or "")
-        )
-        if not same_region:
-            reason = "ambiguous_title" if ambiguous else "region_mismatch" if matches else "unlinked_title"
+        name, method, source, candidates = resolve_identity(title, record, catalog, url_owners)
+        if name is None:
+            region = record.get("level") or ""
+            identity_key = normalized_title(region) + ":" + normalized_title(without_region(title, region))
             report["pending_review"].append({
-                "title": title, "reason": reason, "candidate_titles": matches, "v2_record": record,
+                "title": title, "identity_key": identity_key, "reason": method,
+                "candidates": candidates, "v2_record": record,
             })
             continue
-        name = matches[0]
-        current = matched.get("required_documents") or []
-        documents = record.get("required_documents") or []
-        action = "retained"
-        if documents and not current and not (matched.get("operations") or {}).get("required_documents"):
-            catalog[name] = fill_missing(matched, {"required_documents": documents})
-            action = "filled"
-        elif documents and documents != current:
-            action = "review_checklist_difference"
+        groups[name].append((title, record))
         report["matched"].append({
-            "v2_title": title, "catalog_title": name, "document_action": action,
-            "catalog_documents_before": current, "v2_documents": documents,
+            "v2_title": title, "catalog_title": name,
+            "catalog_id": catalog[name].get("slug") or generate_slug(name),
+            "method": method, "identity_source": source,
+            "v2_documents": record.get("required_documents") or [],
             "v2_source_url": record.get("official_website") or record.get("source_url"),
         })
+    for name, rows in groups.items():
+        record = catalog[name]
+        aliases = list(dict.fromkeys([*(record.get("aliases") or []), *(title for title, _ in rows if title != name)]))
+        provenance, documents, conflicts = merge_documents(record, rows)
+        catalog[name] = {**record, "document_provenance": provenance}
+        if aliases:
+            catalog[name]["aliases"] = aliases
+        if documents:
+            catalog[name]["reconciled_documents"] = documents
+        else:
+            catalog[name].pop("reconciled_documents", None)
+        if conflicts:
+            catalog[name]["document_conflict_ids"] = [conflict["id"] for conflict in conflicts]
+        else:
+            catalog[name].pop("document_conflict_ids", None)
+        if documents or conflicts:
+            report["checklist_reconciliation"].append({
+                "catalog_title": name, "document_provenance": provenance,
+                "additional_documents": documents, "conflicts": conflicts,
+            })
     report["summary"] = {
         "catalog_records": len(catalog),
         "v2_records": len(v2),
         "v2_records_with_documents": sum(bool(row.get("required_documents")) for row in v2.values()),
         "matched": len(report["matched"]),
+        "alias_matches": sum(row["method"] != "exact_title" for row in report["matched"]),
         "pending_review": len(report["pending_review"]),
-        "checklists_filled": sum(row["document_action"] == "filled" for row in report["matched"]),
-        "checklist_differences": sum(row["document_action"] == "review_checklist_difference" for row in report["matched"]),
+        "additional_document_candidates": sum(len(row["additional_documents"]) for row in report["checklist_reconciliation"]),
+        "document_conflicts": sum(len(row["conflicts"]) for row in report["checklist_reconciliation"]),
     }
     return catalog, report
 

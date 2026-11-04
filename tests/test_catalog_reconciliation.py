@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from scripts.merge_schemes import reconcile_catalog
+from services.scheme_revisions import checklist
 from services.studio_catalog import CATALOG_PATH, load_master_catalog
 
 
@@ -24,8 +25,12 @@ def test_reconcile_preserves_baseline_and_flags_unlinked_titles():
     assert catalog["Example Scheme"]["simplified"] == {
         "eligibility": "Baseline rule", "steps": "Apply", "benefits": "New details",
     }
-    assert catalog["Other Scheme"]["required_documents"] == ["Address proof"]
-    assert report["matched"][0]["document_action"] == "review_checklist_difference"
+    docs, _ = checklist(catalog["Other Scheme"])
+    assert docs[0]["name"]["en"] == "Address proof"
+    assert docs[0]["verification_status"] == "verification_pending"
+    docs, _ = checklist(catalog["Example Scheme"])
+    assert [doc["name"]["en"] for doc in docs] == ["ID", "Different ID"]
+    assert [doc["sources"][0]["source"] for doc in docs] == ["studio_master", "v2_catalog"]
     assert report["pending_review"][0]["v2_record"]["required_documents"] == ["Certificate"]
     assert "Unlinked" not in catalog
 
@@ -47,3 +52,39 @@ def test_bundled_master_contains_both_catalog_subsets():
     assert len(catalog) == 208
     assert sum(bool(row.get("directory_entry")) for row in catalog.values()) == 75
     assert sum(bool(row.get("required_documents")) for row in catalog.values()) == 133
+
+
+def test_url_match_requires_title_evidence_and_same_region():
+    page = "https://example.gov.in/schemes/mobile"
+    master = {
+        "Mobile Health Outreach Scheme": {"level": "National", "official_website": page, "required_documents": []},
+    }
+    v2 = {
+        "Dr. Mobile Health Outreach Yojana": {"level": "National", "application_url": page},
+        "Mobile Health Outreach Scheme (Second Child)": {"level": "National", "source_url": page},
+        "Mobile Health Outreach Scheme": {"level": "Andhra Pradesh", "source_url": page},
+        "Dental Procedures": {"level": "National", "source_url": page},
+        "Mobile Health Outreach Pilot": {"level": "National", "source_url": "https://example.gov.in/other"},
+    }
+    catalog, report = reconcile_catalog(master, {}, v2)
+    assert catalog["Mobile Health Outreach Scheme"]["aliases"] == ["Dr. Mobile Health Outreach Yojana"]
+    assert report["matched"][0]["method"] == "scheme_url_and_title"
+    assert len(report["pending_review"]) == 4
+
+
+def test_document_union_keeps_checklist_keys_and_flags_conflicting_claims():
+    title = "Example Health Scheme"
+    master = {title: {"level": "National", "required_documents": [{"name": "Photo ID", "optional": False}]}}
+    v2 = {
+        title: {"level": "National", "required_documents": [{"name": "Photo ID", "optional": True}, "Address proof"]},
+        title + " (National)": {"level": "National", "required_documents": [{"name": "Photo ID", "optional": True}]},
+    }
+    catalog, report = reconcile_catalog(master, {}, v2)
+    docs, aliases = checklist(catalog[title])
+    assert aliases["0"] == docs[0]["id"]
+    assert docs[0]["mandatory"] is None
+    assert docs[0]["verification_status"] == "verification_pending"
+    assert docs[1]["name"]["en"] == "Address proof"
+    assert len(report["checklist_reconciliation"][0]["conflicts"]) == 1
+    assert len(docs[0]["sources"]) == 3
+    assert reconcile_catalog(catalog, {}, v2) == (catalog, report)
