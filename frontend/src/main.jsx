@@ -6,6 +6,7 @@ import {
   Plus, Scale, Search, ShieldPlus, Sparkles, Sprout, TrainFront, Trophy, Wallet, Wifi, WifiOff, X, Zap,
 } from 'lucide-react'
 import Guide, { SchemeSource } from './Guide.jsx'
+import SchemeOperations from './SchemeOperations.jsx'
 import { Assistant, Care, PanelHeader, PdfTools, searchByMeaning } from './Tools.jsx'
 import { localRead, localWrite, mergeSchemeMatches, schemeTitle, searchSchemes, sectionText, translator } from './content.js'
 import './style.css'
@@ -157,7 +158,7 @@ function Hero({ t, go, browse, stats }) {
   </>
 }
 
-function SchemeCard({ scheme, lang, t, onOpen, selected, pinned, toggleSave, toggleCompare, index }) {
+function SchemeCard({ scheme, lang, t, onOpen, selected, pinned, toggleSave, toggleCompare, index, checks, setCheck }) {
   const Icon = sectorIcons[scheme.sector || 'health'] || FileText
   const title = schemeTitle(scheme, lang)
   return <article className="scheme-card">
@@ -172,6 +173,7 @@ function SchemeCard({ scheme, lang, t, onOpen, selected, pinned, toggleSave, tog
       <h3 lang={lang === 'te' && !scheme.nameTe ? 'en' : undefined}>{title}</h3>
       <p>{sectionText(scheme, 'description', lang) || sectionText(scheme, 'benefits', lang)}</p>
     </div>
+    <SchemeOperations {...{ scheme, lang, t, checks, setCheck }} />
     <div className="card-footer">
       <button className="text-button" aria-label={t('details') + ': ' + title} onClick={() => onOpen(scheme)}>{t('details')} <ArrowUpRight size={16} /></button>
       <button className="icon-button compare-button" title={t(selected ? 'removeCompare' : 'addCompare')} aria-label={t('compare') + ': ' + title} aria-pressed={selected} onClick={() => toggleCompare(scheme.id)}>{selected ? <CircleCheck size={19} /> : <Plus size={20} />}</button>
@@ -326,7 +328,8 @@ function App() {
   }
   function cards(items) {
     return <div className="cards">{items.map((scheme, index) => <SchemeCard key={scheme.id} {...{ scheme, index, lang, t, toggleSave, toggleCompare }}
-      selected={comparison.includes(scheme.id)} pinned={saved.includes(scheme.id)} onOpen={open} />)}</div>
+      selected={comparison.includes(scheme.id)} pinned={saved.includes(scheme.id)} onOpen={open}
+      checks={checks[scheme.id] || {}} setCheck={(key, value) => setChecks({ ...checks, [scheme.id]: { ...checks[scheme.id], [key]: value } })} />)}</div>
   }
   const loadNotice = <div className="empty" role="status"><p>{t(status)}</p>
     {status === 'loadError' && <button className="button subtle" onClick={() => { setStatus('loading'); retry(attempt + 1) }}>{t('retry')}</button>}</div>

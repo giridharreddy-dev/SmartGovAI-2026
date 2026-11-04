@@ -202,6 +202,22 @@ html:has(.mobile-menu[open]) { overflow: hidden; }
 .card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .card-body h3, .facility-card h3 { margin: 9px 0 6px; font-size: 1.03rem; line-height: 1.32; font-weight: 850; overflow-wrap: anywhere; }
 .card-body p, .facility-card p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; color: var(--muted); font-size: .87rem; margin: 0; }
+.scheme-operations { border-block: 1px solid var(--line); }
+.scheme-operations details + details { border-top: 1px solid var(--line); }
+.scheme-operations summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 38px; color: var(--blue-ink); cursor: pointer; font-size: .83rem; font-weight: 800; list-style: none; }
+.scheme-operations summary::-webkit-details-marker { display: none; }
+.scheme-operations summary svg { transition: transform var(--motion-fast) var(--motion-out); }
+.scheme-operations details[open] > summary svg { transform: rotate(180deg); }
+.operation-content { display: grid; gap: 8px; padding: 0 0 11px; color: var(--muted); font-size: .82rem; line-height: 1.55; overflow-wrap: anywhere; }
+.operation-content :is(p, ul, ol, dl, dd) { margin: 0; }
+.operation-content :is(ul, ol) { padding-inline-start: 18px; }
+.operation-content dt { color: var(--ink); font-weight: 780; }
+.operation-content dl > div + div { margin-top: 5px; }
+.operation-content a { color: var(--blue-ink); font-weight: 770; }
+.operation-content .operation-checks { padding: 0; list-style: none; }
+.operation-checks label { display: flex; align-items: flex-start; gap: 7px; padding-block: 3px; cursor: pointer; }
+.operation-checks label small { display: block; }
+.operation-amount { font-size: .78rem; }
 .pill { display: inline-flex; width: fit-content; align-items: center; gap: 5px; font-size: .68rem; font-weight: 830; color: var(--blue-ink); background: var(--blue-tint); padding: 4px 8px; border-radius: 5px; }
 .card-footer { padding-top: 11px; border-top: 1px solid var(--line); }
 .text-button { display: inline-flex; align-items: center; gap: 7px; width: fit-content; background: transparent; border: 0; padding: 4px 0; min-height: 35px; text-align: left; text-decoration: underline; text-underline-offset: 3px; color: var(--blue-ink); font-weight: 820; font-size: .87rem; }

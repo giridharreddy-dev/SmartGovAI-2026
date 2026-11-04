@@ -67,6 +67,7 @@ def _scheme(name, scheme, root):
             "reviewed": scheme.get("source_reviewed") or "",
         },
         "documents": documents,
+        "operations": scheme.get("operations") if scheme.get("operations_reviewed") else None,
         "questions": questions,
         "audio": audio_url,
         "audioLanguage": scheme.get("audio_language", "te"),

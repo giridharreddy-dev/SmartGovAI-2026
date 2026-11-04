@@ -1,8 +1,11 @@
 """Load the separately sourced, cross-sector Citizen Studio directory."""
 
 import json
+from datetime import date
 from pathlib import Path
 from urllib.parse import urlsplit
+
+from services.scheme_operations import SchemeOperations
 
 SECTORS = frozenset({
     "agriculture", "finance", "business", "education", "health", "housing", "law",
@@ -41,4 +44,11 @@ def load_studio_schemes(root):
             "source_reviewed": catalog["reviewed"],
             "directory_entry": True,
         }
+        if "operations" in row:
+            try:
+                reviewed = date.fromisoformat(row.get("operationsReviewed", "")).isoformat()
+            except (TypeError, ValueError) as error:
+                raise ValueError(f"Operational details for {name} need a source review date") from error
+            schemes[name]["operations"] = SchemeOperations.model_validate(row["operations"]).model_dump(mode="json")
+            schemes[name]["operations_reviewed"] = reviewed
     return schemes

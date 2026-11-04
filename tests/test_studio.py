@@ -122,6 +122,10 @@ def test_cross_sector_entries_keep_official_links_and_do_not_invent_eligibility(
     assert kisan["source"]["reviewed"]
     assert kisan["en"]["description"] and kisan["te"]["description"]
     assert not kisan["documents"] and not kisan["questions"] and "eligibility" not in kisan["en"]
+    assert kisan["operations"]["required_documents"][0]["name"]["te"] == "ఆధార్ సంఖ్య"
+    assert kisan["operations"]["application_process"]["official_url"] == "https://pmkisan.gov.in/RegistrationFormupdated.aspx"
+    assert kisan["operations"]["eligibility"]["income_ceiling"] is None
+    assert entries["welfare-ntr-bharosa"]["operations"] is None
 
 
 @patch("app.generate_chat_response", return_value=None)

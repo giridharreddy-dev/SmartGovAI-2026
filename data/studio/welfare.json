@@ -10,6 +10,67 @@
       "url": "https://pmkisan.gov.in/",
       "summary": "Income support for eligible landholding farmer families. The portal has registration and beneficiary status services.",
       "summaryTe": "అర్హత ఉన్న భూమి కలిగిన రైతు కుటుంబాలకు ఆదాయ సహాయం. నమోదు, లబ్ధిదారుల స్థితి వివరాలు పోర్టల్‌లో చూడవచ్చు.",
+      "operationsReviewed": "2026-11-05",
+      "operations": {
+        "eligibility": {
+          "target_group": {
+            "en": "Landholding farmer families with cultivable land in the relevant state or UT records.",
+            "te": "సంబంధిత రాష్ట్రం లేదా కేంద్రపాలిత ప్రాంతం భూ రికార్డుల ప్రకారం సాగుభూమి ఉన్న రైతు కుటుంబాలు."
+          },
+          "criteria": [
+            {
+              "en": "The scheme counts spouses and their minor children as one family. States and UTs identify eligible families.",
+              "te": "భార్యాభర్తలు, వారి మైనర్ పిల్లలను ఒక కుటుంబంగా పరిగణిస్తారు. అర్హులైన కుటుంబాలను రాష్ట్రాలు, కేంద్రపాలిత ప్రాంతాలు గుర్తిస్తాయి."
+            }
+          ],
+          "exclusions": [
+            {
+              "en": "Institutional landholders and specified higher economic status groups are excluded. See the official exclusions list for exceptions.",
+              "te": "సంస్థల పేరుతో భూమి ఉన్నవారు, నిర్దిష్ట అధిక ఆర్థిక స్థాయి వర్గాలు మినహాయించబడతాయి. మినహాయింపుల పూర్తి వివరాలను అధికారిక జాబితాలో చూడండి."
+            }
+          ]
+        },
+        "required_documents": [
+          {
+            "name": { "en": "Aadhaar number", "te": "ఆధార్ సంఖ్య" },
+            "purpose": {
+              "en": "Identity authentication for new online registration.",
+              "te": "కొత్త ఆన్‌లైన్ నమోదుకు గుర్తింపు ధ్రువీకరణ."
+            },
+            "mandatory": true
+          }
+        ],
+        "benefits": {
+          "coverage_amount": { "en": "₹6,000 per eligible family per year", "te": "అర్హత గల కుటుంబానికి ఏడాదికి ₹6,000" },
+          "coverage_type": { "en": "Farm income support", "te": "వ్యవసాయ ఆదాయ సహాయం" },
+          "disbursement": {
+            "en": "Three equal installments paid directly into the beneficiary's bank account.",
+            "te": "లబ్ధిదారుడి బ్యాంకు ఖాతాకు మూడు సమాన వాయిదాల్లో నేరుగా జమ అవుతుంది."
+          }
+        },
+        "application_process": {
+          "mode": { "en": "Online registration", "te": "ఆన్‌లైన్ నమోదు" },
+          "nodal_agency": {
+            "en": "Department of Agriculture and Farmers Welfare",
+            "te": "వ్యవసాయం, రైతు సంక్షేమ శాఖ"
+          },
+          "official_url": "https://pmkisan.gov.in/RegistrationFormupdated.aspx",
+          "steps": [
+            {
+              "en": "Open New Farmer Registration on the official PM-KISAN portal.",
+              "te": "అధికారిక PM-KISAN పోర్టల్‌లో కొత్త రైతు నమోదు పేజీని తెరవండి."
+            },
+            {
+              "en": "Enter your Aadhaar number and continue after authentication.",
+              "te": "మీ ఆధార్ సంఖ్యను నమోదు చేసి, ధ్రువీకరణ పూర్తయిన తర్వాత కొనసాగండి."
+            }
+          ],
+          "verification": {
+            "en": "The portal authenticates Aadhaar. State and UT authorities verify eligible landholding families.",
+            "te": "పోర్టల్ ఆధార్‌ను ధ్రువీకరిస్తుంది. అర్హత గల భూయాజమాన్య రైతు కుటుంబాలను రాష్ట్ర, కేంద్రపాలిత ప్రాంత అధికారులే నిర్ధారిస్తారు."
+          }
+        }
+      },
       "keywords": [
         "farmer",
         "agriculture",

@@ -1,4 +1,6 @@
 import sqlite3
+import pytest
+from pydantic import ValidationError
 from contextlib import closing
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
@@ -12,6 +14,7 @@ from scripts.discover_schemes import (
 from scripts.pib_excerpt import parse_article, parse_release, release_id
 from scripts.pib_regional import find_regional_release, same_event
 from scripts.pib_translate import MODEL, REVISION, _telugu_script
+from services.scheme_operations import SchemeOperations
 from utils import generate_slug
 
 
@@ -220,3 +223,31 @@ def test_translation_waits_then_reconciles_delayed_official_release_in_place(tmp
         official, match_method="regional_feed", url=regional_url + "&lang=16",
     )})
     assert other_lead["article_evidence"] is None
+
+
+def test_draft_extracts_four_blocks_from_full_body_without_guessing_documents(tmp_path):
+    url = "https://www.pib.gov.in/PressReleasePage.aspx?PRID=42"
+    _, leads = pib_leads(feed(("New scheme announced", url, None)), {})
+    _, report = queue(tmp_path / "leads.db", leads)
+    row = report[0]
+    row["article_evidence"] = {"en": {
+        "excerpt": "The ministry announced a programme.", "url": url,
+        "article_body_text": "Introduction.\nAge limit: 18 to 24 years\n"
+                             "Coverage amount: ₹12,000 per year\nApplication mode: Online\n"
+                             "Applicants must submit proof if requested by the office.",
+    }}
+    draft = draft_entries(report, {})[0]
+    assert draft["eligibility"]["age_range"] == {"en": "18 to 24 years", "te": None}
+    assert draft["eligibility"]["income_ceiling"] is None
+    assert draft["required_documents"] == []
+    assert draft["benefits"]["coverage_amount"]["en"] == "₹12,000 per year"
+    assert draft["application_process"]["mode"]["en"] == "Online"
+    assert draft["operational_evidence"]["required_documents"]
+    assert draft["operational_status"] == "pending_human_verification"
+    body = row["article_evidence"]["en"]["article_body_text"]
+    row["article_evidence"]["en"]["article_body_text"] = body + "\nRequired documents: None."
+    assert draft_entries(report, {})[0]["required_documents"] == []
+    row["article_evidence"]["en"]["article_body_text"] = body + "\nRequired documents: Identity proof and bank account details"
+    assert len(draft_entries(report, {})[0]["required_documents"]) == 2
+    with pytest.raises(ValidationError):
+        SchemeOperations.model_validate({"eligibility": {}, "required_documents": [], "benefits": {}})

@@ -18,9 +18,11 @@ from urllib.parse import urlsplit
 from urllib.request import urlopen
 from xml.etree import ElementTree
 
+from scripts.extract_scheme_operations import extract_operations
 from scripts.pib_excerpt import release_excerpts, release_id
 from scripts.pib_regional import MATCH_RULE, find_regional_release, read_regional_index, same_event
 from scripts.pib_translate import DEFAULT_MODEL_DIR, MODEL, REVISION, LocalTranslator
+from services.scheme_operations import OperationalDraft, SchemeOperations, Text
 from services.studio_catalog import load_studio_schemes
 from utils import generate_slug
 
@@ -79,9 +81,13 @@ def https_url(value):
     return parts.scheme == "https" and parts.hostname and not parts.username and not parts.password
 
 
-def catalog_keys():
+def source_catalog():
     legacy = json.loads((ROOT / "data" / "merged_schemes.json").read_text(encoding="utf-8"))
-    schemes = {**load_studio_schemes(ROOT), **legacy}
+    return {**load_studio_schemes(ROOT), **legacy}
+
+
+def catalog_keys(schemes=None):
+    schemes = source_catalog() if schemes is None else schemes
     names, aliases = set(), {}
     for name, scheme in schemes.items():
         region = normalized(scheme.get("level") or "National")
@@ -435,7 +441,7 @@ def excerpt_metadata(article):
     }
 
 
-def draft_entries(leads, evidence):
+def draft_entries(leads, evidence, catalog_titles=None):
     if not isinstance(evidence, dict):
         raise ValueError("Draft evidence must be a JSON object keyed by lead ID.")
     drafts = []
@@ -486,6 +492,18 @@ def draft_entries(leads, evidence):
             draft["reconciliation"] = reconciliation
         if not draft["te"]["summary"] and waiting_for_telugu(lead, utc_now()):
             draft["translation_ready_at_utc"] = lead["translation_ready_at_utc"]
+        operations, passages = extract_operations(lead["article_evidence"] or {})
+        if "operations" in source:
+            operations = SchemeOperations.model_validate(source["operations"])
+        title = (catalog_titles or {}).get(lead["matched_catalog_id"])
+        structured = OperationalDraft(
+            id=lead["matched_catalog_id"] or lead["id"],
+            title=Text.model_validate(source.get("title", title or {"en": lead["title"]})),
+            operational_status="pending_human_verification",
+            **operations.model_dump(mode="json"),
+        )
+        title_source = "evidence" if "title" in source else "catalog" if title else "announcement_headline"
+        draft.update(structured.model_dump(mode="json"), operational_evidence=passages, title_source=title_source)
         drafts.append(draft)
     return drafts
 
@@ -527,7 +545,7 @@ def main():
     parser.add_argument("--fetch-excerpts", action="store_true", help="With --drafts, fetch up to five uncached PIB releases")
     parser.add_argument("--translate-telugu", action="store_true", help="With --drafts, translate missing Telugu summaries locally")
     parser.add_argument("--translation-model-dir", type=Path, default=DEFAULT_MODEL_DIR)
-    parser.add_argument("--evidence", type=Path, help="JSON keyed by lead ID with official_url, category, and en/te summary and eligibility")
+    parser.add_argument("--evidence", type=Path, help="JSON keyed by lead ID with official_url and optional bilingual title, summaries and four-block operations")
     args = parser.parse_args()
     if args.csv and not (https_url(args.source_url or "") and args.publisher and https_url(args.license_url or "")):
         parser.error("--csv requires --source-url, --publisher and --license-url")
@@ -548,7 +566,8 @@ def main():
         evidence = json.loads(args.evidence.read_text(encoding="utf-8-sig")) if args.evidence else {}
         if not isinstance(evidence, dict):
             raise ValueError("Draft evidence must be a JSON object keyed by lead ID.")
-        names, aliases = catalog_keys()
+        catalog = source_catalog()
+        names, aliases = catalog_keys(catalog)
         if args.queued_only:
             scanned, rows = 0, []
         else:
@@ -561,7 +580,11 @@ def main():
             enrich_drafts(args.database, report, aliases, limit=5)
         if args.translate_telugu:
             translate_drafts(args.database, report, evidence, args.translation_model_dir, limit=5)
-        drafts = draft_entries(report, evidence) if args.drafts else None
+        titles = {
+            scheme.get("slug") or generate_slug(name): {"en": name, "te": scheme.get("telugu_name") or None}
+            for name, scheme in catalog.items()
+        } if args.drafts else {}
+        drafts = draft_entries(report, evidence, titles) if args.drafts else None
         if args.report:
             export_report(args.report, "leads", [
                 dict(lead, article_evidence=excerpt_metadata(lead["article_evidence"])) for lead in report
