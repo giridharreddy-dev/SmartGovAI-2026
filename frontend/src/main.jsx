@@ -39,28 +39,28 @@ function Header({ lang, setLang, t, panel, go, online, ready, saved, comparison 
 function Orbit() {
   return <svg className="orbit-art" viewBox="0 0 470 420" fill="none" aria-hidden="true">
     <defs>
-      <radialGradient id="orb-fill"><stop stopColor="#386953" stopOpacity=".94"/><stop offset="1" stopColor="#1e4136"/></radialGradient>
-      <linearGradient id="orb-outline" x1="0" x2="1" y1="0" y2="1"><stop stopColor="#b0c998"/><stop offset="1" stopColor="#386953"/></linearGradient>
-      <linearGradient id="shield-tone" x1="0" x2="1" y1="0" y2="1"><stop stopColor="#477459"/><stop offset="1" stopColor="#244b3d"/></linearGradient>
+      <radialGradient id="orb-fill"><stop stopColor="#91b6f7" stopOpacity=".94"/><stop offset="1" stopColor="#deebff"/></radialGradient>
+      <linearGradient id="orb-outline" x1="0" x2="1" y1="0" y2="1"><stop stopColor="#285ec0"/><stop offset="1" stopColor="#91b6f7"/></linearGradient>
+      <linearGradient id="shield-tone" x1="0" x2="1" y1="0" y2="1"><stop stopColor="#3574db"/><stop offset="1" stopColor="#163f8f"/></linearGradient>
     </defs>
-    <circle cx="235" cy="211" r="176" stroke="#88aa91" strokeOpacity=".25" strokeDasharray="1 7"/>
-    <circle cx="235" cy="211" r="154" stroke="#88aa91" strokeOpacity=".22"/>
+    <circle cx="235" cy="211" r="176" stroke="#315ca8" strokeOpacity=".25" strokeDasharray="1 7"/>
+    <circle cx="235" cy="211" r="154" stroke="#315ca8" strokeOpacity=".22"/>
     <circle cx="235" cy="211" r="128" fill="url(#orb-fill)" stroke="url(#orb-outline)" strokeOpacity=".6"/>
-    <circle cx="235" cy="211" r="107" stroke="#a7c49d" strokeOpacity=".22"/>
-    <path d="M235 63v296M80 211h310M119 107l232 208M120 315l231-208" stroke="#9db89b" strokeOpacity=".15" strokeDasharray="4 7"/>
+    <circle cx="235" cy="211" r="107" stroke="#4e76ba" strokeOpacity=".22"/>
+    <path d="M235 63v296M80 211h310M119 107l232 208M120 315l231-208" stroke="#416aaf" strokeOpacity=".15" strokeDasharray="4 7"/>
     <g className="orbit-track">
-      <circle cx="235" cy="35" r="6" fill="#e7b77e"/>
-      <circle cx="390" cy="295" r="4" fill="#acd0b0"/>
-      <circle cx="95" cy="315" r="3.5" fill="#e7b77e"/>
-      <circle cx="65" cy="164" r="2.5" fill="#acd0b0"/>
+      <circle cx="235" cy="35" r="6" fill="#2659ba"/>
+      <circle cx="390" cy="295" r="4" fill="#597cc2"/>
+      <circle cx="95" cy="315" r="3.5" fill="#2659ba"/>
+      <circle cx="65" cy="164" r="2.5" fill="#597cc2"/>
     </g>
-    <path d="M152 197h43l12-21 18 59 16-34h72" stroke="#d4e1be" strokeOpacity=".38" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M152 197h43l12-21 18 59 16-34h72" stroke="#2559b8" strokeOpacity=".38" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <g className="shield-float">
-      <path d="M235 140c19 13 38 19 61 23v46c0 34-23 58-61 76-38-18-61-42-61-76v-46c23-4 42-10 61-23Z" fill="url(#shield-tone)" stroke="#d8dba1" strokeWidth="1.7"/>
-      <path d="M235 154c14 9 32 15 47 19v36c0 27-16 46-47 62-31-16-47-35-47-62v-36c15-4 33-10 47-19Z" stroke="#d6e6c2" strokeOpacity=".36"/>
-      <path d="M235 190v45m-22-22h44" stroke="#f3d499" strokeWidth="7" strokeLinecap="round"/>
+      <path d="M235 140c19 13 38 19 61 23v46c0 34-23 58-61 76-38-18-61-42-61-76v-46c23-4 42-10 61-23Z" fill="url(#shield-tone)" stroke="#123e90" strokeWidth="1.7"/>
+      <path d="M235 154c14 9 32 15 47 19v36c0 27-16 46-47 62-31-16-47-35-47-62v-36c15-4 33-10 47-19Z" stroke="#dceaff" strokeOpacity=".36"/>
+      <path d="M235 190v45m-22-22h44" stroke="#ffffff" strokeWidth="7" strokeLinecap="round"/>
     </g>
-    <path d="M90 93h15m-7.5-7.5v15m273 237h15m-7.5-7.5v15M352 74h13m-6.5-6.5v13M89 331h9m-4.5-4.5v9" stroke="#a9c3a3" strokeOpacity=".65" strokeLinecap="round"/>
+    <path d="M90 93h15m-7.5-7.5v15m273 237h15m-7.5-7.5v15M352 74h13m-6.5-6.5v13M89 331h9m-4.5-4.5v9" stroke="#4169ab" strokeOpacity=".65" strokeLinecap="round"/>
   </svg>
 }
 
