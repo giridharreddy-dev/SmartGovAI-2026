@@ -10,7 +10,7 @@ import tempfile
 import unicodedata
 from contextlib import closing
 from dataclasses import asdict, dataclass
-from datetime import date, datetime
+from datetime import UTC, date, datetime, timedelta
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.error import URLError
@@ -19,7 +19,7 @@ from urllib.request import urlopen
 from xml.etree import ElementTree
 
 from scripts.pib_excerpt import release_excerpts, release_id
-from scripts.pib_regional import find_regional_release, read_regional_index
+from scripts.pib_regional import MATCH_RULE, find_regional_release, read_regional_index, same_event
 from scripts.pib_translate import DEFAULT_MODEL_DIR, MODEL, REVISION, LocalTranslator
 from services.studio_catalog import load_studio_schemes
 from utils import generate_slug
@@ -44,6 +44,11 @@ AYUSHMAN_COMPONENTS = {
     "Ayushman Arogya Mandir (Free Primary Health Care)",
 }
 MAX_FEED_BYTES = 1_000_000
+TRANSLATION_GRACE = timedelta(hours=6)
+
+
+def utc_now():
+    return datetime.now(UTC)
 
 
 @dataclass(frozen=True)
@@ -213,12 +218,21 @@ def queue(database, rows, aliases=None):
             "status": "TEXT NOT NULL DEFAULT 'pending_verification'",
             "candidate_ids": "TEXT",
             "article_evidence": "TEXT",
+            "translation_ready_at_utc": "TEXT",
         }
         for name, definition in additions.items():
             if name not in existing:
                 connection.execute(f"ALTER TABLE scheme_leads ADD COLUMN {name} {definition}")
         connection.execute("UPDATE scheme_leads SET event_key = id WHERE event_key IS NULL")
         connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS scheme_leads_event ON scheme_leads(event_key)")
+        ready_at = (utc_now() + TRANSLATION_GRACE).isoformat(timespec="seconds")
+        # Older queues stored only a calendar date. Give those leads a fresh
+        # grace period instead of guessing their original intake time.
+        connection.execute(
+            """UPDATE scheme_leads SET translation_ready_at_utc = ?
+               WHERE translation_ready_at_utc IS NULL AND event_key LIKE 'pib:%'""",
+            (ready_at,),
+        )
         if aliases is not None:
             legacy = connection.execute(
                 """SELECT id, title FROM scheme_leads WHERE candidate_ids IS NULL
@@ -232,15 +246,16 @@ def queue(database, rows, aliases=None):
                 )
         today = date.today().isoformat()
         values = [
-            dict(asdict(row), discovered_on=today, candidate_ids=json.dumps(row.candidate_ids))
+            dict(asdict(row), discovered_on=today, candidate_ids=json.dumps(row.candidate_ids),
+                 translation_ready_at_utc=ready_at if row.event_key.startswith("pib:") else None)
             for row in rows
         ]
         added = connection.executemany(
             """INSERT OR IGNORE INTO scheme_leads
                 (id, title, region, url, source_url, publisher, policy_url, discovered_on,
-                 event_key, type, matched_catalog_id, published_on, status, candidate_ids)
+                 event_key, type, matched_catalog_id, published_on, status, candidate_ids, translation_ready_at_utc)
                 VALUES (:id, :title, :region, :url, :source_url, :publisher, :policy_url, :discovered_on,
-                        :event_key, :type, :matched_catalog_id, :published_on, :status, :candidate_ids)""",
+                        :event_key, :type, :matched_catalog_id, :published_on, :status, :candidate_ids, :translation_ready_at_utc)""",
             values,
         ).rowcount
         # PIB releases may initially omit pubDate. A later date enriches the
@@ -277,12 +292,37 @@ def save_article_evidence(database, lead, updates):
         if not row:
             return
         article = json.loads(row[0]) if row[0] else {}
+        if "auto_te" in updates and article.get("te"):
+            return
+        official = updates.get("te")
+        if official and official.get("match_method") == "regional_feed":
+            prid = release_id(official["url"])
+            claimed = connection.execute(
+                """SELECT 1 FROM scheme_leads WHERE id <> ?
+                   AND (json_extract(article_evidence, '$.te.release_id') = ?
+                     OR json_extract(article_evidence, '$.te.url') = ?) LIMIT 1""",
+                (lead["id"], prid, official["url"]),
+            ).fetchone()
+            if claimed:
+                return
+            updates = dict(updates, te=dict(official, release_id=prid))
+        reconciled = bool(official and not article.get("te") and article.get("auto_te"))
+        if reconciled:
+            previous = article.pop("auto_te")
+            article["reconciliation"] = {
+                "replaces_auto_draft": True,
+                "official_release_url": official["url"],
+                "reconciled_at_utc": utc_now().isoformat(timespec="seconds"),
+                "previous_model": previous["model"],
+            }
         article.update(updates)
         connection.execute(
             "UPDATE scheme_leads SET article_evidence = ? WHERE id = ?",
             (json.dumps(article, ensure_ascii=False), lead["id"]),
         )
-        lead["article_evidence"] = article
+    if reconciled:
+        print(f"Reconciled Telugu draft for {lead['event_key']} with {official['url']}.")
+    lead["article_evidence"] = article
 
 
 def enrich_drafts(database, leads, aliases, limit):
@@ -316,7 +356,7 @@ def enrich_drafts(database, leads, aliases, limit):
         urls = [url for scheme_id, url in indexed if scheme_id == lead["matched_catalog_id"]]
         if not urls:
             continue
-        signature = hashlib.sha256("\n".join(sorted(urls)).encode()).hexdigest()
+        signature = hashlib.sha256("\n".join([MATCH_RULE, *sorted(urls)]).encode()).hexdigest()
         if lead["article_evidence"].get("regional_checked") == signature:
             continue
         try:
@@ -326,7 +366,13 @@ def enrich_drafts(database, leads, aliases, limit):
             continue
         updates = {"regional_checked": signature}
         if regional_article:
-            updates["te"] = regional_article
+            other_matches = [
+                other for other in leads if other["id"] != lead["id"]
+                and other["matched_catalog_id"] == lead["matched_catalog_id"]
+                and same_event((other["article_evidence"] or {}).get("en", {}), regional_article)
+            ]
+            if not other_matches:
+                updates["te"] = regional_article
         save_article_evidence(database, lead, updates)
 
 
@@ -337,15 +383,27 @@ def translated_draft(article):
     return draft if draft.get("source_hash") == source_hash and draft.get("revision") == REVISION else None
 
 
+def waiting_for_telugu(lead, now):
+    ready_at = lead.get("translation_ready_at_utc")
+    return bool(ready_at and datetime.fromisoformat(ready_at) > now)
+
+
 def translate_drafts(database, leads, evidence, model_dir, limit):
     pending = []
+    now = utc_now()
+    waiting = 0
     for lead in leads:
         article = lead["article_evidence"] or {}
         manual = evidence.get(lead["id"], {})
         has_telugu = isinstance(manual, dict) and isinstance(manual.get("te"), dict) and manual["te"].get("summary")
         if (lead["status"] == "pending_verification" and article.get("en", {}).get("translation_source")
                 and not (has_telugu or article.get("te") or translated_draft(article))):
-            pending.append(lead)
+            if waiting_for_telugu(lead, now):
+                waiting += 1
+            else:
+                pending.append(lead)
+    if waiting:
+        print(f"Waiting for a Telugu release before translating {waiting} lead(s).")
     if not pending:
         return
     try:
@@ -423,6 +481,11 @@ def draft_entries(leads, evidence):
                 model=automatic["model"],
                 source_url=automatic["source_url"],
             )
+        reconciliation = (lead["article_evidence"] or {}).get("reconciliation")
+        if reconciliation:
+            draft["reconciliation"] = reconciliation
+        if not draft["te"]["summary"] and waiting_for_telugu(lead, utc_now()):
+            draft["translation_ready_at_utc"] = lead["translation_ready_at_utc"]
         drafts.append(draft)
     return drafts
 

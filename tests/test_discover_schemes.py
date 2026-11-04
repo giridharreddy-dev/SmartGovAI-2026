@@ -1,10 +1,14 @@
 import sqlite3
 from contextlib import closing
+from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from unittest.mock import patch
 from xml.etree import ElementTree
 
-from scripts.discover_schemes import catalog_keys, draft_entries, match_catalog, pib_leads, queue, translated_draft
+from scripts.discover_schemes import (
+    catalog_keys, draft_entries, enrich_drafts, match_catalog, pib_leads, queue,
+    save_article_evidence, translate_drafts, translated_draft,
+)
 from scripts.pib_excerpt import parse_article, parse_release, release_id
 from scripts.pib_regional import find_regional_release, same_event
 from scripts.pib_translate import MODEL, REVISION, _telugu_script
@@ -117,10 +121,15 @@ def test_pib_excerpt_comes_from_article_body_and_checks_language():
 
 
 def test_regional_pairing_requires_same_ministry_time_and_a_unique_candidate():
-    english = {"ministry": "Prime Minister's Office", "posted_at_ist": "2026-11-04T20:54:00"}
-    telugu = {"ministry": "ప్రధాన మంత్రి కార్యాలయం", "posted_at_ist": "2026-11-04T21:01:00"}
+    english = {"ministry": "Prime Minister's Office", "posted_at_ist": "2026-11-04T20:54:00",
+               "translation_source": "The Cabinet approved an outlay of ₹1.5 crore."}
+    telugu = {"ministry": "ప్రధాన మంత్రి కార్యాలయం", "posted_at_ist": "2026-11-06T12:01:00",
+              "translation_source": "కేంద్ర మంత్రివర్గం రూ.150 లక్షల వ్యయానికి ఆమోదం తెలిపింది."}
     assert same_event(english, telugu)
-    assert not same_event(english, dict(telugu, posted_at_ist="2026-11-05T09:00:00"))
+    assert not same_event(english, dict(telugu, posted_at_ist="2026-11-06T21:00:00"))
+    assert not same_event(english, dict(telugu, translation_source="రూ.160 లక్షల వ్యయం"))
+    assert not same_event(english, dict(telugu, translation_source="150 లక్షల మంది"))
+    assert not same_event(english, dict(telugu, translation_source="2026 నాటి ప్రకటన"))
     assert not same_event(english, dict(telugu, ministry="Other ministry"))
     with patch("scripts.pib_regional.regional_article", return_value=telugu):
         assert find_regional_release(english, ["one"])["match_method"] == "regional_feed"
@@ -154,3 +163,60 @@ def test_article_body_stays_in_cache_and_machine_translation_is_tagged(tmp_path)
     assert draft["te"]["eligibility"] is None
     rows[0]["article_evidence"]["te"] = {"excerpt": "అధికారిక సమాచారం", "url": url}
     assert draft_entries(rows, {})[0]["te"]["summary"] == "అధికారిక సమాచారం"
+
+
+def test_translation_waits_then_reconciles_delayed_official_release_in_place(tmp_path, capsys):
+    database = tmp_path / "leads.db"
+    started = datetime(2026, 11, 4, 10, tzinfo=UTC)
+    title = "Revised circular for PM-JAY"
+    url = "https://www.pib.gov.in/PressReleasePage.aspx?PRID=100"
+    regional_url = "https://www.pib.gov.in/PressReleasePage.aspx?PRID=101"
+    _, aliases = catalog_keys()
+    _, incoming = pib_leads(feed((title, url, None)), aliases)
+    with patch("scripts.discover_schemes.utc_now", return_value=started):
+        _, leads = queue(database, incoming)
+    lead = leads[0]
+    assert lead["translation_ready_at_utc"] == "2026-11-04T16:00:00+00:00"
+    english = {
+        "url": url, "ministry": "Ministry of Health and Family Welfare", "posted_at_ist": "2026-11-04T15:30:00",
+        "excerpt": "The Cabinet approved ₹15 crore.", "translation_source": "The Cabinet approved ₹15 crore.",
+        "article_body_text": "The Cabinet approved ₹15 crore.",
+    }
+    save_article_evidence(database, lead, {"en": english})
+    with patch("scripts.discover_schemes.LocalTranslator") as local:
+        with patch("scripts.discover_schemes.utc_now", return_value=started + timedelta(hours=5)):
+            translate_drafts(database, leads, {}, tmp_path, limit=5)
+        local.assert_not_called()
+        with patch("scripts.discover_schemes.utc_now", return_value=started + timedelta(hours=6)):
+            local.return_value.translate.return_value = "మంత్రివర్గం నిధులకు ఆమోదం తెలిపింది."
+            translate_drafts(database, leads, {}, tmp_path, limit=5)
+        local.return_value.translate.assert_called_once()
+    assert draft_entries(leads, {})[0]["te"]["summary"].startswith("[AUTO-DRAFT]")
+
+    official = {
+        "url": regional_url, "ministry": "ఆరోగ్య కుటుంబ సంక్షేమ మంత్రిత్వ శాఖ", "posted_at_ist": "2026-11-05T19:30:00",
+        "excerpt": "మంత్రివర్గం రూ.15 కోట్లను ఆమోదించింది.",
+    }
+    with patch("scripts.discover_schemes.read_regional_index", return_value=[("PM-JAY కొత్త మార్గదర్శకాలు", regional_url)]), \
+         patch("scripts.pib_regional.regional_article", return_value=official):
+        enrich_drafts(database, leads, aliases, limit=5)
+        enrich_drafts(database, leads, aliases, limit=5)
+    added, current = queue(database, [])
+    assert added == 0 and len(current) == 1
+    assert current[0]["id"] == lead["id"]
+    assert "auto_te" not in current[0]["article_evidence"]
+    draft = draft_entries(current, {})[0]
+    assert draft["te"]["summary"] == official["excerpt"]
+    assert draft["status"] == "pending_verification"
+    assert draft["reconciliation"]["replaces_auto_draft"] is True
+    assert draft["reconciliation"]["official_release_url"] == regional_url
+    assert capsys.readouterr().out.count("Reconciled Telugu draft") == 1
+
+    other_url = "https://www.pib.gov.in/PressReleasePage.aspx?PRID=102"
+    _, other = pib_leads(feed((title, other_url, None)), aliases)
+    _, current = queue(database, other)
+    other_lead = next(item for item in current if item["event_key"] == "pib:102")
+    save_article_evidence(database, other_lead, {"te": dict(
+        official, match_method="regional_feed", url=regional_url + "&lang=16",
+    )})
+    assert other_lead["article_evidence"] is None
