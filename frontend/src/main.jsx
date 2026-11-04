@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Ambulance, ArrowDown, ArrowRight, ArrowUpRight, Bookmark, BriefcaseBusiness, CircleCheck, Compass, FileText,
-  FlaskConical, GitCompareArrows, GraduationCap, HandHeart, HeartPulse, House, Languages, MapPin,
+  FlaskConical, GitCompareArrows, GraduationCap, HandHeart, HeartPulse, House, Languages, MapPin, Menu,
   Plus, Scale, Search, ShieldPlus, Sparkles, Sprout, TrainFront, Trophy, Wallet, Wifi, WifiOff, X, Zap,
 } from 'lucide-react'
 import Guide, { SchemeSource } from './Guide.jsx'
@@ -12,6 +12,7 @@ import './style.css'
 
 const nav = [['explore', Compass], ['saved', Bookmark], ['compare', GitCompareArrows], ['assistant', Sparkles], ['pdf', FileText], ['care', MapPin]]
 const preferredRegions = ['Andhra Pradesh', 'National']
+const pageSize = 9
 const spotlight = ['PM-KISAN', 'PM-USP Central Sector Scheme of Scholarship for College and University Students',
   'Pradhan Mantri Awas Yojana – Urban 2.0', 'Ayushman Bharat PM-JAY (National Health Cover)', 'Poshan Abhiyaan']
 const regionText = (value, t) => value === 'National' ? t('national') : value
@@ -24,22 +25,81 @@ const sectorIcons = {
 function Header({ lang, setLang, t, panel, go, online, ready, saved, comparison }) {
   const status = !online ? 'offline' : ready ? 'offlineReady' : 'online'
   const Signal = online ? Wifi : WifiOff
+  const drawer = useRef(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  function openMenu() {
+    const dialog = drawer.current
+    if (!dialog.open && !document.querySelector('dialog[open]')) {
+      dialog.showModal()
+      setMenuOpen(true)
+    }
+  }
+
+  useEffect(() => {
+    const mobile = matchMedia('(max-width: 880px)')
+    let start = null
+    function touchStart(event) {
+      start = null
+      if (!mobile.matches || event.touches.length !== 1 || document.querySelector('dialog[open]')) return
+      const point = event.touches[0]
+      if (point.clientX <= 28) start = point
+    }
+    function touchEnd(event) {
+      if (!start) return
+      const end = Array.from(event.changedTouches).find(point => point.identifier === start.identifier)
+      if (end) {
+        const horizontal = end.clientX - start.clientX
+        const vertical = Math.abs(end.clientY - start.clientY)
+        if (horizontal >= 65 && horizontal > vertical * 1.7) openMenu()
+      }
+      start = null
+    }
+    const reset = () => { start = null }
+    const onResize = () => { if (!mobile.matches) drawer.current.close() }
+    window.addEventListener('touchstart', touchStart, { passive: true })
+    window.addEventListener('touchend', touchEnd, { passive: true })
+    window.addEventListener('touchcancel', reset)
+    mobile.addEventListener('change', onResize)
+    return () => {
+      window.removeEventListener('touchstart', touchStart)
+      window.removeEventListener('touchend', touchEnd)
+      window.removeEventListener('touchcancel', reset)
+      mobile.removeEventListener('change', onResize)
+    }
+  }, [])
+
+  function links(onChoose) {
+    return nav.map(([id, Icon]) => {
+      const count = id === 'saved' ? saved.length : id === 'compare' ? comparison.length : 0
+      return <button key={id} aria-current={panel === id ? 'page' : undefined} onClick={() => onChoose(id)}>
+        <Icon size={18} /><span>{t(id)}</span>{count > 0 && <b>{count}</b>}
+      </button>
+    })
+  }
+
   return <header className="site-header">
     <div className="header-inner">
+      <button className="icon-button mobile-menu-toggle" aria-label={t('menu')} aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded={menuOpen} onClick={openMenu}><Menu size={23} /></button>
       <a className="brand" href="#explore" onClick={event => { event.preventDefault(); go('explore', false); window.scrollTo(0, 0) }}>
         <img alt="" src="/studio/mark.svg" width="42" height="42" />
         <span><strong>SmartGovAI</strong><small>{t('subtitle')}</small></span>
       </a>
       <nav className="main-nav" aria-label="SmartGovAI">
-        {nav.map(([id, Icon]) => <button key={id} aria-current={panel === id ? 'page' : undefined} onClick={() => go(id)}>
-          <Icon size={15} /><span>{t(id)}</span>{((id === 'saved' && saved.length) || (id === 'compare' && comparison.length)) ? <b>{id === 'saved' ? saved.length : comparison.length}</b> : null}
-        </button>)}
+        {links(go)}
       </nav>
       <div className="header-tools">
         <span className="status" title={t(status)} aria-label={t(status)} role="status"><Signal size={17} /><span>{t(status)}</span></span>
         <button className="language" aria-label={lang === 'te' ? 'Switch to English' : 'తెలుగుకు మార్చండి'} onClick={() => setLang(lang === 'te' ? 'en' : 'te')}><Languages size={17} /><span lang={lang === 'te' ? 'en' : 'te'}>{lang === 'te' ? 'English' : 'తెలుగు'}</span></button>
       </div>
     </div>
+    <dialog ref={drawer} id="mobile-menu" className="mobile-menu" aria-labelledby="mobile-menu-title" onClose={() => setMenuOpen(false)}
+      onClick={event => { if (event.target === event.currentTarget) drawer.current.close() }}>
+      <div className="mobile-menu-content">
+        <div className="mobile-menu-head"><h2 id="mobile-menu-title">{t('menu')}</h2><button autoFocus className="icon-button" aria-label={t('close')} onClick={() => drawer.current.close()}><X size={22} /></button></div>
+        <nav className="main-nav drawer-nav" aria-label="SmartGovAI">{links(id => { drawer.current.close(); go(id) })}</nav>
+      </div>
+    </dialog>
   </header>
 }
 
@@ -158,7 +218,7 @@ function App() {
   const [query, setQuery] = useState('')
   const [region, setRegion] = useState('')
   const [sector, setSector] = useState('')
-  const [limit, setLimit] = useState(9)
+  const [limit, setLimit] = useState(pageSize)
   const [panel, setPanel] = useState(() => nav.some(([id]) => id === location.hash.slice(1)) ? location.hash.slice(1) : 'explore')
   const [detail, open] = useState(null)
   const main = useRef(null)
@@ -202,16 +262,31 @@ function App() {
     const rank = value => preferredRegions.includes(value) ? preferredRegions.indexOf(value) : preferredRegions.length
     return rank(a) - rank(b) || a.localeCompare(b)
   }), [schemes])
-  const sectors = [...new Set(schemes.map(item => item.sector || 'health'))]
-    .sort((a, b) => t('sector.' + a).localeCompare(t('sector.' + b), lang))
   const results = useMemo(() => {
     const candidates = schemes.filter(scheme => (!region || scheme.region === region) &&
       (!sector || (scheme.sector || 'health') === sector))
     const ranked = searchSchemes(candidates, query)
     if (query.trim() || region || sector) return ranked
     const rank = scheme => spotlight.includes(scheme.name) ? spotlight.indexOf(scheme.name) : spotlight.length + (scheme.region === 'Andhra Pradesh' ? 0 : scheme.region === 'National' ? 1 : 2)
-    return [...ranked].sort((a, b) => rank(a) - rank(b))
+    const ordered = [...ranked].sort((a, b) => rank(a) - rank(b))
+    const featured = [], remaining = [], seen = new Set()
+    for (const scheme of ordered) {
+      const category = scheme.sector || 'health'
+      if (seen.has(category)) remaining.push(scheme)
+      else { seen.add(category); featured.push(scheme) }
+    }
+    return [...featured, ...remaining]
   }, [schemes, region, sector, query])
+  const sectorCounts = new Map()
+  for (const scheme of schemes) {
+    const key = scheme.sector || 'health'
+    sectorCounts.set(key, (sectorCounts.get(key) || 0) + 1)
+  }
+  const sectors = [...sectorCounts.keys()].sort((a, b) => t('sector.' + a).localeCompare(t('sector.' + b), lang))
+  const filtered = Boolean(query.trim() || region || sector)
+  function clearFilters() {
+    setQuery(''); setRegion(''); setSector(''); setLimit(pageSize)
+  }
   function toggleSave(id) {
     setNotice('')
     setSaved(saved.includes(id) ? saved.filter(item => item !== id) : [...saved, id])
@@ -243,22 +318,29 @@ function App() {
             </div>
             <aside className="catalog-external">
               <p>{t('mySchemeNote')}</p>
-              {online ? <a className="text-button" href="https://www.myscheme.gov.in/search" target="_blank" rel="noreferrer">{t('moreOnMyScheme')} <ArrowUpRight size={16} /></a>
+              {online ? <div className="catalog-external-links">
+                <a className="text-button" href="https://www.myscheme.gov.in/search" target="_blank" rel="noreferrer">{t('moreOnMyScheme')} <ArrowUpRight size={16} /></a>
+                <a className="text-button" href="https://www.myscheme.gov.in/search/ministry/all-ministries" target="_blank" rel="noreferrer">{t('mySchemeCentral')} <ArrowUpRight size={16} /></a>
+                <a className="text-button" href="https://www.myscheme.gov.in/search/state/all-states" target="_blank" rel="noreferrer">{t('mySchemeStates')} <ArrowUpRight size={16} /></a>
+              </div>
                 : <span className="muted">{t('mySchemeOffline')}</span>}
             </aside>
             {status ? loadNotice : <>
               <div className="filter-row">
-                <label className="search-box"><Search size={20} /><input type="search" aria-label={t('search')} placeholder={t('placeholder')} value={query} onChange={event => { setQuery(event.target.value); setLimit(9) }} /></label>
-                <select aria-label={t('sector')} value={sector} onChange={event => { setSector(event.target.value); setLimit(9) }}>
-                  <option value="">{t('anySector')}</option>{sectors.map(item => <option value={item} key={item}>{t('sector.' + item)}</option>)}
+                <label className="search-box"><Search size={20} /><input type="search" aria-label={t('search')} placeholder={t('placeholder')} value={query} onChange={event => { setQuery(event.target.value); setLimit(pageSize) }} /></label>
+                <select aria-label={t('sector')} value={sector} onChange={event => { setSector(event.target.value); setLimit(pageSize) }}>
+                  <option value="">{t('anySector')} ({schemes.length})</option>{sectors.map(item => <option value={item} key={item}>{t('sector.' + item)} ({sectorCounts.get(item)})</option>)}
                 </select>
-                <select aria-label={t('region')} value={region} onChange={event => { setRegion(event.target.value); setLimit(9) }}>
+                <select aria-label={t('region')} value={region} onChange={event => { setRegion(event.target.value); setLimit(pageSize) }}>
                   <option value="">{t('anyRegion')}</option>{regions.map(item => <option value={item} key={item}>{regionText(item, t)}</option>)}
                 </select>
               </div>
-              <p className="count" aria-live="polite">{results.length} {t('results')}</p>
+              <div className="catalog-results">
+                <p className="count" aria-live="polite">{t('resultCount').replace('{shown}', Math.min(limit, results.length)).replace('{matches}', results.length).replace('{total}', schemes.length)}</p>
+                {filtered && <button className="text-button" onClick={clearFilters}>{t('clearFilters')}</button>}
+              </div>
               {results.length ? cards(results.slice(0, limit)) : <div className="empty"><Search size={24} /><p>{t('noResults')}</p></div>}
-              {results.length > limit && <button className="button subtle more" onClick={() => setLimit(limit + 9)}>{t('more')} <ArrowDown size={17} /></button>}
+              {results.length > limit && <button className="button subtle more" onClick={() => setLimit(limit + pageSize)}>{t('more')} <ArrowDown size={17} /></button>}
             </>}
           </section>
         </>}
