@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 
@@ -61,3 +63,26 @@ def test_facility_directory_returns_only_public_location_fields():
     entries = app.test_client().get("/studio/facilities.json").get_json()["facilities"]
     assert entries and any(entry["district"] and entry["lat"] and entry["lng"] for entry in entries)
     assert set(entries[0]) == {"id", "name", "type", "district", "mandal", "village", "contact", "lat", "lng"}
+
+
+def test_cross_sector_entries_keep_official_links_and_do_not_invent_eligibility():
+    rows = app.test_client().get("/studio/catalog.json").get_json()["schemes"]
+    entries = {entry["id"]: entry for entry in rows if entry["directoryEntry"]}
+    assert {entry["sector"] for entry in rows} >= {"health", "education", "housing", "agriculture", "welfare"}
+    assert entries["welfare-ntr-bharosa"]["region"] == "Andhra Pradesh"
+    kisan = entries["welfare-pm-kisan"]
+    assert kisan["source"]["url"] == "https://pmkisan.gov.in/"
+    assert kisan["source"]["reviewed"]
+    assert kisan["en"]["description"] and kisan["te"]["description"]
+    assert not kisan["documents"] and not kisan["questions"] and "eligibility" not in kisan["en"]
+
+
+@patch("app.generate_chat_response", return_value=None)
+def test_studio_chat_can_find_cross_sector_entries_without_changing_classic_catalog(_mock):
+    client = app.test_client()
+    question = {"question": "PM-KISAN", "lang": "en"}
+    studio = client.post("/chat", json={**question, "catalog": "studio"}).get_json()
+    classic = client.post("/chat", json=question).get_json()
+    assert studio["matched_schemes"][0]["scheme_name"] == "PM-KISAN"
+    assert not studio["used_ai"]
+    assert "PM-KISAN" not in [item["scheme_name"] for item in classic["matched_schemes"]]

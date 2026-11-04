@@ -44,6 +44,7 @@ def _scheme(name, scheme, root):
         "nameTe": scheme.get("telugu_name"),
         "region": scheme.get("level") or "",
         "category": scheme.get("category") or "",
+        "sector": scheme.get("sector") or "health",
         "keywords": scheme.get("keywords") or [],
         "en": _sections(scheme.get("simplified")),
         "te": _sections(scheme.get("telugu")),
@@ -51,10 +52,13 @@ def _scheme(name, scheme, root):
             "label": scheme.get("source_name"),
             "url": safe_url(scheme.get("official_website")) or safe_url(scheme.get("source_url")) or "",
             "updated": scheme.get("last_updated") or "",
+            "reviewed": scheme.get("source_reviewed") or "",
         },
         "documents": documents,
         "questions": questions,
         "audio": audio_url,
+        "audioLanguage": scheme.get("audio_language", "te"),
+        "directoryEntry": bool(scheme.get("directory_entry")),
     }
 
 

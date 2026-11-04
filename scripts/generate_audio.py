@@ -1,12 +1,15 @@
-"""Utility script for generating Telugu audio files for the bundled schemes."""
+"""Generate audio files for the bundled schemes."""
 
+import argparse
 import json
 import os
 import subprocess
+import sys
 import time
 
 from config import AUDIO_DIR, BASE_DIR, SCHEMES_DIR
 from services.audio_service import voice_text
+from services.studio_catalog import load_studio_schemes
 
 MAX_RETRIES = 4
 RETRY_BACKOFF_SECONDS = 2
@@ -48,32 +51,48 @@ def generate_audio_for_scheme(name, data):
         print(f"Skipping existing: {audio_path_rel}")
         return
 
-    text_to_speak = voice_text(data["telugu"], name)
+    if data.get("audio_language") == "en":
+        text_to_speak = f"{name}. {data['simplified']['description']}"
+        voice = "en-IN-NeerjaNeural"
+    else:
+        text_to_speak = voice_text(data["telugu"], name)
+        voice = "te-IN-ShrutiNeural"
+    temp_path = audio_path_abs + ".tmp"
     last_err = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             os.makedirs(os.path.dirname(audio_path_abs), exist_ok=True)
             subprocess.run(
-                ["edge-tts", "--voice", "te-IN-ShrutiNeural", "--text", text_to_speak, "--write-media", audio_path_abs],
+                [sys.executable, "-m", "edge_tts", "--voice", voice, "--text", text_to_speak, "--write-media", temp_path],
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
+                timeout=45,
             )
+            if not os.path.getsize(temp_path):
+                raise RuntimeError("Speech provider returned an empty recording")
+            os.replace(temp_path, audio_path_abs)
             print(f"Generated: {audio_path_rel}")
             return
-        except (subprocess.CalledProcessError, Exception) as exc:
+        except (subprocess.SubprocessError, OSError, RuntimeError) as exc:
             last_err = exc
             wait = RETRY_BACKOFF_SECONDS * attempt
             print(f"Failed {name} attempt {attempt}/{MAX_RETRIES}: {exc}")
             if attempt < MAX_RETRIES:
                 time.sleep(wait)
+        finally:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
 
     raise RuntimeError(f"Failed to generate audio for '{name}': {last_err}")
 
 
 def main():
     """Generate audio assets for all schemes and report success or failure."""
-    schemes = load_schemes()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--studio", action="store_true", help="Generate audio for the cross-sector Studio directory")
+    args = parser.parse_args()
+    schemes = load_studio_schemes(BASE_DIR) if args.studio else load_schemes()
     os.makedirs(AUDIO_DIR, exist_ok=True)
 
     ok = 0
@@ -88,7 +107,6 @@ def main():
 
     print(f"Done. Success: {ok}, Failed: {failed}")
     if failed > 0:
-        import sys
         sys.exit(1)
 
 

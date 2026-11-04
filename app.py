@@ -36,6 +36,7 @@ from services.audio_service import generate_telugu_audio, generate_text_audio
 from services.chat_service import generate_chat_response, retrieve_relevant_schemes
 from services.gemini_service import is_gemini_available, simplify_document
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
+from services.studio_catalog import load_studio_schemes
 from studio import make_studio
 from utils import allowed_file, safe_url, validate_pdf_content
 import threading
@@ -400,7 +401,8 @@ def handle_unexpected_exception(error) -> Any:
     return api_error("An unexpected error occurred.", 500, error_code="UNHANDLED_EXCEPTION")
 
 
-app.register_blueprint(make_studio(app.root_path, schemes, facilities_data))
+studio_schemes = {**load_studio_schemes(app.root_path), **schemes}
+app.register_blueprint(make_studio(app.root_path, studio_schemes, facilities_data))
 
 
 @app.route("/classic/")
@@ -483,8 +485,19 @@ def version() -> Any:
     })
 
 
-def catalog_chat_fallback(matched_schemes: list[Dict[str, Any]], lang: str = "te") -> str:
+def catalog_chat_fallback(matched_schemes: list[Dict[str, Any]], lang: str = "te", studio: bool = False) -> str:
     """Return a useful answer when the optional Gemini service is unavailable."""
+    if studio:
+        if not matched_schemes:
+            return ("No matching schemes in this catalog. Try a scheme name or search myScheme."
+                    if lang == "en" else "ఈ జాబితాలో సరిపోలిన పథకాలు లేవు. పథకం పేరుతో లేదా mySchemeలో వెతకండి.")
+        names = [
+            (item.get("telugu_name") or item["scheme_name"]) if lang == "te" else item["scheme_name"]
+            for item in matched_schemes
+        ]
+        heading = "Matching schemes from the directory:" if lang == "en" else "జాబితాలో సరిపోలిన పథకాలు:"
+        return heading + "\n" + "\n".join(f"• {name}" for name in names)
+
     if not matched_schemes:
         if lang == "en":
             return (
@@ -525,6 +538,8 @@ def catalog_chat_fallback(matched_schemes: list[Dict[str, Any]], lang: str = "te
 def chat() -> Any:
     """Answer scheme questions using catalog retrieval and optional Gemini grounding."""
     data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return api_error("Question must be text.", 400, error_code="INVALID_QUESTION")
     question = data.get("question", "")
     if not isinstance(question, str):
         return api_error("Question must be text.", 400, error_code="INVALID_QUESTION")
@@ -538,11 +553,12 @@ def chat() -> Any:
     raw_lang = data.get("lang", "te")
     lang = "en" if str(raw_lang).lower() == "en" else "te"
 
-    matched_schemes = retrieve_relevant_schemes(question, schemes, lang=lang)
-    answer = generate_chat_response(question, matched_schemes, lang=lang)
+    studio = data.get("catalog") == "studio"
+    matched_schemes = retrieve_relevant_schemes(question, studio_schemes if studio else schemes, lang=lang)
+    answer = generate_chat_response(question, matched_schemes, lang=lang) if matched_schemes else None
     used_ai = answer is not None
     if answer is None:
-        answer = catalog_chat_fallback(matched_schemes, lang=lang)
+        answer = catalog_chat_fallback(matched_schemes, lang=lang, studio=studio)
 
     return api_response({
         "answer": answer,

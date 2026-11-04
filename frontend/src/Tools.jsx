@@ -46,7 +46,7 @@ export function Assistant({ schemes, lang, t, online, open }) {
     setResult(null)
     try {
       const data = await protectedRequest('/chat', {
-        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: query, lang }),
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: query, lang, catalog: 'studio' }),
       }, controller.signal)
       const names = new Set(data.matched_schemes?.map(item => item.scheme_name))
       setResult({ matches: schemes.filter(item => names.has(item.name)), answer: data.answer, ai: data.used_ai })

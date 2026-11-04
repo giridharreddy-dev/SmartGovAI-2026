@@ -5,7 +5,8 @@ import { localized, officialUrl, sections, schemeTitle, sectionText } from './co
 export function SchemeSource({ scheme, t }) {
   const url = officialUrl(scheme.source?.url)
   return <div className="source">
-    <span>{scheme.source?.updated && <>{t('updated')}: {scheme.source.updated}</>}</span>
+    <span>{scheme.source?.updated ? <>{t('updated')}: {scheme.source.updated}</> :
+      scheme.source?.reviewed && <>{t('reviewed')}: {scheme.source.reviewed}</>}</span>
     {url ? <a href={url} target="_blank" rel="noreferrer">{scheme.source.label || t('source')} <ArrowUpRight size={15} aria-hidden="true" /></a>
       : <span>{t('sourceMissing')}</span>}
   </div>
@@ -23,7 +24,7 @@ function Printable({ scheme, lang, t, checks }) {
     <header className="print-mast"><img src="/studio/mark.svg" width="42" height="42" alt="" /><div><strong>SmartGovAI</strong><span>{t('guide')}</span></div></header>
     <div className="print-title">
       <span>{scheme.region === 'National' ? t('national') : scheme.region}</span>
-      <h2>{schemeTitle(scheme, lang)}</h2>
+      <h2 lang={lang === 'te' && scheme.directoryEntry && !scheme.nameTe ? 'en' : undefined}>{schemeTitle(scheme, lang)}</h2>
     </div>
     <DocumentSections {...{ scheme, lang, t }} />
     {!!scheme.documents?.length && <section className="print-checks">
@@ -34,7 +35,7 @@ function Printable({ scheme, lang, t, checks }) {
       </li>)}</ul>
     </section>}
     {scheme.source && <SchemeSource {...{ scheme, t }} />}
-    <footer className="print-foot">{t(scheme.ai ? 'pdfNotice' : 'guideDisclaimer')}</footer>
+    <footer className="print-foot">{t(scheme.ai ? 'pdfNotice' : scheme.directoryEntry ? 'officialDetails' : 'guideDisclaimer')}</footer>
   </article>
 }
 
@@ -47,6 +48,8 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
   const [preview, setPreview] = useState(false)
   const [sound, setSound] = useState('idle')
   const titleId = useId()
+  const audioLang = scheme.audioLanguage || 'te'
+  const playbackLang = scheme.audio && scheme.directoryEntry ? audioLang : lang
   useEffect(() => {
     mounted.current = true
     dialog.current.showModal()
@@ -75,10 +78,10 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
     function speak() {
       if (!mounted.current || !playing.current) return
       if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return done('error')
-      const voice = speechSynthesis.getVoices().find(voice => voice.lang.startsWith(lang) && voice.localService)
+      const voice = speechSynthesis.getVoices().find(voice => voice.lang.startsWith(playbackLang) && voice.localService)
       if (!voice) return done('error')
-      const msg = new SpeechSynthesisUtterance([schemeTitle(scheme, lang), sectionText(scheme, 'description', lang), sectionText(scheme, 'benefits', lang)].filter(Boolean).join('. '))
-      msg.lang = lang === 'te' ? 'te-IN' : 'en-IN'
+      const msg = new SpeechSynthesisUtterance([schemeTitle(scheme, playbackLang), sectionText(scheme, 'description', playbackLang), sectionText(scheme, 'benefits', playbackLang)].filter(Boolean).join('. '))
+      msg.lang = playbackLang === 'te' ? 'te-IN' : 'en-IN'
       msg.voice = voice
       msg.onend = () => done('idle')
       msg.onerror = () => done('error')
@@ -86,7 +89,7 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
     }
     playing.current = true
     setSound('playing')
-    if (lang === 'te' && scheme.audio) {
+    if (playbackLang === audioLang && scheme.audio) {
       audio.current = new Audio(scheme.audio)
       audio.current.addEventListener('ended', () => done('idle'), { once: true })
       audio.current.play().catch(speak)
@@ -109,16 +112,19 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
       </> : <>
         <div className="detail-title">
           {scheme.region && <span className="pill">{scheme.region === 'National' ? t('national') : scheme.region}</span>}
-          <h2 id={titleId}>{schemeTitle(scheme, lang)}</h2>
+          <h2 id={titleId} lang={lang === 'te' && scheme.directoryEntry && !scheme.nameTe ? 'en' : undefined}>{schemeTitle(scheme, lang)}</h2>
           {scheme.ai && <p role="note">{t('pdfNotice')}</p>}
           <div className="action-row">
             <button className="button primary" onClick={() => setPreview(true)}><FileText size={17} /> {t('preview')}</button>
-            <button className="button subtle" onClick={listen}>{sound === 'playing' ? <VolumeX size={17} /> : <Volume2 size={17} />}{t(sound === 'playing' ? 'stop' : 'listen')}</button>
+            <button className="button subtle" onClick={listen}>{sound === 'playing' ? <VolumeX size={17} /> : <Volume2 size={17} />}{t(sound === 'playing' ? 'stop' : playbackLang !== lang ? 'listenEnglish' : 'listen')}</button>
           </div>
           {sound === 'error' && <p role="status">{t('speechUnavailable')}</p>}
         </div>
         <DocumentSections {...{ scheme, lang, t }} />
-        {!scheme.ai && <>
+        {scheme.directoryEntry ? <>
+          <p className="detail-panel">{t('officialDetails')}</p>
+          <SchemeSource {...{ scheme, t }} />
+        </> : !scheme.ai && <>
           {!!scheme.documents.length && <section className="detail-panel">
             <h3><Check size={20} /> {t('checklist')}</h3>
             <p>{t('checklistNote')}</p>
