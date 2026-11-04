@@ -14,10 +14,11 @@ from datetime import date, datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.error import URLError
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import urlsplit
 from urllib.request import urlopen
 from xml.etree import ElementTree
 
+from scripts.pib_excerpt import release_excerpts, release_id
 from services.studio_catalog import load_studio_schemes
 from utils import generate_slug
 
@@ -25,7 +26,21 @@ ROOT = Path(__file__).resolve().parents[1]
 PIB_FEED = "https://www.pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3&reg=48"
 PIB_POLICY = "https://www.pib.gov.in/content/3622_2_CopyrightPolicy.aspx?lang=6&reg=17"
 PIB_HOSTS = {"pib.gov.in", "www.pib.gov.in"}
-SCHEME_WORDS = re.compile(r"\b(schemes?|yojana|abhiyan|scholarships?|pensions?|subsid(?:y|ies))\b", re.I)
+SCHEME_WORDS = re.compile(r"\b(schemes?|yojana|abhiyan|scholarships?|pensions?|subsid(?:y|ies)|pmssy)\b", re.I)
+BROAD_RELEASE = re.compile(
+    r"\b(?:budget allocations?|budget outlays?|multi ministry|across ministries|"
+    r"(?:multiple|several|various) (?:\w+ ){0,3}(?:schemes|ministries)|"
+    r"(?:schemes|allocations) across)\b"
+)
+EXPLICIT_ALIASES = {
+    "PM Surya Ghar: Muft Bijli Yojana": ("PM Surya Ghar",),
+    "Ayushman Bharat PM-JAY (National Health Cover)": ("PM-JAY", "PMJAY"),
+    "Ayushman Arogya Mandir (Free Primary Health Care)": ("AB-HWC", "AB-HWCs"),
+}
+AYUSHMAN_COMPONENTS = {
+    "Ayushman Bharat PM-JAY (National Health Cover)",
+    "Ayushman Arogya Mandir (Free Primary Health Care)",
+}
 MAX_FEED_BYTES = 1_000_000
 
 
@@ -43,6 +58,7 @@ class Lead:
     matched_catalog_id: str | None = None
     published_on: str | None = None
     status: str = "pending_verification"
+    candidate_ids: tuple[str, ...] = ()
 
 
 def normalized(value):
@@ -66,32 +82,40 @@ def catalog_keys():
         candidates = [
             name,
             re.sub(r"\s*\([^)]*\)", "", name),
-            scheme.get("telugu_name") or "",
             *re.findall(r"\(([A-Z0-9-]{4,})\)", name),
+            *EXPLICIT_ALIASES.get(name, ()),
         ]
-        # Keep explicit acronym-like catalog keywords, excluding broad topic keywords.
-        candidates.extend(
-            word for word in (scheme.get("keywords") or [])
-            if re.fullmatch(r"[A-Za-z]{2,}-[A-Za-z0-9]{2,}", word)
-        )
-        if slug.startswith("welfare-"):
-            candidates.append(slug.removeprefix("welfare-"))
+        candidates.append(slug)
         for candidate in candidates:
             alias = normalized(candidate)
-            if len(alias.replace(" ", "")) >= 4:
+            if len(alias.replace(" ", "")) >= 5 or re.fullmatch(r"[A-Z0-9-]{4,}", candidate):
                 aliases.setdefault(alias, set()).add(slug)
+        if name in AYUSHMAN_COMPONENTS:
+            aliases.setdefault("ayushman bharat", set()).add(slug)
     return names, aliases
 
 
 def match_catalog(title, aliases):
-    phrase = f" {normalized(title)} "
-    matches = [alias for alias in aliases if f" {alias} " in phrase]
-    # Ignore a shorter alias contained in a more specific match. Keep a lead
-    # unlinked when the remaining matches point to different schemes.
-    specific = [alias for alias in matches
-                if not any(alias != other and f" {alias} " in f" {other} " for other in matches)]
-    ids = {slug for alias in specific for slug in aliases[alias]}
-    return next(iter(ids)) if len(ids) == 1 else None, bool(ids)
+    text = normalized(title)
+    mentions = [
+        (hit.start(), hit.end(), alias)
+        for alias in aliases
+        for hit in re.finditer(rf"(?<!\S){re.escape(alias)}(?!\S)", text)
+    ]
+    # Suppress a nested alias only at the same occurrence, such as the umbrella
+    # inside “Ayushman Bharat PM-JAY”. A separate mention still counts.
+    specific = [
+        alias for start, end, alias in mentions
+        if not any(left <= start and end <= right and (left, right) != (start, end)
+                   for left, right, _ in mentions)
+    ]
+    ids = tuple(sorted({slug for alias in specific for slug in aliases[alias]}))
+    if (len(ids) > 1 or "ayushman bharat" in specific or BROAD_RELEASE.search(text)
+            or (ids and re.search(r"\bpmssy\b", text) and "pmssy" not in aliases)):
+        return "multi_scheme_lead", None, ids
+    if ids:
+        return "revision_candidate", ids[0], ids
+    return "new_scheme_candidate", None, ()
 
 
 def publication_date(value):
@@ -117,15 +141,11 @@ def pib_leads(payload, aliases):
     for item in items:
         title = " ".join(item.findtext("title", "").split())
         url = item.findtext("link", "").strip()
-        parts = urlsplit(url)
-        parameters = {key.lower(): values for key, values in parse_qs(parts.query).items()}
-        prid = parameters.get("prid", [""])[0]
-        if not https_url(url) or parts.hostname not in PIB_HOSTS or not re.fullmatch(r"[0-9]+", prid):
+        prid = release_id(url)
+        if not prid or not title:
             continue
-        if not title:
-            continue
-        matched, mentions_catalog = match_catalog(title, aliases)
-        if not mentions_catalog and not SCHEME_WORDS.search(title):
+        lead_type, matched, candidates = match_catalog(title, aliases)
+        if lead_type == "new_scheme_candidate" and not SCHEME_WORDS.search(title):
             continue
         published = publication_date(item.findtext("pubDate"))
         canonical_url = f"https://www.pib.gov.in/PressReleasePage.aspx?PRID={prid}"
@@ -133,8 +153,7 @@ def pib_leads(payload, aliases):
         rows.append(Lead(
             id=f"pib:{fingerprint}", event_key=f"pib:{prid}", title=title, region="", url=url,
             source_url=PIB_FEED, publisher="Press Information Bureau", policy_url=PIB_POLICY,
-            type="revision_candidate" if mentions_catalog else "new_scheme_candidate",
-            matched_catalog_id=matched, published_on=published,
+            type=lead_type, matched_catalog_id=matched, published_on=published, candidate_ids=candidates,
         ))
     return len(items), rows
 
@@ -169,7 +188,7 @@ def read_csv(path, source_url, publisher, license_url, known_names):
     return count, rows
 
 
-def queue(database, rows):
+def queue(database, rows, aliases=None):
     database.parent.mkdir(parents=True, exist_ok=True)
     with closing(sqlite3.connect(database)) as connection, connection:
         connection.row_factory = sqlite3.Row
@@ -188,20 +207,36 @@ def queue(database, rows):
             "matched_catalog_id": "TEXT",
             "published_on": "TEXT",
             "status": "TEXT NOT NULL DEFAULT 'pending_verification'",
+            "candidate_ids": "TEXT",
+            "article_evidence": "TEXT",
         }
         for name, definition in additions.items():
             if name not in existing:
                 connection.execute(f"ALTER TABLE scheme_leads ADD COLUMN {name} {definition}")
         connection.execute("UPDATE scheme_leads SET event_key = id WHERE event_key IS NULL")
         connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS scheme_leads_event ON scheme_leads(event_key)")
+        if aliases is not None:
+            legacy = connection.execute(
+                """SELECT id, title FROM scheme_leads WHERE candidate_ids IS NULL
+                   AND event_key LIKE 'pib:%' AND status = 'pending_verification'"""
+            ).fetchall()
+            for lead in legacy:
+                lead_type, matched, candidates = match_catalog(lead["title"], aliases)
+                connection.execute(
+                    "UPDATE scheme_leads SET type = ?, matched_catalog_id = ?, candidate_ids = ? WHERE id = ?",
+                    (lead_type, matched, json.dumps(candidates), lead["id"]),
+                )
         today = date.today().isoformat()
-        values = [dict(asdict(row), discovered_on=today) for row in rows]
+        values = [
+            dict(asdict(row), discovered_on=today, candidate_ids=json.dumps(row.candidate_ids))
+            for row in rows
+        ]
         added = connection.executemany(
             """INSERT OR IGNORE INTO scheme_leads
                 (id, title, region, url, source_url, publisher, policy_url, discovered_on,
-                 event_key, type, matched_catalog_id, published_on, status)
+                 event_key, type, matched_catalog_id, published_on, status, candidate_ids)
                 VALUES (:id, :title, :region, :url, :source_url, :publisher, :policy_url, :discovered_on,
-                        :event_key, :type, :matched_catalog_id, :published_on, :status)""",
+                        :event_key, :type, :matched_catalog_id, :published_on, :status, :candidate_ids)""",
             values,
         ).rowcount
         # PIB releases may initially omit pubDate. A later date enriches the
@@ -209,16 +244,44 @@ def queue(database, rows):
         connection.executemany(
             """UPDATE scheme_leads
                SET published_on = COALESCE(published_on, :published_on),
-                   type = CASE WHEN :type = 'revision_candidate' THEN :type ELSE type END,
-                   matched_catalog_id = COALESCE(matched_catalog_id, :matched_catalog_id)
+                   article_evidence = CASE WHEN title IS NOT :title THEN NULL ELSE article_evidence END,
+                   title = :title,
+                   type = :type,
+                   matched_catalog_id = :matched_catalog_id,
+                   candidate_ids = :candidate_ids
                WHERE event_key = :event_key AND status = 'pending_verification'
+                 AND event_key LIKE 'pib:%'
                  AND ((published_on IS NULL AND :published_on IS NOT NULL)
-                   OR (:type = 'revision_candidate' AND type <> :type)
-                   OR (matched_catalog_id IS NULL AND :matched_catalog_id IS NOT NULL))""",
+                   OR title IS NOT :title OR type IS NOT :type OR matched_catalog_id IS NOT :matched_catalog_id
+                   OR candidate_ids IS NOT :candidate_ids)""",
             values,
         )
         report = [dict(row) for row in connection.execute("SELECT * FROM scheme_leads ORDER BY discovered_on DESC, id")]
+    for lead in report:
+        lead["candidate_ids"] = json.loads(lead["candidate_ids"] or "[]")
+        lead["article_evidence"] = json.loads(lead["article_evidence"]) if lead["article_evidence"] else None
     return added, report
+
+
+def enrich_drafts(database, leads, limit):
+    pending = [
+        lead for lead in leads if lead["status"] == "pending_verification"
+        and lead["article_evidence"] is None and lead["event_key"].startswith("pib:")
+    ]
+    for lead in pending[:limit]:
+        try:
+            article = release_excerpts(lead["event_key"].removeprefix("pib:"))
+        except (OSError, ValueError) as error:
+            print(f"Could not read PIB release {lead['event_key']}: {type(error).__name__}")
+            continue
+        if not article:
+            continue
+        with closing(sqlite3.connect(database)) as connection, connection:
+            connection.execute(
+                "UPDATE scheme_leads SET article_evidence = ? WHERE id = ? AND article_evidence IS NULL",
+                (json.dumps(article, ensure_ascii=False), lead["id"]),
+            )
+        lead["article_evidence"] = article
 
 
 def draft_entries(leads, evidence):
@@ -238,11 +301,13 @@ def draft_entries(leads, evidence):
             "lead_id": lead["id"],
             "type": lead["type"],
             "matched_catalog_id": lead["matched_catalog_id"],
+            "candidate_ids": lead["candidate_ids"],
             "status": "pending_verification",
             "lead_title": lead["title"],
             "announcement_url": lead["url"],
             "official_url": official_url,
             "category": source.get("category"),
+            "article_evidence": lead["article_evidence"],
         }
         for language in ("en", "te"):
             fields = source.get(language, {})
@@ -252,6 +317,9 @@ def draft_entries(leads, evidence):
             for key in ("summary", "eligibility"):
                 value = fields.get(key)
                 draft[language][key] = (value.strip() or None) if isinstance(value, str) else None
+            article = (lead["article_evidence"] or {}).get(language)
+            if article and draft[language]["summary"] is None:
+                draft[language]["summary"] = article["excerpt"]
         drafts.append(draft)
     return drafts
 
@@ -290,12 +358,15 @@ def main():
     parser.add_argument("--database", type=Path, default=ROOT / "scratch" / "scheme-leads.db")
     parser.add_argument("--report", type=Path, help="Optional JSON review queue export")
     parser.add_argument("--drafts", type=Path, help="Optional pending bilingual draft export")
+    parser.add_argument("--fetch-excerpts", action="store_true", help="With --drafts, fetch up to five uncached PIB releases")
     parser.add_argument("--evidence", type=Path, help="JSON keyed by lead ID with official_url, category, and en/te summary and eligibility")
     args = parser.parse_args()
     if args.csv and not (https_url(args.source_url or "") and args.publisher and https_url(args.license_url or "")):
         parser.error("--csv requires --source-url, --publisher and --license-url")
     if args.evidence and not args.drafts:
         parser.error("--evidence requires --drafts")
+    if args.fetch_excerpts and not args.drafts:
+        parser.error("--fetch-excerpts requires --drafts")
     try:
         paths = [path.resolve() for path in (args.database, args.report, args.drafts, args.evidence, args.csv) if path]
         if len(set(paths)) != len(paths):
@@ -305,15 +376,17 @@ def main():
         if args.drafts:
             check_export(args.drafts, "drafts")
         evidence = json.loads(args.evidence.read_text(encoding="utf-8-sig")) if args.evidence else {}
+        names, aliases = catalog_keys()
         if args.queued_only:
             scanned, rows = 0, []
         else:
-            names, aliases = catalog_keys()
             if args.csv:
                 scanned, rows = read_csv(args.csv, args.source_url, args.publisher, args.license_url, names)
             else:
                 scanned, rows = read_pib(aliases)
-        added, report = queue(args.database, rows)
+        added, report = queue(args.database, rows, aliases)
+        if args.fetch_excerpts:
+            enrich_drafts(args.database, report, limit=5)
         drafts = draft_entries(report, evidence) if args.drafts else None
         if args.report:
             export_report(args.report, "leads", report)
