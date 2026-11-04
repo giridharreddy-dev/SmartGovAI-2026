@@ -10,6 +10,8 @@ from collections import OrderedDict
 from functools import lru_cache
 from typing import Any, Dict
 
+import httpx
+
 from config import GEMINI_MAX_RETRIES, GEMINI_RETRY_BASE_DELAY, GEMINI_RETRY_MAX_DELAY, MODEL_NAME
 from logger_config import logger
 
@@ -28,6 +30,15 @@ _GEMINI_CACHE_SIZE = 64
 _gemini_response_cache: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
 _gemini_pending: dict[str, threading.Event] = {}
 _gemini_lock = threading.Lock()
+
+# The application owns retries; disable SDK retries to avoid multiplying calls.
+_GEMINI_HTTP_TIMEOUT_MS = 15000
+_GEMINI_COALESCE_WAIT_TIMEOUT = (
+    GEMINI_MAX_RETRIES * (_GEMINI_HTTP_TIMEOUT_MS / 1000)
+    + sum(min(GEMINI_RETRY_BASE_DELAY * (2 ** n), GEMINI_RETRY_MAX_DELAY) * 1.25
+          for n in range(max(0, GEMINI_MAX_RETRIES - 1)))
+    + 10.0
+)
 
 @lru_cache(maxsize=1)
 def get_client() -> Client | None:
@@ -120,13 +131,17 @@ Return strictly this JSON object and nothing else:
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 temperature=0.2,
+                http_options={
+                    "timeout": _GEMINI_HTTP_TIMEOUT_MS,
+                    "retry_options": {"attempts": 1},
+                },
             )
         )
     else:
         response = client.models.generate_content(
             model=MODEL_NAME,
             contents=prompt,
-            config={'temperature': 0.2}
+            config={'temperature': 0.2, 'http_options': {'timeout': _GEMINI_HTTP_TIMEOUT_MS, 'retry_options': {'attempts': 1}}}
         )
 
     # Safe JSON parsing
@@ -149,12 +164,14 @@ Return strictly this JSON object and nothing else:
 
 def _is_retryable_gemini_error(exc: Exception) -> bool:
     """Return True if the Gemini error is transient and worth retrying."""
+    if isinstance(exc, (httpx.TimeoutException, httpx.ConnectError)):
+        return True
     if genai_errors is None:
         return False
     if isinstance(exc, genai_errors.ServerError):
         return True  # All 5xx are transient
     if isinstance(exc, genai_errors.ClientError):
-        return getattr(exc, 'code', 0) == 429  # Rate limit only
+        return getattr(exc, 'code', 0) in (408, 429)  # Request timeout or rate limit
     return False
 
 def _call_gemini_with_retry(client: Client, complex_text: str, scheme_name: str) -> Dict[str, Any]:
@@ -214,7 +231,8 @@ def simplify_document(complex_text: str, scheme_name: str) -> Dict[str, Any]:
 
     if not first_request:
         logger.info("Waiting for duplicate Gemini request to complete: scheme='%s'", scheme_name)
-        pending.wait()
+        if not pending.wait(_GEMINI_COALESCE_WAIT_TIMEOUT):
+            raise RuntimeError("Timed out waiting for Gemini request to complete.")
         with _gemini_lock:
             if cache_key in _gemini_response_cache:
                 return _gemini_response_cache[cache_key]

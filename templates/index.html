@@ -990,7 +990,7 @@
     setupInstallPrompt();
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}")
+        navigator.serviceWorker.register("{{ url_for('classic_worker') }}")
             .then(reg => {
                 if (reg.active) {
                     reg.active.postMessage({ type: 'CACHE_ALL_AUDIO' });

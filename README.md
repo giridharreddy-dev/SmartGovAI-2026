@@ -10,6 +10,8 @@
 
 SmartGovAI is an offline-first Progressive Web Application (PWA) supported by a Python Flask backend. It is designed as an academic prototype to explore mitigating the digital divide by helping citizens discover, evaluate eligibility for, and comprehend government health and welfare schemes through an accessible, language-first interface.
 
+**Citizen Studio** is the React interface for the original Flask project. The home page opens Studio when the frontend has been built, and the legacy interface remains available at `/classic/`. Studio includes bilingual search, local bookmarks and self-checks, three-way comparison, a district facility directory, and printable preparation guides. See [Citizen Studio setup and operations](docs/CITIZEN_STUDIO.md).
+
 ## Why This Project Exists
 
 Rural citizens in India, particularly those with limited literacy and digital exposure, face significant barriers when attempting to access government welfare programs. Key issues include:
@@ -57,7 +59,7 @@ The project combines several approaches to improve accessibility:
 ## Architecture
 
 SmartGovAI uses a decoupled client-server architecture:
-- **Client-Side:** HTML5, Vanilla CSS3, ES6+ JavaScript (`enhanced-features.js`), Service Worker, `localStorage`.
+- **Client-Side:** HTML, CSS, JavaScript, React and Vite for Citizen Studio; the classic portal keeps its existing templates and scripts. Both use scoped service workers and browser storage.
 - **Server-Side:** Python 3.10+ with Flask, SQLite (`feedback.db`), `pdfplumber`/Tesseract for parsing, Google Gemini API for AI features.
 
 ## AI Safety / Responsible AI

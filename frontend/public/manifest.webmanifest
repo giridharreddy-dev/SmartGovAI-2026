@@ -1,0 +1,12 @@
+{
+  "id": "/studio/",
+  "name": "SmartGovAI · Citizen Studio",
+  "short_name": "SmartGovAI",
+  "lang": "te",
+  "start_url": "/studio/",
+  "scope": "/studio/",
+  "display": "standalone",
+  "background_color": "#f7f4eb",
+  "theme_color": "#102c27",
+  "icons": [{"src": "mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}]
+}

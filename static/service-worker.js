@@ -1,9 +1,10 @@
-const CACHE_NAME = 'smartgov-health-v5';
+const CACHE_PREFIX = 'smartgov-health-';
+const CACHE_NAME = CACHE_PREFIX + 'v7';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache on install — all app-shell assets
 const STATIC_CACHE_FILES = [
-  '/',
+  '/classic/',
   '/offline.html',
   '/static/style.css',
   '/static/manifest.webmanifest',
@@ -27,7 +28,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      keys.filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map(key => caches.delete(key))
     )).then(() => self.clients.claim())
   );
 });
@@ -36,6 +37,17 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+  if (event.request.mode === 'navigate') {
+    if (url.pathname !== '/classic/') return;
+    event.respondWith(fetch(event.request).catch(async () => {
+      const cache = await caches.open(CACHE_NAME);
+      return await cache.match('/classic/') || await cache.match(OFFLINE_URL);
+    }));
+    return;
+  }
+  if (!url.pathname.startsWith('/static/') &&
+      !['/api/facilities', '/healthz', '/offline-cache'].includes(url.pathname)) return;
   
   // Handle HTML pages, JSON APIs, and static assets
   if (event.request.destination === 'document' || 
@@ -103,7 +115,7 @@ self.addEventListener('fetch', event => {
 // Handle messages from clients
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'CACHE_ALL_AUDIO') {
-    cacheAllAudio();
+    event.waitUntil(cacheAllAudio());
   }
 });
 

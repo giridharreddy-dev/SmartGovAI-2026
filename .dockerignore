@@ -13,6 +13,12 @@ venv/
 # Environment
 
 .env
+.venv/
+.chroma_db/
+*.db
+*.sqlite3
+frontend/node_modules/
+frontend/dist/
 
 # Local runtime
 
