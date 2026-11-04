@@ -2,7 +2,6 @@
 
 import argparse
 import asyncio
-import json
 import os
 import re
 import subprocess
@@ -13,38 +12,14 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 from xml.sax.saxutils import escape
 
-from config import AUDIO_DIR, BASE_DIR, SCHEMES_DIR
+from config import AUDIO_DIR, BASE_DIR
 from services.audio_service import voice_text
-from services.studio_catalog import load_studio_schemes
+from services.studio_catalog import load_legacy_catalog, load_master_catalog
 from services.studio_narration import STUDIO_VOICES, studio_audio_asset, studio_narration_text
 from utils import generate_slug
 
 MAX_RETRIES = 4
 RETRY_BACKOFF_SECONDS = 2
-
-
-def load_schemes():
-    """Load all scheme definitions from JSON files in the data directory."""
-    merged_schemes = {}
-    if not os.path.exists(SCHEMES_DIR):
-        print(f"Schemes directory '{SCHEMES_DIR}' does not exist.")
-        return merged_schemes
-        
-    for filename in sorted(os.listdir(SCHEMES_DIR)):
-        if filename.endswith(".json") and filename not in {"scheme_schema.json", "facilities.json"}:
-            filepath = os.path.join(SCHEMES_DIR, filename)
-            try:
-                with open(filepath, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    if not isinstance(data, dict):
-                        print(f"Skipping '{filename}': Expected a JSON dictionary.")
-                        continue
-                    for scheme_name, scheme_data in data.items():
-                        if "telugu" in scheme_data:
-                            merged_schemes[scheme_name] = scheme_data
-            except Exception as e:
-                print(f"Failed to load or parse scheme file '{filename}': {e}")
-    return merged_schemes
 
 
 def generate_audio_for_scheme(name, data):
@@ -215,7 +190,7 @@ def main():
     parser.add_argument("--overwrite", action="store_true", help="Regenerate selected Studio recordings")
     args = parser.parse_args()
     if args.studio:
-        schemes = {**load_studio_schemes(BASE_DIR), **load_schemes()}
+        schemes = load_master_catalog(BASE_DIR)
         if args.scheme:
             selected = set(args.scheme)
             matches = {}
@@ -232,7 +207,7 @@ def main():
         sys.exit(asyncio.run(generate_studio_recordings(schemes, languages, args.jobs, args.provider, args.overwrite)))
     if args.scheme or args.language != "both" or args.provider != "edge" or args.overwrite:
         parser.error("--scheme, --language, --provider and --overwrite require --studio")
-    schemes = load_schemes()
+    schemes = load_legacy_catalog(BASE_DIR)
     os.makedirs(AUDIO_DIR, exist_ok=True)
 
     ok = 0

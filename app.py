@@ -36,7 +36,7 @@ from services.audio_service import generate_telugu_audio, generate_text_audio
 from services.chat_service import generate_chat_response, retrieve_relevant_schemes
 from services.gemini_service import is_gemini_available, simplify_document
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
-from services.studio_catalog import load_studio_schemes
+from services.studio_catalog import load_master_catalog
 from services.scheme_revisions import apply_revisions, read_revisions
 from studio import make_studio
 from utils import allowed_file, safe_url, validate_pdf_content
@@ -208,37 +208,17 @@ def validate_scheme(name: str, data: Dict[str, Any]) -> bool:
 
 
 @lru_cache(maxsize=1)
+def bundled_catalog():
+    return load_master_catalog(app.root_path)
+
+
+@lru_cache(maxsize=1)
 def load_schemes() -> Dict[str, Any]:
-    """Load and merge all valid scheme definitions from JSON files in the data directory."""
-    merged_schemes = {}
-    if not os.path.exists(SCHEMES_DIR):
-        logger.warning("Schemes directory '%s' does not exist.", SCHEMES_DIR)
-        return merged_schemes
-
-    for filename in sorted(os.listdir(SCHEMES_DIR)):
-        if filename.endswith(".json") and filename not in {"scheme_schema.json", "facilities.json"}:
-            filepath = os.path.join(SCHEMES_DIR, filename)
-            try:
-                with open(filepath, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    if not isinstance(data, dict):
-                        logger.error("Skipping '%s': Expected a JSON dictionary of schemes, but got %s", filename, type(data).__name__)
-                        continue
-
-                    for scheme_name, scheme_data in data.items():
-                        if validate_scheme(scheme_name, scheme_data):
-                            merged_schemes[scheme_name] = scheme_data
-                        else:
-                            logger.warning("Skipping invalid scheme '%s' in file '%s'", scheme_name, filename)
-            except (json.JSONDecodeError, OSError) as e:
-                logger.error("Failed to load or parse scheme file '%s': %s", filename, e)
-
-    # Generate slugs for all valid schemes
-    from utils import generate_slug
-    for scheme_name, scheme_data in merged_schemes.items():
-        scheme_data["slug"] = generate_slug(scheme_name)
-
-    return merged_schemes
+    """Validate the legacy portal's subset of the master catalog."""
+    return {
+        name: record for name, record in bundled_catalog().items()
+        if not record.get("directory_entry") and validate_scheme(name, record)
+    }
 
 
 # Load schemes safely
@@ -402,7 +382,10 @@ def handle_unexpected_exception(error) -> Any:
     return api_error("An unexpected error occurred.", 500, error_code="UNHANDLED_EXCEPTION")
 
 
-studio_schemes = apply_revisions({**load_studio_schemes(app.root_path), **schemes}, read_revisions(app.root_path))
+studio_catalog = {
+    name: row for name, row in bundled_catalog().items() if row.get("directory_entry")
+}
+studio_schemes = apply_revisions({**studio_catalog, **schemes}, read_revisions(app.root_path))
 app.register_blueprint(make_studio(app.root_path, studio_schemes, facilities_data))
 
 

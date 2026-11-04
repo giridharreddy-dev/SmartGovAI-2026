@@ -7,16 +7,36 @@ from urllib.parse import urlsplit
 
 from services.scheme_operations import SchemeOperations
 
+from utils import generate_slug
+
+CATALOG_PATH = Path("data/merged_schemes.json")
+
+
+def load_master_catalog(root):
+    path = Path(root) / CATALOG_PATH
+    catalog = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(catalog, dict) or not catalog or any(
+        not name or not isinstance(row, dict) for name, row in catalog.items()
+    ):
+        raise ValueError(f"Invalid master scheme catalog: {path}")
+    for name, row in catalog.items():
+        row.setdefault("slug", generate_slug(name))
+    return catalog
+
+
+def load_legacy_catalog(root):
+    return {name: row for name, row in load_master_catalog(root).items() if not row.get("directory_entry")}
+
+
 SECTORS = frozenset({
     "agriculture", "finance", "business", "education", "health", "housing", "law",
     "science", "employment", "welfare", "sports", "transport", "tourism", "utility", "women",
 })
 
 
-def load_studio_schemes(root):
-    path = Path(root) / "data" / "studio" / "welfare.json"
-    if not path.is_file():
-        return {}
+def load_directory_source(path):
+    """Convert the offline directory source into canonical catalog records."""
+    path = Path(path)
 
     catalog = json.loads(path.read_text(encoding="utf-8"))
     schemes = {}
@@ -43,6 +63,7 @@ def load_studio_schemes(root):
             "official_website": row["url"],
             "source_reviewed": catalog["reviewed"],
             "directory_entry": True,
+            "required_documents": [],
         }
         if "operations" in row:
             try:

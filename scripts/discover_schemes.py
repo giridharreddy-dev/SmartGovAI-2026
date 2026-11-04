@@ -23,7 +23,7 @@ from scripts.pib_excerpt import release_excerpts, release_id
 from scripts.pib_regional import MATCH_RULE, find_regional_release, read_regional_index, same_event
 from scripts.pib_translate import DEFAULT_MODEL_DIR, MODEL, REVISION, LocalTranslator
 from services.scheme_operations import OperationalDraft, SchemeOperations, Text
-from services.studio_catalog import load_studio_schemes
+from services.studio_catalog import load_master_catalog
 from utils import generate_slug
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -82,8 +82,7 @@ def https_url(value):
 
 
 def source_catalog():
-    legacy = json.loads((ROOT / "data" / "merged_schemes.json").read_text(encoding="utf-8"))
-    return {**load_studio_schemes(ROOT), **legacy}
+    return load_master_catalog(ROOT)
 
 
 def catalog_keys(schemes=None):

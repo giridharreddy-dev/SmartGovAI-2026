@@ -1,79 +1,132 @@
+"""Rebuild the Citizen Studio master catalog and report unlinked V2 records."""
+
+import argparse
 import json
 import os
-import shutil
+import tempfile
+import unicodedata
+from collections import defaultdict
+from pathlib import Path
 
-def convert_scraped_to_valid_schema(item):
-    """Converts a scraper dict to the SmartGov valid schema."""
-    desc = item.get("description", "No description provided.")
-    return {
-        "category": "Health & Wellness",
-        "level": "National",
-        "icon": "hospital",
-        "original_complex_text": desc,
-        "required_documents": ["Aadhaar Card", "Identity Proof"],
-        "source_url": item.get("link", ""),
-        "keywords": item.get("tags", []),
-        "simplified": {
-            "eligibility": "Please refer to the official guidelines for specific eligibility criteria.",
-            "benefits": desc,
-            "documents": "Aadhaar Card, Identity Proof.",
-            "steps": "Visit the official website to apply or learn more."
-        },
-        "telugu": {
-            "eligibility": "నిర్దిష్ట అర్హత ప్రమాణాల కోసం దయచేసి అధికారిక మార్గదర్శకాలను చూడండి.",
-            "benefits": "దయచేసి అధికారిక వెబ్‌సైట్ చూడండి.",
-            "documents": "ఆధార్ కార్డు, గుర్తింపు కార్డు.",
-            "steps": "దరఖాస్తు చేయడానికి లేదా మరింత తెలుసుకోవడానికి అధికారిక వెబ్‌సైట్‌ను సందర్శించండి."
-        }
+from services.studio_catalog import CATALOG_PATH, load_directory_source
+
+
+def normalized_title(value):
+    return "".join(char for char in unicodedata.normalize("NFKC", value).casefold() if char.isalnum())
+
+
+def fill_missing(existing, incoming):
+    """Fill missing values recursively while retaining the preferred source."""
+    if isinstance(existing, dict) and isinstance(incoming, dict):
+        return {**existing, **{key: fill_missing(existing.get(key), value) for key, value in incoming.items()}}
+    if existing is None or existing == [] or existing == {} or (
+        isinstance(existing, str) and not existing.strip()
+    ):
+        return incoming
+    return existing
+
+
+def reconcile_catalog(existing, directory, v2):
+    catalog = {
+        name: fill_missing(record, directory.get(name, {})) for name, record in existing.items()
     }
+    for name, record in directory.items():
+        if name not in existing:
+            catalog[name] = record
+        elif not existing[name].get("directory_entry"):
+            catalog[name].pop("directory_entry", None)
+            # Preserve the legacy ID and the surface it is already available on.
+            if "slug" not in existing[name]:
+                catalog[name].pop("slug", None)
+    titles = defaultdict(list)
+    for name in catalog:
+        titles[normalized_title(name)].append(name)
 
-def merge_all_schemes():
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    data_dir = os.path.join(base_dir, 'data')
-    backup_dir = os.path.join(data_dir, 'backups')
-    
-    os.makedirs(backup_dir, exist_ok=True)
-    
-    merged_schemes = {}
-    files_to_remove = []
-    
-    for filename in os.listdir(data_dir):
-        if filename.endswith(".json") and filename not in {"scheme_schema.json", "facilities.json", "merged_schemes.json"}:
-            filepath = os.path.join(data_dir, filename)
-            
-            with open(filepath, 'r', encoding='utf-8') as f:
-                try:
-                    data = json.load(f)
-                except Exception as e:
-                    print(f"Failed to load {filename}: {e}")
-                    continue
-                    
-            if isinstance(data, dict):
-                print(f"Loaded {len(data)} schemes from dict file: {filename}")
-                merged_schemes.update(data)
-                files_to_remove.append(filepath)
-            elif isinstance(data, list):
-                print(f"Converting and loading {len(data)} schemes from list file: {filename}")
-                for item in data:
-                    title = item.get("title")
-                    if title:
-                        merged_schemes[title] = convert_scraped_to_valid_schema(item)
-                files_to_remove.append(filepath)
-                
-    # Save the merged catalog
-    merged_path = os.path.join(data_dir, 'merged_schemes.json')
-    with open(merged_path, 'w', encoding='utf-8') as f:
-        json.dump(merged_schemes, f, ensure_ascii=False, indent=2)
-        
-    print(f"\nSuccessfully merged into 'merged_schemes.json' with {len(merged_schemes)} total schemes.")
-    
-    # Backup and remove old files
-    for filepath in files_to_remove:
-        filename = os.path.basename(filepath)
-        backup_path = os.path.join(backup_dir, filename)
-        shutil.copy(filepath, backup_path)
-        os.remove(filepath)
-        print(f"Backed up and removed old file: {filename}")
+    v2_title_counts = defaultdict(int)
+    for name in v2:
+        v2_title_counts[normalized_title(name)] += 1
+    report = {"matched": [], "pending_review": []}
+    for title, record in v2.items():
+        key = normalized_title(title)
+        matches = titles.get(key, [])
+        ambiguous = len(matches) > 1 or v2_title_counts[key] > 1
+        matched = catalog[matches[0]] if len(matches) == 1 and not ambiguous else None
+        same_region = matched is not None and (
+            normalized_title(matched.get("level") or "") == normalized_title(record.get("level") or "")
+        )
+        if not same_region:
+            reason = "ambiguous_title" if ambiguous else "region_mismatch" if matches else "unlinked_title"
+            report["pending_review"].append({
+                "title": title, "reason": reason, "candidate_titles": matches, "v2_record": record,
+            })
+            continue
+        name = matches[0]
+        current = matched.get("required_documents") or []
+        documents = record.get("required_documents") or []
+        action = "retained"
+        if documents and not current and not (matched.get("operations") or {}).get("required_documents"):
+            catalog[name] = fill_missing(matched, {"required_documents": documents})
+            action = "filled"
+        elif documents and documents != current:
+            action = "review_checklist_difference"
+        report["matched"].append({
+            "v2_title": title, "catalog_title": name, "document_action": action,
+            "catalog_documents_before": current, "v2_documents": documents,
+            "v2_source_url": record.get("official_website") or record.get("source_url"),
+        })
+    report["summary"] = {
+        "catalog_records": len(catalog),
+        "v2_records": len(v2),
+        "v2_records_with_documents": sum(bool(row.get("required_documents")) for row in v2.values()),
+        "matched": len(report["matched"]),
+        "pending_review": len(report["pending_review"]),
+        "checklists_filled": sum(row["document_action"] == "filled" for row in report["matched"]),
+        "checklist_differences": sum(row["document_action"] == "review_checklist_difference" for row in report["matched"]),
+    }
+    return catalog, report
+
+
+def read_records(path):
+    records = json.loads(path.read_text(encoding="utf-8-sig"))
+    if not isinstance(records, dict) or not records or any(not isinstance(row, dict) for row in records.values()):
+        raise ValueError(f"Expected an object of named scheme records in {path}")
+    return records
+
+
+def write_json(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, delete=False) as output:
+            temporary = Path(output.name)
+            json.dump(value, output, ensure_ascii=False, indent=2)
+            output.write("\n")
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def main():
+    root = Path(__file__).resolve().parents[1]
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("v2_master", type=Path)
+    parser.add_argument("--catalog", type=Path, default=root / CATALOG_PATH)
+    parser.add_argument("--directory", type=Path, default=root / "data/studio/welfare.json")
+    parser.add_argument("--output", required=True, type=Path, help="Write the unified catalog to this path")
+    parser.add_argument("--review-output", required=True, type=Path, help="Write unmatched titles and checklist comparisons")
+    args = parser.parse_args()
+    if args.review_output.resolve() in {path.resolve() for path in (args.catalog, args.v2_master, args.directory, args.output)}:
+        parser.error("The review output needs its own path")
+    if args.output.resolve() in {args.v2_master.resolve(), args.directory.resolve()}:
+        parser.error("The catalog output cannot overwrite the V2 or directory source")
+    catalog, report = reconcile_catalog(
+        read_records(args.catalog), load_directory_source(args.directory), read_records(args.v2_master)
+    )
+    write_json(args.review_output, report)
+    write_json(args.output, catalog)
+    print(json.dumps(report["summary"], indent=2))
+
 
 if __name__ == "__main__":
-    merge_all_schemes()
+    main()
