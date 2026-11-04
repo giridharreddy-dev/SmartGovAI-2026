@@ -42,6 +42,8 @@ function Printable({ scheme, lang, t, checks }) {
 export default function Guide({ scheme, lang, t, checks, answers, setCheck, setAnswer, clearAnswers, onClose }) {
   const dialog = useRef(null)
   const sheetTop = useRef(null)
+  const previewButton = useRef(null)
+  const returningFromPreview = useRef(false)
   const audio = useRef(null)
   const mounted = useRef(true)
   const playing = useRef(null)
@@ -60,7 +62,13 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
       window.speechSynthesis?.cancel()
     }
   }, [])
-  useEffect(() => { if (preview) sheetTop.current?.focus() }, [preview])
+  useEffect(() => {
+    if (preview) sheetTop.current?.focus()
+    else if (returningFromPreview.current) {
+      returningFromPreview.current = false
+      previewButton.current?.focus()
+    }
+  }, [preview])
 
   function listen() {
     if (playing.current) {
@@ -105,7 +113,7 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
     onClick={event => { if (event.target === event.currentTarget) dialog.current.close() }}>
     <div className="dialog-inner">
       <div className="dialog-bar">
-        {preview ? <button className="button subtle" onClick={() => setPreview(false)}><ArrowLeft size={16} /> {t('goBack')}</button> : <span className="eyebrow"><FileText size={15} /> SmartGovAI</span>}
+        {preview ? <button className="button subtle" onClick={() => { returningFromPreview.current = true; setPreview(false) }}><ArrowLeft size={16} /> {t('goBack')}</button> : <span className="eyebrow"><FileText size={15} /> SmartGovAI</span>}
         <button className="icon-button" aria-label={t('close')} onClick={() => dialog.current.close()}><X size={22} /></button>
       </div>
       {preview ? <>
@@ -120,7 +128,7 @@ export default function Guide({ scheme, lang, t, checks, answers, setCheck, setA
           <h2 id={titleId} lang={lang === 'te' && scheme.directoryEntry && !scheme.nameTe ? 'en' : undefined}>{schemeTitle(scheme, lang)}</h2>
           {scheme.ai && <p role="note">{t('pdfNotice')}</p>}
           <div className="action-row">
-            <button className="button primary" onClick={() => setPreview(true)}><FileText size={17} /> {t('preview')}</button>
+            <button ref={previewButton} className="button primary" onClick={() => setPreview(true)}><FileText size={17} /> {t('preview')}</button>
             <button className="button subtle" onClick={listen}>{sound === 'playing' ? <VolumeX size={17} /> : <Volume2 size={17} />}{t(sound === 'playing' ? 'stop' : 'listen')}</button>
           </div>
           {sound === 'error' && <p role="status">{t('speechUnavailable')}</p>}

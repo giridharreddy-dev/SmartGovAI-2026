@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Ambulance, ArrowDown, ArrowRight, ArrowUpRight, Bookmark, BriefcaseBusiness, CircleCheck, Compass, FileText,
-  FlaskConical, GitCompareArrows, GraduationCap, HandHeart, HeartPulse, House, Languages, MapPin, Menu,
+  FlaskConical, GitCompareArrows, GraduationCap, HandHeart, HeartPulse, House, Languages, LoaderCircle, MapPin, Menu,
   Plus, Scale, Search, ShieldPlus, Sparkles, Sprout, TrainFront, Trophy, Wallet, Wifi, WifiOff, X, Zap,
 } from 'lucide-react'
 import Guide, { SchemeSource } from './Guide.jsx'
@@ -121,7 +121,7 @@ function Orbit() {
       <circle cx="95" cy="315" r="3.5" fill="#2659ba"/>
       <circle cx="65" cy="164" r="2.5" fill="#597cc2"/>
     </g>
-    <path d="M152 197h43l12-21 18 59 16-34h72" stroke="#2559b8" strokeOpacity=".38" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M152 197h43l12-21 18 59 16-34h72" className="orbit-signal" pathLength="100" stroke="#2559b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <g className="shield-float">
       <path d="M235 140c19 13 38 19 61 23v46c0 34-23 58-61 76-38-18-61-42-61-76v-46c23-4 42-10 61-23Z" fill="url(#shield-tone)" stroke="#123e90" strokeWidth="1.7"/>
       <path d="M235 154c14 9 32 15 47 19v36c0 27-16 46-47 62-31-16-47-35-47-62v-36c15-4 33-10 47-19Z" stroke="#dceaff" strokeOpacity=".36"/>
@@ -152,7 +152,7 @@ function Hero({ t, go, browse, stats }) {
     </section>
     <div className="metrics">
       {[[ShieldPlus, stats.count, 'program'], [Compass, stats.sectors, 'sectors'], [Languages, 2, 'languages']].map(([Icon, value, key]) =>
-        <div key={key}><span className="metric-icon"><Icon size={20} /></span><strong>{value ?? '—'}</strong><span>{t(key)}</span></div>)}
+        <div key={key}><span className="metric-icon"><Icon size={20} /></span><strong key={value ?? 'pending'} className={value == null ? undefined : 'metric-value'}>{value ?? '—'}</strong><span>{t(key)}</span></div>)}
     </div>
   </>
 }
@@ -259,7 +259,11 @@ function App() {
   }
   function browse() {
     go('explore', false)
-    requestAnimationFrame(() => { catalog.current?.focus({ preventScroll: true }); catalog.current?.scrollIntoView() })
+    requestAnimationFrame(() => {
+      catalog.current?.focus({ preventScroll: true })
+      const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+      catalog.current?.scrollIntoView({ behavior })
+    })
   }
   const regions = useMemo(() => [...new Set(schemes.map(item => item.region).filter(Boolean))].sort((a, b) => {
     const rank = value => preferredRegions.includes(value) ? preferredRegions.indexOf(value) : preferredRegions.length
@@ -361,7 +365,10 @@ function App() {
                 </select>
               </div>
               <div className="catalog-results meaning-action">
-                <button className="button subtle" disabled={!query.trim() || !online || meaning.status === 'waiting'} onClick={lookUpMeaning}><Sparkles size={17} />{t('meaningSearch')}</button>
+                <button className="button subtle" disabled={!query.trim() || !online || meaning.status === 'waiting'} onClick={lookUpMeaning}>
+                  {meaning.status === 'waiting' ? <LoaderCircle className="search-spinner" size={17} /> : <Sparkles size={17} />}
+                  {t('meaningSearch')}
+                </button>
                 {query.trim() && <p className="count" role="status">{t(meaning.status || 'meaningHint')}</p>}
               </div>
               <div className="catalog-results">
