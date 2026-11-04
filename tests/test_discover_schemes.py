@@ -1,9 +1,13 @@
 import sqlite3
 from contextlib import closing
+from hashlib import sha256
+from unittest.mock import patch
 from xml.etree import ElementTree
 
-from scripts.discover_schemes import catalog_keys, draft_entries, match_catalog, pib_leads, queue
-from scripts.pib_excerpt import parse_release, release_id
+from scripts.discover_schemes import catalog_keys, draft_entries, match_catalog, pib_leads, queue, translated_draft
+from scripts.pib_excerpt import parse_article, parse_release, release_id
+from scripts.pib_regional import find_regional_release, same_event
+from scripts.pib_translate import MODEL, REVISION, _telugu_script
 from utils import generate_slug
 
 
@@ -110,3 +114,43 @@ def test_pib_excerpt_comes_from_article_body_and_checks_language():
     assert parse_release(html, url, "en") == (english, "https://www.pib.gov.in/PressReleasePage.aspx?PRID=13")
     assert parse_release(html, url, "te")[0] is None
     assert release_id("https://example.org/PressReleasePage.aspx?PRID=13") is None
+
+
+def test_regional_pairing_requires_same_ministry_time_and_a_unique_candidate():
+    english = {"ministry": "Prime Minister's Office", "posted_at_ist": "2026-11-04T20:54:00"}
+    telugu = {"ministry": "ప్రధాన మంత్రి కార్యాలయం", "posted_at_ist": "2026-11-04T21:01:00"}
+    assert same_event(english, telugu)
+    assert not same_event(english, dict(telugu, posted_at_ist="2026-11-05T09:00:00"))
+    assert not same_event(english, dict(telugu, ministry="Other ministry"))
+    with patch("scripts.pib_regional.regional_article", return_value=telugu):
+        assert find_regional_release(english, ["one"])["match_method"] == "regional_feed"
+        assert find_regional_release(english, ["one", "two"]) is None
+
+
+def test_article_body_stays_in_cache_and_machine_translation_is_tagged(tmp_path):
+    url = "https://www.pib.gov.in/PressReleasePage.aspx?PRID=12"
+    full_text = "The department announced revised guidelines and asked applicants to review the official portal."
+    html = f"""
+        <div id="MinistryName">Prime Minister's Office</div>
+        <div id="PrDateTime">Posted on: 04 NOV 2026 8:54 PM by PIB Delhi</div>
+        <div id="pibReleaseBody"><p>{full_text}</p><p>Additional details here.</p></div>
+    """
+    article, _ = parse_article(html, url, "en")
+    assert article["posted_at_ist"] == "2026-11-04T20:54:00"
+    assert "Additional details here." in article["article_body_text"]
+    assert _telugu_script("प्रभुत्वं पथकान्नि आमोदिंचिंदि।") == "ప్రభుత్వం పథకాన్ని ఆమోదించింది."
+    translation = {"summary": "ప్రభుత్వం పథకాన్ని ఆమోదించింది.", "source_url": url,
+                   "model": MODEL, "revision": REVISION,
+                   "source_hash": sha256(article["translation_source"].encode()).hexdigest()}
+    evidence = {"en": article, "auto_te": translation}
+    assert translated_draft(evidence) == translation
+    _, leads = pib_leads(feed(("Revised scheme details", url, None)), {})
+    _, rows = queue(tmp_path / "leads.db", leads)
+    rows[0]["article_evidence"] = evidence
+    draft = draft_entries(rows, {})[0]
+    assert draft["te"]["summary"].startswith("[AUTO-DRAFT] ")
+    assert draft["te"]["status"] == "pending_human_verification"
+    assert "article_body_text" not in draft["article_evidence"]["en"]
+    assert draft["te"]["eligibility"] is None
+    rows[0]["article_evidence"]["te"] = {"excerpt": "అధికారిక సమాచారం", "url": url}
+    assert draft_entries(rows, {})[0]["te"]["summary"] == "అధికారిక సమాచారం"

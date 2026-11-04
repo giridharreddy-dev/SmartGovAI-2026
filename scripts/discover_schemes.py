@@ -19,6 +19,8 @@ from urllib.request import urlopen
 from xml.etree import ElementTree
 
 from scripts.pib_excerpt import release_excerpts, release_id
+from scripts.pib_regional import find_regional_release, read_regional_index
+from scripts.pib_translate import DEFAULT_MODEL_DIR, MODEL, REVISION, LocalTranslator
 from services.studio_catalog import load_studio_schemes
 from utils import generate_slug
 
@@ -33,7 +35,7 @@ BROAD_RELEASE = re.compile(
     r"(?:schemes|allocations) across)\b"
 )
 EXPLICIT_ALIASES = {
-    "PM Surya Ghar: Muft Bijli Yojana": ("PM Surya Ghar",),
+    "PM Surya Ghar: Muft Bijli Yojana": ("PM Surya Ghar", "సూర్య ఘర్ ముఫ్త్ బిజ్‌లీ యోజన"),
     "Ayushman Bharat PM-JAY (National Health Cover)": ("PM-JAY", "PMJAY"),
     "Ayushman Arogya Mandir (Free Primary Health Care)": ("AB-HWC", "AB-HWCs"),
 }
@@ -63,6 +65,7 @@ class Lead:
 
 def normalized(value):
     text = unicodedata.normalize("NFKC", value).casefold()
+    text = text.replace("\u200c", "").replace("\u200d", "")
     return " ".join("".join(char if unicodedata.category(char)[0] in "LMN" else " " for char in text).split())
 
 
@@ -82,6 +85,7 @@ def catalog_keys():
         candidates = [
             name,
             re.sub(r"\s*\([^)]*\)", "", name),
+            scheme.get("telugu_name") or "",
             *re.findall(r"\(([A-Z0-9-]{4,})\)", name),
             *EXPLICIT_ALIASES.get(name, ()),
         ]
@@ -263,25 +267,114 @@ def queue(database, rows, aliases=None):
     return added, report
 
 
-def enrich_drafts(database, leads, limit):
+def save_article_evidence(database, lead, updates):
+    with closing(sqlite3.connect(database)) as connection, connection:
+        connection.execute("BEGIN IMMEDIATE")
+        row = connection.execute(
+            "SELECT article_evidence FROM scheme_leads WHERE id = ? AND title = ? AND status = 'pending_verification'",
+            (lead["id"], lead["title"]),
+        ).fetchone()
+        if not row:
+            return
+        article = json.loads(row[0]) if row[0] else {}
+        article.update(updates)
+        connection.execute(
+            "UPDATE scheme_leads SET article_evidence = ? WHERE id = ?",
+            (json.dumps(article, ensure_ascii=False), lead["id"]),
+        )
+        lead["article_evidence"] = article
+
+
+def enrich_drafts(database, leads, aliases, limit):
     pending = [
         lead for lead in leads if lead["status"] == "pending_verification"
-        and lead["article_evidence"] is None and lead["event_key"].startswith("pib:")
+        and lead["event_key"].startswith("pib:")
     ]
-    for lead in pending[:limit]:
+    uncached = [lead for lead in pending if not (lead["article_evidence"] or {}).get("en", {}).get("article_body_text")]
+    for lead in uncached[:limit]:
         try:
             article = release_excerpts(lead["event_key"].removeprefix("pib:"))
         except (OSError, ValueError) as error:
             print(f"Could not read PIB release {lead['event_key']}: {type(error).__name__}")
             continue
-        if not article:
+        if article:
+            save_article_evidence(database, lead, article)
+
+    needs_te = [lead for lead in pending if lead["article_evidence"]
+                and lead["article_evidence"].get("en") and not lead["article_evidence"].get("te")]
+    if not needs_te:
+        return
+    try:
+        regional = read_regional_index(database)
+    except (OSError, ValueError, ElementTree.ParseError) as error:
+        print(f"Could not index PIB Telugu RSS: {type(error).__name__}")
+        return
+    indexed = [(match_catalog(title, aliases)[1], url) for title, url in regional]
+    for lead in needs_te[:limit]:
+        if not lead["matched_catalog_id"]:
             continue
-        with closing(sqlite3.connect(database)) as connection, connection:
-            connection.execute(
-                "UPDATE scheme_leads SET article_evidence = ? WHERE id = ? AND article_evidence IS NULL",
-                (json.dumps(article, ensure_ascii=False), lead["id"]),
-            )
-        lead["article_evidence"] = article
+        urls = [url for scheme_id, url in indexed if scheme_id == lead["matched_catalog_id"]]
+        if not urls:
+            continue
+        signature = hashlib.sha256("\n".join(sorted(urls)).encode()).hexdigest()
+        if lead["article_evidence"].get("regional_checked") == signature:
+            continue
+        try:
+            regional_article = find_regional_release(lead["article_evidence"]["en"], urls)
+        except (OSError, ValueError) as error:
+            print(f"Could not compare Telugu PIB release for {lead['event_key']}: {type(error).__name__}")
+            continue
+        updates = {"regional_checked": signature}
+        if regional_article:
+            updates["te"] = regional_article
+        save_article_evidence(database, lead, updates)
+
+
+def translated_draft(article):
+    english = article.get("en", {}).get("translation_source", "")
+    source_hash = hashlib.sha256(english.encode()).hexdigest()
+    draft = article.get("auto_te") or {}
+    return draft if draft.get("source_hash") == source_hash and draft.get("revision") == REVISION else None
+
+
+def translate_drafts(database, leads, evidence, model_dir, limit):
+    pending = []
+    for lead in leads:
+        article = lead["article_evidence"] or {}
+        manual = evidence.get(lead["id"], {})
+        has_telugu = isinstance(manual, dict) and isinstance(manual.get("te"), dict) and manual["te"].get("summary")
+        if (lead["status"] == "pending_verification" and article.get("en", {}).get("translation_source")
+                and not (has_telugu or article.get("te") or translated_draft(article))):
+            pending.append(lead)
+    if not pending:
+        return
+    try:
+        translator = LocalTranslator(model_dir)
+    except (ImportError, OSError, ValueError, RuntimeError) as error:
+        print(f"Local Telugu translation unavailable: {error}")
+        return
+    for lead in pending[:limit]:
+        english = lead["article_evidence"]["en"]["translation_source"]
+        try:
+            summary = translator.translate(english)
+        except (OSError, ValueError, RuntimeError) as error:
+            print(f"Could not translate {lead['event_key']}: {error}")
+            continue
+        save_article_evidence(database, lead, {"auto_te": {
+            "summary": summary, "model": MODEL, "revision": REVISION,
+            "source_hash": hashlib.sha256(english.encode()).hexdigest(),
+            "source_url": lead["article_evidence"]["en"]["url"],
+        }})
+
+
+def excerpt_metadata(article):
+    if article is None:
+        return None
+    return {
+        language: {key: value for key, value in article[language].items()
+                   if key not in {"article_body_text", "translation_source"}}
+        for language in ("en", "te") if language in article
+    }
 
 
 def draft_entries(leads, evidence):
@@ -307,7 +400,7 @@ def draft_entries(leads, evidence):
             "announcement_url": lead["url"],
             "official_url": official_url,
             "category": source.get("category"),
-            "article_evidence": lead["article_evidence"],
+            "article_evidence": excerpt_metadata(lead["article_evidence"]),
         }
         for language in ("en", "te"):
             fields = source.get(language, {})
@@ -320,6 +413,16 @@ def draft_entries(leads, evidence):
             article = (lead["article_evidence"] or {}).get(language)
             if article and draft[language]["summary"] is None:
                 draft[language]["summary"] = article["excerpt"]
+        automatic = translated_draft(lead["article_evidence"] or {})
+        if automatic and not draft["te"]["summary"]:
+            summary = re.sub(r"\s+([,.!?:;)])", r"\1", automatic["summary"])
+            summary = summary.replace("( ", "(")
+            draft["te"].update(
+                summary="[AUTO-DRAFT] " + summary,
+                status="pending_human_verification",
+                model=automatic["model"],
+                source_url=automatic["source_url"],
+            )
         drafts.append(draft)
     return drafts
 
@@ -351,7 +454,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--csv", type=Path, help="Licensed UTF-8 CSV with name and optional region,url columns")
-    mode.add_argument("--queued-only", action="store_true", help="Export the existing queue without fetching the feed")
+    mode.add_argument("--queued-only", action="store_true", help="Work from the existing queue without fetching the English discovery feed")
     parser.add_argument("--source-url", help="Official dataset page, required for CSV")
     parser.add_argument("--publisher", help="Dataset publisher, required for CSV")
     parser.add_argument("--license-url", help="Dataset reuse terms, required for CSV")
@@ -359,6 +462,8 @@ def main():
     parser.add_argument("--report", type=Path, help="Optional JSON review queue export")
     parser.add_argument("--drafts", type=Path, help="Optional pending bilingual draft export")
     parser.add_argument("--fetch-excerpts", action="store_true", help="With --drafts, fetch up to five uncached PIB releases")
+    parser.add_argument("--translate-telugu", action="store_true", help="With --drafts, translate missing Telugu summaries locally")
+    parser.add_argument("--translation-model-dir", type=Path, default=DEFAULT_MODEL_DIR)
     parser.add_argument("--evidence", type=Path, help="JSON keyed by lead ID with official_url, category, and en/te summary and eligibility")
     args = parser.parse_args()
     if args.csv and not (https_url(args.source_url or "") and args.publisher and https_url(args.license_url or "")):
@@ -367,6 +472,8 @@ def main():
         parser.error("--evidence requires --drafts")
     if args.fetch_excerpts and not args.drafts:
         parser.error("--fetch-excerpts requires --drafts")
+    if args.translate_telugu and not args.drafts:
+        parser.error("--translate-telugu requires --drafts")
     try:
         paths = [path.resolve() for path in (args.database, args.report, args.drafts, args.evidence, args.csv) if path]
         if len(set(paths)) != len(paths):
@@ -376,6 +483,8 @@ def main():
         if args.drafts:
             check_export(args.drafts, "drafts")
         evidence = json.loads(args.evidence.read_text(encoding="utf-8-sig")) if args.evidence else {}
+        if not isinstance(evidence, dict):
+            raise ValueError("Draft evidence must be a JSON object keyed by lead ID.")
         names, aliases = catalog_keys()
         if args.queued_only:
             scanned, rows = 0, []
@@ -386,10 +495,14 @@ def main():
                 scanned, rows = read_pib(aliases)
         added, report = queue(args.database, rows, aliases)
         if args.fetch_excerpts:
-            enrich_drafts(args.database, report, limit=5)
+            enrich_drafts(args.database, report, aliases, limit=5)
+        if args.translate_telugu:
+            translate_drafts(args.database, report, evidence, args.translation_model_dir, limit=5)
         drafts = draft_entries(report, evidence) if args.drafts else None
         if args.report:
-            export_report(args.report, "leads", report)
+            export_report(args.report, "leads", [
+                dict(lead, article_evidence=excerpt_metadata(lead["article_evidence"])) for lead in report
+            ])
         if args.drafts:
             export_report(args.drafts, "drafts", drafts)
     except (OSError, URLError, ValueError, ElementTree.ParseError, sqlite3.Error) as error:
