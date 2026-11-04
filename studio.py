@@ -61,6 +61,7 @@ def _scheme(name, scheme, root):
         "sector": scheme.get("sector") or "health",
         "keywords": scheme.get("keywords") or [],
         "aliases": scheme.get("aliases") or [],
+        "programme_components": scheme.get("programme_components") or [],
         "en": _sections(scheme.get("simplified")),
         "te": _sections(scheme.get("telugu")),
         "source": {

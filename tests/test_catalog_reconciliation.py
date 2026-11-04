@@ -88,3 +88,24 @@ def test_document_union_keeps_checklist_keys_and_flags_conflicting_claims():
     assert len(report["checklist_reconciliation"][0]["conflicts"]) == 1
     assert len(docs[0]["sources"]) == 3
     assert reconcile_catalog(catalog, {}, v2) == (catalog, report)
+
+def test_official_review_guidance_and_component_parents_are_in_master():
+    catalog = load_master_catalog(Path(__file__).resolve().parents[1])
+    pmjay = catalog["Ayushman Bharat PM-JAY (National Health Cover)"]
+    docs, _ = checklist(pmjay)
+    card = next(item for item in docs if item["name"]["en"] == "Ayushman Card")
+    assert card["status"] == "optional_at_initial_verification"
+    assert card["mandatory"] is False
+    assert "70+" in pmjay["simplified"]["documents"]
+    assert pmjay["programme_components"][0]["id"] == "senior-citizen-70-plus"
+
+    eye = catalog["National Programme for Control of Blindness (NPCBVI)"]
+    docs, _ = checklist(eye)
+    assert docs[0]["status"] == "facility_specific"
+    assert docs[0]["mandatory"] is None
+    assert not eye.get("document_conflict_ids")
+
+    assert sum(len(item.get("programme_components") or []) for item in catalog.values()) == 5
+    dialysis = catalog["Pradhan Mantri National Dialysis Programme"]
+    assert {item["id"] for item in dialysis["programme_components"]} == {"haemodialysis", "peritoneal-dialysis"}
+    assert all("required_documents" not in item for item in dialysis["programme_components"])

@@ -40,3 +40,16 @@ test('an exact saved alias resolves to the canonical scheme first', () => {
   const canonical = { name: 'Canonical Scheme', aliases: ['Old Plan'] }
   assert.equal(searchSchemes([first, canonical], 'old plan')[0], canonical)
 })
+
+test('a component title is searchable under its parent scheme', () => {
+  const parent = {
+    name: 'National Dialysis Programme',
+    programme_components: [{
+      title: { en: 'Peritoneal dialysis', te: 'పెరిటోనియల్ డయాలసిస్' },
+      search_title: 'PM National Dialysis Programme - Peritoneal Dialysis'
+    }]
+  }
+  for (const query of ['Peritoneal dialysis', 'పెరిటోనియల్ డయాలసిస్']) {
+    assert.deepEqual(searchSchemes([parent], query), [parent])
+  }
+})

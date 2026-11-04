@@ -52,6 +52,7 @@ export default function SchemeOperations({ scheme, lang, t, checks, setCheck }) 
   const documents = checklistForScheme(scheme)
   const status = key => scheme.section_statuses?.[key] || 'verification_pending'
   const docsStatus = status('required_documents')
+  const components = scheme.programme_components || []
   const documentNote = sectionText(scheme, 'documents', lang)
   const missing = <p className="operation-missing">{t('operationsMissing')}{source && <> <a href={source} target="_blank" rel="noreferrer">{t('source')}</a></>}</p>
 
@@ -69,14 +70,20 @@ export default function SchemeOperations({ scheme, lang, t, checks, setCheck }) 
         {documents.length > 0 && <ul className="operation-checks">
           {documents.map(doc => <li key={doc.key}><label>
             <input type="checkbox" checked={Boolean(checks[doc.key])} onChange={event => setCheck(doc.key, event.target.checked)} />
-            <span>{localized(doc, lang)}{doc.verification_status === 'verification_pending'
-                ? <small>{t('section.verification_pending')}</small>
-                : doc.mandatory != null && <small>{t(doc.mandatory ? 'required' : 'optional')}</small>}
+            <span>{localized(doc, lang)}{doc.status === 'optional_at_initial_verification'
+                ? <small>{t('optionalAtIntake')}</small>
+                : doc.status === 'facility_specific'
+                  ? <small>{t('confirmWithFacility')}</small>
+                  : doc.verification_status === 'verification_pending'
+                    ? <small>{t('section.verification_pending')}</small>
+                    : doc.mandatory != null && <small>{t(doc.mandatory ? 'required' : 'optional')}</small>}
               {doc.purpose && <small>{localized(doc.purpose, lang)}</small>}
             </span>
           </label></li>)}
         </ul>}
         {documentNote && <p>{documentNote}</p>}
+        {[...new Set(documents.map(doc => officialUrl(doc.source_url)).filter(Boolean))].map(url =>
+          <a key={url} href={url} target="_blank" rel="noreferrer">{t('source')}</a>)}
         {documents.length > 0 && <p>{t('checklistNote')}</p>}
         {(docsStatus !== 'verified' || !documents.length) && <p className="operation-missing">
           {t(docsStatus === 'official_source_unspecified' ? 'documentsUnspecified' : 'documentsPending')}
@@ -103,5 +110,15 @@ export default function SchemeOperations({ scheme, lang, t, checks, setCheck }) 
         {!portal && !application.length && !steps.length && missing}
       </div>
     </details>
+    {components.length > 0 && <details name={scheme.id + '-operations'}>
+      <summary><span>{t('programmeComponents')}</span><ChevronDown size={16} aria-hidden="true" /></summary>
+      <div className="operation-content">
+        {components.map(item => <section key={item.id}>
+          <h4>{localized(item.title, lang)}</h4>
+          <p>{localized(item.summary, lang)}</p>
+          <a href={officialUrl(item.source_url)} target="_blank" rel="noreferrer">{t('source')}</a>
+        </section>)}
+      </div>
+    </details>}
   </div>
 }

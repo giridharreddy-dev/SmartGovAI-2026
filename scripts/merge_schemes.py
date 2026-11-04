@@ -8,6 +8,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from scripts.scheme_identity import normalized_title, resolve_identity, urls, without_region
+from scripts.scheme_source_reviews import COMPONENT_REVIEWS, DOCUMENT_NOTES, DOCUMENT_REVIEWS
 from services.scheme_revisions import checklist, document_id
 from services.studio_catalog import CATALOG_PATH, load_directory_source
 from utils import generate_slug
@@ -30,7 +31,7 @@ def document_key(name):
 
 def merge_documents(record, incoming):
     baseline = {key: value for key, value in record.items()
-                if key not in {"reconciled_documents", "document_provenance", "document_conflict_ids"}}
+                if key not in {"reconciled_documents", "document_provenance", "document_conflict_ids", "document_guidance"}}
     current, _ = checklist(baseline)
     baseline_optional = {
         document_key(item["name"]): item["optional"] for item in record.get("required_documents") or []
@@ -100,9 +101,19 @@ def reconcile_catalog(existing, directory, v2):
     for name, record in catalog.items():
         for url in urls(record):
             url_owners[url].add(name)
-    report = {"matched": [], "pending_review": [], "checklist_reconciliation": []}
+    report = {"matched": [], "pending_review": [], "checklist_reconciliation": [], "programme_components": []}
+    components = defaultdict(list)
     groups = defaultdict(list)
     for title, record in v2.items():
+        if title in COMPONENT_REVIEWS:
+            parent, reviewed = COMPONENT_REVIEWS[title]
+            if parent in catalog and normalized_title(record.get("level") or "") == normalized_title(catalog[parent].get("level") or ""):
+                item = {**reviewed, "search_title": title}
+                components[parent].append(item)
+                report["programme_components"].append({
+                    "catalog_title": parent, **item, "v2_document_claims": record.get("required_documents") or [],
+                })
+                continue
         name, method, source, candidates = resolve_identity(title, record, catalog, url_owners)
         if name is None:
             region = record.get("level") or ""
@@ -131,15 +142,24 @@ def reconcile_catalog(existing, directory, v2):
             catalog[name]["reconciled_documents"] = documents
         else:
             catalog[name].pop("reconciled_documents", None)
+        guidance = DOCUMENT_REVIEWS.get(name, {})
+        resolved = [{**conflict, "guidance": guidance[conflict["id"]]} for conflict in conflicts if conflict["id"] in guidance]
+        conflicts = [conflict for conflict in conflicts if conflict["id"] not in guidance]
+        if guidance:
+            catalog[name]["document_guidance"] = guidance
+            for language, key in (("en", "simplified"), ("te", "telugu")):
+                catalog[name][key] = {**(catalog[name].get(key) or {}), "documents": DOCUMENT_NOTES[name][language]}
         if conflicts:
             catalog[name]["document_conflict_ids"] = [conflict["id"] for conflict in conflicts]
         else:
             catalog[name].pop("document_conflict_ids", None)
-        if documents or conflicts:
+        if documents or conflicts or resolved:
             report["checklist_reconciliation"].append({
                 "catalog_title": name, "document_provenance": provenance,
-                "additional_documents": documents, "conflicts": conflicts,
+                "additional_documents": documents, "conflicts": conflicts, "resolved_conflicts": resolved,
             })
+    for name, rows in components.items():
+        catalog[name]["programme_components"] = rows
     report["summary"] = {
         "catalog_records": len(catalog),
         "v2_records": len(v2),
@@ -147,8 +167,10 @@ def reconcile_catalog(existing, directory, v2):
         "matched": len(report["matched"]),
         "alias_matches": sum(row["method"] != "exact_title" for row in report["matched"]),
         "pending_review": len(report["pending_review"]),
+        "programme_components": len(report["programme_components"]),
         "additional_document_candidates": sum(len(row["additional_documents"]) for row in report["checklist_reconciliation"]),
         "document_conflicts": sum(len(row["conflicts"]) for row in report["checklist_reconciliation"]),
+        "resolved_document_conflicts": sum(len(row["resolved_conflicts"]) for row in report["checklist_reconciliation"]),
     }
     return catalog, report
 

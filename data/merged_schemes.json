@@ -263,14 +263,14 @@
     "simplified": {
       "eligibility": "All citizens, specifically elderly patients with cataract (white lens clouding) and school children with poor vision.",
       "benefits": "Free cataract surgeries, free spectacles for school-aged kids, free eye screening camps, and corneal transplant facilitation.",
-      "documents": "Identity card (Aadhaar or Voter ID).",
+      "documents": "The national programme guidance does not specify a universal Aadhaar requirement or list of alternative IDs. Ask the treating eye facility which identification it accepts for registration.",
       "steps": "Attend a government-organized free eye camp or visit the ophthalmology department at a District Hospital or CHC.",
       "description": "The National Programme for Control of Blindness and Visual Impairment (NPCBVI) provides free cataract surgeries with intraocular lens (IOL) implantation, free eye screenings in government schools, free prescription spectacles for children, and corneal transplantation support."
     },
     "telugu": {
       "eligibility": "కంటి చూపు మందగించిన వారు, ముఖ్యంగా శుక్లాలు (క్యాటరాక్ట్) ఉన్న వృద్ధులు మరియు కంటి సమస్యలున్న విద్యార్థులు అర్హులు.",
       "benefits": "ఉచిత శుక్లాల ఆపరేషన్లు, కంటి పరీక్షలు మరియు విద్యార్థులకు ఉచిత కళ్ళజోళ్ల పంపిణీ.",
-      "documents": "ఆధార్ కార్డు లేదా వయస్సు ధృవీకరణ పత్రం.",
+      "documents": "జాతీయ కార్యక్రమ మార్గదర్శకాల్లో ఆధార్ అందరికీ తప్పనిసరి అని లేదా ప్రత్యామ్నాయ గుర్తింపు పత్రాల జాబితా ఇవ్వలేదు. నమోదుకు ఏ గుర్తింపు పత్రాలను అంగీకరిస్తారో చికిత్స అందించే నేత్ర వైద్య కేంద్రాన్ని అడగండి.",
       "steps": "ప్రభుత్వ ఉచిత కంటి వైద్య శిబిరాలను లేదా జిల్లా కేంద్ర ఆసుపత్రిలోని నేత్ర విభాగాన్ని సంప్రదించాలి.",
       "description": "జాతీయ అంధత్వ నివారణ పథకం (NPCBVI) అంధత్వాన్ని తగ్గించడానికి వృద్ధులకు ఉచిత శుక్లాల (క్యాటరాక్ట్) శస్త్రచికిత్సలు, ఇంట్రాఓక్యులర్ లెన్స్ అమరిక, పాఠశాల విద్యార్థులకు ఉచిత కంటి పరీక్షలు, ఉచిత కళ్ళజోళ్ల పంపిణీ మరియు కార్నియల్ అంధత్వానికి ఉచిత సేవలను అందిస్తుంది."
     },
@@ -351,9 +351,14 @@
       "National Programme for Control of Blindness (NPCBVI) (National)",
       "National Programme for Control of Blindness & Visual Impairment (NPCBVI) (National)"
     ],
-    "document_conflict_ids": [
-      "d-473931883e2f80eac77b"
-    ]
+    "document_guidance": {
+      "d-473931883e2f80eac77b": {
+        "status": "facility_specific",
+        "mandatory": null,
+        "verification_status": "official_source_unspecified",
+        "source_url": "https://dghs.mohfw.gov.in/opthalmology-division.php"
+      }
+    }
   },
   "National Oral Health Programme": {
     "level": "National",
@@ -1756,6 +1761,21 @@
           }
         ]
       }
+    ],
+    "programme_components": [
+      {
+        "id": "cochlear-implant",
+        "title": {
+          "en": "Cochlear implant services for eligible children",
+          "te": "అర్హత ఉన్న పిల్లలకు కాక్‌లియర్ ఇంప్లాంట్ సేవలు"
+        },
+        "summary": {
+          "en": "Andhra Pradesh lists a cochlear implant programme under Dr. NTR Vaidya Seva. Ask the scheme help desk about current assessment and referral requirements.",
+          "te": "ఆంధ్రప్రదేశ్ ప్రభుత్వం డాక్టర్ ఎన్టీఆర్ వైద్య సేవలో కాక్‌లియర్ ఇంప్లాంట్ కార్యక్రమాన్ని పేర్కొంది. తాజా పరీక్ష, రిఫరల్ అవసరాల గురించి పథకం సహాయ కేంద్రాన్ని అడగండి."
+        },
+        "source_url": "https://hmfw.ap.gov.in/ntr-aarogyaseva-org.aspx",
+        "search_title": "AP Free Cochlear Implant Scheme (Child Hearing Restoration)"
+      }
     ]
   },
   "AP 108 Emergency Ambulance Service": {
@@ -1988,14 +2008,14 @@
     "simplified": {
       "eligibility": "Poor and vulnerable families listed as eligible under PM-JAY/State health assurance records.",
       "benefits": "Cashless hospital treatment up to Rs. 5 lakh per eligible family per year for listed serious illnesses across empanelled hospitals in India.",
-      "documents": "Aadhaar card, ration card or PM-JAY/health card, mobile number, medical reports.",
+      "documents": "Bring Aadhaar or a government photo ID accepted by your state, and a ration card or accepted family ID. If you do not have an Ayushman Card, ask the Ayushman Mitra desk at an empanelled hospital to start verification. The card is issued after approval. The separate 70+ enrolment route requires Aadhaar-based e-KYC.",
       "steps": "Check eligibility at a PM-JAY counter, Common Service Centre, empanelled hospital or official PM-JAY portal. If eligible, get an Ayushman card/e-card and use it at an empanelled hospital.",
       "description": "Ayushman Bharat PM-JAY is the world's largest government-funded health assurance initiative, providing cashless coverage of up to Rs. 5 lakh per eligible family per year for secondary and tertiary care hospitalization across empanelled public and private hospitals nationwide."
     },
     "telugu": {
       "eligibility": "PM-JAY లేదా రాష్ట్ర ఆరోగ్య పథకం జాబితాలో అర్హులుగా ఉన్న పేద మరియు బలహీన కుటుంబాలు.",
       "benefits": "దేశవ్యాప్తంగా ఎంపానెల్ ఆసుపత్రుల్లో ఎంపిక చేసిన తీవ్రమైన వ్యాధులకు ఏటా కుటుంబానికి 5 లక్షల రూపాయల వరకు క్యాష్ లెస్ చికిత్స.",
-      "documents": "ఆధార్ కార్డు, రేషన్ కార్డు లేదా PM-JAY/ఆరోగ్య కార్డు, మొబైల్ నంబర్, వైద్య రిపోర్టులు.",
+      "documents": "ఆధార్ లేదా మీ రాష్ట్రం అంగీకరించే ప్రభుత్వ ఫోటో గుర్తింపు పత్రం, అలాగే రేషన్ కార్డు లేదా అంగీకరించిన కుటుంబ గుర్తింపు పత్రం తీసుకురండి. ఆయుష్మాన్ కార్డు లేకపోతే, పథకంలో నమోదైన ఆసుపత్రిలోని ఆయుష్మాన్ మిత్ర సహాయ కేంద్రంలో ధృవీకరణ ప్రారంభించమని అడగండి. ఆమోదం తర్వాత కార్డు జారీ అవుతుంది. 70 ఏళ్లు పైబడిన వారి ప్రత్యేక నమోదుకు ఆధార్ ఆధారిత ఈ-కేవైసీ అవసరం.",
       "steps": "PM-JAY కౌంటర్, CSC, ఎంపానెల్ ఆసుపత్రి లేదా అధికారిక పోర్టల్ లో అర్హత చెక్ చేయండి. అర్హత ఉంటే ఆయుష్మాన్ కార్డు తీసుకుని ఎంపానెల్ ఆసుపత్రిలో ఉపయోగించండి.",
       "description": "ఆయుష్మాన్ భారత్ ప్రధాన మంత్రి జన్ ఆరోగ్య యోజన (PM-JAY) అనేది భారతదేశంలోని నిరుపేద కుటుంబాలకు ద్వితీయ మరియు తృతీయ స్థాయి ఆసుపత్రి చికిత్సల కోసం ఏటా కుటుంబానికి రూ. 5 లక్షల వరకు ఉచిత నగదు రహిత చికిత్స కల్పించే జాతీయ ఆరోగ్య రక్షణ పథకం."
     },
@@ -2241,8 +2261,28 @@
         ]
       }
     ],
-    "document_conflict_ids": [
-      "d-63c51733c29672f6bf9b"
+    "document_guidance": {
+      "d-63c51733c29672f6bf9b": {
+        "status": "optional_at_initial_verification",
+        "mandatory": false,
+        "verification_status": "verified",
+        "source_url": "https://nha.gov.in/img/resources/Operation%20Manual%20for%20AB%20PM-JAY.pdf"
+      }
+    },
+    "programme_components": [
+      {
+        "id": "senior-citizen-70-plus",
+        "title": {
+          "en": "Senior citizen enrolment (70+)",
+          "te": "70 ఏళ్లు పైబడిన వారి నమోదు"
+        },
+        "summary": {
+          "en": "NHA describes a separate enrolment route for people aged 70 or older, with Aadhaar-based e-KYC and a distinct Ayushman Card.",
+          "te": "70 ఏళ్లు లేదా అంతకంటే ఎక్కువ వయస్సు ఉన్నవారికి ఆధార్ ఆధారిత ఈ-కేవైసీతో ప్రత్యేక నమోదు, ప్రత్యేక ఆయుష్మాన్ కార్డు ఉంటాయని జాతీయ ఆరోగ్య ప్రాధికార సంస్థ తెలిపింది."
+        },
+        "source_url": "https://nha.gov.in/img/resources/English_FAQs_related_to_the_benefits_for_senior_citizens.pdf",
+        "search_title": "Pradhan Mantri National Health Protection Mission - Senior Citizen Cover"
+      }
     ]
   },
   "Ayushman Arogya Mandir (Free Primary Health Care)": {
@@ -3058,7 +3098,35 @@
           }
         }
       ]
-    }
+    },
+    "programme_components": [
+      {
+        "id": "haemodialysis",
+        "title": {
+          "en": "Haemodialysis",
+          "te": "హీమోడయాలసిస్"
+        },
+        "summary": {
+          "en": "The national programme includes haemodialysis at dialysis centres. Ask your treating team about a referral and local availability.",
+          "te": "జాతీయ కార్యక్రమంలో డయాలసిస్ కేంద్రాల్లో హీమోడయాలసిస్ సేవలు ఉన్నాయి. రిఫరల్ మరియు స్థానికంగా అందుబాటులో ఉన్న సేవల గురించి వైద్య బృందాన్ని అడగండి."
+        },
+        "source_url": "https://www.nhm.gov.in/New_Updates_2018/PMNDP/Guidelines_for_PMNDP.pdf",
+        "search_title": "Pradhan Mantri National Dialysis Programme - Hemodialysis"
+      },
+      {
+        "id": "peritoneal-dialysis",
+        "title": {
+          "en": "Peritoneal dialysis",
+          "te": "పెరిటోనియల్ డయాలసిస్"
+        },
+        "summary": {
+          "en": "The national programme includes peritoneal dialysis. Ask your treating team whether it is appropriate and available locally.",
+          "te": "జాతీయ కార్యక్రమంలో పెరిటోనియల్ డయాలసిస్ కూడా ఉంది. అది మీకు అనుకూలమా, స్థానికంగా అందుబాటులో ఉందా అని వైద్య బృందాన్ని అడగండి."
+        },
+        "source_url": "https://www.nhm.gov.in/New_Updates_2018/PMNDP/Guidelines_for_PMNDP.pdf",
+        "search_title": "Pradhan Mantri National Dialysis Programme - Peritoneal Dialysis"
+      }
+    ]
   },
   "Ni-kshay Poshan Yojana (TB Nutrition Support)": {
     "level": "National",
@@ -6910,6 +6978,21 @@
             }
           }
         ]
+      }
+    ],
+    "programme_components": [
+      {
+        "id": "second-child-girl",
+        "title": {
+          "en": "Second-child benefit for a girl",
+          "te": "రెండో సంతానంగా ఆడపిల్లకు ప్రయోజనం"
+        },
+        "summary": {
+          "en": "PMMVY 2.0 covers an eligible woman's second living child if the child is a girl. Check the ministry's conditions before applying.",
+          "te": "పీఎంఎంవీవై 2.0లో అర్హత ఉన్న మహిళకు రెండో సంతానం ఆడపిల్ల అయితే ప్రయోజనం వర్తిస్తుంది. దరఖాస్తు చేసే ముందు మంత్రిత్వ శాఖ నిబంధనలు చూడండి."
+        },
+        "source_url": "https://www.wcd.gov.in/offerings/pradhan-mantri-matru-vandana-yojana",
+        "search_title": "PMMVY Scheme Second Child Financial Assistance"
       }
     ]
   },

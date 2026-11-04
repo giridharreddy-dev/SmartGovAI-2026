@@ -110,6 +110,9 @@ def checklist(scheme):
             effective[item_id] = dict(effective[item_id], verification_status="verification_pending", mandatory=None)
     for item in scheme.get("reconciled_documents") or []:
         effective.setdefault(item["id"], item)
+    for item_id, guidance in (scheme.get("document_guidance") or {}).items():
+        if item_id in effective:
+            effective[item_id] = {**effective[item_id], **guidance}
     return list(effective.values()), aliases
 
 
@@ -136,7 +139,9 @@ def section_statuses(scheme):
         default = "verified" if typed and scheme.get("operations_reviewed") else "verification_pending"
         status = statuses.get(block, default)
         if block == "required_documents":
-            if status == "verified" and (not documents or any(
+            if documents and all(item.get("verification_status") == "official_source_unspecified" for item in documents):
+                status = "official_source_unspecified"
+            elif status == "verified" and (not documents or any(
                 item.get("verification_status") == "verification_pending" for item in documents
             )):
                 status = "verification_pending"
@@ -186,6 +191,10 @@ def apply_revisions(schemes, revisions):
             "operations_source": str(revision.source_url),
             "section_status_overrides": statuses,
             "checklist_aliases": aliases,
+            "document_guidance": {
+                item_id: guidance for item_id, guidance in (current.get("document_guidance") or {}).items()
+                if item_id not in resolved_document_ids
+            },
             "document_conflict_ids": [
                 item_id for item_id in current.get("document_conflict_ids") or [] if item_id not in resolved_document_ids
             ],

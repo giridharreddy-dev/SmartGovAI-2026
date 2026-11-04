@@ -84,6 +84,9 @@ const copy = {
   operationsMissing: ['Details unavailable. Confirm with the official provider.', 'వివరాలు అందుబాటులో లేవు. సంబంధిత అధికారిక సంస్థలో నిర్ధారించుకోండి.'],
   'section.verified': ['Verified', 'ధ్రువీకరించబడింది'],
   'section.official_source_unspecified': ['Official source omits details', 'అధికారిక మూలంలో వివరాలు లేవు'],
+  programmeComponents: ['Programme components', 'కార్యక్రమంలోని సేవలు'],
+  optionalAtIntake: ['Optional at initial verification', 'ప్రాథమిక ధృవీకరణకు ఐచ్ఛికం'],
+  confirmWithFacility: ['Confirm with the treating facility', 'చికిత్స అందించే కేంద్రంతో నిర్ధారించుకోండి'],
   'section.verification_pending': ['Verification pending', 'ధ్రువీకరణ పెండింగ్‌లో ఉంది'],
   documentsPending: ['Document requirements are currently being verified against official operational guidelines. Please check the official portal before applying.', 'అవసరమైన పత్రాల వివరాలు అధికారిక మార్గదర్శకాల ఆధారంగా ధృవీకరించబడుతున్నాయి. దరఖాస్తు చేయడానికి ముందు అధికారిక పోర్టల్‌ను తనిఖీ చేయండి.'],
   documentsUnspecified: ['The official source does not specify the documents. Confirm the checklist before applying.', 'అధికారిక మూలంలో అవసరమైన పత్రాలను పేర్కొనలేదు. దరఖాస్తు చేయడానికి ముందు పత్రాల జాబితాను నిర్ధారించుకోండి.'],
@@ -205,7 +208,7 @@ const searchFields = new WeakMap()
 
 function fields(scheme) {
   if (searchFields.has(scheme)) return searchFields.get(scheme)
-  const primary = normalize([scheme.name, scheme.nameTe, scheme.category, scheme.region, ...(scheme.keywords || []), ...(scheme.aliases || [])].join(' '))
+  const primary = normalize([scheme.name, scheme.nameTe, scheme.category, scheme.region, ...(scheme.keywords || []), ...(scheme.aliases || []), ...(scheme.programme_components || []).flatMap(item => [item.search_title, item.title.en, item.title.te])].join(' '))
   const details = normalize([scheme.en?.description, scheme.te?.description, scheme.en?.benefits, scheme.te?.benefits].join(' '))
   const value = { primary, details, primaryWords: [...new Set(words(primary))], detailWords: [...new Set(words(details))] }
   searchFields.set(scheme, value)
@@ -239,7 +242,10 @@ export function searchSchemes(schemes, query, { partial = false } = {}) {
       if (token.length >= 7 && detailWords.some(word => oneEditAway(token, word))) return 1
       return 0
     })
-    const titleMatch = [scheme.name, scheme.nameTe, ...(scheme.aliases || [])].some(title => normalized === normalize(title))
+    const titleMatch = [
+      scheme.name, scheme.nameTe, ...(scheme.aliases || []),
+      ...(scheme.programme_components || []).flatMap(item => [item.search_title, item.title.en, item.title.te]),
+    ].some(title => normalized === normalize(title))
     return { scheme, score: scores.reduce((total, score) => total + score, 0) + (titleMatch ? 30 : 0), all: scores.every(Boolean) }
   }).filter(match => partial ? match.score > 0 : match.all)
     .sort((a, b) => b.score - a.score).map(match => match.scheme)
