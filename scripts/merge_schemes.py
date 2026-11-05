@@ -215,11 +215,15 @@ def main():
         parser.error("The review output needs its own path")
     if args.output.resolve() in {args.v2_master.resolve(), args.directory.resolve()}:
         parser.error("The catalog output cannot overwrite the V2 or directory source")
-    catalog, report = reconcile_catalog(
-        read_records(args.catalog), load_directory_source(args.directory), read_records(args.v2_master)
+    from scripts.consolidate_catalog import consolidate
+    manifest = json.loads((root/"data/studio/v2_resolution.json").read_text(encoding="utf-8-sig"))
+    catalog, report, archive = consolidate(
+        read_records(args.catalog), load_directory_source(args.directory),
+        read_records(args.v2_master), manifest,
     )
     write_json(args.review_output, report)
     write_json(args.output, catalog)
+    write_json(root/"data/backups/unlinked_audit_archive.json", {"reviewed":manifest["reviewed"],"records":archive})
     print(json.dumps(report["summary"], indent=2))
 
 

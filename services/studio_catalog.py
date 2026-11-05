@@ -19,6 +19,8 @@ def load_master_catalog(root):
         not name or not isinstance(row, dict) for name, row in catalog.items()
     ):
         raise ValueError(f"Invalid master scheme catalog: {path}")
+    from services.canonical_catalog import runtime_record
+    catalog = {name: runtime_record(row) for name, row in catalog.items()}
     for name, row in catalog.items():
         row.setdefault("slug", generate_slug(name))
     return catalog

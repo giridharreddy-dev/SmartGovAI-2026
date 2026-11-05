@@ -1,0 +1,1026 @@
+{
+  "reviewed": "2026-11-05",
+  "records": [
+    {
+      "source_title": "Jagananna Aarogya Suraksha (Doorstep Health Screening & Specialist Camps)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://hmfw.ap.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Doorstep Health Screening",
+        "icon": "mobile-clinic",
+        "telugu_name": "జగనన్న ఆరోగ్య సురక్ష (ఇంటింటి ఆరోగ్య పరీక్షలు & నిపుణుల వైద్య శిబిరాలు)",
+        "source_name": "Health, Medical & Family Welfare Dept, AP",
+        "source_url": "https://hmfw.ap.gov.in/",
+        "official_website": "https://hmfw.ap.gov.in/",
+        "keywords": [
+          "Aarogya Suraksha",
+          "doorstep health checkup",
+          "village health camp",
+          "free specialist diagnosis",
+          "ఆరోగ్య సురక్ష",
+          "free medicines"
+        ],
+        "simplified": {
+          "eligibility": "All citizens and families residing in Andhra Pradesh (rural and urban).",
+          "benefits": "Free doorstep health screening, free diagnostic lab tests (BP, sugar, hemoglobin, malaria), free specialist doctor consultations, free medicine delivery, and fast-track referral to network hospitals.",
+          "documents": "Aadhaar Card, Aarogyasri Card (if available), Previous medical prescription records.",
+          "steps": "Attend the household health screening when ANMs/ASHAs visit your door, or visit the village health camp conducted in your Grama/Ward Sachivalayam.",
+          "description": "Jagananna Aarogya Suraksha provides doorstep health surveys, 14+ free diagnostic lab tests, free consultations with specialist doctors in village camps, and free lifelong medicines for chronic illnesses."
+        },
+        "telugu": {
+          "eligibility": "ఆంధ్రప్రదేశ్ రాష్ట్రంలోని గ్రామీణ మరియు పట్టణ ప్రాంత ప్రజలందరూ అర్హులు.",
+          "benefits": "ఇంటి వద్దే ఉచిత ఆరోగ్య పరీక్షలు, 14 రకాల రక్త/ల్యాబ్ పరీక్షలు, నిపుణులైన వైద్యుల సలహాలు, ఉచితంగా పూర్తి కోర్సు మందుల పంపిణీ, తీవ్ర వ్యాధులకు ఉచిత ఆసుపత్రి రెఫరల్.",
+          "documents": "ఆధార్ కార్డు, ఆరోగ్యశ్రీ కార్డు (ఉంటే), పాత మందుల వివరాలు/ప్రిస్క్రిప్షన్.",
+          "steps": "ఆశా కార్యకర్తలు, ఏఎన్‌ఎంలు ఇంటికి వచ్చినప్పుడు వివరాలు నమోదు చేయించుకోండి లేదా గ్రామ సచివాలయంలో జరిగే వైద్య శిబిరానికి హాజరవ్వండి.",
+          "description": "జగనన్న ఆరోగ్య సురక్ష పథకం ద్వారా ఇంటింటికీ వెళ్లి ఆరోగ్య సర్వే చేయడం, గ్రామాల్లో స్పెషలిస్ట్ వైద్యులతో మెగా క్యాంపులు నిర్వహించి ఉచితంగా పరీక్షలు, మందులు మరియు ఆసుపత్రి రెఫరల్స్ అందిస్తారు."
+        },
+        "description": "Jagananna Aarogya Suraksha provides doorstep health surveys, 14+ free diagnostic lab tests, free consultations with specialist doctors in village camps, and free lifelong medicines for chronic illnesses.",
+        "telugu_description": "జగనన్న ఆరోగ్య సురక్ష పథకం ద్వారా ఇంటింటికీ వెళ్లి ఆరోగ్య సర్వే చేయడం, గ్రామాల్లో స్పెషలిస్ట్ వైద్యులతో మెగా క్యాంపులు నిర్వహించి ఉచితంగా పరీక్షలు, మందులు మరియు ఆసుపత్రి రెఫరల్స్ అందిస్తారు.",
+        "required_documents": [
+          {
+            "name": "Aadhaar Card",
+            "name_te": "ఆధార్ కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Health Card / Rice Card",
+            "name_te": "ఆరోగ్యశ్రీ / బియ్యం కార్డు",
+            "optional": true
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Free Dialysis and CKD Financial Aid Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Kidney Care & Chronic Disease",
+        "icon": "kidney",
+        "telugu_name": "ఆంధ్రప్రదేశ్ ఉచిత డయాలసిస్ & కిడ్నీ బాధితుల పింఛను పథకం",
+        "source_name": "Dr. YSR Aarogyasri Trust & SERP AP",
+        "source_url": "https://aarogyasri.ap.gov.in/",
+        "official_website": "https://aarogyasri.ap.gov.in/",
+        "keywords": [
+          "Dialysis pension",
+          "Uddanam kidney",
+          "free dialysis",
+          "CKD pension 10000",
+          "డయాలసిస్",
+          "kidney patient aid"
+        ],
+        "simplified": {
+          "eligibility": "Chronic Kidney Disease (CKD) patients on regular dialysis in Andhra Pradesh holding BPL/Aarogyasri eligibility.",
+          "benefits": "100% free hemodialysis sessions, free erythropoietin injections and iron supplements, plus Rs. 10,000 monthly financial pension transferred to bank account.",
+          "documents": "Aarogyasri Card, Medical certificate from Nephrologist confirming regular dialysis, Dialysis Logbook, Aadhaar, and Bank Account.",
+          "steps": "Register at the dialysis unit of your District/Area Hospital. Apply for the monthly pension at your Grama/Ward Sachivalayam with dialysis certificates.",
+          "description": "AP Free Dialysis and CKD Aid provides 100% free dialysis procedures, free medicines, and a monthly financial pension of Rs. 10,000 for kidney disease patients."
+        },
+        "telugu": {
+          "eligibility": "ఆంధ్రప్రదేశ్‌లో క్రమం తప్పకుండా డయాలసిస్ చేయించుకుంటున్న కిడ్నీ వ్యాధిగ్రస్తులు (ఆరోగ్యశ్రీ/బియ్యం కార్డు లబ్ధిదారులు) అర్హులు.",
+          "benefits": "ప్రభుత్వ మరియు నెట్‌వర్క్ ఆసుపత్రులలో 100% ఉచిత డయాలసిస్, ఉచిత ఇంజెక్షన్లు & మందులు మరియు నెలకు రూ. 10,000 ఆర్థిక పింఛను.",
+          "documents": "డయాలసిస్ సర్టిఫికెట్ / రికార్డు బుక్, నెఫ్రాలజిస్ట్ ధృవీకరణ పత్రం, ఆరోగ్యశ్రీ కార్డు, ఆధార్ కార్డు, బ్యాంక్ పాస్‌బుక్.",
+          "steps": "సమీప ప్రభుత్వ డయాలసిస్ కేంద్రాన్ని సంప్రదించండి. పింఛను కొరకు గ్రామ/వార్డు సచివాలయంలో దరఖాస్తు చేసుకోండి.",
+          "description": "ఆంధ్రప్రదేశ్ ఉచిత డయాలసిస్ పథకం ద్వారా కిడ్నీ రోగులకు ఉచితంగా డయాలసిస్ సేవలు, ఉచిత మందులతో పాటు ప్రయాణ, ఆహార ఖర్చుల కోసం నెలకు రూ. 10,000 పింఛను అందిస్తారు."
+        },
+        "description": "AP Free Dialysis and CKD Aid provides 100% free dialysis procedures, free medicines, and a monthly financial pension of Rs. 10,000 for kidney disease patients.",
+        "telugu_description": "ఆంధ్రప్రదేశ్ ఉచిత డయాలసిస్ పథకం ద్వారా కిడ్నీ రోగులకు ఉచితంగా డయాలసిస్ సేవలు, ఉచిత మందులతో పాటు ప్రయాణ, ఆహార ఖర్చుల కోసం నెలకు రూ. 10,000 పింఛను అందిస్తారు.",
+        "required_documents": [
+          {
+            "name": "Dialysis Certificate from Nephrologist",
+            "name_te": "డయాలసిస్ వైద్య ధృవీకరణ పత్రం",
+            "optional": false
+          },
+          {
+            "name": "Aarogyasri / Rice Card",
+            "name_te": "ఆరోగ్యశ్రీ / రేషన్ కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Bank Account Details",
+            "name_te": "బ్యాంక్ ఖాతా వివరాలు",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Thalassaemia and Haemophilia Financial Aid Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Chronic Blood Disorders",
+        "icon": "shield",
+        "telugu_name": "ఆంధ్రప్రదేశ్ తలసేమియా & హీమోఫీలియా ఆర్థిక సాయం పథకం",
+        "source_name": "Department of Health & Family Welfare, AP",
+        "source_url": "https://aarogyasri.ap.gov.in/",
+        "official_website": "https://aarogyasri.ap.gov.in/",
+        "keywords": [
+          "Thalassaemia",
+          "Haemophilia",
+          "blood transfusion",
+          "chronic blood disorder",
+          "తలసేమియా",
+          "హీమోఫీలియా"
+        ],
+        "simplified": {
+          "eligibility": "Patients medically diagnosed with Thalassaemia Major, Haemophilia, or Severe Sickle Cell Disease residing in AP.",
+          "benefits": "Free regular blood transfusions, free Factor VIII/IX injections, free iron chelation medicines, and Rs. 10,000 monthly financial pension.",
+          "documents": "Hematologist diagnosis certificate, Blood transfusion records, Aarogyasri Card, Aadhaar, and Bank Account.",
+          "steps": "Register at the District Blood Bank / Teaching Hospital Hematology OPD, and submit medical certificate at your local Sachivalayam for pension.",
+          "description": "AP Thalassaemia & Haemophilia Support guarantees free safe blood transfusions, free life-saving factor concentrates, and Rs. 10,000/month pension to support patient families."
+        },
+        "telugu": {
+          "eligibility": "తలసేమియా మేజర్, హీమోఫీలియా లేదా సికిల్ సెల్ ఎనీమియా వ్యాధితో బాధపడుతున్న ఆంధ్రప్రదేశ్ నివాసితులు అర్హులు.",
+          "benefits": "ఉచిత సురక్షిత రక్త మార్పిడి, ఉచిత ఫ్యాక్టర్ ఇంజెక్షన్లు, ఉచిత ఐరన్ మందులు మరియు ప్రతి నెలా రూ. 10,000 పింఛను సాయం.",
+          "documents": "హెమటాలజిస్ట్ వైద్య ధృవీకరణ పత్రం, రక్త మార్పిడి రికార్డులు, ఆరోగ్యశ్రీ కార్డు, ఆధార్ కార్డు, బ్యాంక్ ఖాతా.",
+          "steps": "జిల్లా బోధనాసుపత్రిలోని బ్లడ్ బ్యాంక్ / హెమటాలజీ విభాగాన్ని సంప్రదించండి మరియు గ్రామ సచివాలయంలో పింఛనుకు దరఖాస్తు చేయండి.",
+          "description": "తలసేమియా మరియు హీమోఫీలియా బాధితులకు ఆంధ్రప్రదేశ్ ప్రభుత్వం ఉచిత రక్తమార్పిడి, ఖరీదైన ఫ్యాక్టర్ మందులతో పాటు నెలకు రూ. 10,000 ఆర్థిక పింఛను అందిస్తుంది."
+        },
+        "description": "AP Thalassaemia & Haemophilia Support guarantees free safe blood transfusions, free life-saving factor concentrates, and Rs. 10,000/month pension to support patient families.",
+        "telugu_description": "తలసేమియా మరియు హీమోఫీలియా బాధితులకు ఆంధ్రప్రదేశ్ ప్రభుత్వం ఉచిత రక్తమార్పిడి, ఖరీదైన ఫ్యాక్టర్ మందులతో పాటు నెలకు రూ. 10,000 ఆర్థిక పింఛను అందిస్తుంది.",
+        "required_documents": [
+          {
+            "name": "Diagnostic Medical Certificate",
+            "name_te": "వ్యాధి నిర్ధారణ మెడికల్ సర్టిఫికెట్",
+            "optional": false
+          },
+          {
+            "name": "Aarogyasri / Rice Card",
+            "name_te": "ఆరోగ్యశ్రీ / రేషన్ కార్డు",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "eSanjeevani AP - Telemedicine Consultations",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://esanjeevani.mohfw.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Digital Teleconsultation & Specialist Care",
+        "icon": "laptop",
+        "telugu_name": "ఈ-సంజీవని ఉచిత టెలిమెడిసిన్ కన్సల్టేషన్",
+        "source_name": "Ministry of Health & Family Welfare & AP Health Dept",
+        "source_url": "https://esanjeevani.mohfw.gov.in/",
+        "official_website": "https://esanjeevani.mohfw.gov.in/",
+        "keywords": [
+          "eSanjeevani",
+          "Telemedicine",
+          "Online Doctor",
+          "ఈ సంజీవని",
+          "టెలిమెడిసిన్",
+          "వీడియో డాక్టర్",
+          "ఉచిత సలహా"
+        ],
+        "simplified": {
+          "eligibility": "Any citizen of Andhra Pradesh requiring general or specialist medical opinion without travelling to distant cities.",
+          "benefits": "Free video consultation with specialist doctors, digital prescription sent directly to mobile phone, and free medicines dispensed at nearest PHC/Clinic.",
+          "documents": "Aadhaar Card or Mobile Number for OTP login, past medical reports (optional upload).",
+          "steps": "Download eSanjeevani App or visit your local YSR Village Health Clinic. The Community Health Officer connects you with a specialist.",
+          "description": "Free virtual video consultation with specialist doctors from your home or local village clinic."
+        },
+        "telugu": {
+          "eligibility": "దూరప్రాంతాలకు వెళ్లకుండానే నిపుణులైన స్పెషలిస్ట్ డాక్టర్ల సలహా పొందాలనుకునే పౌరులందరూ అర్హులు.",
+          "benefits": "పెద్ద ఆసుపత్రుల వైద్యులతో ఉచిత వీడియో సంప్రదింపులు, మొబైల్‌కే డిజిటల్ ప్రిస్క్రిప్షన్, మరియు ఆ మందులను స్థానిక పీహెచ్‌సీలో ఉచితంగా పొందడం.",
+          "documents": "మొబైల్ నంబర్ మరియు ఆధార్ కార్డు, పాత వైద్య రిపోర్టులు.",
+          "steps": "ఈ-సంజీవని యాప్ ద్వారా లేదా మీ గ్రామ విలేజ్ క్లినిక్‌లోని కమ్యూనిటీ హెల్త్ ఆఫీసర్ ద్వారా నేరుగా స్పెషలిస్ట్ డాక్టర్‌తో మాట్లాడవచ్చు.",
+          "description": "ఇంటి నుండే మొబైల్ ద్వారా లేదా గ్రామ క్లినిక్ ద్వారా ఉచితంగా స్పెషలిస్ట్ వైద్యులను సంప్రదించవచ్చు."
+        },
+        "description": "National digital telemedicine platform enabling citizens and village clinic health workers to consult specialist and super-specialist doctors virtually and receive electronic prescriptions.",
+        "telugu_description": "ఇంటి వద్ద నుండే మొబైల్ ద్వారా లేదా గ్రామ విలేజ్ క్లినిక్ ద్వారా పెద్ద ఆసుపత్రుల స్పెషలిస్ట్ డాక్టర్లతో ఉచితంగా వీడియో కన్సల్టేషన్ మరియు ఈ-ప్రిస్క్రిప్షన్ పొందే డిజిటల్ వైద్య సేవ.",
+        "required_documents": [
+          {
+            "name": "Aadhaar / Mobile Number",
+            "name_te": "మొబైల్ నంబర్ లేదా ఆధార్ కార్డు",
+            "optional": false
+          }
+        ],
+        "english_description": "National digital telemedicine platform enabling citizens and village clinic health workers to consult specialist and super-specialist doctors virtually and receive electronic prescriptions.",
+        "audio_file": "static/audio/esanjeevani.mp3",
+        "original_complex_text": "eSanjeevani is a national telemedicine service consisting of two variants: eSanjeevani AB-HWC (Doctor-to-Doctor assisted model linking Village Clinics with District/Medical College hubs) and eSanjeevani OPD (Citizen-to-Doctor patient app). Citizens consult general physicians and specialists (Cardiologists, Gynaecologists, Dermatologists, Pediatricians) via video call and receive digitally signed valid prescriptions.",
+        "last_updated": "2026-06-01",
+        "contact_office": "State Telemedicine Hub / Primary Health Centre / Dial 104",
+        "eligibility_confirmation": "Mobile OTP / ABHA Card Verification",
+        "eligibility_questions": [
+          {
+            "question_te": "మీకు స్పెషలిస్ట్ లేదా జనరల్ డాక్టర్ వద్ద ఉచిత వైద్య సలహా లేదా ప్రిస్క్రిప్షన్ అవసరమా?",
+            "question_en": "Do you need a virtual specialist doctor consultation or medical prescription?",
+            "weight": "critical"
+          }
+        ],
+        "local_help_locations": {
+          "Statewide": "Available via Smartphone App statewide and at all 10,032 YSR Village Health Clinics"
+        },
+        "coverage_type": "Virtual Specialist Teleconsultation & Digital Prescription",
+        "coverage_type_te": "వర్చువల్ వీడియో వైద్య సంప్రదింపు & ఈ-ప్రిస్క్రిప్షన్",
+        "benefit_amount": "100% Free Virtual Medical Consultations",
+        "benefit_amount_te": "100% ఉచిత వీడియో వైద్య సంప్రదింపులు",
+        "target_beneficiary": "Rural population, elderly, chronic illness patients & mothers",
+        "target_beneficiary_te": "గ్రామీణ ప్రజలు, వృద్ధులు, గర్భిణులు మరియు ప్రయాణం చేయలేని వారు",
+        "application_mode": "Online via eSanjeevani Portal / App or via Village Clinic CHO",
+        "application_mode_te": "ఈ-సంజీవని యాప్ ద్వారా లేదా గ్రామ సచివాలయం విలేజ్ క్లినిక్ ద్వారా",
+        "processing_time": "Instant queuing, doctor connects within 5-15 minutes",
+        "processing_time_te": "టోకెన్ వచ్చిన 5 నుండి 15 నిమిషాల్లో డాక్టర్ కనెక్ట్ అవుతారు",
+        "facility_type": "District Hospital Tele-Hubs & Medical College Specialist Departments",
+        "facility_type_te": "జిల్లా ఆసుపత్రులు మరియు ప్రభుత్వ వైద్య కళాశాలల నిపుణుల విభాగాలు",
+        "validity_period": "Continuous access during official OPD hours (9 AM to 4 PM)",
+        "validity_period_te": "ప్రతి రోజూ ఉదయం 9 గంటల నుండి సాయంత్రం 4 గంటల వరకు అందుబాటులో ఉంటుంది",
+        "helpline_numbers": [
+          "104",
+          "1800111565"
+        ],
+        "key_treatments": [
+          "Specialist Cardiology, Dermatology & Endocrinology Second Opinions",
+          "Pediatric Care & Child Nutrition Recommendations",
+          "Gynecological Remote Consultations for Expecting Mothers",
+          "Valid Digital Signatures for Essential Medicine Dispensation"
+        ],
+        "key_treatments_te": [
+          "గుండె, చర్మ వ్యాధులు, మధుమేహం నిపుణుల సలహాలు",
+          "పిల్లల వ్యాధులు మరియు ఆరోగ్య సమస్యలపై సలహాలు",
+          "గర్భిణులకు ప్రత్యేక గైనకాలజీ వైద్యుల పర్యవేక్షణ",
+          "ఉచిత మందులు పొందేందుకు అధికారిక డిజిటల్ ప్రిస్క్రిప్షన్"
+        ],
+        "exclusions": "Critical acute emergencies requiring immediate physical ICU admission (use 108).",
+        "exclusions_te": "అత్యవసర ఐసీయూ లేదా శస్త్రచికిత్స అవసరమైన ప్రమాదాలకు వర్తించదు.",
+        "eligibility_criteria": {
+          "income_tier": "Low & Middle Income Households",
+          "target_demographic": "All Eligible Residents & Vulnerable Families",
+          "geographic_scope": "National (Pan-India via india.gov.in)",
+          "clinical_condition": "Prescribed generic medications for acute or chronic illness",
+          "residency_requirement": "Indian Citizen",
+          "age_group": "All Ages"
+        },
+        "state": "Andhra Pradesh"
+      }
+    },
+    {
+      "source_title": "Surakshit Matritva Aashwasan (SUMAN Scheme - AP)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://suman.mohfw.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Zero-Expense Maternal & Infant Care",
+        "icon": "maternal",
+        "telugu_name": "సురక్షిత మాతృత్వ ఆశ్వాసన్ (సుమన్ - సున్నా ఖర్చు ప్రసవ సేవలు)",
+        "source_name": "Ministry of Health & Family Welfare & AP Health Dept",
+        "source_url": "https://suman.mohfw.gov.in/",
+        "official_website": "https://suman.mohfw.gov.in/",
+        "keywords": [
+          "SUMAN",
+          "Zero expense delivery",
+          "Surakshit Matritva",
+          "సుమన్ పథకం",
+          "సున్నా ఖర్చు ప్రసవం",
+          "Free C section govt hospital",
+          "102 Mahata ambulance"
+        ],
+        "simplified": {
+          "eligibility": "All pregnant women and infants up to 6 months visiting any public health facility in Andhra Pradesh.",
+          "benefits": "Zero expense for registration, diagnostics, blood, Caesarean surgery, food during stay, medicines, and free 102 transport back to home.",
+          "documents": "Aadhaar Card, MCP / RCH Card (services are never denied even without documents).",
+          "steps": "Walk into any government PHC, CHC, Area Hospital, or Teaching Hospital. Dial 104 if any staff demands money or denies service.",
+          "description": "SUMAN guarantees that no pregnant mother or newborn is charged a single rupee for delivery, surgeries, or ambulance transport at public hospitals."
+        },
+        "telugu": {
+          "eligibility": "ఆంధ్రప్రదేశ్‌లోని గర్భిణీ స్త్రీలు మరియు 6 నెలల లోపు వయసున్న పసిబిడ్డలందరూ అర్హులు.",
+          "benefits": "ఆసుపత్రిలో కాన్పు, సిజేరియన్ ఆపరేషన్, అల్ట్రాసౌండ్ స్కానింగ్, రక్తం, మందులు మరియు ఇంటికి చేర్చే 102 వాహనం పూర్తిగా ఉచితం (సున్నా ఖర్చు).",
+          "documents": "తల్లి ఆధార్ కార్డు, ఆర్‌సీహెచ్ కార్డు.",
+          "steps": "ఏదైనా ప్రభుత్వ ఆసుపత్రికి వెళ్లండి. ఆసుపత్రిలో ఎవరైనా డబ్బులు డిమాండ్ చేస్తే వెంటనే 104 లేదా 1902 టోల్ ఫ్రీ నంబర్‌కు ఫిర్యాదు చేయవచ్చు.",
+          "description": "ప్రభుత్వ ఆసుపత్రిలో ప్రసవానికి ఒక్క రూపాయి కూడా ఖర్చు లేకుండా పూర్తి చికిత్స మరియు మందులను హామీగా అందించే పథకమే సుమన్."
+        },
+        "description": "Zero-tolerance scheme assuring 100% free, respectful, and quality maternal and newborn healthcare without any out-of-pocket expenses at all public health facilities.",
+        "telugu_description": "ప్రభుత్వ ఆసుపత్రులలో గర్భిణులకు మరియు పుట్టిన శిశువులకు ఒక్క రూపాయి కూడా ఖర్చు లేకుండా గౌరవప్రదమైన, సురక్షితమైన ప్రసవ మరియు అత్యవసర సేవల హామీ పథకం.",
+        "required_documents": [
+          {
+            "name": "Mother Aadhaar Card",
+            "name_te": "తల్లి ఆధార్ కార్డు",
+            "optional": false
+          }
+        ],
+        "english_description": "Zero-tolerance scheme assuring 100% free, respectful, and quality maternal and newborn healthcare without any out-of-pocket expenses at all public health facilities.",
+        "audio_file": "static/audio/suman_scheme.mp3",
+        "original_complex_text": "SUMAN provides a legal commitment of zero denial of service and zero out-of-pocket expenses for all pregnant women and sick infants up to 6 months in public health facilities. It mandates free transport from home to hospital (108/102), free diagnostic tests (including ultrasound), free blood transfusion, free normal and C-section surgeries, and guaranteed grievance redressal within 1 hour.",
+        "last_updated": "2026-06-01",
+        "contact_office": "Public Health Facility Helpdesk / Toll-Free Grievance 104",
+        "eligibility_confirmation": "Universal Maternal Right (Zero Denial Guarantee)",
+        "eligibility_questions": [
+          {
+            "question_te": "మీరు లేదా మీ కుటుంబ సభ్యులు గర్భవతిగా ఉన్నారా?",
+            "question_en": "Are you or your family member pregnant?",
+            "weight": "critical"
+          }
+        ],
+        "local_help_locations": {
+          "Statewide": "All 24x7 Primary Health Centres, CHCs, and District Maternity Hospitals"
+        },
+        "eligibility_criteria": {
+          "income_tier": "Universal / No Income Limit",
+          "target_demographic": "Pregnant & Lactating Mothers",
+          "geographic_scope": "National (Pan-India via india.gov.in)",
+          "clinical_condition": "General medical consultation, preventive screening, or healthcare service",
+          "residency_requirement": "Indian Citizen",
+          "age_group": "19 Years and above (Mothers)"
+        },
+        "state": "Andhra Pradesh"
+      }
+    },
+    {
+      "source_title": "National Tobacco Cessation & De-addiction Services (AP NTCP Clinics)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://ntcp.mohfw.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Substance De-addiction & Preventive Health",
+        "icon": "medicine",
+        "telugu_name": "జాతీయ పొగాకు వ్యసన విముక్తి కేంద్రాలు (NTCP డి-అడిక్షన్ సేవలు)",
+        "source_name": "National Tobacco Control Programme & AP Health Directorate",
+        "source_url": "https://ntcp.mohfw.gov.in/",
+        "official_website": "https://ntcp.mohfw.gov.in/",
+        "keywords": [
+          "NTCP",
+          "Tobacco cessation",
+          "Quit smoking",
+          "పొగాకు విముక్తి",
+          "సిగరెట్ వ్యసనం",
+          "గుట్కా మాన్పించే కేంద్రాలు",
+          "Nicotine replacement"
+        ],
+        "simplified": {
+          "eligibility": "Any individual residing in Andhra Pradesh seeking help to quit smoking (cigarettes/beedis) or smokeless tobacco (gutkha/khaini).",
+          "benefits": "Free one-on-one psychological counseling, carbon monoxide breathalyzer assessment, free nicotine chewing gums and patches, and toll-free helpline support.",
+          "documents": "No documents required (universal free public health service).",
+          "steps": "Walk into the Tobacco Cessation Clinic at the District Hospital or call the National Quitline toll-free at 1800-11-2356.",
+          "description": "Free counseling and nicotine replacement therapies are provided at government clinics to help people quit smoking and tobacco."
+        },
+        "telugu": {
+          "eligibility": "పొగాకు, సిగరెట్లు, బీడీలు, గుట్కా వ్యసనం మానుకోవాలనుకునే ఆంధ్రప్రదేశ్ పౌరులందరూ అర్హులు.",
+          "benefits": "నిపుణులైన సైకాలజిస్టుల ద్వారా ఉచిత కౌన్సెలింగ్, నికోటిన్ గమ్స్, కార్బన్ మోనాక్సైడ్ శ్వాస పరీక్షలు మరియు 1800-11-2356 టోల్ ఫ్రీ సహాయం.",
+          "documents": "ఎటువంటి పత్రాలు అవసరం లేదు.",
+          "steps": "జిల్లా ఆసుపత్రిలోని పొగాకు వ్యసన విముక్తి (TCC) విభాగాన్ని నేరుగా సంప్రదించండి లేదా 1800-11-2356 కు కాల్ చేయండి.",
+          "description": "పొగాకు, సిగరెట్, గుట్కా అలవాటు నుండి సులభంగా బయటపడటానికి ప్రభుత్వ ఆసుపత్రులలో ఉచిత చికిత్స మరియు మందులు అందిస్తారు."
+        },
+        "description": "Dedicated tobacco cessation clinics (TCCs) operational in District Hospitals offering free behavioral counseling, nicotine replacement gums/patches, and medications to quit smoking and chewing tobacco.",
+        "telugu_description": "సిగరెట్, బీడీ, గుట్కా మరియు పొగాకు వ్యసనం నుండి బయటపడటానికి జిల్లా ఆసుపత్రులలో ఉచిత కౌన్సెలింగ్ మరియు నికోటిన్ రీప్లేస్‌మెంట్ మందులు అందించే పథకం.",
+        "required_documents": [],
+        "english_description": "Dedicated tobacco cessation clinics (TCCs) operational in District Hospitals offering free behavioral counseling, nicotine replacement gums/patches, and medications to quit smoking and chewing tobacco.",
+        "audio_file": "static/audio/ntcp_cessation.mp3",
+        "original_complex_text": "Tobacco use is the single largest preventable cause of oral cancer, cardiovascular disease, and chronic lung disease. In Andhra Pradesh, Tobacco Cessation Clinics (TCC) are established at District Headquarters Hospitals and Dental Colleges. Trained psychologists and doctors provide carbon monoxide breath monitoring, behavioral de-addiction therapy, and free Nicotine Replacement Therapy (NRT) to help citizens quit permanently.",
+        "last_updated": "2026-06-01",
+        "contact_office": "District Hospital Tobacco Cessation Clinic / Toll-Free Quitline 1800-11-2356",
+        "eligibility_confirmation": "Voluntary Tobacco Cessation Registration",
+        "eligibility_questions": [
+          {
+            "question_te": "మీరు సిగరెట్, బీడీ లేదా గుట్కా వంటి పొగాకు ఉత్పత్తులను మానుకోవాలనుకుంటున్నారా?",
+            "question_en": "Do you want to quit smoking or using tobacco products?",
+            "weight": "high"
+          }
+        ],
+        "local_help_locations": {
+          "All Districts": "Tobacco Cessation Clinic at District Headquarters Hospital"
+        },
+        "eligibility_criteria": {
+          "income_tier": "Universal / No Income Limit",
+          "target_demographic": "All Eligible Residents & Vulnerable Families",
+          "geographic_scope": "National (Pan-India via india.gov.in)",
+          "clinical_condition": "General medical consultation, preventive screening, or healthcare service",
+          "residency_requirement": "Indian Citizen",
+          "age_group": "All Ages"
+        },
+        "state": "Andhra Pradesh"
+      }
+    },
+    {
+      "source_title": "Pradhan Mantri Matru Vandana Yojana (PMMVY - AP)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://wcd.ap.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Maternal & Infant Financial Support",
+        "icon": "heart",
+        "telugu_name": "ప్రధాన మంత్రి మాతృ వందన యోజన (PMMVY)",
+        "source_name": "Ministry of Women & Child Development & AP WD&CW Dept",
+        "source_url": "https://wcd.ap.gov.in/",
+        "official_website": "https://wcd.ap.gov.in/",
+        "keywords": [
+          "PMMVY",
+          "Maternity Benefit",
+          "Pregnant Women",
+          "మాతృ వందన",
+          "గర్భిణుల పథకం",
+          "పుష్టికర ఆహారం",
+          "DBT"
+        ],
+        "simplified": {
+          "eligibility": "Pregnant women and lactating mothers (except regular government employees) for their first living child and second girl child.",
+          "benefits": "₹5,000 direct bank transfer in 2 installments (and ₹6,000 for 2nd girl child) to support nutritious food and clinical checkups.",
+          "documents": "Mother & Father Aadhaar Cards, Mother's Aadhaar-linked Bank Passbook, Mother & Child Protection (MCP) Card.",
+          "steps": "Register at your nearest Anganwadi Centre or Village Secretariat within 150 days of Last Menstrual Period (LMP).",
+          "description": "Cash support up to ₹6,000 into bank accounts of pregnant mothers for nutrition and health checkups."
+        },
+        "telugu": {
+          "eligibility": "మొదటి సంతానం పొందే గర్భిణులు మరియు రెండవ కాన్పులో ఆడపిల్ల జన్మించిన తల్లులు (ప్రభుత్వ ఉద్యోగులు మినహా) అర్హులు.",
+          "benefits": "మొదటి కాన్పుకు రూ. 5,000 (రెండు విడతల్లో), రెండవ కాన్పులో ఆడపిల్ల పుడితే ఒకే విడతలో రూ. 6,000 నేరుగా బ్యాంక్ ఖాతాలో జమ.",
+          "documents": "తల్లి మరియు తండ్రి ఆధార్ కార్డులు, తల్లి బ్యాంక్ పాస్‌బుక్ (ఆధార్ లింక్), తల్లి-పిల్లల సంరక్షణ కార్డు (MCP Card).",
+          "steps": "గర్భం దాల్చిన వెంటనే సమీప అంగన్‌వాడీ కేంద్రం లేదా గ్రామ సచివాలయంలో ANM వద్ద పేరు నమోదు చేసుకోండి.",
+          "description": "గర్భిణులు మరియు బాలింతలకు పౌష్టికాహారం మరియు వైద్య ఖర్చుల నిమిత్తం ప్రభుత్వం నేరుగా బ్యాంక్ ఖాతాలో ఆర్థిక సాయం అందిస్తుంది."
+        },
+        "description": "Direct Benefit Transfer maternity benefit scheme providing ₹5,000 to ₹6,000 in DBT installments to pregnant women and lactating mothers for health checkups, nutrition, and institutional delivery.",
+        "telugu_description": "గర్భిణులు మరియు బాలింతలకు మొదటి మరియు రెండవ కాన్పు (ఆడపిల్ల పుడితే) సమయాల్లో పౌష్టికాహారం కోసం రూ. 5,000 నుండి రూ. 6,000 వరకు నేరుగా బ్యాంక్ ఖాతాలో జమ చేసే పథకం.",
+        "required_documents": [
+          {
+            "name": "Mother Aadhaar Card",
+            "name_te": "తల్లి ఆధార్ కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Aadhaar Linked Bank Passbook",
+            "name_te": "బ్యాంక్ పాస్‌బుక్ కాపీ",
+            "optional": false
+          },
+          {
+            "name": "Mother & Child Protection (MCP) Card",
+            "name_te": "తల్లి-పిల్లల రక్షణ కార్డు (MCP కార్డు)",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "NTR Baby Kit & Mukhyamantri Bal Suraksha Kit",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://cfw.ap.nic.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Newborn & Maternal Care",
+        "icon": "maternal",
+        "telugu_name": "ఎన్టీఆర్ బేబీ కిట్ & నవజాత శిశు సంరక్షణ పథకం",
+        "source_name": "AP Health, Medical and Family Welfare Department",
+        "source_url": "https://cfw.ap.nic.in/",
+        "official_website": "https://cfw.ap.nic.in/",
+        "keywords": [
+          "Baby Kit",
+          "NTR Baby Kit",
+          "Newborn Care Kit",
+          "బేబీ కిట్",
+          "నవజాత శిశు కిట్",
+          "Govt hospital delivery kit"
+        ],
+        "simplified": {
+          "eligibility": "Every mother who delivers her baby in any Government Hospital, CHC, or Teaching Hospital in Andhra Pradesh.",
+          "benefits": "Free 18-item high quality baby care kit including mosquito-netted baby bed, warm clothing, baby oil, soaps, thermometer, and maternal sanitary supplies, presented at hospital discharge.",
+          "documents": "Mother and Child Tracking System (MCTS / RCH) ID, Aadhaar Card, Hospital Delivery Registration.",
+          "steps": "Kit is gifted automatically by the hospital staff at the time of discharge following normal delivery or caesarean section in the government hospital.",
+          "description": "The Baby Kit provides complete clothing, bedding, hygiene, and protective essentials for the newborn and mother delivered in government hospitals."
+        },
+        "telugu": {
+          "eligibility": "ఆంధ్రప్రదేశ్‌లోని ప్రభుత్వ ఆసుపత్రి, సీహెచ్‌సీ లేదా బోధనాసుపత్రిలో కాన్పు చేయించుకున్న తల్లులందరూ అర్హులు.",
+          "benefits": "దోమల వల కలిగిన బేబీ బెడ్, దుస్తులు, బేబీ సోపు, నూనె, బేబీ డిజిటల్ థర్మామీటర్, తల్లికి శానిటరీ ప్యాడ్లతో కూడిన 18 వస్తువుల కిట్ ఉచితం.",
+          "documents": "తల్లి ఆధార్ కార్డు, ఆర్‌సీహెచ్ (RCH) కార్డు, ఆసుపత్రి అడ్మిషన్ వివరాలు.",
+          "steps": "ప్రభుత్వ ఆసుపత్రిలో కాన్పు పూర్తయి డిశ్చార్జ్ అయ్యే సమయంలో వార్డు సిబ్బంది లేదా ఆసుపత్రి సూపరింటెండెంట్ ద్వారా కిట్ ఉచితంగా అందజేయబడుతుంది.",
+          "description": "ప్రభుత్వ ఆసుపత్రులలో ప్రసవించిన బాలింతలకు మరియు నవజాత శిశువుకు ఉపయోగపడే అన్ని అత్యవసర వస్తువులతో కూడిన బేబీ కిట్‌ను ఉచితంగా అందజేస్తారు."
+        },
+        "description": "Comprehensive postpartum welfare scheme distributing a 18-item newborn and maternal care kit to mothers delivering in government health facilities across Andhra Pradesh.",
+        "telugu_description": "ప్రభుత్వ ఆసుపత్రులలో కాన్పు చేయించుకున్న బాలింతలకు మరియు నవజాత శిశువుల ఆరోగ్య రక్షణ కోసం 18 రకాల అవసరమైన వస్తువులతో కూడిన ఉచిత కిట్ పంపిణీ పథకం.",
+        "required_documents": [
+          {
+            "name": "Hospital Delivery Summary",
+            "name_te": "ఆసుపత్రి డిశ్చార్జ్ కార్డ్",
+            "optional": false
+          },
+          {
+            "name": "Mother Aadhaar Card",
+            "name_te": "తల్లి ఆధార్ కార్డు",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Free Knee and Hip Replacement Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Orthopaedic Joint Replacement Surgery",
+        "icon": "hospital",
+        "telugu_name": "ఆరోగ్యశ్రీ ఉచిత కీళ్ల మార్పిడి (మోకాలు & తుంటి ఆపరేషన్లు)",
+        "source_name": "Dr. NTR Vaidya Seva Health Care Trust, AP",
+        "source_url": "https://aarogyasri.ap.gov.in/",
+        "official_website": "https://aarogyasri.ap.gov.in/",
+        "keywords": [
+          "Knee Replacement",
+          "Hip Replacement",
+          "Total Knee Replacement",
+          "మోకాలు మార్పిడి",
+          "తుంటి మార్పిడి",
+          "Aarogyasri joint surgery",
+          "Free orthopaedic surgery"
+        ],
+        "simplified": {
+          "eligibility": "BPL Rice Card holders in AP suffering from Grade IV osteoarthritis, joint destruction, or avascular necrosis of femoral head confirmed by orthopaedic surgeon.",
+          "benefits": "100% free knee/hip joint replacement surgery with premium certified implants, free hospital stay, medications, and ₹5,000 monthly Aarogya Asara wage compensation during recovery.",
+          "documents": "Rice Card / BPL Card, Aadhaar Card, Recent X-Rays / MRI joint reports from empanelled hospital.",
+          "steps": "Consult an orthopaedic specialist at any empanelled network hospital or Government Teaching Hospital. Aarogyamithra initiates cashless pre-authorization.",
+          "description": "Aarogyasri offers totally free knee and hip replacement operations for low-income citizens, including premium artificial joints, hospital care, and rest financial assistance."
+        },
+        "telugu": {
+          "eligibility": "ఆంధ్రప్రదేశ్ బియ్యం కార్డు లేదా తెల్ల రేషన్ కార్డు ఉండి, తీవ్రమైన మోకాలు/తుంటి కీళ్ల అరుగుదలతో బాధపడుతున్న పేద పౌరులు అర్హులు.",
+          "benefits": "లక్షల రూపాయల విలువైన మోకాలు/తుంటి మార్పిడి ఆపరేషన్, మేలైన ఇంప్లాంట్లు, మందులు, ఆసుపత్రి ఖర్చులు మరియు రికవరీ సమయంలో ఆరోగ్య ఆసరా సాయం పూర్తిగా ఉచితం.",
+          "documents": "బియ్యం కార్డు / రేషన్ కార్డు, ఆధార్ కార్డు, ఎక్స్-రే లేదా ఎంఆర్ఐ రిపోర్టులు.",
+          "steps": "నెట్‌వర్క్ ఆసుపత్రిలోని ఆర్థోపెడిక్ వైద్యుడిని సంప్రదించండి. అక్కడి ఆరోగ్యమిత్ర డెస్క్ ద్వారా ఉచిత ఆమోదం పొంది శస్త్రచికిత్స చేయించుకోవచ్చు.",
+          "description": "కీళ్ల నొప్పులతో నడవలేని పేదవారికి ఆరోగ్యశ్రీ ద్వారా ఆధునిక మోకాలు లేదా తుంటి మార్పిడి శస్త్రచికిత్సను రూపాయి ఖర్చు లేకుండా చేస్తారు."
+        },
+        "description": "Comprehensive joint replacement program under Dr. NTR Vaidya Seva / Aarogyasri covering 100% cashless Total Knee Replacement (TKR) and Total Hip Replacement (THR) with high-grade implants.",
+        "telugu_description": "తీవ్రమైన కీళ్ల వాతం, ఆస్టియో ఆర్థరైటిస్ వల్ల నడవలేని పేద వృద్ధులకు డా. ఎన్టీఆర్ / వైఎస్ఆర్ ఆరోగ్యశ్రీ కింద పూర్తిగా ఉచితంగా మోకాలు మరియు తుంటి మార్పిడి శస్త్రచికిత్సలు.",
+        "required_documents": [
+          {
+            "name": "Rice Card / Aarogyasri Card",
+            "name_te": "బియ్యం కార్డు / ఆరోగ్యశ్రీ కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Aadhaar Card",
+            "name_te": "ఆధార్ కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Knee / Hip Joint X-Ray",
+            "name_te": "కీళ్ల ఎక్స్-రే రిపోర్ట్",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Free Cancer Chemotherapy & Radiation Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Oncology & Cancer Treatment",
+        "icon": "hospital",
+        "telugu_name": "ఆరోగ్యశ్రీ ఉచిత క్యాన్సర్ చికిత్స, కీమోథెరపీ & రేడియేషన్ పథకం",
+        "source_name": "Dr. NTR Vaidya Seva Health Care Trust, AP",
+        "source_url": "https://aarogyasri.ap.gov.in/",
+        "official_website": "https://aarogyasri.ap.gov.in/",
+        "keywords": [
+          "Cancer Care",
+          "Free Chemotherapy",
+          "Radiation Therapy",
+          "క్యాన్సర్ చికిత్స",
+          "కీమోథెరపీ",
+          "రేడియేషన్",
+          "Aarogyasri oncology"
+        ],
+        "simplified": {
+          "eligibility": "All BPL / Rice Card holders in Andhra Pradesh diagnosed with any form or stage of cancer.",
+          "benefits": "Unlimited cashless chemotherapy cycles, targeted therapy, immunotherapy, radiation therapy (IMRT/IGRT), surgical tumor removal, follow-up diagnostics, and Aarogya Asara financial wage aid.",
+          "documents": "Rice Card / Aarogyasri Card, Aadhaar Card, Histopathology / Biopsy report confirming malignancy.",
+          "steps": "Visit any empanelled cancer institute or government oncology hospital. Hospital Aarogyamithra completes biometric authentication and initiates pre-authorization.",
+          "description": "Cancer patients receive completely free, unlimited chemotherapy, radiation, tumor surgeries, and recovery allowance under Aarogyasri."
+        },
+        "telugu": {
+          "eligibility": "ఆంధ్రప్రదేశ్ బియ్యం కార్డు ఉండి, బయాప్సీ లేదా క్యాన్సర్ నిర్ధారణ రిపోర్టులు ఉన్న రోగులందరూ అర్హులు.",
+          "benefits": "అన్ని రకాల క్యాన్సర్ శస్త్రచికిత్సలు, కీమోథెరపీ సైకిల్స్, రేడియేషన్ థెరపీ, ఖరీదైన ఇంజెక్షన్లు మరియు నెలకు రూ. 5,000 వరకు ఆర్థిక సాయం ఉచితం.",
+          "documents": "బియ్యం కార్డు, ఆధార్ కార్డు, బయాప్సీ లేదా హిస్టోపాథాలజీ క్యాన్సర్ నిర్ధారణ రిపోర్ట్.",
+          "steps": "గుర్తింపు పొందిన క్యాన్సర్ ఆసుపత్రిలోని ఆరోగ్యమిత్ర డెస్క్ వద్ద రిపోర్టులు సమర్పించి తక్షణ ఉచిత చికిత్స పొందవచ్చు.",
+          "description": "క్యాన్సర్ బాధితులకు కీమోథెరపీ, రేడియేషన్ మరియు ఆపరేషన్లను ఖర్చు లేకుండా ఆరోగ్యశ్రీ ద్వారా అందిస్తున్నారు."
+        },
+        "description": "Comprehensive cashless oncology package under Dr. NTR Vaidya Seva / Aarogyasri covering medical chemotherapy, linear accelerator radiation therapy, PET-CT scans, and surgical oncology without financial cap.",
+        "telugu_description": "క్యాన్సర్ వ్యాధిగ్రస్తులకు కీమోథెరపీ సైకిల్స్, రేడియేషన్ థెరపీ, పెట్ స్కాన్ పరీక్షలు మరియు సర్జికల్ ఆంకాలజీ చికిత్సలను అపరిమితంగా ఉచితంగా అందించే పథకం.",
+        "required_documents": [
+          {
+            "name": "Rice Card",
+            "name_te": "బియ్యం కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Aadhaar Card",
+            "name_te": "ఆధార్ కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Biopsy / Pathology Report",
+            "name_te": "బయాప్సీ లేదా పాథాలజీ రిపోర్ట్",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Thalassemia Free Blood Transfusion & Chelation Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Rare Blood Disorders & Chronic Care",
+        "icon": "medicine",
+        "telugu_name": "తలసేమియా & సికిల్ సెల్ ఉచిత రక్త మార్పిడి & మందుల సహాయ పథకం",
+        "source_name": "AP Health Care Trust & Social Welfare Dept",
+        "source_url": "https://aarogyasri.ap.gov.in/",
+        "official_website": "https://aarogyasri.ap.gov.in/",
+        "keywords": [
+          "Thalassemia",
+          "Sickle Cell",
+          "Blood transfusion",
+          "తలసేమియా",
+          "సికిల్ సెల్",
+          "ఉచిత రక్తం మార్పిడి",
+          "Thalassemia pension 10000"
+        ],
+        "simplified": {
+          "eligibility": "Patients diagnosed with Thalassemia Major, Haemophilia, or Severe Sickle Cell Anaemia holding an Andhra Pradesh Medical Board disability certificate.",
+          "benefits": "Free leuko-depleted blood transfusions, free daily iron chelator tablets, free regular serum ferritin monitoring, and ₹10,000 monthly bank pension.",
+          "documents": "SADAREM Disability Certificate / Medical Board Certificate, Rice Card, Aadhaar Card, Bank Account Passbook.",
+          "steps": "Register at District Hospital Blood Bank and apply for monthly pension through your Ward / Grama Sachivalayam Welfare Assistant.",
+          "description": "Thalassemia patients receive lifelong free blood transfusions, costly iron removal medicines, and ₹10,000 monthly financial pension."
+        },
+        "telugu": {
+          "eligibility": "సదరం (SADAREM) మెడికల్ బోర్డు ద్వారా తలసేమియా మేజర్ లేదా సికిల్ సెల్ ఉన్నట్లు ధృవీకరణ పొందిన ఆంధ్రప్రదేశ్ పౌరులు అర్హులు.",
+          "benefits": "జిల్లా ఆసుపత్రులలో ఉచిత రక్త మార్పిడి, ఉచిత ఐరన్ చీలేషన్ మందులు మరియు నెలకు రూ. 10,000 పెన్షన్ నేరుగా లబ్ధిదారుని బ్యాంక్ ఖాతాలో జమ.",
+          "documents": "సదరం మెడికల్ సర్టిఫికెట్, బియ్యం కార్డు, ఆధార్ కార్డు, బ్యాంక్ పాస్‌బుక్.",
+          "steps": "గ్రామ/వార్డు సచివాలయంలో సంక్షేమ కార్యదర్శిని సంప్రదించి పెన్షన్ మరియు జిల్లా ఆసుపత్రిలో ఉచిత రక్త మార్పిడి నమోదు చేసుకోవచ్చు.",
+          "description": "తలసేమియా వ్యాధిగ్రస్తులకు క్రమం తప్పకుండా ఉచిత రక్తం ఎక్కించడంతో పాటు నెలకు రూ. 10,000 ఆర్థిక పింఛను అందజేస్తారు."
+        },
+        "description": "State welfare initiative providing free filtered blood transfusions, iron chelation medication (Deferasirox), routine ferritin checks, and a monthly financial pension of ₹10,000 for Thalassemia Major patients in AP.",
+        "telugu_description": "తలసేమియా మేజర్ మరియు సికిల్ సెల్ రక్తహీనత బాధితులకు ఉచితంగా ల్యూకో-డిప్లీటెడ్ రక్తం ఎక్కించడం, ఖరీదైన ఐరన్ చీలేషన్ మందులు మరియు నెలకు రూ. 10,000 పెన్షన్ అందించే పథకం.",
+        "required_documents": [
+          {
+            "name": "SADAREM Certificate",
+            "name_te": "సదరం మెడికల్ సర్టిఫికెట్",
+            "optional": false
+          },
+          {
+            "name": "Rice Card",
+            "name_te": "బియ్యం కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Aadhaar Card",
+            "name_te": "ఆధార్ కార్డు",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Vikalangula Sahaya Sanstha Prosthetic & Hearing Aids Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://apdascac.ap.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Disability Rehabilitation & Assistive Devices",
+        "icon": "specialized",
+        "telugu_name": "దివ్యాంగులకు ఉచిత సహాయ ఉపకరణాలు & వినికిడి యంత్రాల పంపిణీ పథకం",
+        "source_name": "AP Differently Abled & Senior Citizens Assistance Corporation (APDASCAC)",
+        "source_url": "https://apdascac.ap.gov.in/",
+        "official_website": "https://apdascac.ap.gov.in/",
+        "keywords": [
+          "APDASCAC",
+          "Prosthetics",
+          "Hearing aids",
+          "Battery tricycle",
+          "దివ్యాంగుల ఉపకరణాలు",
+          "వినికిడి యంత్రం",
+          "కృత్రిమ అవయవాలు"
+        ],
+        "simplified": {
+          "eligibility": "Persons with certified physical, hearing, or visual disability of 40% or more having a valid SADAREM certificate in Andhra Pradesh.",
+          "benefits": "100% free motorized tricycles, wheelchairs, digital hearing aids, artificial limbs, braille kits, and walking smart canes.",
+          "documents": "SADAREM Disability Certificate, Aadhaar Card, Rice Card, Passport size photos.",
+          "steps": "Apply through Grama/Ward Sachivalayam or online on the APDASCAC portal. Devices are distributed at district assessment camps.",
+          "description": "APDASCAC supplies free battery tricycles, wheelchairs, digital hearing aids, and artificial limbs to certified persons with disabilities."
+        },
+        "telugu": {
+          "eligibility": "సదరం (SADAREM) సర్టిఫికెట్ ప్రకారం 40% లేదా అంతకంటే ఎక్కువ వైకల్యం ఉన్న ఆంధ్రప్రదేశ్ దివ్యాంగులు అర్హులు.",
+          "benefits": "ఉచిత బ్యాటరీ ట్రై సైకిళ్లు, మోటార్ వీల్‌చైర్లు, డిజిటల్ వినికిడి యంత్రాలు, కృత్రిమ కాళ్లు/చేతులు మరియు క్యాలిపర్లు ఉచిత పంపిణీ.",
+          "documents": "సదరం సర్టిఫికెట్, ఆధార్ కార్డు, బియ్యం కార్డు, పాస్‌పోర్ట్ సైజు ఫోటోలు.",
+          "steps": "గ్రామ లేదా వార్డు సచివాలయంలో సంక్షేమ కార్యదర్శి ద్వారా దరఖాస్తు చేసుకోవాలి లేదా జిల్లా ఏపీడీఏఎస్‌సీఏసీ అధికారిని సంప్రదించాలి.",
+          "description": "నడవలేని లేదా వినపడని దివ్యాంగులకు బ్యాటరీ సైకిళ్లు, వినికిడి యంత్రాలు, కృత్రిమ కాళ్లను ప్రభుత్వం ఉచితంగా అందజేస్తుంది."
+        },
+        "description": "State welfare initiative distributing free motorized tricycles, wheelchairs, digital behind-the-ear (BTE) hearing aids, artificial limbs, calipers, and blind assistive devices to persons with disabilities (PwDs) in AP.",
+        "telugu_description": "ఆంధ్రప్రదేశ్‌లోని దివ్యాంగులకు బ్యాటరీ ట్రై సైకిళ్లు, మోటరైజ్డ్ వీల్‌చైర్లు, డిజిటల్ వినికిడి యంత్రాలు మరియు కృత్రిమ అవయవాలను ఉచితంగా అందించే పథకం.",
+        "required_documents": [
+          {
+            "name": "SADAREM Certificate",
+            "name_te": "సదరం ధృవీకరణ పత్రం",
+            "optional": false
+          },
+          {
+            "name": "Aadhaar Card",
+            "name_te": "ఆధార్ కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Rice Card",
+            "name_te": "బియ్యం కార్డు",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Tribal Bike Ambulance & Feeder Ambulance Service",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://cfw.ap.nic.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Remote & Agency Emergency Transport",
+        "icon": "ambulance",
+        "telugu_name": "గిరిజన ప్రాంత అత్యవసర బైక్ అంబులెన్స్ & ఫీడర్ సేవలు",
+        "source_name": "Department of Health & Tribal Welfare, AP",
+        "source_url": "https://cfw.ap.nic.in/",
+        "official_website": "https://cfw.ap.nic.in/",
+        "keywords": [
+          "Bike Ambulance",
+          "Tribal ambulance",
+          "Feeder ambulance",
+          "బైక్ అంబులెన్స్",
+          "గిరిజన అత్యవసర వాహనం",
+          "108 feeder service",
+          "Agency emergency transport"
+        ],
+        "simplified": {
+          "eligibility": "All residents living in remote, hilly, and inaccessible tribal hamlets in Andhra Pradesh requiring urgent hospital transport.",
+          "benefits": "Free rapid emergency transport from doorstep over forest paths to the main highway feeder point, where a 108 Advanced Life Support ambulance takes over.",
+          "documents": "No documents needed during emergency.",
+          "steps": "Dial 108 toll-free. The central dispatch coordinates with the local agency bike ambulance rider based on GPS tracking.",
+          "description": "Bike ambulances reach remote hilly tribal hamlets where regular ambulances cannot go, safely transporting patients to the nearest hospital."
+        },
+        "telugu": {
+          "eligibility": "ఆంధ్రప్రదేశ్‌లోని రోడ్డు సౌకర్యం లేని మారుమూల గిరిజన గ్రామాలు, కొండ ప్రాంతాల ప్రజలందరూ అర్హులు.",
+          "benefits": "అడవి బాటల ద్వారా స్ట్రెచర్ అమర్చిన బైక్ అంబులెన్స్‌లో ప్రధాన రహదారి వరకు ఉచిత తరలింపు, ప్రథమ చికిత్స మరియు ఆక్సిజన్ సపోర్ట్.",
+          "documents": "అత్యవసర సమయంలో ఎటువంటి పత్రాలు అవసరం లేదు.",
+          "steps": "108 నంబర్‌కు ఉచితంగా కాల్ చేయండి. లేదా స్థానిక ఆశా కార్యకర్త ద్వారా బైక్ అంబులెన్స్ పైలట్‌కు సమాచారం ఇవ్వండి.",
+          "description": "సాధారణ 108 అంబులెన్స్ వెళ్లలేని కొండ ప్రాంతాల గిరిజనులను ఆసుపత్రికి చేర్చేందుకు ప్రత్యేక బైక్ అంబులెన్స్ సేవలు అందుబాటులో ఉన్నాయి."
+        },
+        "description": "Dedicated emergency feeder response operating modified two-wheeler bike ambulances equipped with sidecar stretchers, oxygen, and first aid across hilly, unpaved tribal habitations in Andhra Pradesh.",
+        "telugu_description": "కొండ కోనలు, రహదారి లేని మారుమూల గిరిజన గూడేలలోని గర్భిణులు మరియు అత్యవసర రోగులను ప్రధాన రహదారికి చేర్చే మోటార్ బైక్ అంబులెన్స్ సేవలు.",
+        "required_documents": []
+      }
+    },
+    {
+      "source_title": "AP Free Ultrasound, TIFFA Scan & Maternal Diagnostics",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://cfw.ap.nic.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Advanced Maternal Diagnostics",
+        "icon": "maternal",
+        "telugu_name": "గర్భిణులకు ఉచిత అల్ట్రాసౌండ్ & టిఫా (TIFFA) స్కానింగ్ పథకం",
+        "source_name": "AP Health, Medical and Family Welfare Department",
+        "source_url": "https://cfw.ap.nic.in/",
+        "official_website": "https://cfw.ap.nic.in/",
+        "keywords": [
+          "TIFFA Scan",
+          "Ultrasound pregnant",
+          "Fetal anomaly scan",
+          "టిఫా స్కానింగ్",
+          "గర్భిణుల అల్ట్రాసౌండ్",
+          "Free pregnancy scan",
+          "Maternal diagnostics"
+        ],
+        "simplified": {
+          "eligibility": "Every pregnant woman in Andhra Pradesh registered in the Reproductive and Child Health (RCH) system.",
+          "benefits": "Free anomaly ultrasound (TIFFA scan), early pregnancy dating scan, 3rd trimester growth doppler, and complete antenatal lab profile.",
+          "documents": "RCH Mother ID, Aadhaar Card, Doctor Referral Voucher from PHC / Government Hospital.",
+          "steps": "Obtain an ultrasound referral slip from your PHC Medical Officer or Gynecologist. Present the voucher at empanelled scan centres for cashless scan.",
+          "description": "Pregnant women get completely free ultrasound and TIFFA anomaly scans at government hospitals and empanelled private centers."
+        },
+        "telugu": {
+          "eligibility": "ఆంధ్రప్రదేశ్ ఆర్‌సీహెచ్ (RCH) పోర్టల్‌లో నమోదైన గర్భిణీ స్త్రీలందరూ అర్హులు.",
+          "benefits": "18-22 వారాల మధ్య చేసే అత్యంత ముఖ్యమైన టిఫా (TIFFA) స్కానింగ్ మరియు గ్రోత్ అల్ట్రాసౌండ్ పరీక్షలు పూర్తిగా ఉచితం.",
+          "documents": "ఆర్‌సీహెచ్ కార్డు, ఆధార్ కార్డు, పీహెచ్‌సీ లేదా ప్రభుత్వ డాక్టర్ రిఫరల్ లెటర్.",
+          "steps": "పీహెచ్‌సీ లేదా ఆసుపత్రి వైద్యుడి వద్ద స్కానింగ్ రిఫరల్ పొందండి. గుర్తింపు పొందిన స్కానింగ్ సెంటర్‌లో ఉచితంగా పరీక్ష చేయించుకోండి.",
+          "description": "గర్భంలోని శిశువు ఆరోగ్యంగా ఉందో లేదో తెలుసుకునే ఖరీదైన టిఫా స్కానింగ్‌ను ప్రభుత్వం పేద మహిళలకు ఉచితంగా చేయిస్తుంది."
+        },
+        "description": "Statewide maternal healthcare initiative providing cashless Targeted Imaging for Fetal Anomalies (TIFFA) scan and advanced sonography for pregnant women at empanelled diagnostic centres.",
+        "telugu_description": "గర్భిణీ స్త్రీలకు పుట్టబోయే బిడ్డలోని లోపాలను గుర్తించేందుకు ఖరీదైన టిఫా (TIFFA) అల్ట్రాసౌండ్ స్కానింగ్ మరియు ప్రసూతి రక్త పరీక్షలను ఉచితంగా అందించే పథకం.",
+        "required_documents": [
+          {
+            "name": "Mother RCH Card",
+            "name_te": "తల్లి ఆర్‌సీహెచ్ కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Doctor Referral Slip",
+            "name_te": "వైద్యుల స్కానింగ్ రిఫరల్ స్లిప్",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Mukhyamantri e-Eye Care (Tele-Ophthalmology Services)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://cfw.ap.nic.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Vision Care & Digital Eye Clinics",
+        "icon": "specialized",
+        "telugu_name": "వైఎస్ఆర్ / ఎన్టీఆర్ ముఖ్యమంత్రి ఇ-నేత్ర రక్షణ (టెలి-ఆప్తాల్మాలజీ)",
+        "source_name": "AP Directorate of Public Health & LVPEI Partnership",
+        "source_url": "https://cfw.ap.nic.in/",
+        "official_website": "https://cfw.ap.nic.in/",
+        "keywords": [
+          "e-Eye Care",
+          "Tele-Ophthalmology",
+          "Free spectacles",
+          "ఇ-నేత్ర రక్షణ",
+          "కంటి అద్దాలు ఉచితం",
+          "Vision Centre AP",
+          "Diabetic retinopathy screening"
+        ],
+        "simplified": {
+          "eligibility": "All citizens of Andhra Pradesh suffering from defective vision, refractive errors, cataract, or diabetic eye complications.",
+          "benefits": "Free computerized eye checkup, digital fundus imaging, free high quality prescription eyeglasses delivered to home, and free surgical referral for cataract.",
+          "documents": "Aadhaar Card, Mobile Number.",
+          "steps": "Visit the Tele-Ophthalmology Vision Centre at the nearest Community Health Centre (CHC). Eyeglasses are delivered via post/Sachivalayam.",
+          "description": "Citizens receive free digital eye exams and customized prescription reading glasses delivered right to their home under the e-Eye care program."
+        },
+        "telugu": {
+          "eligibility": "కంటి చూపు లోపాలు, శుక్లాలు లేదా దృష్టి సమస్యలతో బాధపడుతున్న ఆంధ్రప్రదేశ్ పౌరులందరూ అర్హులు.",
+          "benefits": "కంప్యూటరైజ్డ్ కంటి పరీక్షలు, రెటీనా ఫండస్ పరీక్షలు, నాణ్యమైన కంటి అద్దాల ఉచిత పంపిణీ మరియు శుక్లాల ఆపరేషన్లకు ఉచిత రిఫరల్.",
+          "documents": "ఆధార్ కార్డు, ఫోన్ నంబర్.",
+          "steps": "సమీప సీహెచ్‌సీ (CHC) లోని విజన్ సెంటర్‌కు వెళ్లండి. పరీక్ష పూర్తయిన తర్వాత కంటి అద్దాలు మీ చిరునామాకు ఉచితంగా అందుతాయి.",
+          "description": "కంటి చూపు మందగించిన వారికి ఉచితంగా కంప్యూటర్ పరీక్షలు చేసి, నాణ్యమైన కళ్ళజోళ్లను ఉచితంగా అందజేసే పథకం."
+        },
+        "description": "Network of primary tele-ophthalmology vision centres equipped with automated refractometers and fundus cameras connected to tertiary eye hospitals, delivering free prescription spectacles to citizens.",
+        "telugu_description": "గ్రామీణ మరియు పట్టణ కేంద్రాలలో డిజిటల్ ఫండస్ కెమెరాల ద్వారా కంటి పరీక్షలు చేసి, నిపుణులైన నేత్ర వైద్యుల ద్వారా కంటి అద్దాలను నేరుగా ఇంటికే పంపే పథకం.",
+        "required_documents": [
+          {
+            "name": "Aadhaar Card",
+            "name_te": "ఆధార్ కార్డు",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Mobile Medical Teams for Schools & Hostels",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://cfw.ap.nic.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Child & Student Health Screening",
+        "icon": "maternal",
+        "telugu_name": "పాఠశాలలు & సంక్షేమ వసతి గృహాల మొబైల్ ఆరోగ్య బృందాలు (RBSK మొబైల్ యూనిట్లు)",
+        "source_name": "Rashtriya Bal Swasthya Karyakram (RBSK) & AP Health Dept",
+        "source_url": "https://cfw.ap.nic.in/",
+        "official_website": "https://cfw.ap.nic.in/",
+        "keywords": [
+          "Hostel health checkup",
+          "School medical screening",
+          "RBSK mobile unit",
+          "పాఠశాల ఆరోగ్య పరీక్షలు",
+          "వసతి గృహాల విద్యార్థుల ఆరోగ్యం",
+          "Congenital heart disease screening"
+        ],
+        "simplified": {
+          "eligibility": "All infants and children aged 0 to 18 years enrolled in Anganwadis, government schools, and welfare hostels in AP.",
+          "benefits": "Free comprehensive screening for 32 health conditions, free corrective surgeries (congenital heart holes, cleft palate, club foot), free spectacles, and nutritional supplements.",
+          "documents": "Student ID or Anganwadi record.",
+          "steps": "Screening is conducted on-campus during scheduled visits by the RBSK mobile health team. Parents are informed and assisted for higher treatment.",
+          "description": "Mobile doctor teams visit all government schools and hostels to detect and cure child health defects and heart ailments totally free."
+        },
+        "telugu": {
+          "eligibility": "ఆంధ్రప్రదేశ్‌లోని అంగన్‌వాడీలు, ప్రభుత్వ బడులు, సాంఘిక సంక్షేమ హాస్టళ్లలో చదివే 0 నుండి 18 ఏళ్ల విద్యార్థులందరూ అర్హులు.",
+          "benefits": "పాఠశాలలోనే ఉచిత వైద్య పరీక్షలు, పుట్టుకతో వచ్చే గుండె రంధ్రాలు, గ్రహణ మొర్రి, కంటి లోపాలకు సూపర్ స్పెషాలిటీ ఆసుపత్రులలో ఉచిత ఆపరేషన్లు.",
+          "documents": "పాఠశాల గుర్తింపు లేదా ఆధార్ కార్డు.",
+          "steps": "మొబైల్ వైద్య బృందం స్వయంగా పాఠశాల లేదా హాస్టల్‌ను సందర్శించి పరీక్షలు నిర్వహిస్తుంది.",
+          "description": "ప్రభుత్వ పాఠశాలలు, హాస్టల్ పిల్లలకు డాక్టర్ల బృందం ఉచితంగా పరీక్షలు చేసి గుండె జబ్బులు లేదా లోపాలుంటే ఉచిత ఆపరేషన్లు చేయిస్తుంది."
+        },
+        "description": "Dedicated mobile health teams conducting bi-annual health screenings of all children in Anganwadis, government schools, and welfare hostels for 4Ds (Defects, Deficiencies, Diseases, and Developmental delays) with 100% free secondary care.",
+        "telugu_description": "ప్రభుత్వ పాఠశాలలు, అంగన్‌వాడీలు మరియు సాంఘిక సంక్షేమ హాస్టల్ విద్యార్థులకు డాక్టర్ల బృందం ఉచితంగా ఆరోగ్య పరీక్షలు చేసి గుండె జబ్బులు, కంటి లోపాలు మరియు శస్త్రచికిత్సలు చేయించే పథకం.",
+        "required_documents": [
+          {
+            "name": "Student ID / Aadhaar",
+            "name_te": "విద్యార్థి ఐడీ లేదా ఆధార్ కార్డు",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Free Dialysis Home Delivery Peritoneal Dialysis (CAPD)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Nephrology & Renal Failure Care",
+        "icon": "hospital",
+        "telugu_name": "కిడ్నీ బాధితులకు ఉచిత నిరంతర పెరిటోనియల్ డయాలసిస్ (CAPD) గృహ పంపిణీ",
+        "source_name": "Dr. NTR Vaidya Seva Trust & AP Health Directorate",
+        "source_url": "https://aarogyasri.ap.gov.in/",
+        "official_website": "https://aarogyasri.ap.gov.in/",
+        "keywords": [
+          "CAPD",
+          "Peritoneal Dialysis",
+          "Home dialysis",
+          "పెరిటోనియల్ డయాలసిస్",
+          "కిడ్నీ రోగుల ఇంటికే డయాలసిస్",
+          "Free dialysis fluid",
+          "Uddanam kidney care"
+        ],
+        "simplified": {
+          "eligibility": "Chronic Kidney Disease (CKD Stage 5) patients certified by an empanelled nephrologist in Andhra Pradesh who opt for home peritoneal dialysis.",
+          "benefits": "Free monthly home delivery of 120 sterile CAPD fluid bags (worth ₹25,000/month), free minicaps/transfer sets, plus ₹10,000 monthly financial pension.",
+          "documents": "Rice Card, Aadhaar Card, Nephrologist CAPD Recommendation, SADAREM / Dialysis Card.",
+          "steps": "Catheter is placed at an empanelled nephrology center under Aarogyasri. The trust coordinates automated monthly doorstep logistics.",
+          "description": "Kidney patients receive complete peritoneal dialysis fluids and medical kits delivered free to their home every month, avoiding hospital visits."
+        },
+        "telugu": {
+          "eligibility": "నెఫ్రాలజిస్ట్ ద్వారా ధృవీకరించబడిన తీవ్రమైన కిడ్నీ వైఫల్యంతో బాధపడుతూ, ఇంటి వద్ద డయాలసిస్ కోరుకునే ఆంధ్రప్రదేశ్ బియ్యం కార్డుదారులు అర్హులు.",
+          "benefits": "నెలకు సుమారు ₹25,000 విలువైన డయాలసిస్ బ్యాగులు ఇంటికే ఉచిత డెలివరీ, మందులు మరియు నెలకు ₹10,000 పెన్షన్ నేరుగా బ్యాంక్ ఖాతాలో జమ.",
+          "documents": "బియ్యం కార్డు, ఆధార్ కార్డు, నెఫ్రాలజిస్ట్ సిఫారసు రిపోర్ట్, బ్యాంక్ పాస్‌బుక్ కాపీ.",
+          "steps": "ఆరోగ్యశ్రీ ఆసుపత్రిలోని కిడ్నీ వైద్యుడిని సంప్రదించండి. ఆసుపత్రి ఆరోగ్యమిత్ర ద్వారా హోమ్ డెలివరీ రిజిస్ట్రేషన్ చేయబడుతుంది.",
+          "description": "ఆసుపత్రులకు వెళ్లలేని కిడ్నీ రోగులకు ఇంట్లోనే డయాలసిస్ చేసుకునేందుకు అవసరమైన లిక్విడ్ బ్యాగులను ప్రతి నెలా ఉచితంగా ఇంటికే పంపుతారు."
+        },
+        "description": "Specialized nephrology program delivering Continuous Ambulatory Peritoneal Dialysis (CAPD) fluid bags and transfer accessories free of cost directly to chronic kidney disease (CKD Stage 5) patients' doorsteps every month.",
+        "telugu_description": "ఆసుపత్రికి వెళ్లలేని గ్రామీణ కిడ్నీ రోగుల ఇళ్లకే పెరిటోనియల్ డయాలసిస్ ఫ్లూయిడ్ బ్యాగులు, కాథెటర్ కిట్లను ఉచితంగా డోర్ డెలివరీ చేసే ప్రత్యేక పథకం.",
+        "required_documents": [
+          {
+            "name": "Nephrology Certification",
+            "name_te": "నెఫ్రాలజిస్ట్ వైద్య ధృవీకరణ",
+            "optional": false
+          },
+          {
+            "name": "Rice Card",
+            "name_te": "బియ్యం కార్డు",
+            "optional": false
+          },
+          {
+            "name": "Aadhaar Card",
+            "name_te": "ఆధార్ కార్డు",
+            "optional": false
+          }
+        ]
+      }
+    },
+    {
+      "source_title": "AP Dr. YSR Tele-Consultation Hubs",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://hmfw.ap.gov.in/",
+      "original_record": {
+        "level": "Andhra Pradesh",
+        "category": "Digital Teleconsultation & Specialist Care",
+        "icon": "phone-doctor",
+        "telugu_name": "డా. వైఎస్ఆర్ టెలి-కన్సల్టేషన్ కేంద్రాలు",
+        "source_name": "AP Department of Health and Family Welfare",
+        "source_url": "https://hmfw.ap.gov.in/",
+        "official_website": "https://hmfw.ap.gov.in/",
+        "keywords": [
+          "tele consultation hub",
+          "specialist doctor",
+          "village teleconsultation",
+          "ap digital health"
+        ],
+        "simplified": {
+          "eligibility": "All rural patients visiting YSR Village Health Clinics across AP.",
+          "benefits": "Real-time HD video consultation with specialist doctors (MD General Medicine, Gynecologist, Pediatrician) from village clinics.",
+          "documents": "None (recorded at village clinic).",
+          "steps": "Visit YSR Village Health Clinic; the MLHP connects video call with hub specialists."
+        },
+        "telugu": {
+          "eligibility": "ఆంధ్రప్రదేశ్ గ్రామీణ ప్రాంత రోగులందరూ.",
+          "benefits": "గ్రామం నుండే వీడియో కాల్ ద్వారా ఎంబీబీఎస్, ఎండీ స్పెషలిస్ట్ డాక్టర్ల ఉచిత సంప్రదింపులు మరియు డిజిటల్ మందుల చీటి.",
+          "documents": "ఏదీ అవసరం లేదు.",
+          "steps": "గ్రామ ఆరోగ్య క్లినిక్‌కు వెళితే ఎంఎల్ హెచ్‌పి సిబ్బంది స్పెషలిస్ట్ డాక్టర్‌కు వీడియో కాల్ కనెక్ట్ చేస్తారు."
+        },
+        "description": "Connects patients at rural Village Health Clinics with specialist medical doctors located in district hubs via live video teleconsultation.",
+        "telugu_description": "డా. వైఎస్ఆర్ టెలి-కన్సల్టేషన్ కేంద్రాలు",
+        "required_documents": [
+          {
+            "name": "Aadhaar Card",
+            "name_te": "ఆధార్ కార్డు",
+            "optional": false
+          }
+        ]
+      }
+    }
+  ]
+}

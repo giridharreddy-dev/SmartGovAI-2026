@@ -1,0 +1,645 @@
+{
+  "reviewed": "2026-11-05",
+  "records": [
+    {
+      "source_title": "National Sickle Cell Anaemia Elimination Mission",
+      "action": "promote",
+      "target": "National Sickle Cell Anaemia Elimination Mission",
+      "source_url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2090883",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "Pradhan Mantri Ayushman Bharat Health Infrastructure Mission",
+      "action": "promote",
+      "target": "Pradhan Mantri Ayushman Bharat Health Infrastructure Mission (PM-ABHIM)",
+      "source_url": "https://www.mohfw.gov.in/sites/default/files/Final%20Printed%20English%20AR%202024-25.pdf",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "National AYUSH Mission (Ayurveda, Yoga & Naturopathy)",
+      "action": "promote",
+      "target": "National AYUSH Mission (NAM)",
+      "source_url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2248341",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "Employee Health Scheme (EHS - AP)",
+      "action": "promote",
+      "target": "Employee Health Scheme (EHS - AP)",
+      "source_url": "https://spsnellore.ap.gov.in/dr-nandamuri-taraka-rama-rao-vaidyaseva-trust/",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "Working Journalists Health Scheme (WJHS - AP)",
+      "action": "promote",
+      "target": "Working Journalists Health Scheme (WJHS - AP)",
+      "source_url": "https://spsnellore.ap.gov.in/dr-nandamuri-taraka-rama-rao-vaidyaseva-trust/",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "YSR Sampoorna Poshana",
+      "action": "promote",
+      "target": "YSR Sampoorna Poshana",
+      "source_url": "https://konaseema.ap.gov.in/women-child-welfare/",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "YSR Sampoorna Poshana Plus",
+      "action": "promote",
+      "target": "YSR Sampoorna Poshana Plus",
+      "source_url": "https://konaseema.ap.gov.in/women-child-welfare/",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "AP Universal Health Insurance Coverage (25 Lakh Aarogya Raksha)",
+      "action": "promote",
+      "target": "Aarogya Raksha (Andhra Pradesh)",
+      "source_url": "https://spsnellore.ap.gov.in/dr-nandamuri-taraka-rama-rao-vaidyaseva-trust/",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "National Health Mission (NHM) & Free Diagnostic Services",
+      "action": "promote",
+      "target": "National Health Mission (NHM)",
+      "source_url": "https://www.nhm.gov.in/",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "Ayushman Bharat Digital Mission (ABDM)",
+      "action": "promote",
+      "target": "Ayushman Bharat Digital Mission (ABDM)",
+      "source_url": "https://abdm.gov.in/strapicms/uploads/ABHA_Brochure_Piano_final_b972459053.pdf",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "Central Government Health Scheme (CGHS)",
+      "action": "promote",
+      "target": "Central Government Health Scheme (CGHS)",
+      "source_url": "https://www.mohfw.gov.in/sites/default/files/Final%20Printed%20English%20AR%202024-25.pdf",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "Ex-Servicemen Contributory Health Scheme (ECHS)",
+      "action": "promote",
+      "target": "Ex-Servicemen Contributory Health Scheme (ECHS)",
+      "source_url": "https://www.echs.gov.in/about.html",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "Employees' State Insurance Scheme (ESIS)",
+      "action": "promote",
+      "target": "Employees' State Insurance Scheme (ESIS)",
+      "source_url": "https://esic.gov.in/attachments/publicationfile/Standard_Note_on_Employees_State_Insurance_Scheme_as_on_01_01_2025_English_1757940841.pdf",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "Pradhan Mantri Swasthya Suraksha Yojana (PMSSY)",
+      "action": "promote",
+      "target": "Pradhan Mantri Swasthya Suraksha Yojana (PMSSY)",
+      "source_url": "https://www.mohfw.gov.in/sites/default/files/Final%20Printed%20English%20AR%202024-25.pdf",
+      "reason": "Official source identifies this distinct programme. Operational details remain pending verification."
+    },
+    {
+      "source_title": "Dr. YSR Aarogya Asara (Post-Operative Financial Allowance)",
+      "action": "component",
+      "target": "Dr. NTR Vaidya Seva (AP Cashless Hospital Care)",
+      "component_id": "aarogya-aasara",
+      "title": {
+        "en": "Post-operative recovery support",
+        "te": "శస్త్రచికిత్స తర్వాత సహాయం"
+      },
+      "source_url": "https://spsnellore.ap.gov.in/dr-nandamuri-taraka-rama-rao-vaidyaseva-trust/",
+      "reason": "The official source places this service under the parent programme. Source-specific eligibility and documents are retained as unverified claims."
+    },
+    {
+      "source_title": "Tele-MANAS National Mental Health Helpline (14416)",
+      "action": "component",
+      "target": "National Mental Health Programme (NMHP)",
+      "component_id": "tele-manas",
+      "title": {
+        "en": "Tele-MANAS helpline",
+        "te": "టెలి మానస్ సహాయ సేవ"
+      },
+      "source_url": "https://www.dghs.mohfw.gov.in/national-mental-health-programme.php",
+      "reason": "The official source places this service under the parent programme. Source-specific eligibility and documents are retained as unverified claims."
+    },
+    {
+      "source_title": "Pradhan Mantri TB Mukt Bharat Abhiyan & Ni-kshay Mitra",
+      "action": "component",
+      "target": "National TB Elimination Programme (NTEP)",
+      "component_id": "nikshay-mitra",
+      "title": {
+        "en": "Ni-kshay Mitra support",
+        "te": "నిక్షయ్ మిత్ర సహాయం"
+      },
+      "source_url": "https://dghs.mohfw.gov.in/national-tuberculosis-elimination-programme.php",
+      "reason": "The official source places this service under the parent programme. Source-specific eligibility and documents are retained as unverified claims."
+    },
+    {
+      "source_title": "National Free Diagnostics Service Initiative",
+      "action": "component",
+      "target": "National Health Mission (NHM)",
+      "component_id": "free-diagnostics",
+      "title": {
+        "en": "Free diagnostics services",
+        "te": "ఉచిత నిర్ధారణ పరీక్షలు"
+      },
+      "source_url": "https://www.nhm.gov.in/index1.php?lang=1&level=2&lid=192&sublinkid=1218",
+      "reason": "The official source places this service under the parent programme. Source-specific eligibility and documents are retained as unverified claims."
+    },
+    {
+      "source_title": "National Free Drugs Service Initiative",
+      "action": "component",
+      "target": "National Health Mission (NHM)",
+      "component_id": "free-drugs",
+      "title": {
+        "en": "Free essential medicines",
+        "te": "ఉచిత అవసరమైన మందులు"
+      },
+      "source_url": "https://www.nhm.gov.in/index1.php?lang=1&level=2&lid=192&sublinkid=1218",
+      "reason": "The official source places this service under the parent programme. Source-specific eligibility and documents are retained as unverified claims."
+    },
+    {
+      "source_title": "AP YSR Aarogyasri Super-Specialty Tertiary Procedures",
+      "action": "component",
+      "target": "Dr. NTR Vaidya Seva (AP Cashless Hospital Care)",
+      "component_id": "tertiary-care",
+      "title": {
+        "en": "Listed specialist hospital procedures",
+        "te": "జాబితాలోని ప్రత్యేక ఆసుపత్రి చికిత్సలు"
+      },
+      "source_url": "https://spsnellore.ap.gov.in/dr-nandamuri-taraka-rama-rao-vaidyaseva-trust/",
+      "reason": "The official source places this service under the parent programme. Source-specific eligibility and documents are retained as unverified claims."
+    },
+    {
+      "source_title": "104 Mobile Medical Units & Family Physician Concept",
+      "action": "component",
+      "target": "AP 104 Mobile Medical Units",
+      "component_id": "village-clinics",
+      "title": {
+        "en": "Mobile medical consultations",
+        "te": "సంచార వైద్య సంప్రదింపులు"
+      },
+      "source_url": "https://clinozen.ap.gov.in/",
+      "reason": "The official source places this service under the parent programme. Source-specific eligibility and documents are retained as unverified claims."
+    },
+    {
+      "source_title": "PM National Dialysis Programme (Free Dialysis AP)",
+      "action": "component",
+      "target": "Pradhan Mantri National Dialysis Programme",
+      "component_id": "ap-delivery",
+      "title": {
+        "en": "Andhra Pradesh dialysis centres",
+        "te": "ఆంధ్రప్రదేశ్ డయాలసిస్ కేంద్రాలు"
+      },
+      "source_url": "https://westgodavari.ap.gov.in/ap-vaidhya-vidhana-parishaddchs/",
+      "reason": "The official source places this service under the parent programme. Source-specific eligibility and documents are retained as unverified claims."
+    },
+    {
+      "source_title": "YSR Aarogya Aasara",
+      "action": "component",
+      "target": "Dr. NTR Vaidya Seva (AP Cashless Hospital Care)",
+      "component_id": "aarogya-aasara",
+      "title": {
+        "en": "Post-operative recovery support",
+        "te": "శస్త్రచికిత్స తర్వాత సహాయం"
+      },
+      "source_url": "https://spsnellore.ap.gov.in/dr-nandamuri-taraka-rama-rao-vaidyaseva-trust/",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "Dr. YSR Aarogya Asara (Post-Operative Financial Allowance) (Andhra Pradesh)",
+      "action": "component",
+      "target": "Dr. NTR Vaidya Seva (AP Cashless Hospital Care)",
+      "component_id": "aarogya-aasara",
+      "title": {
+        "en": "Post-operative recovery support",
+        "te": "శస్త్రచికిత్స తర్వాత సహాయం"
+      },
+      "source_url": "https://spsnellore.ap.gov.in/dr-nandamuri-taraka-rama-rao-vaidyaseva-trust/",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "AP YSR Aarogya Asara Post-Op Wage Support",
+      "action": "component",
+      "target": "Dr. NTR Vaidya Seva (AP Cashless Hospital Care)",
+      "component_id": "aarogya-aasara",
+      "title": {
+        "en": "Post-operative recovery support",
+        "te": "శస్త్రచికిత్స తర్వాత సహాయం"
+      },
+      "source_url": "https://spsnellore.ap.gov.in/dr-nandamuri-taraka-rama-rao-vaidyaseva-trust/",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "Tele-MANAS AP (14416) - National Mental Health Helpline",
+      "action": "component",
+      "target": "National Mental Health Programme (NMHP)",
+      "component_id": "tele-manas",
+      "title": {
+        "en": "Tele-MANAS helpline",
+        "te": "టెలి మానస్ సహాయ సేవ"
+      },
+      "source_url": "https://www.dghs.mohfw.gov.in/national-mental-health-programme.php",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "National Tele-Mental Health Programme (Tele-MANAS)",
+      "action": "component",
+      "target": "National Mental Health Programme (NMHP)",
+      "component_id": "tele-manas",
+      "title": {
+        "en": "Tele-MANAS helpline",
+        "te": "టెలి మానస్ సహాయ సేవ"
+      },
+      "source_url": "https://www.dghs.mohfw.gov.in/national-mental-health-programme.php",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "National Tele-Mental Health Programme (Tele-MANAS) (National)",
+      "action": "component",
+      "target": "National Mental Health Programme (NMHP)",
+      "component_id": "tele-manas",
+      "title": {
+        "en": "Tele-MANAS helpline",
+        "te": "టెలి మానస్ సహాయ సేవ"
+      },
+      "source_url": "https://www.dghs.mohfw.gov.in/national-mental-health-programme.php",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "National Tele Mental Health Programme (Tele-MANAS)",
+      "action": "component",
+      "target": "National Mental Health Programme (NMHP)",
+      "component_id": "tele-manas",
+      "title": {
+        "en": "Tele-MANAS helpline",
+        "te": "టెలి మానస్ సహాయ సేవ"
+      },
+      "source_url": "https://www.dghs.mohfw.gov.in/national-mental-health-programme.php",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "Pradhan Mantri TB Mukt Bharat Abhiyaan (Ni-kshay Mitra)",
+      "action": "component",
+      "target": "National TB Elimination Programme (NTEP)",
+      "component_id": "nikshay-mitra",
+      "title": {
+        "en": "Ni-kshay Mitra support",
+        "te": "నిక్షయ్ మిత్ర సహాయం"
+      },
+      "source_url": "https://dghs.mohfw.gov.in/national-tuberculosis-elimination-programme.php",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "Pradhan Mantri TB Mukt Bharat Abhiyan & Ni-kshay Mitra (National)",
+      "action": "component",
+      "target": "National TB Elimination Programme (NTEP)",
+      "component_id": "nikshay-mitra",
+      "title": {
+        "en": "Ni-kshay Mitra support",
+        "te": "నిక్షయ్ మిత్ర సహాయం"
+      },
+      "source_url": "https://dghs.mohfw.gov.in/national-tuberculosis-elimination-programme.php",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "PM Ayushman Bharat Health Infrastructure Mission (PM-ABHIM)",
+      "action": "alias",
+      "target": "Pradhan Mantri Ayushman Bharat Health Infrastructure Mission (PM-ABHIM)",
+      "source_url": "https://www.mohfw.gov.in/sites/default/files/Final%20Printed%20English%20AR%202024-25.pdf",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "National AYUSH Mission (Ayurveda, Yoga & Naturopathy) (National)",
+      "action": "alias",
+      "target": "National AYUSH Mission (NAM)",
+      "source_url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2248341",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "National Ayush Mission (NAM)",
+      "action": "alias",
+      "target": "National AYUSH Mission (NAM)",
+      "source_url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2248341",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "AP YSR Aarogya Raksha Health Insurance",
+      "action": "alias",
+      "target": "Aarogya Raksha (Andhra Pradesh)",
+      "source_url": "https://spsnellore.ap.gov.in/dr-nandamuri-taraka-rama-rao-vaidyaseva-trust/",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "National Free Diagnostic Initiative - Advanced Scans & CT Scan",
+      "action": "component",
+      "target": "National Health Mission (NHM)",
+      "component_id": "free-diagnostics",
+      "title": {
+        "en": "Free diagnostics services",
+        "te": "ఉచిత నిర్ధారణ పరీక్షలు"
+      },
+      "source_url": "https://www.nhm.gov.in/index1.php?lang=1&level=2&lid=192&sublinkid=1218",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "104 Mobile Medical Units & Village Clinics (Doctor YSR Sanchara Chikitsha)",
+      "action": "component",
+      "target": "AP 104 Mobile Medical Units",
+      "component_id": "village-clinics",
+      "title": {
+        "en": "Mobile medical consultations",
+        "te": "సంచార వైద్య సంప్రదింపులు"
+      },
+      "source_url": "https://clinozen.ap.gov.in/",
+      "reason": "Alternate source title for the same reviewed programme or component; distinct state scope is retained on the source claim."
+    },
+    {
+      "source_title": "National Tuberculosis Elimination Programme (NTEP - Nikshay Poshan)",
+      "action": "component",
+      "target": "National TB Elimination Programme (NTEP)",
+      "component_id": "nutrition-referral",
+      "title": {
+        "en": "TB nutrition-support referral",
+        "te": "క్షయ పోషక సహాయ సూచన"
+      },
+      "source_url": "https://dghs.mohfw.gov.in/national-tuberculosis-elimination-programme.php",
+      "reason": "Combined NTEP and nutrition-support source label. Documents are component-specific unverified claims."
+    },
+    {
+      "source_title": "National TB Elimination Programme & Ni-kshay Poshan (NTEP)",
+      "action": "component",
+      "target": "National TB Elimination Programme (NTEP)",
+      "component_id": "nutrition-referral",
+      "title": {
+        "en": "TB nutrition-support referral",
+        "te": "క్షయ పోషక సహాయ సూచన"
+      },
+      "source_url": "https://dghs.mohfw.gov.in/national-tuberculosis-elimination-programme.php",
+      "reason": "Combined NTEP and nutrition-support source label. Documents are component-specific unverified claims."
+    },
+    {
+      "source_title": "National TB Elimination Programme & Ni-kshay Poshan (NTEP) (National)",
+      "action": "component",
+      "target": "National TB Elimination Programme (NTEP)",
+      "component_id": "nutrition-referral",
+      "title": {
+        "en": "TB nutrition-support referral",
+        "te": "క్షయ పోషక సహాయ సూచన"
+      },
+      "source_url": "https://dghs.mohfw.gov.in/national-tuberculosis-elimination-programme.php",
+      "reason": "Combined NTEP and nutrition-support source label. Documents are component-specific unverified claims."
+    },
+    {
+      "source_title": "Jagananna Aarogya Suraksha (Doorstep Health Screening & Specialist Camps)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://hmfw.ap.gov.in/"
+    },
+    {
+      "source_title": "Dr. YSR Kanti Velugu (Comprehensive Universal Eye Care)",
+      "action": "promote",
+      "reason": "Official evidence identifies the programme. Local requirements remain unverified.",
+      "source_url": "https://konaseema.ap.gov.in/dm-ho/",
+      "target": "YSR Kanti Velugu",
+      "region": "Andhra Pradesh"
+    },
+    {
+      "source_title": "AP Free Dialysis and CKD Financial Aid Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/"
+    },
+    {
+      "source_title": "AP Thalassaemia and Haemophilia Financial Aid Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/"
+    },
+    {
+      "source_title": "eSanjeevani AP - Telemedicine Consultations",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://esanjeevani.mohfw.gov.in/"
+    },
+    {
+      "source_title": "National Viral Hepatitis Control Programme (NVHCP - AP)",
+      "action": "promote",
+      "reason": "Official evidence identifies the programme. Local requirements remain unverified.",
+      "source_url": "https://nhm.gov.in/New-Update-2024-26/CRM/17th-CRM-2025.pdf",
+      "target": "National Viral Hepatitis Control Programme (NVHCP)",
+      "region": "National"
+    },
+    {
+      "source_title": "Surakshit Matritva Aashwasan (SUMAN Scheme - AP)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://suman.mohfw.gov.in/"
+    },
+    {
+      "source_title": "Rashtriya Kishor Swasthya Karyakram (RKSK - AP)",
+      "action": "promote",
+      "reason": "Official evidence identifies the programme. Local requirements remain unverified.",
+      "source_url": "https://nhm.gov.in/index4.php?lang=1&level=0&lid=173&linkid=152",
+      "target": "Rashtriya Kishor Swasthya Karyakram (RKSK)",
+      "region": "National"
+    },
+    {
+      "source_title": "National Palliative Care Programme (AP Home-Based Care)",
+      "action": "promote",
+      "reason": "Official evidence identifies the programme. Local requirements remain unverified.",
+      "source_url": "https://www.nhm.gov.in/index1.php?lang=1&level=2&lid=609&sublinkid=1047",
+      "target": "National Programme for Palliative Care (NPPC)",
+      "region": "National"
+    },
+    {
+      "source_title": "National Tobacco Cessation & De-addiction Services (AP NTCP Clinics)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://ntcp.mohfw.gov.in/"
+    },
+    {
+      "source_title": "National Rabies Post-Exposure Prophylaxis & Free ARV/RIG Programme",
+      "action": "component",
+      "reason": "The official review describes ARV and RIG services under NRCP; local availability remains facility dependent.",
+      "source_url": "https://nhm.gov.in/New-Update-2024-26/CRM/17th-CRM-2025.pdf",
+      "target": "National Rabies Control Programme (NRCP)",
+      "component_id": "rabies-pep",
+      "title": {
+        "en": "Rabies post-exposure services",
+        "te": "రేబీస్‌కు గురైన తర్వాత వైద్య సేవలు"
+      }
+    },
+    {
+      "source_title": "National Non-Communicable Diseases Screening (NP-NCD)",
+      "action": "component",
+      "reason": "The Ministry describes these services in the NHM pathway. Source-specific claims remain unverified.",
+      "source_url": "https://www.mohfw.gov.in/sites/default/files/Module%20for%20Multi-Purpose%20Workers%20-%20Prevention%2C%20Screening%20and%20Control%20of%20Common%20NCDS.pdf",
+      "target": "National Health Mission (NHM)",
+      "component_id": "ncd-services",
+      "title": {
+        "en": "Non-communicable disease services",
+        "te": "అంటువ్యాధులు కాని వ్యాధుల సేవలు"
+      }
+    },
+    {
+      "source_title": "Pradhan Mantri Matru Vandana Yojana (PMMVY - AP)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://wcd.ap.gov.in/"
+    },
+    {
+      "source_title": "Dr. YSR Kanti Velugu",
+      "action": "alias",
+      "reason": "Alternate source title for the reviewed eye-care programme.",
+      "source_url": "https://konaseema.ap.gov.in/dm-ho/",
+      "target": "YSR Kanti Velugu"
+    },
+    {
+      "source_title": "YSR Chronic Kidney Disease (CKD) Pension Scheme",
+      "action": "component",
+      "reason": "Official pension source includes kidney disease categories. Historical source labels do not change the current pension rules.",
+      "source_url": "https://sspensions.ap.gov.in/SSP",
+      "target": "NTR Bharosa Pension Scheme",
+      "component_id": "chronic-disease-pension",
+      "title": {
+        "en": "Chronic-disease pension categories",
+        "te": "దీర్ఘకాలిక వ్యాధుల పింఛను వర్గాలు"
+      }
+    },
+    {
+      "source_title": "AP Family Doctor Programme",
+      "action": "promote",
+      "reason": "Official evidence identifies the programme. Local requirements remain unverified.",
+      "source_url": "https://tirupati.ap.gov.in/dist-medical-health-office/",
+      "target": "AP Family Doctor Programme",
+      "region": "Andhra Pradesh"
+    },
+    {
+      "source_title": "NTR Baby Kit & Mukhyamantri Bal Suraksha Kit",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://cfw.ap.nic.in/"
+    },
+    {
+      "source_title": "AP Free Knee and Hip Replacement Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/"
+    },
+    {
+      "source_title": "AP Free Cancer Chemotherapy & Radiation Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/"
+    },
+    {
+      "source_title": "AP Thalassemia Free Blood Transfusion & Chelation Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/"
+    },
+    {
+      "source_title": "AP Vikalangula Sahaya Sanstha Prosthetic & Hearing Aids Scheme",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://apdascac.ap.gov.in/"
+    },
+    {
+      "source_title": "AP Tribal Bike Ambulance & Feeder Ambulance Service",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://cfw.ap.nic.in/"
+    },
+    {
+      "source_title": "AP Chief Minister Relief Fund (CMRF) Medical Aid",
+      "action": "promote",
+      "reason": "Official evidence identifies the programme. Local requirements remain unverified.",
+      "source_url": "https://apcmrf.ap.gov.in/Home/AboutUs",
+      "target": "AP Chief Minister's Relief Fund (CMRF)",
+      "region": "Andhra Pradesh"
+    },
+    {
+      "source_title": "AP Free Ultrasound, TIFFA Scan & Maternal Diagnostics",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://cfw.ap.nic.in/"
+    },
+    {
+      "source_title": "AP Mukhyamantri e-Eye Care (Tele-Ophthalmology Services)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://cfw.ap.nic.in/"
+    },
+    {
+      "source_title": "AP Mobile Medical Teams for Schools & Hostels",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://cfw.ap.nic.in/"
+    },
+    {
+      "source_title": "AP Free Dialysis Home Delivery Peritoneal Dialysis (CAPD)",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://aarogyasri.ap.gov.in/"
+    },
+    {
+      "source_title": "YSR Pension Kanuka - Chronic Illness Healthcare Pension",
+      "action": "component",
+      "reason": "Official pension source includes kidney disease categories. Historical source labels do not change the current pension rules.",
+      "source_url": "https://sspensions.ap.gov.in/SSP",
+      "target": "NTR Bharosa Pension Scheme",
+      "component_id": "chronic-disease-pension",
+      "title": {
+        "en": "Chronic-disease pension categories",
+        "te": "దీర్ఘకాలిక వ్యాధుల పింఛను వర్గాలు"
+      }
+    },
+    {
+      "source_title": "National Non-Communicable Diseases Screening (NP-NCD) (National)",
+      "action": "component",
+      "reason": "The Ministry describes these services in the NHM pathway. Source-specific claims remain unverified.",
+      "source_url": "https://www.mohfw.gov.in/sites/default/files/Module%20for%20Multi-Purpose%20Workers%20-%20Prevention%2C%20Screening%20and%20Control%20of%20Common%20NCDS.pdf",
+      "target": "National Health Mission (NHM)",
+      "component_id": "ncd-services",
+      "title": {
+        "en": "Non-communicable disease services",
+        "te": "అంటువ్యాధులు కాని వ్యాధుల సేవలు"
+      }
+    },
+    {
+      "source_title": "AP Dr. YSR Kanti Velugu Free Eye Screening",
+      "action": "alias",
+      "reason": "Alternate source title for the reviewed eye-care programme.",
+      "source_url": "https://konaseema.ap.gov.in/dm-ho/",
+      "target": "YSR Kanti Velugu"
+    },
+    {
+      "source_title": "AP YSR Talli Bidda Express Free Transport",
+      "action": "promote",
+      "reason": "The AP health department identifies this maternal transport programme. Source-specific timing and document claims remain pending verification.",
+      "source_url": "https://hmfw.ap.gov.in/thalli-bidda-initiative.aspx",
+      "target": "Thalli Bidda Express (Andhra Pradesh)",
+      "region": "Andhra Pradesh"
+    },
+    {
+      "source_title": "National Programme for Prevention & Control of Cancer, Diabetes, CVDs & Stroke (NPCDCS)",
+      "action": "component",
+      "reason": "The Ministry describes these services in the NHM pathway. Source-specific claims remain unverified.",
+      "source_url": "https://www.mohfw.gov.in/sites/default/files/Module%20for%20Multi-Purpose%20Workers%20-%20Prevention%2C%20Screening%20and%20Control%20of%20Common%20NCDS.pdf",
+      "target": "National Health Mission (NHM)",
+      "component_id": "ncd-services",
+      "title": {
+        "en": "Non-communicable disease services",
+        "te": "అంటువ్యాధులు కాని వ్యాధుల సేవలు"
+      }
+    },
+    {
+      "source_title": "AP Dr. YSR Tele-Consultation Hubs",
+      "action": "archive",
+      "reason": "Unsubstantiated independent scheme or state-specific service label. The cited generic portal does not establish the claimed standalone programme, coverage or document mandates. Original data retained for a future source-backed reassessment.",
+      "source_url": "https://hmfw.ap.gov.in/"
+    }
+  ]
+}

@@ -49,8 +49,8 @@ def test_catalog_reads_only_the_explicit_master(tmp_path):
 
 def test_bundled_master_contains_both_catalog_subsets():
     catalog = load_master_catalog(Path(__file__).resolve().parents[1])
-    assert len(catalog) == 208
-    assert sum(bool(row.get("directory_entry")) for row in catalog.values()) == 75
+    assert len(catalog) == 229
+    assert sum(bool(row.get("directory_entry")) for row in catalog.values()) == 96
     assert sum(bool(row.get("required_documents")) for row in catalog.values()) == 133
 
 
@@ -105,9 +105,9 @@ def test_official_review_guidance_and_component_parents_are_in_master():
     assert docs[0]["mandatory"] is None
     assert not eye.get("document_conflict_ids")
 
-    assert sum(len(item.get("programme_components") or []) for item in catalog.values()) == 5
+    assert sum(len(item.get("programme_components") or []) for item in catalog.values()) == 17
     dialysis = catalog["Pradhan Mantri National Dialysis Programme"]
-    assert {item["id"] for item in dialysis["programme_components"]} == {"haemodialysis", "peritoneal-dialysis"}
+    assert {item["id"] for item in dialysis["programme_components"]} == {"haemodialysis", "peritoneal-dialysis", "ap-delivery"}
     assert all("required_documents" not in item for item in dialysis["programme_components"])
 
 def test_reconciled_adip_has_four_bilingual_blocks_and_retains_source_claims():
@@ -125,3 +125,26 @@ def test_reconciled_adip_has_four_bilingual_blocks_and_retains_source_claims():
         if claim["source"] == "v2_catalog"
     ]
     assert len(claims) == 6
+
+
+def test_canonical_contract_roundtrip_and_review_batch_are_complete():
+    from scripts.consolidate_catalog import consolidate
+    from services.canonical_catalog import CanonicalScheme, canonicalize, runtime_record
+    root = Path(__file__).resolve().parents[1]
+    raw = json.loads((root / CATALOG_PATH).read_text(encoding="utf8"))
+    manifest = json.loads((root / "data/studio/v2_resolution.json").read_text(encoding="utf8"))
+    source = json.loads((root / "data/backups/v2_national_and_ap_source.json").read_text(encoding="utf8"))
+    for name, row in raw.items():
+        CanonicalScheme.model_validate(row)
+        old_ids = {doc["id"] for doc in row["required_documents"]}
+        legacy = runtime_record(row)
+        legacy.pop("canonical")
+        rebuilt = canonicalize(name, legacy)
+        assert old_ids <= {doc["id"] for doc in rebuilt["required_documents"]}, name
+    rebuilt, report, archive = consolidate(raw, {}, source, manifest)
+    assert rebuilt == raw
+    assert report["summary"]["pending_review"] == 0
+    assert len(archive) == 18
+    assert all(row["reason"] and row["original_record"] for row in archive)
+    assert len(report["dispositions"]) == 73
+    assert len(raw) == 229

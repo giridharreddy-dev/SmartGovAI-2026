@@ -116,6 +116,7 @@ export default function SchemeOperations({ scheme, lang, t, checks, setCheck }) 
         {components.map(item => <section key={item.id}>
           <h4>{localized(item.title, lang)}</h4>
           <p>{localized(item.summary, lang)}</p>
+          {item.specific_rules === 'verification_pending' && <p className="operation-missing">{t('operationsMissing')}</p>}
           <a href={officialUrl(item.source_url)} target="_blank" rel="noreferrer">{t('source')}</a>
         </section>)}
       </div>

@@ -96,6 +96,9 @@ def catalog_document_lists(scheme):
 
 
 def checklist(scheme):
+    if scheme.get("canonical"):
+        from services.canonical_catalog import canonical_checklist
+        return canonical_checklist(scheme["canonical"]), scheme.get("checklist_aliases") or {}
     legacy, structured = catalog_document_lists(scheme)
     effective = {item["id"]: item for item in legacy + structured}
     aliases = scheme.get("checklist_aliases")
@@ -166,7 +169,8 @@ def apply_revisions(schemes, revisions):
         if not name or revision.lead_id in seen:
             raise ValueError(f"Unknown scheme or repeated revision lead: {revision.lead_id}")
         seen.add(revision.lead_id)
-        current = catalog[name]
+        current = dict(catalog[name])
+        had_canonical = current.pop("canonical", None) is not None
         if revision.reviewed_on < (current.get("operations_reviewed") or ""):
             raise ValueError(f"Revision for {name} predates the existing operational review")
         legacy, structured = catalog_document_lists(current)
@@ -199,4 +203,7 @@ def apply_revisions(schemes, revisions):
                 item_id for item_id in current.get("document_conflict_ids") or [] if item_id not in resolved_document_ids
             ],
         }
+        if had_canonical:
+            from services.canonical_catalog import canonicalize
+            catalog[name]["canonical"] = canonicalize(name, catalog[name])
     return catalog

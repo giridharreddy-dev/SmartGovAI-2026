@@ -54,6 +54,10 @@ def _scheme(name, scheme, root):
             recordings[language] = url_for("static", filename=asset.as_posix(), v=f"{info.st_mtime_ns:x}")
     return {
         "id": scheme["slug"],
+        "eligibility": (scheme.get("canonical") or {}).get("eligibility"),
+        "benefits": (scheme.get("canonical") or {}).get("benefits"),
+        "application_process": (scheme.get("canonical") or {}).get("application_process"),
+        "canonical": {key: value for key, value in (scheme.get("canonical") or {}).items() if key != "legacy"},
         "name": name,
         "nameTe": scheme.get("telugu_name"),
         "region": scheme.get("level") or "",
