@@ -33,7 +33,10 @@
         "required_documents": [
           {
             "id": "aadhaar-number",
-            "name": { "en": "Aadhaar number", "te": "ఆధార్ సంఖ్య" },
+            "name": {
+              "en": "Aadhaar number",
+              "te": "ఆధార్ సంఖ్య"
+            },
             "purpose": {
               "en": "Identity authentication for new online registration.",
               "te": "కొత్త ఆన్‌లైన్ నమోదుకు గుర్తింపు ధ్రువీకరణ."
@@ -42,15 +45,24 @@
           }
         ],
         "benefits": {
-          "coverage_amount": { "en": "₹6,000 per eligible family per year", "te": "అర్హత గల కుటుంబానికి ఏడాదికి ₹6,000" },
-          "coverage_type": { "en": "Farm income support", "te": "వ్యవసాయ ఆదాయ సహాయం" },
+          "coverage_amount": {
+            "en": "₹6,000 per eligible family per year",
+            "te": "అర్హత గల కుటుంబానికి ఏడాదికి ₹6,000"
+          },
+          "coverage_type": {
+            "en": "Farm income support",
+            "te": "వ్యవసాయ ఆదాయ సహాయం"
+          },
           "disbursement": {
             "en": "Three equal installments paid directly into the beneficiary's bank account.",
             "te": "లబ్ధిదారుడి బ్యాంకు ఖాతాకు మూడు సమాన వాయిదాల్లో నేరుగా జమ అవుతుంది."
           }
         },
         "application_process": {
-          "mode": { "en": "Online registration", "te": "ఆన్‌లైన్ నమోదు" },
+          "mode": {
+            "en": "Online registration",
+            "te": "ఆన్‌లైన్ నమోదు"
+          },
           "nodal_agency": {
             "en": "Department of Agriculture and Farmers Welfare",
             "te": "వ్యవసాయం, రైతు సంక్షేమ శాఖ"
@@ -1186,7 +1198,121 @@
         "assistive devices",
         "disability",
         "సహాయక పరికరాలు"
-      ]
+      ],
+      "operationsReviewed": "2026-11-05",
+      "operations": {
+        "eligibility": {
+          "target_group": {
+            "en": "Persons with benchmark disabilities needing assessed assistive devices.",
+            "te": "వైద్య అంచనా ప్రకారం సహాయక పరికరాలు అవసరమైన దివ్యాంగులు."
+          },
+          "income_ceiling": {
+            "en": "Published guidance sets monthly family income up to ₹30,000.",
+            "te": "ప్రచురించిన మార్గదర్శకాల ప్రకారం కుటుంబ నెలవారీ ఆదాయం ₹30,000 వరకు ఉండాలి."
+          },
+          "criteria": [
+            {
+              "en": "UDID or enrolment details and a disability certificate of at least 40%. Confirm device-specific conditions with the implementing agency.",
+              "te": "UDID లేదా నమోదు వివరాలు, కనీసం 40% వైకల్య ధ్రువీకరణ అవసరం. పరికరానికి వర్తించే నిబంధనలను అమలు సంస్థతో నిర్ధారించుకోండి."
+            }
+          ]
+        },
+        "required_documents": [
+          {
+            "id": "d-4e0ca20d606c68f319a9",
+            "name": {
+              "en": "UDID / disability certificate",
+              "te": "UDID / వైకల్య ధ్రువీకరణ పత్రం"
+            },
+            "purpose": {
+              "en": "UDID details with the disability certificate.",
+              "te": "వైకల్య ధ్రువీకరణ పత్రంతో UDID వివరాలు."
+            },
+            "mandatory": true
+          },
+          {
+            "id": "d-473931883e2f80eac77b",
+            "name": {
+              "en": "Aadhaar Card",
+              "te": "ఆధార్ కార్డు"
+            },
+            "purpose": {
+              "en": "Check current ARJUN e-KYC instructions.",
+              "te": "తాజా ARJUN ఈ-కేవైసీ సూచనలను చూడండి."
+            },
+            "mandatory": true
+          },
+          {
+            "id": "d-ececffbeb29cba4fb072",
+            "name": {
+              "en": "Income Certificate",
+              "te": "ఆదాయ ధ్రువీకరణ పత్రం"
+            },
+            "purpose": {
+              "en": "The FAQ allows an agency-accepted declaration or affidavit if unavailable.",
+              "te": "సర్టిఫికెట్ లేకపోతే సంస్థ అంగీకరించే ప్రకటన లేదా అఫిడవిట్‌ను FAQ అనుమతిస్తుంది."
+            },
+            "mandatory": true
+          },
+          {
+            "id": "adip-address-proof",
+            "name": {
+              "en": "Address proof",
+              "te": "చిరునామా రుజువు"
+            },
+            "purpose": {
+              "en": "Aadhaar, voter ID or ration card are examples listed in the FAQ.",
+              "te": "FAQలో ఆధార్, ఓటరు గుర్తింపు లేదా రేషన్ కార్డులను ఉదాహరణలుగా పేర్కొన్నారు."
+            },
+            "mandatory": true
+          },
+          {
+            "id": "adip-prior-assistance",
+            "name": {
+              "en": "Prior assistance declaration",
+              "te": "గత సహాయానికి సంబంధించిన ప్రకటన"
+            },
+            "purpose": {
+              "en": "Declare previous assistance for the same device.",
+              "te": "అదే పరికరానికి గతంలో పొందిన సహాయాన్ని తెలియజేయండి."
+            },
+            "mandatory": true
+          }
+        ],
+        "benefits": {
+          "coverage_type": {
+            "en": "Assessed aids and assistive devices through approved agencies.",
+            "te": "అధీకృత సంస్థల ద్వారా అంచనా వేసిన సహాయక పరికరాలు."
+          },
+          "details": [
+            {
+              "en": "Published income bands provide full or partial device-cost assistance. Device limits and assessment conditions apply.",
+              "te": "ప్రచురించిన ఆదాయ వర్గాల ప్రకారం పరికర ఖర్చుకు పూర్తి లేదా పాక్షిక సహాయం ఉంటుంది. పరికర పరిమితులు, అంచనా నిబంధనలు వర్తిస్తాయి."
+            }
+          ]
+        },
+        "application_process": {
+          "mode": {
+            "en": "ARJUN online request or an approved implementing agency.",
+            "te": "ARJUN ఆన్‌లైన్ అభ్యర్థన లేదా అధీకృత అమలు సంస్థ."
+          },
+          "nodal_agency": {
+            "en": "Department of Empowerment of Persons with Disabilities.",
+            "te": "దివ్యాంగజన సాధికారత శాఖ."
+          },
+          "official_url": "https://adip.depwd.gov.in/",
+          "steps": [
+            {
+              "en": "Use beneficiary registration on ARJUN or contact a nearby implementing agency.",
+              "te": "ARJUNలో లబ్ధిదారుల నమోదు చేయండి లేదా సమీప అమలు సంస్థను సంప్రదించండి."
+            },
+            {
+              "en": "Submit documents and complete the agency's assessment. Confirm current availability before visiting.",
+              "te": "పత్రాలు సమర్పించి సంస్థ అంచనాను పూర్తి చేయండి. వెళ్లే ముందు అందుబాటును నిర్ధారించుకోండి."
+            }
+          ]
+        }
+      }
     },
     {
       "id": "snehapoorvam",

@@ -15,6 +15,7 @@ from utils import generate_slug
 
 
 DOCUMENT_EQUIVALENTS = {
+    "disabilitycertificatesadaremudid": "udiddisabilitycertificate",
     "motherchildprotectionmcpcard": "mcpcard",
     "motherandchildprotectionmcpcard": "mcpcard",
     "bankaccountpassbookaadhaarseeded": "aadhaarlinkedbankpassbook",
@@ -90,6 +91,11 @@ def reconcile_catalog(existing, directory, v2):
         name: fill_missing(record, directory.get(name, {})) for name, record in existing.items()
     }
     for name, record in directory.items():
+        if name in existing and existing[name].get("directory_entry") and (
+            record.get("operations_reviewed", "") > existing[name].get("operations_reviewed", "")
+        ):
+            catalog[name]["operations"] = record["operations"]
+            catalog[name]["operations_reviewed"] = record["operations_reviewed"]
         if name not in existing:
             catalog[name] = record
         elif not existing[name].get("directory_entry"):

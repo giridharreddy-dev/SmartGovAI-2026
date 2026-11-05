@@ -109,3 +109,19 @@ def test_official_review_guidance_and_component_parents_are_in_master():
     dialysis = catalog["Pradhan Mantri National Dialysis Programme"]
     assert {item["id"] for item in dialysis["programme_components"]} == {"haemodialysis", "peritoneal-dialysis"}
     assert all("required_documents" not in item for item in dialysis["programme_components"])
+
+def test_reconciled_adip_has_four_bilingual_blocks_and_retains_source_claims():
+    catalog = load_master_catalog(Path(__file__).resolve().parents[1])
+    adip = catalog["Assistance to Persons with Disabilities for Purchase or Fitting of Aids and Appliances (ADIP)"]
+    assert adip["operations_reviewed"] == "2026-11-05"
+    assert adip["operations"]["eligibility"]["target_group"]["te"]
+    assert adip["operations"]["benefits"]["coverage_type"]["te"]
+    assert adip["operations"]["application_process"]["steps"][0]["te"]
+    documents, _ = checklist(adip)
+    assert len(documents) == 5
+    assert len({item["id"] for item in documents}) == 5
+    claims = [
+        claim for document in documents for claim in document.get("sources", [])
+        if claim["source"] == "v2_catalog"
+    ]
+    assert len(claims) == 6
