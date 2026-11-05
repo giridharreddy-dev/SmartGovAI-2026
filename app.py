@@ -36,6 +36,9 @@ from services.audio_service import generate_telugu_audio, generate_text_audio
 from services.chat_service import generate_chat_response, retrieve_relevant_schemes
 from services.gemini_service import is_gemini_available, simplify_document
 from services.pdf_service import extract_text_with_ocr_fallback, is_ocr_available
+from services.studio_catalog import load_master_catalog
+from services.scheme_revisions import apply_revisions, read_revisions
+from studio import make_studio
 from utils import allowed_file, safe_url, validate_pdf_content
 import threading
 from services.semantic_search import semantic_search as perform_semantic_search, index_schemes
@@ -46,6 +49,10 @@ except ImportError:
     genai_errors = None
 
 app = Flask(__name__)
+app.config.update(
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE", "0").lower() in {"1", "true", "yes"},
+)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # Configure CSRF protection
@@ -201,37 +208,17 @@ def validate_scheme(name: str, data: Dict[str, Any]) -> bool:
 
 
 @lru_cache(maxsize=1)
+def bundled_catalog():
+    return load_master_catalog(app.root_path)
+
+
+@lru_cache(maxsize=1)
 def load_schemes() -> Dict[str, Any]:
-    """Load and merge all valid scheme definitions from JSON files in the data directory."""
-    merged_schemes = {}
-    if not os.path.exists(SCHEMES_DIR):
-        logger.warning("Schemes directory '%s' does not exist.", SCHEMES_DIR)
-        return merged_schemes
-
-    for filename in sorted(os.listdir(SCHEMES_DIR)):
-        if filename.endswith(".json") and filename not in {"scheme_schema.json", "facilities.json"}:
-            filepath = os.path.join(SCHEMES_DIR, filename)
-            try:
-                with open(filepath, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    if not isinstance(data, dict):
-                        logger.error("Skipping '%s': Expected a JSON dictionary of schemes, but got %s", filename, type(data).__name__)
-                        continue
-
-                    for scheme_name, scheme_data in data.items():
-                        if validate_scheme(scheme_name, scheme_data):
-                            merged_schemes[scheme_name] = scheme_data
-                        else:
-                            logger.warning("Skipping invalid scheme '%s' in file '%s'", scheme_name, filename)
-            except (json.JSONDecodeError, OSError) as e:
-                logger.error("Failed to load or parse scheme file '%s': %s", filename, e)
-
-    # Generate slugs for all valid schemes
-    from utils import generate_slug
-    for scheme_name, scheme_data in merged_schemes.items():
-        scheme_data["slug"] = generate_slug(scheme_name)
-
-    return merged_schemes
+    """Validate the legacy portal's subset of the master catalog."""
+    return {
+        name: record for name, record in bundled_catalog().items()
+        if not record.get("directory_entry") and validate_scheme(name, record)
+    }
 
 
 # Load schemes safely
@@ -395,9 +382,19 @@ def handle_unexpected_exception(error) -> Any:
     return api_error("An unexpected error occurred.", 500, error_code="UNHANDLED_EXCEPTION")
 
 
+studio_catalog = {
+    name: row for name, row in bundled_catalog().items() if row.get("directory_entry")
+}
+studio_schemes = apply_revisions({**studio_catalog, **schemes}, read_revisions(app.root_path))
+app.register_blueprint(make_studio(app.root_path, studio_schemes, facilities_data))
+
+
+@app.route("/classic/")
 @app.route("/")
 def index() -> Any:
-    """Render the homepage with available schemes."""
+    """Open the built Studio; retain the classic app and Python-only setup."""
+    if request.path == "/" and os.path.isfile(os.path.join(app.root_path, "frontend", "dist", "index.html")):
+        return redirect(url_for("studio.index"))
     return render_template("index.html", schemes=schemes, scheme_names=scheme_names, csp_nonce=g.csp_nonce)
 
 
@@ -405,6 +402,11 @@ def index() -> Any:
 def offline() -> Any:
     """Render an offline fallback page."""
     return render_template("offline.html")
+
+
+@app.get("/classic/sw.js")
+def classic_worker():
+    return app.send_static_file("service-worker.js")
 
 
 def build_health_status() -> Dict[str, Any]:
@@ -467,8 +469,19 @@ def version() -> Any:
     })
 
 
-def catalog_chat_fallback(matched_schemes: list[Dict[str, Any]], lang: str = "te") -> str:
+def catalog_chat_fallback(matched_schemes: list[Dict[str, Any]], lang: str = "te", studio: bool = False) -> str:
     """Return a useful answer when the optional Gemini service is unavailable."""
+    if studio:
+        if not matched_schemes:
+            return ("No matching schemes in this catalog. Try a scheme name or search myScheme."
+                    if lang == "en" else "ఈ జాబితాలో సరిపోలిన పథకాలు లేవు. పథకం పేరుతో లేదా mySchemeలో వెతకండి.")
+        names = [
+            (item.get("telugu_name") or item["scheme_name"]) if lang == "te" else item["scheme_name"]
+            for item in matched_schemes
+        ]
+        heading = "Matching schemes from the directory:" if lang == "en" else "జాబితాలో సరిపోలిన పథకాలు:"
+        return heading + "\n" + "\n".join(f"• {name}" for name in names)
+
     if not matched_schemes:
         if lang == "en":
             return (
@@ -509,6 +522,8 @@ def catalog_chat_fallback(matched_schemes: list[Dict[str, Any]], lang: str = "te
 def chat() -> Any:
     """Answer scheme questions using catalog retrieval and optional Gemini grounding."""
     data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return api_error("Question must be text.", 400, error_code="INVALID_QUESTION")
     question = data.get("question", "")
     if not isinstance(question, str):
         return api_error("Question must be text.", 400, error_code="INVALID_QUESTION")
@@ -522,11 +537,12 @@ def chat() -> Any:
     raw_lang = data.get("lang", "te")
     lang = "en" if str(raw_lang).lower() == "en" else "te"
 
-    matched_schemes = retrieve_relevant_schemes(question, schemes, lang=lang)
-    answer = generate_chat_response(question, matched_schemes, lang=lang)
+    studio = data.get("catalog") == "studio"
+    matched_schemes = retrieve_relevant_schemes(question, studio_schemes if studio else schemes, lang=lang)
+    answer = generate_chat_response(question, matched_schemes, lang=lang) if matched_schemes else None
     used_ai = answer is not None
     if answer is None:
-        answer = catalog_chat_fallback(matched_schemes, lang=lang)
+        answer = catalog_chat_fallback(matched_schemes, lang=lang, studio=studio)
 
     return api_response({
         "answer": answer,
@@ -550,8 +566,7 @@ def simplify() -> Any:
         valid, result = allowed_file(file)
         if not valid:
             logger.warning(
-                "Rejected upload '%s': %s",
-                file.filename,
+                "Rejected PDF upload: %s",
                 result,
             )
             return api_error(result, 400, error_code="INVALID_FILE_TYPE")
@@ -573,36 +588,32 @@ def simplify() -> Any:
         file.seek(0)
 
         if not header.startswith(b"%PDF"):
-            logger.warning("Rejected upload: not a valid PDF according to header check: %s", safe_filename)
+            logger.warning("Rejected upload: invalid PDF header")
             return api_error("Uploaded file is not a valid PDF.", 400, error_code="INVALID_PDF")
 
         temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4()}.pdf")
-        file.save(temp_path)
-
-        # Validate page count after saving
-        pdf_valid, pdf_error = validate_pdf_content(temp_path)
-        if not pdf_valid:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-            logger.warning("PDF content validation failed for '%s': %s", safe_filename, pdf_error)
-            return api_error(pdf_error, 400, error_code="INVALID_PDF")
-
-        # Only check Gemini availability after we know the PDF itself is valid
-        if not is_gemini_available():
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-            logger.error(
-                "PDF simplification blocked: GEMINI_API_KEY is not configured",
-            )
-            return api_error(
-                "PDF simplification is currently unavailable. Please try again later.",
-                503,
-                error_code="SERVICE_UNAVAILABLE"
-            )
-
-        extract_start = time.time()
-
         try:
+            file.save(temp_path)
+
+            # Validate page count after saving
+            pdf_valid, pdf_error = validate_pdf_content(temp_path)
+            if not pdf_valid:
+                logger.warning("PDF content validation failed")
+                return api_error(pdf_error, 400, error_code="INVALID_PDF")
+
+            # Only check Gemini availability after we know the PDF itself is valid
+            if not is_gemini_available():
+                logger.error(
+                    "PDF simplification blocked: GEMINI_API_KEY is not configured",
+                )
+                return api_error(
+                    "PDF simplification is currently unavailable. Please try again later.",
+                    503,
+                    error_code="SERVICE_UNAVAILABLE"
+                )
+
+            extract_start = time.time()
+
             complex_text = extract_text_with_ocr_fallback(temp_path)
             extract_duration = time.time() - extract_start
             # Privacy-safe audit log — no raw filenames or IPs
@@ -637,7 +648,7 @@ def simplify() -> Any:
         request_id = None
 
         try:
-            ai_result = simplify_document(complex_text, scheme_name)
+            ai_result = simplify_document(complex_text, "Uploaded PDF")
             logger.info(
                 "Gemini called: scheme='%s' source='pdf'",
                 scheme_name,
@@ -707,9 +718,6 @@ def simplify() -> Any:
             )
 
 
-        audio_rel_path = generate_telugu_audio(ai_result["telugu"], scheme_name)
-        voice_url = url_for("static", filename=audio_rel_path) if audio_rel_path else None
-
         return api_response({
             "request_id": request_id,
             "scheme_name": scheme_name,
@@ -719,7 +727,8 @@ def simplify() -> Any:
             "source_url": "",
             "simplified": ai_result["simplified"],
             "telugu": ai_result["telugu"],
-            "voice_url": voice_url,
+            # PDF consent covers Gemini only. Keep narration on the device.
+            "voice_url": None,
             "privacy_notice": "PDF text was processed by Google Gemini AI for simplification.",
             "is_ai_generated": True,
         })

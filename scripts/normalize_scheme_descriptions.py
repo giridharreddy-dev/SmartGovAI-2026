@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Normalize bilingual descriptions across the current scheme catalog.
 
-This is intentionally data-driven: it processes every catalog JSON file rather
+This is intentionally data-driven: it processes the explicit master catalog rather
 than relying on the retired 36-scheme hand-maintained list. Existing non-empty
 values always win; missing values are filled from the matching localized
 sections or, for known records, an explicit curated description.
@@ -15,7 +15,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
-EXCLUDED = {"facilities.json", "scheme_schema.json"}
 
 # Phrases that look like a description but carry no scheme-specific information.
 # Matching is case-insensitive with leading/trailing whitespace and periods stripped.
@@ -70,6 +69,10 @@ def normalize(name, scheme):
     if not isinstance(scheme, dict):
         return
 
+    if "legacy" in scheme:
+        normalize(name, scheme["legacy"])
+        return
+
     telugu = scheme.setdefault("telugu", {})
     simplified = scheme.setdefault("simplified", {})
     if not isinstance(telugu, dict) or not isinstance(simplified, dict):
@@ -114,6 +117,7 @@ def inspect(data):
         if not isinstance(scheme, dict):
             incomplete.append(name)
             continue
+        scheme = scheme.get("legacy", scheme)
         telugu = scheme.get("telugu") if isinstance(scheme.get("telugu"), dict) else {}
         simplified = scheme.get("simplified") if isinstance(scheme.get("simplified"), dict) else {}
         te = text(scheme.get("telugu_description")) or text(telugu.get("description"))
@@ -126,7 +130,7 @@ def inspect(data):
 def main():
     incomplete_before = []
     updated = set()
-    files = sorted(path for path in DATA_DIR.glob("*.json") if path.name not in EXCLUDED)
+    files = [DATA_DIR / "merged_schemes.json"]
 
     for path in files:
         with path.open(encoding="utf-8") as file:

@@ -1,0 +1,17 @@
+{
+  "name": "smartgovai-citizen-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22.12"},
+  "scripts": {"build": "vite build", "test": "node --test"},
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.8",
+    "@fontsource-variable/manrope": "^5.2.8",
+    "@fontsource-variable/noto-sans-telugu": "^5.2.8",
+    "lucide-react": "^0.577.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {"vite": "^7.3.0"}
+}

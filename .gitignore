@@ -1,9 +1,13 @@
 # Database
 *.db
+*.sqlite3
+frontend/node_modules/
+frontend/.playwright-cli/
 
 # Generated audio
 # static/audio/ is tracked
 static/audio/dynamic/
+static/audio/studio/bilingual/
 
 # Virtual environments
 .venv/
@@ -12,6 +16,7 @@ myenv/
 
 # Scratch files
 scratch/
+data/studio/operation_revisions.lock
 
 # Python cache
 __pycache__/
@@ -42,6 +47,7 @@ Thumbs.db
 Desktop.ini
 
 # Python build artifacts
+.studio-search/
 dist/
 build/
 *.egg-info/

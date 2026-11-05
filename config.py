@@ -13,6 +13,7 @@ ALLOWED_EXTENSIONS = {"pdf"}
 ALLOWED_MIME_TYPES = {"application/pdf"}
 MAX_UPLOAD_SIZE = 5 * 1024 * 1024
 MAX_PDF_PAGES = int(os.getenv("MAX_PDF_PAGES", "50"))
+MAX_EXTRACTED_CHARS = int(os.getenv("MAX_EXTRACTED_CHARS", "50000"))
 
 MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "gemini-3.5-flash")
 
@@ -27,5 +28,5 @@ SERVER_HOST = os.getenv("SERVER_HOST", "0.0.0.0")
 SERVER_PORT = int(os.getenv("SERVER_PORT", "5000"))
 DEBUG_MODE = os.getenv("DEBUG_MODE", "0").lower() in {"1", "true", "yes"}
 
-DB_PATH = os.getenv("DB_PATH", os.path.join(BASE_DIR, "feedback.db"))
+DB_PATH = os.getenv("DB_PATH", "").strip() or os.path.join(BASE_DIR, "feedback.db")
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "")

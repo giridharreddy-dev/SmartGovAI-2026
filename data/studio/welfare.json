@@ -1,0 +1,1350 @@
+{
+  "reviewed": "2026-11-04",
+  "schemes": [
+    {
+      "id": "pm-kisan",
+      "sector": "agriculture",
+      "category": "Farm income",
+      "name": "PM-KISAN",
+      "publisher": "Ministry of Agriculture and Farmers Welfare",
+      "url": "https://pmkisan.gov.in/",
+      "summary": "Income support for eligible landholding farmer families. The portal has registration and beneficiary status services.",
+      "summaryTe": "అర్హత ఉన్న భూమి కలిగిన రైతు కుటుంబాలకు ఆదాయ సహాయం. నమోదు, లబ్ధిదారుల స్థితి వివరాలు పోర్టల్‌లో చూడవచ్చు.",
+      "operationsReviewed": "2026-11-05",
+      "operations": {
+        "eligibility": {
+          "target_group": {
+            "en": "Landholding farmer families with cultivable land in the relevant state or UT records.",
+            "te": "సంబంధిత రాష్ట్రం లేదా కేంద్రపాలిత ప్రాంతం భూ రికార్డుల ప్రకారం సాగుభూమి ఉన్న రైతు కుటుంబాలు."
+          },
+          "criteria": [
+            {
+              "en": "The scheme counts spouses and their minor children as one family. States and UTs identify eligible families.",
+              "te": "భార్యాభర్తలు, వారి మైనర్ పిల్లలను ఒక కుటుంబంగా పరిగణిస్తారు. అర్హులైన కుటుంబాలను రాష్ట్రాలు, కేంద్రపాలిత ప్రాంతాలు గుర్తిస్తాయి."
+            }
+          ],
+          "exclusions": [
+            {
+              "en": "Institutional landholders and specified higher economic status groups are excluded. See the official exclusions list for exceptions.",
+              "te": "సంస్థల పేరుతో భూమి ఉన్నవారు, నిర్దిష్ట అధిక ఆర్థిక స్థాయి వర్గాలు మినహాయించబడతాయి. మినహాయింపుల పూర్తి వివరాలను అధికారిక జాబితాలో చూడండి."
+            }
+          ]
+        },
+        "required_documents": [
+          {
+            "id": "aadhaar-number",
+            "name": {
+              "en": "Aadhaar number",
+              "te": "ఆధార్ సంఖ్య"
+            },
+            "purpose": {
+              "en": "Identity authentication for new online registration.",
+              "te": "కొత్త ఆన్‌లైన్ నమోదుకు గుర్తింపు ధ్రువీకరణ."
+            },
+            "mandatory": true
+          }
+        ],
+        "benefits": {
+          "coverage_amount": {
+            "en": "₹6,000 per eligible family per year",
+            "te": "అర్హత గల కుటుంబానికి ఏడాదికి ₹6,000"
+          },
+          "coverage_type": {
+            "en": "Farm income support",
+            "te": "వ్యవసాయ ఆదాయ సహాయం"
+          },
+          "disbursement": {
+            "en": "Three equal installments paid directly into the beneficiary's bank account.",
+            "te": "లబ్ధిదారుడి బ్యాంకు ఖాతాకు మూడు సమాన వాయిదాల్లో నేరుగా జమ అవుతుంది."
+          }
+        },
+        "application_process": {
+          "mode": {
+            "en": "Online registration",
+            "te": "ఆన్‌లైన్ నమోదు"
+          },
+          "nodal_agency": {
+            "en": "Department of Agriculture and Farmers Welfare",
+            "te": "వ్యవసాయం, రైతు సంక్షేమ శాఖ"
+          },
+          "official_url": "https://pmkisan.gov.in/RegistrationFormupdated.aspx",
+          "steps": [
+            {
+              "en": "Open New Farmer Registration on the official PM-KISAN portal.",
+              "te": "అధికారిక PM-KISAN పోర్టల్‌లో కొత్త రైతు నమోదు పేజీని తెరవండి."
+            },
+            {
+              "en": "Enter your Aadhaar number and continue after authentication.",
+              "te": "మీ ఆధార్ సంఖ్యను నమోదు చేసి, ధ్రువీకరణ పూర్తయిన తర్వాత కొనసాగండి."
+            }
+          ],
+          "verification": {
+            "en": "The portal authenticates Aadhaar. State and UT authorities verify eligible landholding families.",
+            "te": "పోర్టల్ ఆధార్‌ను ధ్రువీకరిస్తుంది. అర్హత గల భూయాజమాన్య రైతు కుటుంబాలను రాష్ట్ర, కేంద్రపాలిత ప్రాంత అధికారులే నిర్ధారిస్తారు."
+          }
+        }
+      },
+      "keywords": [
+        "farmer",
+        "agriculture",
+        "రైతు"
+      ]
+    },
+    {
+      "id": "pmfby",
+      "sector": "agriculture",
+      "category": "Crop insurance",
+      "name": "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
+      "publisher": "Ministry of Agriculture and Farmers Welfare",
+      "url": "https://www.pmfby.gov.in/faq",
+      "summary": "Crop insurance for notified crops and areas. Check the official portal for the applicable season, crop and enrolment rules.",
+      "summaryTe": "ప్రకటించిన పంటలు, ప్రాంతాలకు పంట బీమా. వర్తించే సీజన్, పంట, నమోదు నియమాలను అధికారిక పోర్టల్‌లో చూడండి.",
+      "keywords": [
+        "crop insurance",
+        "farmer",
+        "పంట బీమా"
+      ]
+    },
+    {
+      "id": "pmjdy",
+      "sector": "finance",
+      "category": "Bank accounts",
+      "name": "Pradhan Mantri Jan-Dhan Yojana (PMJDY)",
+      "publisher": "Department of Financial Services",
+      "url": "https://www.pmjdy.gov.in/scheme-detail.aspx",
+      "summary": "Financial inclusion programme that offers access to basic bank accounts and related banking services.",
+      "summaryTe": "ప్రాథమిక బ్యాంకు ఖాతాలు, సంబంధిత బ్యాంకింగ్ సేవలను అందుబాటులోకి తెచ్చే కార్యక్రమం.",
+      "keywords": [
+        "bank account",
+        "jan dhan",
+        "బ్యాంకు ఖాతా"
+      ]
+    },
+    {
+      "id": "pmjjby",
+      "sector": "finance",
+      "category": "Life insurance",
+      "name": "Pradhan Mantri Jeevan Jyoti Bima Yojana (PMJJBY)",
+      "publisher": "Department of Financial Services",
+      "url": "https://jansuraksha.gov.in/Rules.aspx",
+      "summary": "Life insurance offered through participating banks and post offices. Review the official rules before enrolling.",
+      "summaryTe": "పాల్గొనే బ్యాంకులు, పోస్టాఫీసుల ద్వారా జీవిత బీమా. నమోదుకు ముందు అధికారిక నియమాలను చూడండి.",
+      "keywords": [
+        "life insurance",
+        "jeevan jyoti",
+        "జీవిత బీమా"
+      ]
+    },
+    {
+      "id": "pmsby",
+      "sector": "finance",
+      "category": "Accident insurance",
+      "name": "Pradhan Mantri Suraksha Bima Yojana (PMSBY)",
+      "publisher": "Department of Financial Services",
+      "url": "https://jansuraksha.gov.in/Forms-PMSBY.aspx",
+      "summary": "Accident insurance with benefits for specified accidental death or disability. The official portal provides enrolment and claim forms.",
+      "summaryTe": "నిర్దిష్ట ప్రమాద మరణం లేదా వైకల్యానికి బీమా. నమోదు, క్లెయిమ్ దరఖాస్తులు అధికారిక పోర్టల్‌లో ఉన్నాయి.",
+      "keywords": [
+        "accident insurance",
+        "suraksha bima",
+        "ప్రమాద బీమా"
+      ]
+    },
+    {
+      "id": "apy",
+      "sector": "finance",
+      "category": "Pensions",
+      "name": "Atal Pension Yojana (APY)",
+      "publisher": "Department of Financial Services",
+      "url": "https://jansuraksha.gov.in/Forms-APY.aspx",
+      "summary": "A contributory pension programme. The official portal provides enrolment and service forms.",
+      "summaryTe": "చందాలతో నడిచే పింఛను కార్యక్రమం. నమోదు, సేవల దరఖాస్తులు అధికారిక పోర్టల్‌లో ఉన్నాయి.",
+      "keywords": [
+        "pension",
+        "atal",
+        "పింఛను"
+      ]
+    },
+    {
+      "id": "mudra",
+      "sector": "business",
+      "category": "Microenterprise finance",
+      "name": "Pradhan Mantri MUDRA Yojana (PMMY)",
+      "publisher": "Department of Financial Services",
+      "url": "https://financialservices.gov.in/pradhan-mantri-mudra-yojana-pmmy",
+      "summary": "Credit through participating lenders for eligible microenterprises. The lender assesses loan applications.",
+      "summaryTe": "అర్హత ఉన్న సూక్ష్మ వ్యాపారాలకు పాల్గొనే రుణ సంస్థల ద్వారా రుణాలు. దరఖాస్తులను రుణ సంస్థ పరిశీలిస్తుంది.",
+      "keywords": [
+        "mudra",
+        "business loan",
+        "microenterprise",
+        "వ్యాపార రుణం"
+      ]
+    },
+    {
+      "id": "pmegp",
+      "sector": "business",
+      "category": "Enterprise support",
+      "name": "Prime Minister’s Employment Generation Programme (PMEGP)",
+      "publisher": "Ministry of Micro, Small and Medium Enterprises",
+      "url": "https://pmegp.msme.gov.in/Home/",
+      "summary": "Credit-linked support for setting up eligible microenterprises. The portal provides application and programme information.",
+      "summaryTe": "అర్హత ఉన్న సూక్ష్మ వ్యాపారాలను ప్రారంభించడానికి రుణంతో అనుసంధానించిన సహాయం. దరఖాస్తు వివరాలు పోర్టల్‌లో ఉన్నాయి.",
+      "keywords": [
+        "self employment",
+        "microenterprise",
+        "స్వయం ఉపాధి"
+      ]
+    },
+    {
+      "id": "vishwakarma",
+      "sector": "business",
+      "category": "Artisan support",
+      "name": "PM Vishwakarma",
+      "publisher": "Prime Minister’s Office",
+      "url": "https://www.pmindia.gov.in/en/news_updates/on-the-occasion-of-vishwakarma-jayanti-pm-to-launch-pm-vishwakarma-for-traditional-artisans-and-craftspeople-on-17th-september-2023/",
+      "summary": "Supports eligible traditional artisans and craftspeople through measures such as training, tools and access to credit.",
+      "summaryTe": "సంప్రదాయ వృత్తుల కళాకారులకు శిక్షణ, పనిముట్లు, రుణ సదుపాయం వంటి సహాయం అందిస్తుంది.",
+      "keywords": [
+        "artisan",
+        "craft",
+        "traditional trades",
+        "చేతివృత్తులు"
+      ]
+    },
+    {
+      "id": "startup-india",
+      "sector": "business",
+      "category": "Startup support",
+      "name": "Startup India",
+      "publisher": "Department for Promotion of Industry and Internal Trade",
+      "url": "https://www.startupindia.gov.in/content/sih/en/startup-scheme.html",
+      "summary": "Government initiative with recognition and resources for eligible startups.",
+      "summaryTe": "అర్హత ఉన్న స్టార్టప్‌లకు గుర్తింపు, వనరులు అందించే ప్రభుత్వ కార్యక్రమం.",
+      "keywords": [
+        "startup",
+        "entrepreneurship",
+        "స్టార్టప్"
+      ]
+    },
+    {
+      "id": "pm-usp",
+      "sector": "education",
+      "category": "Higher education scholarships",
+      "name": "PM-USP Central Sector Scheme of Scholarship for College and University Students",
+      "publisher": "National Scholarship Portal",
+      "url": "https://scholarships.gov.in/All-Scholarships",
+      "summary": "A central scholarship for eligible college and university students. Check the current cycle and scheme rules on the National Scholarship Portal.",
+      "summaryTe": "అర్హత ఉన్న కళాశాల, విశ్వవిద్యాలయ విద్యార్థులకు కేంద్ర ఉపకార వేతనం. ప్రస్తుత దరఖాస్తు గడువు, నియమాలను అధికారిక పోర్టల్‌లో చూడండి.",
+      "keywords": [
+        "scholarship",
+        "college",
+        "university",
+        "ఉపకార వేతనం"
+      ]
+    },
+    {
+      "id": "nmmss",
+      "sector": "education",
+      "category": "School scholarships",
+      "name": "National Means-cum-Merit Scholarship Scheme (NMMSS)",
+      "publisher": "National Scholarship Portal",
+      "url": "https://scholarships.gov.in/All-Scholarships",
+      "summary": "School scholarship for eligible students selected under the means and merit rules. Check the official listing for the current cycle.",
+      "summaryTe": "ఆదాయం, ప్రతిభకు సంబంధించిన నియమాల ప్రకారం ఎంపికైన పాఠశాల విద్యార్థులకు ఉపకార వేతనం. ప్రస్తుత వివరాలను అధికారిక జాబితాలో చూడండి.",
+      "keywords": [
+        "scholarship",
+        "school",
+        "విద్యార్థి"
+      ]
+    },
+    {
+      "id": "aicte-pragati",
+      "sector": "education",
+      "category": "Technical education scholarships",
+      "name": "AICTE Pragati Scholarship Scheme",
+      "publisher": "National Scholarship Portal",
+      "url": "https://scholarships.gov.in/All-Scholarships",
+      "summary": "Scholarship listings for eligible girls in technical education. Check the applicable degree or diploma listing and application window.",
+      "summaryTe": "సాంకేతిక విద్య అభ్యసించే అర్హత ఉన్న బాలికలకు ఉపకార వేతనం. వర్తించే డిగ్రీ లేదా డిప్లొమా పథకం, గడువును అధికారిక జాబితాలో చూడండి.",
+      "keywords": [
+        "scholarship",
+        "girls",
+        "technical education",
+        "సాంకేతిక విద్య"
+      ]
+    },
+    {
+      "id": "pmay-u",
+      "sector": "housing",
+      "category": "Urban housing",
+      "name": "Pradhan Mantri Awas Yojana – Urban 2.0",
+      "publisher": "Ministry of Housing and Urban Affairs",
+      "url": "https://pmay-urban.gov.in/guideline",
+      "summary": "Housing support for eligible urban households. Check the official guidelines for the applicable component and local process.",
+      "summaryTe": "అర్హత ఉన్న పట్టణ కుటుంబాలకు గృహ సహాయం. వర్తించే విభాగం, స్థానిక దరఖాస్తు విధానాన్ని అధికారిక మార్గదర్శకాల్లో చూడండి.",
+      "keywords": [
+        "housing",
+        "urban",
+        "గృహం",
+        "ఇల్లు"
+      ]
+    },
+    {
+      "id": "pmay-g",
+      "sector": "housing",
+      "category": "Rural housing",
+      "name": "Pradhan Mantri Awaas Yojana – Gramin",
+      "publisher": "Ministry of Rural Development",
+      "url": "https://rural.gov.in/sites/default/files/PMAY-G_Suo_moto_disclosure_27012022_0.pdf",
+      "summary": "Rural housing programme for eligible households. Confirm local beneficiary selection and current implementation with the rural development office.",
+      "summaryTe": "అర్హత ఉన్న గ్రామీణ కుటుంబాలకు గృహ పథకం. స్థానిక లబ్ధిదారుల ఎంపిక, తాజా అమలు వివరాలను గ్రామీణాభివృద్ధి కార్యాలయంలో తెలుసుకోండి.",
+      "keywords": [
+        "housing",
+        "rural",
+        "గ్రామీణ గృహం",
+        "ఇల్లు"
+      ]
+    },
+    {
+      "id": "nalsa-legal-aid",
+      "sector": "law",
+      "category": "Legal aid",
+      "name": "Free Legal Aid through NALSA",
+      "publisher": "National Legal Services Authority",
+      "url": "https://nalsa.gov.in/legal-aid/",
+      "summary": "Legal assistance is available through legal services authorities for people who meet the applicable conditions. The source explains how to request help.",
+      "summaryTe": "వర్తించే అర్హతలు ఉన్నవారికి న్యాయ సేవా సంస్థల ద్వారా న్యాయ సహాయం లభిస్తుంది. సహాయం కోరే విధానం అధికారిక పేజీలో ఉంది.",
+      "keywords": [
+        "legal aid",
+        "law",
+        "న్యాయ సహాయం"
+      ]
+    },
+    {
+      "id": "witness-protection",
+      "sector": "law",
+      "category": "Witness protection",
+      "name": "Witness Protection Scheme, 2018",
+      "publisher": "Ministry of Home Affairs",
+      "url": "https://www.mha.gov.in/sites/default/files/2022-08/Documents_PolNGuide_finalWPS_08072019%5B1%5D.pdf",
+      "summary": "Framework for seeking protection where witnesses face threats. Consult the competent authority for the process applicable to a case.",
+      "summaryTe": "సాక్షులకు బెదిరింపులు ఉన్నప్పుడు రక్షణ కోరేందుకు విధానం. మీ కేసుకు వర్తించే ప్రక్రియను సంబంధిత అధికార సంస్థతో నిర్ధారించుకోండి.",
+      "keywords": [
+        "witness",
+        "safety",
+        "సాక్షి రక్షణ"
+      ]
+    },
+    {
+      "id": "inspire",
+      "sector": "science",
+      "category": "Science scholarships and research",
+      "name": "Innovation in Science Pursuit for Inspired Research (INSPIRE)",
+      "publisher": "Department of Science and Technology",
+      "url": "https://online-inspire.gov.in/Account/INSPIREProgramme",
+      "summary": "A science education and research programme with different components for students and researchers. Check the component and call relevant to you.",
+      "summaryTe": "విద్యార్థులు, పరిశోధకుల కోసం వేర్వేరు విభాగాలు ఉన్న విజ్ఞాన విద్య, పరిశోధన కార్యక్రమం. మీకు వర్తించే విభాగం, ప్రకటన చూడండి.",
+      "keywords": [
+        "science",
+        "scholarship",
+        "research",
+        "పరిశోధన"
+      ]
+    },
+    {
+      "id": "pmkvy",
+      "sector": "employment",
+      "category": "Skills training",
+      "name": "Pradhan Mantri Kaushal Vikas Yojana (PMKVY)",
+      "publisher": "Ministry of Skill Development and Entrepreneurship",
+      "url": "https://www.msde.gov.in/static/uploads/2024/02/69da04ded8551e9ff67316216374ff5e.pdf",
+      "summary": "Skills training and certification programme. Check available courses, training centres and current enrolment locally.",
+      "summaryTe": "నైపుణ్య శిక్షణ, ధ్రువీకరణ కార్యక్రమం. అందుబాటులో ఉన్న కోర్సులు, శిక్షణ కేంద్రాలు, నమోదు వివరాలు తెలుసుకోండి.",
+      "keywords": [
+        "skills",
+        "training",
+        "skill india",
+        "నైపుణ్య శిక్షణ"
+      ]
+    },
+    {
+      "id": "naps",
+      "sector": "employment",
+      "category": "Apprenticeships",
+      "name": "National Apprenticeship Promotion Scheme (NAPS)",
+      "publisher": "Ministry of Skill Development and Entrepreneurship",
+      "url": "https://www.msde.gov.in/static/uploads/2024/05/Guidelines-for-Implementation-of-National-Apprenticeship-Promotion-Scheme.pdf",
+      "summary": "Programme supporting apprenticeship training with employers. Check the current apprenticeship notice for the trade and conditions.",
+      "summaryTe": "యజమానుల వద్ద అప్రెంటిస్ శిక్షణను ప్రోత్సహించే కార్యక్రమం. వృత్తి, నియమాల కోసం తాజా అప్రెంటిస్ ప్రకటన చూడండి.",
+      "keywords": [
+        "apprenticeship",
+        "training",
+        "అప్రెంటిస్"
+      ]
+    },
+    {
+      "id": "nsap",
+      "sector": "welfare",
+      "category": "Social assistance",
+      "name": "National Social Assistance Programme (NSAP)",
+      "publisher": "Ministry of Rural Development",
+      "url": "https://rural.gov.in/sites/default/files/NSAP%20Social%20Audit%20Guidelines_english-2023_08022024.pdf",
+      "summary": "Umbrella social assistance programme covering old-age, widow and disability pensions and other components. Check local administration for applicable rules.",
+      "summaryTe": "వృద్ధాప్య, వితంతు, వైకల్య పింఛన్లు మరియు ఇతర విభాగాలు ఉన్న సామాజిక సహాయ కార్యక్రమం. వర్తించే నియమాలను స్థానిక కార్యాలయంలో తెలుసుకోండి.",
+      "keywords": [
+        "pension",
+        "disability",
+        "widow",
+        "old age",
+        "పింఛను"
+      ]
+    },
+    {
+      "id": "ntr-bharosa",
+      "sector": "welfare",
+      "category": "Andhra Pradesh pensions",
+      "name": "NTR Bharosa Pension Scheme",
+      "publisher": "Government of Andhra Pradesh",
+      "url": "https://sspensions.ap.gov.in/SSP/Home/About",
+      "summary": "Andhra Pradesh social security pension programme with multiple beneficiary categories. Consult the state portal for current categories and rules.",
+      "summaryTe": "వివిధ లబ్ధిదారుల వర్గాలకు ఆంధ్రప్రదేశ్ సామాజిక భద్రతా పింఛను పథకం. ప్రస్తుత వర్గాలు, నియమాలు రాష్ట్ర పోర్టల్‌లో చూడండి.",
+      "keywords": [
+        "andhra pradesh",
+        "pension",
+        "పింఛను"
+      ],
+      "region": "Andhra Pradesh"
+    },
+    {
+      "id": "khelo-india",
+      "sector": "sports",
+      "category": "Sports development",
+      "name": "Khelo India Scheme",
+      "publisher": "Ministry of Youth Affairs and Sports",
+      "url": "https://www.kheloindia.gov.in/about/khelo-india-scheme",
+      "summary": "Supports sports development, participation and talent pathways. Check the programme for the relevant component or event.",
+      "summaryTe": "క్రీడల అభివృద్ధి, పాల్గొనడం, ప్రతిభను ప్రోత్సహించే కార్యక్రమం. మీకు సంబంధించిన విభాగం లేదా కార్యక్రమాన్ని చూడండి.",
+      "keywords": [
+        "sports",
+        "athlete",
+        "క్రీడలు"
+      ]
+    },
+    {
+      "id": "nsdf",
+      "sector": "sports",
+      "category": "Sports support",
+      "name": "National Sports Development Fund",
+      "publisher": "Ministry of Youth Affairs and Sports",
+      "url": "https://yas.nic.in/sports/national-sports-development-fund-0",
+      "summary": "Government fund supporting sports development and high-performance needs. Check the ministry for the applicable type of support.",
+      "summaryTe": "క్రీడల అభివృద్ధి, ఉన్నత స్థాయి క్రీడా అవసరాలకు ప్రభుత్వ నిధి. వర్తించే సహాయ వివరాలను మంత్రిత్వ శాఖలో చూడండి.",
+      "keywords": [
+        "sports",
+        "fund",
+        "athlete",
+        "క్రీడలు"
+      ]
+    },
+    {
+      "id": "udan",
+      "sector": "transport",
+      "category": "Regional air connectivity",
+      "name": "UDAN Regional Connectivity Scheme",
+      "publisher": "Ministry of Civil Aviation",
+      "url": "https://www.civilaviation.gov.in/udan",
+      "summary": "A regional air connectivity programme. Travellers should check currently operating routes with airlines or airports.",
+      "summaryTe": "ప్రాంతీయ విమాన అనుసంధాన కార్యక్రమం. ప్రస్తుతం నడుస్తున్న మార్గాలను విమాన సంస్థ లేదా విమానాశ్రయంలో తెలుసుకోండి.",
+      "keywords": [
+        "flight",
+        "airport",
+        "regional connectivity",
+        "విమాన సేవలు"
+      ]
+    },
+    {
+      "id": "pm-e-drive",
+      "sector": "transport",
+      "category": "Electric mobility",
+      "name": "PM Electric Drive Revolution in Innovative Vehicle Enhancement (PM E-DRIVE)",
+      "publisher": "Ministry of Heavy Industries",
+      "url": "https://pmedrive.heavyindustries.gov.in/policy_procedure",
+      "summary": "Electric mobility programme. Check the official rules for supported vehicle categories and current conditions.",
+      "summaryTe": "విద్యుత్ వాహన వినియోగాన్ని ప్రోత్సహించే కార్యక్రమం. వర్తించే వాహన వర్గాలు, ప్రస్తుత నియమాలు అధికారిక పేజీలో చూడండి.",
+      "keywords": [
+        "ev",
+        "electric vehicles",
+        "విద్యుత్ వాహనం"
+      ]
+    },
+    {
+      "id": "swadesh-darshan",
+      "sector": "tourism",
+      "category": "Destination development",
+      "name": "Swadesh Darshan 2.0",
+      "publisher": "Ministry of Tourism",
+      "url": "https://www.tourism.gov.in/documents/guidelines/guidelines-destination-development-kTNzATMtQWa?pageTitle=Destination-Development",
+      "summary": "Programme for developing sustainable and responsible tourism destinations.",
+      "summaryTe": "సుస్థిరమైన, బాధ్యతాయుతమైన పర్యాటక ప్రాంతాలను అభివృద్ధి చేసే కార్యక్రమం.",
+      "keywords": [
+        "tourism",
+        "destination",
+        "పర్యాటకం"
+      ]
+    },
+    {
+      "id": "iitfc",
+      "sector": "tourism",
+      "category": "Tourism skills",
+      "name": "Incredible India Tourist Facilitator Certification Programme",
+      "publisher": "Ministry of Tourism",
+      "url": "https://www.tourism.gov.in/incredible-india-tourist-facilitator-certification-programme",
+      "summary": "Training and certification programme for tourist facilitators. See the ministry page for the current courses and process.",
+      "summaryTe": "పర్యాటక సహాయకులకు శిక్షణ, ధ్రువీకరణ కార్యక్రమం. ప్రస్తుత కోర్సులు, విధానాన్ని మంత్రిత్వ శాఖ పేజీలో చూడండి.",
+      "keywords": [
+        "tourism",
+        "guide",
+        "training",
+        "పర్యాటక శిక్షణ"
+      ]
+    },
+    {
+      "id": "pmuy",
+      "sector": "utility",
+      "category": "Clean cooking",
+      "name": "Pradhan Mantri Ujjwala Yojana (PMUY)",
+      "publisher": "Ministry of Petroleum and Natural Gas",
+      "url": "https://www.pmuy.gov.in/about.html",
+      "summary": "Provides access to LPG connections for eligible households under programme rules. Check the official portal for application details.",
+      "summaryTe": "పథకం నియమాల ప్రకారం అర్హత ఉన్న కుటుంబాలకు ఎల్పీజీ కనెక్షన్లు అందుబాటులోకి తెస్తుంది. దరఖాస్తు వివరాలు అధికారిక పోర్టల్‌లో చూడండి.",
+      "keywords": [
+        "lpg",
+        "cooking gas",
+        "గ్యాస్"
+      ]
+    },
+    {
+      "id": "surya-ghar",
+      "sector": "utility",
+      "category": "Rooftop solar",
+      "name": "PM Surya Ghar: Muft Bijli Yojana",
+      "publisher": "Ministry of New and Renewable Energy",
+      "url": "https://mnre.gov.in/notice/operational-guidelines-for-implementation-of-the-component-central-financial-assistance-to-residential-consumers-of-pm-surya-ghar-muft-bijli-yojana/",
+      "summary": "Residential rooftop solar programme with financial assistance under its official guidelines.",
+      "summaryTe": "అధికారిక మార్గదర్శకాల ప్రకారం నివాస గృహాల పైకప్పు సౌర విద్యుత్ ఏర్పాటుకు ఆర్థిక సహాయం అందించే కార్యక్రమం.",
+      "keywords": [
+        "solar",
+        "electricity",
+        "సౌర విద్యుత్"
+      ]
+    },
+    {
+      "id": "sbm-g",
+      "sector": "utility",
+      "category": "Rural sanitation",
+      "name": "Swachh Bharat Mission – Grameen",
+      "publisher": "Department of Drinking Water and Sanitation",
+      "url": "https://www.swachhbharatmission.ddws.gov.in/index.php/guidelines",
+      "summary": "Rural sanitation programme. Check the official guidelines or local body for the applicable component.",
+      "summaryTe": "గ్రామీణ పారిశుద్ధ్య కార్యక్రమం. వర్తించే విభాగం కోసం అధికారిక మార్గదర్శకాలు లేదా స్థానిక సంస్థను సంప్రదించండి.",
+      "keywords": [
+        "sanitation",
+        "toilet",
+        "పారిశుద్ధ్యం"
+      ]
+    },
+    {
+      "id": "mission-shakti",
+      "sector": "women",
+      "category": "Women’s safety and empowerment",
+      "name": "Mission Shakti",
+      "publisher": "Ministry of Women and Child Development",
+      "url": "https://www.wcd.gov.in/women/mission-shakti",
+      "summary": "Umbrella programme for women’s safety and empowerment. The official page describes its separate components.",
+      "summaryTe": "మహిళల భద్రత, సాధికారత కోసం వివిధ విభాగాలతో కూడిన కార్యక్రమం. అధికారిక పేజీలో వాటి వివరాలు ఉన్నాయి.",
+      "keywords": [
+        "women",
+        "safety",
+        "empowerment",
+        "మహిళలు"
+      ]
+    },
+    {
+      "id": "one-stop-centre",
+      "sector": "women",
+      "category": "Support for women affected by violence",
+      "name": "One Stop Centre Scheme",
+      "publisher": "Ministry of Women and Child Development",
+      "url": "https://www.wcd.gov.in/women/one-stop-centre-header",
+      "summary": "Centres connect women affected by violence with support services. Consult the official directory for local availability.",
+      "summaryTe": "హింసకు గురైన మహిళలకు సహాయ సేవలను అందుబాటులోకి తెచ్చే కేంద్రాలు. స్థానికంగా అందుబాటులో ఉన్న కేంద్రాలను అధికారిక జాబితాలో చూడండి.",
+      "keywords": [
+        "women",
+        "violence",
+        "support",
+        "మహిళల భద్రత"
+      ]
+    },
+    {
+      "id": "bbbp",
+      "sector": "women",
+      "category": "Girls’ education and welfare",
+      "name": "Beti Bachao Beti Padhao",
+      "publisher": "Ministry of Women and Child Development",
+      "url": "https://wcd.gov.in/women/beti-bachao-beti-padhao",
+      "summary": "Programme supporting the protection and education of girls through public awareness and coordinated action.",
+      "summaryTe": "అవగాహన, శాఖల సమన్వయం ద్వారా బాలికల రక్షణ, విద్యను ప్రోత్సహించే కార్యక్రమం.",
+      "keywords": [
+        "girls",
+        "education",
+        "బాలికల విద్య"
+      ]
+    },
+    {
+      "id": "talliki-vandanam",
+      "sector": "education",
+      "category": "School and intermediate education",
+      "name": "Talliki Vandanam",
+      "publisher": "Tirupati District, Government of Andhra Pradesh",
+      "url": "https://tirupati.ap.gov.in/intermediate-education/",
+      "summary": "Andhra Pradesh education assistance programme. The district education page describes support for intermediate students in government junior colleges.",
+      "summaryTe": "ఆంధ్రప్రదేశ్ విద్యా సహాయ కార్యక్రమం. ప్రభుత్వ జూనియర్ కళాశాలల్లో ఇంటర్మీడియట్ విద్యార్థులకు ఇచ్చే సహాయాన్ని జిల్లా విద్యా పేజీలో చూడవచ్చు.",
+      "keywords": [
+        "school",
+        "college",
+        "andhra pradesh",
+        "విద్యార్థి"
+      ],
+      "region": "Andhra Pradesh"
+    },
+    {
+      "id": "vidya-mitra",
+      "sector": "education",
+      "category": "Learning materials",
+      "name": "Sarvepalli Radha Krishnan Vidya Mitra",
+      "publisher": "Tirupati District, Government of Andhra Pradesh",
+      "url": "https://tirupati.ap.gov.in/intermediate-education/",
+      "summary": "The district lists textbooks and other learning materials for intermediate students in government junior colleges under this programme.",
+      "summaryTe": "ఈ కార్యక్రమం కింద ప్రభుత్వ జూనియర్ కళాశాలల్లో ఇంటర్మీడియట్ విద్యార్థులకు పాఠ్యపుస్తకాలు, ఇతర చదువు సామగ్రిని జిల్లా పేజీ పేర్కొంటుంది.",
+      "keywords": [
+        "textbooks",
+        "college",
+        "andhra pradesh",
+        "పాఠ్యపుస్తకాలు"
+      ],
+      "region": "Andhra Pradesh"
+    },
+    {
+      "id": "annadata-sukhibhava",
+      "sector": "agriculture",
+      "category": "Farm income",
+      "name": "Annadata Sukhibhava",
+      "publisher": "SPSR Nellore District, Government of Andhra Pradesh",
+      "url": "https://spsnellore.ap.gov.in/video/district-collector-shri-o-anand-ias-and-local-legislator-smt-vemireddy-prashanti-reddy-participated-in-the-first-phase-of-annadata-sukhibhava-p-m-kisan-2025-2026-program/",
+      "summary": "Andhra Pradesh farmer support programme. Ask the local agriculture office for the current beneficiary and application process.",
+      "summaryTe": "ఆంధ్రప్రదేశ్ రైతు సహాయ కార్యక్రమం. తాజా లబ్ధిదారుల వివరాలు, దరఖాస్తు విధానం కోసం స్థానిక వ్యవసాయ కార్యాలయాన్ని సంప్రదించండి.",
+      "keywords": [
+        "farmer",
+        "agriculture",
+        "andhra pradesh",
+        "రైతు"
+      ],
+      "region": "Andhra Pradesh"
+    },
+    {
+      "id": "rythu-bharosa",
+      "sector": "agriculture",
+      "category": "Farm investment",
+      "name": "Rythu Bharosa",
+      "publisher": "Government of Telangana",
+      "url": "https://mulugu.telangana.gov.in/scheme/rythu-bharosa-agriculture-support/",
+      "summary": "Telangana agricultural support programme for eligible farmers. The district page provides an overview and directs readers to the state portal.",
+      "summaryTe": "అర్హత ఉన్న రైతులకు తెలంగాణ వ్యవసాయ సహాయ కార్యక్రమం. జిల్లా పేజీలో పథకం వివరాలు, రాష్ట్ర పోర్టల్‌కు లింక్ ఉన్నాయి.",
+      "keywords": [
+        "farmer",
+        "telangana",
+        "agriculture",
+        "రైతు"
+      ],
+      "region": "Telangana"
+    },
+    {
+      "id": "pudhumai-penn",
+      "sector": "education",
+      "category": "Women’s higher education",
+      "name": "Pudhumai Penn Scheme",
+      "publisher": "Government of Tamil Nadu",
+      "url": "https://www.tnbudget.tn.gov.in/tnweb_files/CB%202025_2026_English.pdf",
+      "summary": "Tamil Nadu programme supporting eligible young women in higher education. Confirm the current process with the institution or the administering department.",
+      "summaryTe": "ఉన్నత విద్య చదివే అర్హత ఉన్న యువతులకు తమిళనాడు సహాయ కార్యక్రమం. తాజా విధానాన్ని విద్యాసంస్థ లేదా సంబంధిత శాఖతో నిర్ధారించుకోండి.",
+      "keywords": [
+        "college",
+        "women",
+        "tamil nadu",
+        "ఉన్నత విద్య"
+      ],
+      "region": "Tamil Nadu"
+    },
+    {
+      "id": "life-mission",
+      "sector": "housing",
+      "category": "Housing and shelter",
+      "name": "LIFE Mission",
+      "publisher": "Local Self Government Department, Kerala",
+      "url": "https://lsgd.kerala.gov.in/en/about-the-department/aligned-institutions/life-mission/",
+      "summary": "Kerala housing programme for eligible households without adequate housing. Confirm the local selection process with the administering body.",
+      "summaryTe": "తగిన గృహ వసతి లేని అర్హత ఉన్న కుటుంబాలకు కేరళ గృహ కార్యక్రమం. స్థానిక ఎంపిక విధానాన్ని సంబంధిత సంస్థతో నిర్ధారించుకోండి.",
+      "keywords": [
+        "housing",
+        "kerala",
+        "గృహం"
+      ],
+      "region": "Kerala"
+    },
+    {
+      "id": "subhadra",
+      "sector": "women",
+      "category": "Financial support for women",
+      "name": "SUBHADRA",
+      "publisher": "Department of Women and Child Development, Odisha",
+      "url": "https://wcd.odisha.gov.in/news/subhadra-flagship-scheme-welfare-women-state-guideline-english",
+      "summary": "Odisha programme providing financial support to women who meet its conditions. Check the official guidelines for rules and applications.",
+      "summaryTe": "నియమాలకు అర్హత ఉన్న మహిళలకు ఆర్థిక సహాయం అందించే ఒడిశా కార్యక్రమం. నియమాలు, దరఖాస్తుల కోసం అధికారిక మార్గదర్శకాలు చూడండి.",
+      "keywords": [
+        "women",
+        "odisha",
+        "మహిళలు"
+      ],
+      "region": "Odisha"
+    },
+    {
+      "id": "jss",
+      "sector": "employment",
+      "category": "Community training",
+      "name": "Jan Shikshan Sansthan (JSS)",
+      "publisher": "Ministry of Skill Development and Entrepreneurship",
+      "url": "https://www.msde.gov.in/static/uploads/2024/04/JSS-Schemes-Guidelines-V2.pdf",
+      "summary": "Local centres offer vocational training, with a focus on people who have limited access to formal training.",
+      "summaryTe": "ఔపచారిక శిక్షణకు తక్కువ అవకాశాలు ఉన్నవారికి స్థానిక కేంద్రాల ద్వారా వృత్తి నైపుణ్యాల శిక్షణ అందిస్తుంది.",
+      "keywords": [
+        "vocational training",
+        "skill india",
+        "వృత్తి శిక్షణ"
+      ]
+    },
+    {
+      "id": "cts",
+      "sector": "employment",
+      "category": "Trade training",
+      "name": "Craftsmen Training Scheme (CTS)",
+      "publisher": "Directorate General of Training",
+      "url": "https://dgt.gov.in/en/CTS",
+      "summary": "Industrial Training Institutes offer trade courses under this scheme. Check the official listing for trades, institutes and admission rules.",
+      "summaryTe": "ఈ పథకం కింద పారిశ్రామిక శిక్షణ సంస్థలు వివిధ వృత్తుల్లో శిక్షణ ఇస్తాయి. కోర్సులు, సంస్థలు, ప్రవేశ నియమాలను అధికారిక జాబితాలో చూడండి.",
+      "keywords": [
+        "ITI",
+        "trade",
+        "ఐటీఐ"
+      ]
+    },
+    {
+      "id": "ddu-gky",
+      "sector": "employment",
+      "category": "Rural youth training",
+      "name": "Deen Dayal Upadhyaya Grameen Kaushalya Yojana (DDU-GKY)",
+      "publisher": "Ministry of Rural Development",
+      "url": "https://kaushal.rural.gov.in/",
+      "summary": "Placement-linked vocational training for rural youth. The official portal provides information on projects and training.",
+      "summaryTe": "గ్రామీణ యువతకు ఉపాధితో అనుసంధానమైన వృత్తి శిక్షణ. ప్రాజెక్టులు, శిక్షణ వివరాలను అధికారిక పోర్టల్‌లో చూడవచ్చు.",
+      "keywords": [
+        "rural youth",
+        "jobs",
+        "గ్రామీణ యువత"
+      ]
+    },
+    {
+      "id": "pm-internship",
+      "sector": "employment",
+      "category": "Internships",
+      "name": "Prime Minister Internship Scheme",
+      "publisher": "Ministry of Youth Affairs and Sports",
+      "url": "https://mybharat.gov.in/vo/pages/event_detail?event_name=Prime-Minister-Internship-Scheme&key=580157394580",
+      "summary": "A route for eligible youth to gain workplace experience through internships. Check the programme for current application rounds.",
+      "summaryTe": "అర్హులైన యువతకు ఇంటర్న్‌షిప్‌ల ద్వారా పని అనుభవం పొందే అవకాశం. ప్రస్తుత దరఖాస్తు దశలను అధికారిక వేదికలో చూడండి.",
+      "keywords": [
+        "internship",
+        "work experience",
+        "ఇంటర్న్‌షిప్"
+      ]
+    },
+    {
+      "id": "ncs",
+      "sector": "employment",
+      "category": "Job matching",
+      "name": "National Career Service (NCS)",
+      "publisher": "Directorate General of Employment",
+      "url": "https://dge.gov.in/ncs",
+      "summary": "A government service for finding job listings, career information, counselling and job fairs.",
+      "summaryTe": "ఉద్యోగ ప్రకటనలు, వృత్తి సమాచారం, మార్గదర్శక సేవలు, ఉద్యోగ మేళాల వివరాలు తెలుసుకునే ప్రభుత్వ సేవ.",
+      "keywords": [
+        "jobs",
+        "career",
+        "ఉద్యోగాలు"
+      ]
+    },
+    {
+      "id": "sfurti",
+      "sector": "business",
+      "category": "Traditional industries",
+      "name": "Scheme of Fund for Regeneration of Traditional Industries (SFURTI)",
+      "publisher": "Ministry of Micro, Small and Medium Enterprises",
+      "url": "https://my.msme.gov.in/mymsme/Scheme.aspx",
+      "summary": "Supports traditional industry clusters through shared facilities, skills and market development.",
+      "summaryTe": "ఉమ్మడి సదుపాయాలు, నైపుణ్య శిక్షణ, మార్కెట్ అవకాశాల ద్వారా సంప్రదాయ పరిశ్రమల సమూహాలకు మద్దతు ఇస్తుంది.",
+      "keywords": [
+        "artisans",
+        "clusters",
+        "చేతివృత్తులు"
+      ]
+    },
+    {
+      "id": "aspire",
+      "sector": "business",
+      "category": "Rural enterprise",
+      "name": "A Scheme for Promotion of Innovation, Rural Industries and Entrepreneurship (ASPIRE)",
+      "publisher": "Ministry of Micro, Small and Medium Enterprises",
+      "url": "https://my.msme.gov.in/mymsme/Scheme.aspx",
+      "summary": "Supports rural entrepreneurship through incubators that provide training and help develop small enterprises.",
+      "summaryTe": "శిక్షణ, చిన్న వ్యాపారాల అభివృద్ధికి సహాయం అందించే కేంద్రాల ద్వారా గ్రామీణ వ్యాపారాలను ప్రోత్సహిస్తుంది.",
+      "keywords": [
+        "incubation",
+        "rural enterprise",
+        "గ్రామీణ వ్యాపారం"
+      ]
+    },
+    {
+      "id": "cgtmse",
+      "sector": "business",
+      "category": "Credit guarantees",
+      "name": "Credit Guarantee Scheme for Micro and Small Enterprises",
+      "publisher": "Ministry of Micro, Small and Medium Enterprises",
+      "url": "https://my.msme.gov.in/MyMsmeMob/MsmeScheme/Pages/0_2_0.html",
+      "summary": "Provides a credit guarantee to participating lenders for qualifying loans to micro and small enterprises.",
+      "summaryTe": "అర్హత గల సూక్ష్మ, చిన్న సంస్థల రుణాలకు భాగస్వామ్య రుణదాతలకు క్రెడిట్ హామీ అందిస్తుంది.",
+      "keywords": [
+        "credit guarantee",
+        "MSME",
+        "రుణ హామీ"
+      ]
+    },
+    {
+      "id": "mse-cdp",
+      "sector": "business",
+      "category": "Cluster development",
+      "name": "Micro and Small Enterprises Cluster Development Programme (MSE-CDP)",
+      "publisher": "Ministry of Micro, Small and Medium Enterprises",
+      "url": "https://www.msme.gov.in/sites/default/files/FlipbookEnglishSchemeBooklet_0.pdf",
+      "summary": "Supports common facilities and infrastructure for groups of micro and small enterprises.",
+      "summaryTe": "సూక్ష్మ, చిన్న సంస్థల సమూహాలకు ఉమ్మడి సదుపాయాలు, మౌలిక వసతులు ఏర్పాటు చేసేందుకు సహాయం అందిస్తుంది.",
+      "keywords": [
+        "clusters",
+        "MSME",
+        "చిన్న పరిశ్రమలు"
+      ]
+    },
+    {
+      "id": "wise-kiran",
+      "sector": "science",
+      "category": "Research careers",
+      "name": "Women in Science and Engineering–KIRAN (WISE-KIRAN)",
+      "publisher": "Department of Science and Technology",
+      "url": "https://dst.gov.in/scientific-programmes/wise-kiran",
+      "summary": "An umbrella programme with fellowships and other routes for women to participate in science and engineering research.",
+      "summaryTe": "మహిళలు సైన్స్, ఇంజినీరింగ్ పరిశోధనలో పాల్గొనేందుకు ఫెలోషిప్‌లు, ఇతర అవకాశాలను అందించే కార్యక్రమం.",
+      "keywords": [
+        "women in science",
+        "research",
+        "మహిళా పరిశోధకులు"
+      ]
+    },
+    {
+      "id": "nidhi-prayas",
+      "sector": "science",
+      "category": "Prototype support",
+      "name": "NIDHI-PRAYAS",
+      "publisher": "Department of Science and Technology",
+      "url": "https://nidhi.dst.gov.in/schemes-programmes/nidhiprayas/",
+      "summary": "Helps innovators develop and test prototypes through designated centres. Consult the centres for calls and requirements.",
+      "summaryTe": "నిర్దిష్ట కేంద్రాల ద్వారా ఆవిష్కర్తలు నమూనాలను తయారు చేసి పరీక్షించడానికి సహాయం అందిస్తుంది. దరఖాస్తు ప్రకటనలు, నియమాలను ఆయా కేంద్రాల్లో చూడండి.",
+      "keywords": [
+        "prototype",
+        "innovation",
+        "ఆవిష్కరణ"
+      ]
+    },
+    {
+      "id": "anrf-ecrg",
+      "sector": "science",
+      "category": "Research funding",
+      "name": "Prime Minister Early Career Research Grant (PM ECRG)",
+      "publisher": "Anusandhan National Research Foundation",
+      "url": "https://anrfonline.in/ANRF/ecrg_anrf?HomePage=New",
+      "summary": "A research grant for eligible researchers at an early stage of their careers. Consult ANRF for open calls and current criteria.",
+      "summaryTe": "వృత్తి ప్రారంభ దశలో ఉన్న అర్హులైన పరిశోధకులకు పరిశోధన నిధి. ప్రస్తుత ప్రకటనలు, అర్హత వివరాలను అధికారిక పోర్టల్‌లో చూడండి.",
+      "keywords": [
+        "research grant",
+        "ANRF",
+        "పరిశోధన నిధి"
+      ]
+    },
+    {
+      "id": "tele-law",
+      "sector": "law",
+      "category": "Legal advice",
+      "name": "Tele-Law",
+      "publisher": "Department of Justice",
+      "url": "https://www.tele-law.in/",
+      "summary": "Connects people with legal advisers for advice before going to court, including through Common Service Centres.",
+      "summaryTe": "కోర్టుకు వెళ్లే ముందు న్యాయ సలహా కోసం ప్రజలను న్యాయ సలహాదారులతో అనుసంధానిస్తుంది. ఉమ్మడి సేవా కేంద్రాల ద్వారా కూడా సేవ పొందవచ్చు.",
+      "keywords": [
+        "legal advice",
+        "CSC",
+        "న్యాయ సలహా"
+      ]
+    },
+    {
+      "id": "nyaya-bandhu",
+      "sector": "law",
+      "category": "Pro bono legal help",
+      "name": "Nyaya Bandhu",
+      "publisher": "Department of Justice",
+      "url": "https://www.doj.gov.in/static/uploads/2026/04/b915aaee940e3b0ebd8315afe2b7945c.pdf",
+      "summary": "A programme that connects eligible people with lawyers who volunteer their services.",
+      "summaryTe": "అర్హులైన వారికి స్వచ్ఛందంగా సేవ అందించే న్యాయవాదులతో పరిచయం కల్పించే కార్యక్రమం.",
+      "keywords": [
+        "pro bono",
+        "lawyer",
+        "ఉచిత న్యాయ సేవ"
+      ]
+    },
+    {
+      "id": "tops",
+      "sector": "sports",
+      "category": "Elite athlete support",
+      "name": "Target Olympic Podium Scheme (TOPS)",
+      "publisher": "Ministry of Youth Affairs and Sports",
+      "url": "https://nsdf.yas.gov.in/",
+      "summary": "Supports selected Olympic and Paralympic medal prospects with training and competition preparation.",
+      "summaryTe": "ఎంపికైన ఒలింపిక్, పారాలింపిక్ పతక అవకాశాలు ఉన్న క్రీడాకారులకు శిక్షణ, పోటీల సన్నాహాల్లో సహాయం అందిస్తుంది.",
+      "keywords": [
+        "olympics",
+        "athletes",
+        "క్రీడాకారులు"
+      ]
+    },
+    {
+      "id": "sportsperson-welfare",
+      "sector": "sports",
+      "category": "Athlete welfare",
+      "name": "Pandit Deendayal Upadhyay National Welfare Fund for Sportspersons",
+      "publisher": "Ministry of Youth Affairs and Sports",
+      "url": "https://yas.gov.in/en/sports/scheme-pandit-deendayal-upadhyay-national-welfare-fund-sportsperson-pdunwfs",
+      "summary": "Provides financial assistance for eligible sportspersons in circumstances described in the scheme guidelines.",
+      "summaryTe": "పథకం మార్గదర్శకాల్లో పేర్కొన్న పరిస్థితుల్లో అర్హులైన క్రీడాకారులకు ఆర్థిక సహాయం అందిస్తుంది.",
+      "keywords": [
+        "athlete welfare",
+        "sports",
+        "క్రీడాకారుల సంక్షేమం"
+      ]
+    },
+    {
+      "id": "prashad",
+      "sector": "tourism",
+      "category": "Pilgrimage destinations",
+      "name": "Pilgrimage Rejuvenation and Spiritual Heritage Augmentation Drive (PRASHAD)",
+      "publisher": "Ministry of Tourism",
+      "url": "https://tourism.gov.in/sites/default/files/2023-08/PRASHAD%2015th%20FC%20Scheme%20Guidelines_0.pdf",
+      "summary": "Supports development of visitor infrastructure and amenities at identified pilgrimage and heritage destinations.",
+      "summaryTe": "గుర్తించిన పుణ్యక్షేత్రాలు, వారసత్వ ప్రదేశాల్లో సందర్శకుల సదుపాయాలు, మౌలిక వసతుల అభివృద్ధికి మద్దతు ఇస్తుంది.",
+      "keywords": [
+        "pilgrimage",
+        "heritage",
+        "పుణ్యక్షేత్రాలు"
+      ]
+    },
+    {
+      "id": "cbdd",
+      "sector": "tourism",
+      "category": "Destination development",
+      "name": "Challenge Based Destination Development",
+      "publisher": "Ministry of Tourism",
+      "url": "https://tourism.gov.in/sites/default/files/2025-12/usq.1296%20for%2008.12.2025.pdf",
+      "summary": "A Swadesh Darshan component supporting selected destinations through projects to improve the visitor experience.",
+      "summaryTe": "పర్యాటకుల అనుభవాన్ని మెరుగుపరిచే ప్రాజెక్టుల ద్వారా ఎంపికైన గమ్యస్థానాలకు మద్దతు ఇచ్చే స్వదేశ దర్శన్ ఉపపథకం.",
+      "keywords": [
+        "destination",
+        "tourism",
+        "పర్యాటకం"
+      ]
+    },
+    {
+      "id": "pm-ebus",
+      "sector": "transport",
+      "category": "Urban buses",
+      "name": "PM-eBus Sewa",
+      "publisher": "Ministry of Housing and Urban Affairs",
+      "url": "https://pm-ebus-sewa.mohua.gov.in/",
+      "summary": "Helps participating cities introduce electric buses and related infrastructure for public transport.",
+      "summaryTe": "పాల్గొనే నగరాల్లో ప్రజా రవాణా కోసం విద్యుత్ బస్సులు, సంబంధిత మౌలిక వసతులు ఏర్పాటు చేయడానికి సహాయం చేస్తుంది.",
+      "keywords": [
+        "electric buses",
+        "public transport",
+        "విద్యుత్ బస్సులు"
+      ]
+    },
+    {
+      "id": "pmgsy",
+      "sector": "transport",
+      "category": "Rural roads",
+      "name": "Pradhan Mantri Gram Sadak Yojana (PMGSY)",
+      "publisher": "Maharashtra Rural Development and Panchayat Raj Department",
+      "url": "https://rdd.maharashtra.gov.in/en/scheme/pradhan-mantri-gram-sadak-yojana/",
+      "summary": "A national rural road programme that connects eligible habitations to an all-weather road network.",
+      "summaryTe": "అర్హత గల గ్రామీణ నివాస ప్రాంతాలను అన్ని కాలాల్లో ఉపయోగించగల రహదారులతో కలిపే జాతీయ కార్యక్రమం.",
+      "keywords": [
+        "rural roads",
+        "connectivity",
+        "గ్రామీణ రహదారులు"
+      ]
+    },
+    {
+      "id": "jal-jeevan",
+      "sector": "utility",
+      "category": "Rural drinking water",
+      "name": "Jal Jeevan Mission",
+      "publisher": "Department of Drinking Water and Sanitation",
+      "url": "https://jaljeevanmission.gov.in/",
+      "summary": "Supports drinking water service through household tap connections in rural areas.",
+      "summaryTe": "గ్రామీణ ప్రాంతాల్లో ఇంటింటికీ కుళాయి కనెక్షన్ల ద్వారా తాగునీటి సేవలను అందించడానికి తోడ్పడుతుంది.",
+      "keywords": [
+        "tap water",
+        "drinking water",
+        "తాగునీరు"
+      ]
+    },
+    {
+      "id": "amrut",
+      "sector": "utility",
+      "category": "Urban water services",
+      "name": "Atal Mission for Rejuvenation and Urban Transformation 2.0 (AMRUT 2.0)",
+      "publisher": "Ministry of Housing and Urban Affairs",
+      "url": "https://amrut.mohua.gov.in/",
+      "summary": "Supports urban water supply, sewerage or septage management, and improvements to water bodies through city projects.",
+      "summaryTe": "నగర ప్రాజెక్టుల ద్వారా నీటి సరఫరా, మురుగునీటి నిర్వహణ, జలాశయాల మెరుగుదలకు మద్దతు ఇస్తుంది.",
+      "keywords": [
+        "urban water",
+        "sewerage",
+        "నగర నీటి సరఫరా"
+      ]
+    },
+    {
+      "id": "gruha-jyothi-tg",
+      "sector": "utility",
+      "category": "Electricity support",
+      "name": "Gruha Jyothi",
+      "publisher": "Government of Telangana",
+      "url": "https://mulugu.telangana.gov.in/scheme/gruha-jyothi/",
+      "summary": "Provides electricity bill relief for eligible households in Telangana. Check the official page for usage and verification rules.",
+      "summaryTe": "తెలంగాణలో అర్హత గల కుటుంబాలకు విద్యుత్ బిల్లులో ఉపశమనం అందిస్తుంది. వినియోగ పరిమితి, ధ్రువీకరణ నియమాలను అధికారిక పేజీలో చూడండి.",
+      "keywords": [
+        "electricity bill",
+        "power",
+        "విద్యుత్ బిల్లు"
+      ],
+      "region": "Telangana"
+    },
+    {
+      "id": "indiramma-indlu",
+      "sector": "housing",
+      "category": "Housing assistance",
+      "name": "Indiramma Indlu",
+      "publisher": "Government of Telangana",
+      "url": "https://mulugu.telangana.gov.in/scheme/indiramma-indlu/",
+      "summary": "Supports eligible families in Telangana with housing assistance. The district source explains local requirements.",
+      "summaryTe": "తెలంగాణలో అర్హులైన కుటుంబాలకు గృహ సహాయం అందిస్తుంది. స్థానిక నియమాలను జిల్లా అధికారిక పేజీలో చూడవచ్చు.",
+      "keywords": [
+        "housing",
+        "home",
+        "గృహ సహాయం"
+      ],
+      "region": "Telangana"
+    },
+    {
+      "id": "soil-health-card",
+      "sector": "agriculture",
+      "category": "Soil testing",
+      "name": "Soil Health Card Scheme",
+      "publisher": "National Informatics Centre",
+      "url": "https://www.nic.gov.in/project/soil-health-card-portal/",
+      "summary": "Helps farmers access soil test results and recommendations on nutrients and fertilisers for their fields.",
+      "summaryTe": "రైతులు తమ పొలాల మట్టి పరీక్ష ఫలితాలు, పోషకాలు మరియు ఎరువుల వినియోగ సూచనలు తెలుసుకోవడానికి సహాయపడుతుంది.",
+      "keywords": [
+        "soil testing",
+        "fertiliser",
+        "మట్టి పరీక్ష"
+      ]
+    },
+    {
+      "id": "natural-farming",
+      "sector": "agriculture",
+      "category": "Farming practices",
+      "name": "National Mission on Natural Farming",
+      "publisher": "Prime Minister’s Office",
+      "url": "https://www.pmindia.gov.in/en/news_updates/launch-of-national-mission-on-natural-farming/",
+      "summary": "Supports adoption of natural farming through training, demonstrations and local support systems.",
+      "summaryTe": "శిక్షణ, ప్రదర్శనలు, స్థానిక సహాయ వ్యవస్థల ద్వారా ప్రకృతి వ్యవసాయ పద్ధతులను ప్రోత్సహిస్తుంది.",
+      "keywords": [
+        "natural farming",
+        "training",
+        "ప్రకృతి వ్యవసాయం"
+      ]
+    },
+    {
+      "id": "svanidhi",
+      "sector": "finance",
+      "category": "Street vendor credit",
+      "name": "PM Street Vendor’s AtmaNirbhar Nidhi (PM SVANidhi)",
+      "publisher": "Ministry of Housing and Urban Affairs",
+      "url": "https://pmsvanidhi.mohua.gov.in/",
+      "summary": "Provides working capital credit for eligible street vendors. See the scheme portal for current loan and enrolment information.",
+      "summaryTe": "అర్హత గల వీధి వ్యాపారులకు వ్యాపార నిర్వహణకు అవసరమైన రుణం అందిస్తుంది. ప్రస్తుత రుణ, నమోదు వివరాలను అధికారిక పోర్టల్‌లో చూడండి.",
+      "keywords": [
+        "street vendor",
+        "microcredit",
+        "వీధి వ్యాపారులు"
+      ]
+    },
+    {
+      "id": "vidyalaxmi",
+      "sector": "finance",
+      "category": "Education loans",
+      "name": "PM-Vidyalaxmi",
+      "publisher": "Ministry of Education",
+      "url": "https://www.education.gov.in/sites/upload_files/mhrd/files/document-reports/PM_Vidyalaxmi_Scheme_Guidelines.pdf",
+      "summary": "Helps eligible students access education loans for specified higher education institutions. Interest support has additional conditions.",
+      "summaryTe": "నిర్దేశిత ఉన్నత విద్యాసంస్థల్లో చదివే అర్హులైన విద్యార్థులకు విద్యా రుణాలు పొందడానికి సహాయపడుతుంది. వడ్డీ రాయితీకి అదనపు నియమాలు ఉన్నాయి.",
+      "keywords": [
+        "student loan",
+        "higher education",
+        "విద్యా రుణం"
+      ]
+    },
+    {
+      "id": "sukanya",
+      "sector": "finance",
+      "category": "Small savings",
+      "name": "Sukanya Samriddhi Account",
+      "publisher": "India Post",
+      "url": "https://www.indiapost.gov.in/banking-services/savings",
+      "summary": "A small savings account that a guardian can open for an eligible girl child. India Post lists account conditions and rules.",
+      "summaryTe": "అర్హత గల బాలిక పేరుతో సంరక్షకుడు తెరవగల చిన్న పొదుపు ఖాతా. ఖాతా నియమాలను భారత తపాలా శాఖ జాబితాలో చూడవచ్చు.",
+      "keywords": [
+        "small savings",
+        "girl child",
+        "బాలిక పొదుపు"
+      ]
+    },
+    {
+      "id": "yasasvi",
+      "sector": "education",
+      "category": "Scholarships",
+      "name": "PM Young Achievers Scholarship Award Scheme for Vibrant India (PM-YASASVI)",
+      "publisher": "Department of Social Justice and Empowerment",
+      "url": "https://socialjustice.gov.in/index.php/schemes/101",
+      "summary": "An umbrella scholarship scheme for eligible students from OBC, EBC and DNT communities, with separate components and criteria.",
+      "summaryTe": "ఓబీసీ, ఈబీసీ, డీఎన్‌టీ వర్గాలకు చెందిన అర్హులైన విద్యార్థుల ఉపకార వేతనాల పథకం. ప్రతి విభాగానికి వేర్వేరు నియమాలు ఉన్నాయి.",
+      "keywords": [
+        "scholarship",
+        "student",
+        "ఉపకార వేతనం"
+      ]
+    },
+    {
+      "id": "nos-social-justice",
+      "sector": "education",
+      "category": "Overseas study",
+      "name": "National Overseas Scholarship",
+      "publisher": "Department of Social Justice and Empowerment",
+      "url": "https://socialjustice.gov.in/schemes/28",
+      "summary": "Financial support for eligible candidates from specified groups to pursue postgraduate study abroad.",
+      "summaryTe": "నిర్దేశిత వర్గాలకు చెందిన అర్హులైన అభ్యర్థులు విదేశాల్లో ఉన్నత విద్యను కొనసాగించేందుకు ఆర్థిక సహాయం.",
+      "keywords": [
+        "overseas scholarship",
+        "study abroad",
+        "విదేశీ విద్య"
+      ]
+    },
+    {
+      "id": "adip",
+      "sector": "welfare",
+      "category": "Disability assistance",
+      "name": "Assistance to Persons with Disabilities for Purchase or Fitting of Aids and Appliances (ADIP)",
+      "publisher": "Department of Empowerment of Persons with Disabilities",
+      "url": "https://depwd.gov.in/en/adip-scheme/",
+      "summary": "Helps eligible persons with disabilities obtain assistive devices through approved implementing agencies.",
+      "summaryTe": "అధీకృత సంస్థల ద్వారా అర్హులైన దివ్యాంగులు సహాయక పరికరాలు పొందడానికి తోడ్పడుతుంది.",
+      "keywords": [
+        "assistive devices",
+        "disability",
+        "సహాయక పరికరాలు"
+      ],
+      "operationsReviewed": "2026-11-05",
+      "operations": {
+        "eligibility": {
+          "target_group": {
+            "en": "Persons with benchmark disabilities needing assessed assistive devices.",
+            "te": "వైద్య అంచనా ప్రకారం సహాయక పరికరాలు అవసరమైన దివ్యాంగులు."
+          },
+          "income_ceiling": {
+            "en": "Published guidance sets monthly family income up to ₹30,000.",
+            "te": "ప్రచురించిన మార్గదర్శకాల ప్రకారం కుటుంబ నెలవారీ ఆదాయం ₹30,000 వరకు ఉండాలి."
+          },
+          "criteria": [
+            {
+              "en": "UDID or enrolment details and a disability certificate of at least 40%. Confirm device-specific conditions with the implementing agency.",
+              "te": "UDID లేదా నమోదు వివరాలు, కనీసం 40% వైకల్య ధ్రువీకరణ అవసరం. పరికరానికి వర్తించే నిబంధనలను అమలు సంస్థతో నిర్ధారించుకోండి."
+            }
+          ]
+        },
+        "required_documents": [
+          {
+            "id": "d-4e0ca20d606c68f319a9",
+            "name": {
+              "en": "UDID / disability certificate",
+              "te": "UDID / వైకల్య ధ్రువీకరణ పత్రం"
+            },
+            "purpose": {
+              "en": "UDID details with the disability certificate.",
+              "te": "వైకల్య ధ్రువీకరణ పత్రంతో UDID వివరాలు."
+            },
+            "mandatory": true
+          },
+          {
+            "id": "d-473931883e2f80eac77b",
+            "name": {
+              "en": "Aadhaar Card",
+              "te": "ఆధార్ కార్డు"
+            },
+            "purpose": {
+              "en": "Check current ARJUN e-KYC instructions.",
+              "te": "తాజా ARJUN ఈ-కేవైసీ సూచనలను చూడండి."
+            },
+            "mandatory": true
+          },
+          {
+            "id": "d-ececffbeb29cba4fb072",
+            "name": {
+              "en": "Income Certificate",
+              "te": "ఆదాయ ధ్రువీకరణ పత్రం"
+            },
+            "purpose": {
+              "en": "The FAQ allows an agency-accepted declaration or affidavit if unavailable.",
+              "te": "సర్టిఫికెట్ లేకపోతే సంస్థ అంగీకరించే ప్రకటన లేదా అఫిడవిట్‌ను FAQ అనుమతిస్తుంది."
+            },
+            "mandatory": true
+          },
+          {
+            "id": "adip-address-proof",
+            "name": {
+              "en": "Address proof",
+              "te": "చిరునామా రుజువు"
+            },
+            "purpose": {
+              "en": "Aadhaar, voter ID or ration card are examples listed in the FAQ.",
+              "te": "FAQలో ఆధార్, ఓటరు గుర్తింపు లేదా రేషన్ కార్డులను ఉదాహరణలుగా పేర్కొన్నారు."
+            },
+            "mandatory": true
+          },
+          {
+            "id": "adip-prior-assistance",
+            "name": {
+              "en": "Prior assistance declaration",
+              "te": "గత సహాయానికి సంబంధించిన ప్రకటన"
+            },
+            "purpose": {
+              "en": "Declare previous assistance for the same device.",
+              "te": "అదే పరికరానికి గతంలో పొందిన సహాయాన్ని తెలియజేయండి."
+            },
+            "mandatory": true
+          }
+        ],
+        "benefits": {
+          "coverage_type": {
+            "en": "Assessed aids and assistive devices through approved agencies.",
+            "te": "అధీకృత సంస్థల ద్వారా అంచనా వేసిన సహాయక పరికరాలు."
+          },
+          "details": [
+            {
+              "en": "Published income bands provide full or partial device-cost assistance. Device limits and assessment conditions apply.",
+              "te": "ప్రచురించిన ఆదాయ వర్గాల ప్రకారం పరికర ఖర్చుకు పూర్తి లేదా పాక్షిక సహాయం ఉంటుంది. పరికర పరిమితులు, అంచనా నిబంధనలు వర్తిస్తాయి."
+            }
+          ]
+        },
+        "application_process": {
+          "mode": {
+            "en": "ARJUN online request or an approved implementing agency.",
+            "te": "ARJUN ఆన్‌లైన్ అభ్యర్థన లేదా అధీకృత అమలు సంస్థ."
+          },
+          "nodal_agency": {
+            "en": "Department of Empowerment of Persons with Disabilities.",
+            "te": "దివ్యాంగజన సాధికారత శాఖ."
+          },
+          "official_url": "https://adip.depwd.gov.in/",
+          "steps": [
+            {
+              "en": "Use beneficiary registration on ARJUN or contact a nearby implementing agency.",
+              "te": "ARJUNలో లబ్ధిదారుల నమోదు చేయండి లేదా సమీప అమలు సంస్థను సంప్రదించండి."
+            },
+            {
+              "en": "Submit documents and complete the agency's assessment. Confirm current availability before visiting.",
+              "te": "పత్రాలు సమర్పించి సంస్థ అంచనాను పూర్తి చేయండి. వెళ్లే ముందు అందుబాటును నిర్ధారించుకోండి."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "snehapoorvam",
+      "sector": "welfare",
+      "category": "Child support",
+      "name": "Snehapoorvam",
+      "publisher": "Kerala Social Security Mission",
+      "url": "https://socialsecuritymission.gov.in/snehapoorvam/",
+      "summary": "A Kerala programme offering financial support to eligible children who have lost one or both parents.",
+      "summaryTe": "తల్లిదండ్రుల్లో ఒకరిని లేదా ఇద్దరినీ కోల్పోయిన అర్హులైన పిల్లలకు ఆర్థిక సహాయం అందించే కేరళ కార్యక్రమం.",
+      "keywords": [
+        "children",
+        "financial support",
+        "పిల్లలకు సహాయం"
+      ],
+      "region": "Kerala"
+    },
+    {
+      "id": "maha-lakshmi-tg",
+      "sector": "women",
+      "category": "Women’s support",
+      "name": "Maha Lakshmi",
+      "publisher": "Government of Telangana",
+      "url": "https://suryapet.telangana.gov.in/scheme/maha-lakshmi/",
+      "summary": "The Telangana programme includes travel and household support measures for women. The official source lists the announced components.",
+      "summaryTe": "తెలంగాణలో మహిళల కోసం ప్రయాణ, గృహ అవసరాలకు సంబంధించిన సహాయ చర్యలు ఈ కార్యక్రమంలో ఉన్నాయి. ప్రకటించిన అంశాలను అధికారిక పేజీలో చూడండి.",
+      "keywords": [
+        "women",
+        "transport",
+        "మహిళలు"
+      ],
+      "region": "Telangana"
+    }
+  ]
+}

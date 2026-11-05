@@ -52,7 +52,7 @@ def test_all_schemes_have_complete_bilingual_descriptions():
 
 def test_index_page_has_global_language_toggle(client):
     """Verify index.html contains the global header language switcher and Telugu default."""
-    response = client.get("/")
+    response = client.get("/classic/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
 
@@ -73,7 +73,7 @@ def test_index_page_has_global_language_toggle(client):
 
 def test_no_per_scheme_english_details_button(client):
     """Verify that individual scheme cards do NOT have 'English Details' collapsible sections."""
-    response = client.get("/")
+    response = client.get("/classic/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
 
@@ -186,7 +186,7 @@ def test_i18n_helper_functions_defined():
 
 def test_template_staff_tools_and_voice_elements(client):
     """Verify templates/index.html includes all i18n attributes for staff tools and voice controls."""
-    response = client.get("/")
+    response = client.get("/classic/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
 

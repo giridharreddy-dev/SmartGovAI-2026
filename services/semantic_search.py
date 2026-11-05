@@ -1,13 +1,13 @@
-import json
 import logging
 import os
+
+from services.studio_catalog import CATALOG_PATH, load_legacy_catalog
 
 logger = logging.getLogger(__name__)
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_DIR = os.path.join(BASE_DIR, ".chroma_db")
-SCHEMES_DIR = os.path.join(BASE_DIR, "data")
 
 # ChromaDB is optional during test collection and in environments where the
 # vector-search dependency is not installed. The API will return a controlled
@@ -39,7 +39,7 @@ if chromadb is not None:
 
 
 def index_schemes():
-    """Read JSON scheme files and index them into ChromaDB."""
+    """Index the legacy search subset of the master catalog."""
     if collection is None:
         logger.error("ChromaDB collection is not initialized. Cannot index schemes.")
         return
@@ -49,50 +49,19 @@ def index_schemes():
     metadatas = []
     ids = []
 
-    for filename in sorted(os.listdir(SCHEMES_DIR)):
-        if not filename.endswith(".json") or filename in {"scheme_schema.json", "facilities.json"}:
-            continue
-
-        filepath = os.path.join(SCHEMES_DIR, filename)
-        try:
-            with open(filepath, "r", encoding="utf-8") as file:
-                data = json.load(file)
-
-            if isinstance(data, dict):
-                for name, details in data.items():
-                    details = details if isinstance(details, dict) else {}
-                    simplified = details.get("simplified", {})
-                    simplified = simplified if isinstance(simplified, dict) else {}
-                    documents.append(
-                        f"Title: {name}\nCategory: {details.get('category', '')}\n"
-                        f"Description: {simplified.get('description', '')}\n"
-                        f"Benefits: {simplified.get('benefits', '')}"
-                    )
-                    metadatas.append({
-                        "source": filename,
-                        "scheme_name": name,
-                        "category": details.get("category", ""),
-                    })
-                    ids.append(name.replace(" ", "_"))
-            elif isinstance(data, list):
-                for item in data:
-                    if not isinstance(item, dict) or not item.get("title"):
-                        continue
-                    name = item["title"]
-                    tags = item.get("tags", [])
-                    tags = ", ".join(tags) if isinstance(tags, list) else tags
-                    documents.append(
-                        f"Title: {name}\nTags: {tags}\nDescription: {item.get('description', '')}"
-                    )
-                    metadatas.append({
-                        "source": filename,
-                        "scheme_name": name,
-                        "link": item.get("link", ""),
-                        "category": "Health & Wellness",
-                    })
-                    ids.append(name.replace(" ", "_"))
-        except Exception:
-            logger.exception("Error indexing %s", filename)
+    for name, details in load_legacy_catalog(BASE_DIR).items():
+        simplified = details.get("simplified") or {}
+        documents.append(
+            f"Title: {name}\nCategory: {details.get('category', '')}\n"
+            f"Description: {simplified.get('description', '')}\n"
+            f"Benefits: {simplified.get('benefits', '')}"
+        )
+        metadatas.append({
+            "source": CATALOG_PATH.name,
+            "scheme_name": name,
+            "category": details.get("category", ""),
+        })
+        ids.append(name.replace(" ", "_"))
 
     if documents:
         try:
